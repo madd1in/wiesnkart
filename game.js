@@ -358,6 +358,13 @@ function coasterRoll(d,out=_rax){out.L=0;out.A=0;const c=coasterAt(d);if(!c)retu
  const ba=c.bankArr;if(ba){const i=Math.max(0,Math.min(ba.length-2,x|0)),f=clamp(x-i,0,1),b=(ba[i]+(ba[i+1]-ba[i])*f)*bankEnvelope(c.spec,x);
   if(Math.abs(b)>1e-5){ph+=b;out.L=bankAxis(b);return ph;}}
  out.A=_tw.axis;return ph;}
+// R50 Kamera-Anteil der Achterbahn-Rolle: Steilkurven-Neigung zu 40 %, Schrauben laufen verzoegert, aber ganz mit
+// (s^2,32 - in der Mitte ~40 % wie bisher). Mit festen 40 % stand die Kamera nach einer 360-Grad-Schraube bei 144 Grad:
+// kopfueber und unter der Bahn, bis die Zone endete (Drachen-Spirale der Magnet-Kirmes, Nutzerhinweis).
+function coasterCamRoll(d){const c=coasterAt(d);if(!c)return 0;const x=lapDist(d-c.s);let ph=0;
+ for(const r of c.spec.rolls||[]){const u=(x-(r.c-r.w))/(2*r.w);if(u>0)ph+=r.sgn*r.turns*TAU*Math.pow(sstep(u),2.32);}
+ const ba=c.bankArr;if(ba){const i=Math.max(0,Math.min(ba.length-2,x|0)),f=clamp(x-i,0,1);ph+=.4*(ba[i]+(ba[i+1]-ba[i])*f)*bankEnvelope(c.spec,x);}
+ return ph;}
 // Gesamte Rolle einer Stelle (Rollzone + Achterbahn) - fuer Kart, Kamera, Leitplanken
 const rollTot=d=>(agrav.length?rollAt(d):0)+(coasters.length?coasterRoll(d,_rax2):0);
 // Magnetbahn allgemein: Rollzone, Looping oder Achterbahn - dort haelt die Bahn, daneben ist nichts
@@ -936,8 +943,9 @@ function buildRails(){const list=[],ds=2;
  const scan=(test,kind,sides)=>{let a=-1,sd=0;for(let d=0;d<=length+ds;d+=ds){const s=test(d),ok=s!==0&&!railBlocked(d,s);if(ok&&a<0){a=d;sd=s;}else if(a>=0&&(!ok||s!==sd)){if(d-a>6)for(const x of sides(sd))list.push({d0:a-8,d1:d+8,side:x,kind});a=ok?d:-1;sd=s;}}};
  // Flow (R39): Planken schon ab 65 m Kurvenradius und beidseitig in jeder Landezone - wer nach
  // einem Sprung in die Kurve kommt, gleitet an der Planke entlang statt ins Gras zu fliegen
- scan(d=>{const k=trackAt(d).kap;return Math.abs(k)>1/65?(k>0?-1:1):0;},'corner',s=>[s]);
- scan(d=>ramps.some(rp=>{const a=wrapDiff(d,rp.end);return a>4&&a<48;})&&!inGap(d)?1:0,'high',()=>[-1,1]);
+ // R50 Offene Welt: keine Kurven- und Landeplanken - die Wiese neben der Strasse ist frei befahrbar
+ if(!course.openWorld){scan(d=>{const k=trackAt(d).kap;return Math.abs(k)>1/65?(k>0?-1:1):0;},'corner',s=>[s]);
+ scan(d=>ramps.some(rp=>{const a=wrapDiff(d,rp.end);return a>4&&a<48;})&&!inGap(d)?1:0,'high',()=>[-1,1]);}
  scan(d=>raiseH(d)>2&&!inGap(d)?1:0,'high',()=>[-1,1]);
  scan(d=>inTunnel(d)?1:0,'high',()=>[-1,1]);
  scan(d=>hasMag(d)?1:0,'high',()=>[-1,1]);
@@ -1388,7 +1396,7 @@ function buildOW(){const fx={switches:[],portals:[],slaloms:[],ringMs:[],coins:n
   const lab=labelPlane(tc.icon+' '+tc.name,'PORTAL · '+tc.kind.split('·')[0].trim(),'#'+new T.Color(col).getHexString());lab.position.set(0,11.2,0);g.add(lab);
   // leuchtender Portalschleier
   const veil=new T.Mesh(new T.PlaneGeometry(16,7.5),new T.MeshBasicMaterial({color:col,transparent:true,opacity:.18,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending}));veil.position.set(0,4.2,0);g.add(veil);
-  fx.portals.push({d,ti,veil,cool:0});}
+  fx.portals.push({d,ti,veil,lab,cool:0});}
  // P-Schalter: Sockel und Kappe (Kappe wird beim Ueberfahren gestaucht)
  const baseSrc=owPart('EL_PSwitch'),capSrc=owPart('EL_PSwitchCap');
  for(const [cp,off,id] of course.pswitch||[]){const d=cpDist(cp),p=posAt(d,off,0,new T.Vector3()),g=new T.Group();g.position.copy(p);g.rotation.y=sample(d,0).angle;world.add(g);
@@ -1442,6 +1450,8 @@ function owRingHit(ring){const fx=owFx;if(!fx)return;const rm=fx.ringMs.find(x=>
  if(ringsHit(rm.m,ring.ri)){if(rm.m.state==='done')owComplete(rm.m.id,'RINGFLUG');else fx.msg=`Ringflug ${rm.m.got.size}/${rm.m.count}`;owHud();}}
 const _cm=new T.Matrix4(),_cq=new T.Quaternion(),_cv=new T.Vector3(),_cs=new T.Vector3(1,1,1);
 function updateOW(dt){const fx=owFx,p=racers[0];if(!fx||!p)return;const t=elapsed,d=lapDist(p.distance);
+ // R50: Portal-Schleier und Namensschild blenden beim Heranfahren aus - sie verdeckten die Sicht auf die Strasse
+ for(const pt of fx.portals){const k=clamp((Math.abs(wrapDiff(pt.d,d))-8)/32,0,1);pt.veil.material.opacity=.18*k;pt.veil.visible=k>.02;if(pt.lab)pt.lab.material.opacity=.12+.88*k;}
  if(fx.hunt){const H=fx.hunt;H.list.forEach((c,i)=>{const on=!H.got.has(i);if(on&&Math.hypot(p.x-c.x,p.z-c.z)<2.8&&(p.y||0)<4){H.got.add(i);store.set('owHunt',[...H.got]);SFX.spore(H.got.size);burst(p,0xffd23f,10);
    toast(`MÜNZJAGD ${H.got.size}/${H.list.length}`,1,'good');if(H.got.size>=H.list.length)owComplete('hunt','Münzjagd');}
   _e.set(0,t*2.2+i,0);_q.setFromEuler(_e);_m.compose(_v.set(c.x,1.5+Math.sin(t*2.4+i)*.25,c.z),_q,_s.setScalar(on?1.7:0));H.im.setMatrixAt(i,_m);});H.im.instanceMatrix.needsUpdate=true;}
@@ -2308,11 +2318,24 @@ function setSound(){soundOn=!soundOn;if(soundOn)audioInit();if(engine)engine.g.g
 
 // ---------------------------------------------------------------- Spielablauf
 function newStats(){return {sunBoosts:0,megaSquash:0,inkBest:0,cowHits:0,twisterHits:0,trainHits:0,grabs:0,squashed:0,meteorHits:0,beatBoosts:0,rocket:0,mt:{mini:0,super:0,ultra:0},maxCombo:0,drafts:0,tricks:0,rings:0,precisionRings:0,airtime:0,coasters:0,hitsDealt:0,hitsTaken:0,overtakes:0,bestLap:Infinity,lapStart:0,falls:0,bumps:0,maxSpores:0};}
+// R50: three.js bewertet das Shader-Programm neu, sobald ein Material abwechselnd fuer instanzierte und normale Meshes
+// oder mit wechselndem receiveShadow gezeichnet wird - auf dem Handy kostete das bei jedem Zeichenaufruf CPU.
+// Instanzierte Nutzer gemeinsamer Modell-Materialien bekommen eine feste Kopie (bleibt ueber Neuaufbauten gleich);
+// ohne Schatten (Leicht-Modus) empfangen alle Meshes einheitlich "Schatten" (sieht gleich aus, kein Wechsel mehr).
+const MAT_SPLIT=new WeakMap();
+function splitSharedMaterials(root){
+ if(LITE)root.traverse(o=>{if(o.isMesh)o.receiveShadow=true;});
+ const plain=new Set(),inst=new Set();
+ root.traverse(o=>{if(!o.isMesh||!o.material)return;for(const m of [].concat(o.material))if(m)(o.isInstancedMesh?inst:plain).add(m);});
+ root.traverse(o=>{if(!o.isInstancedMesh||!o.material)return;let ch=false;
+  const mats=[].concat(o.material).map(m=>{const keep=sharedMat.has(m)||persistentMats.has(m);if(!m||!plain.has(m)||!inst.has(m)||m.isShaderMaterial||!keep)return m;
+   let alt=MAT_SPLIT.get(m);if(!alt){alt=m.clone();alt.name=m.name;alt.onBeforeCompile=m.onBeforeCompile;alt.customProgramCacheKey=m.customProgramCacheKey;MAT_SPLIT.set(m,alt);sharedMat.add(alt);persistentMats.add(alt);}ch=true;return alt;});
+  if(ch)o.material=Array.isArray(o.material)?mats:mats[0];});}
 function start(){wxRestore();if(gp.active)selected=gp.race;worldMode=mode==='world'&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();finishMusicAt=0;playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
- toast(`${course.name} · ${isTT()?'Zeitfahren':cc+'cc'}${raceMirror?' · 🪞 Spiegel':''}`,2.2);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8);},2400);}if(coarseInput){wantFs=true;enterFs();}}
+ splitSharedMaterials(scene);toast(`${course.name} · ${isTT()?'Zeitfahren':cc+'cc'}${raceMirror?' · 🪞 Spiegel':''}`,2.2);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8);},2400);}if(coarseInput){wantFs=true;enterFs();}}
 function home(){wxRestore();document.body.classList.remove('mirror');raceMirror=false;owPortalHide();setAmbience(false);gp.active=false;state='menu';keys.clear();buildCourse();for(const id of ['hud','touch','pause','pausePanel','result','ceremony'])$(id).hidden=true;$('menu').hidden=false;setText('message','');document.body.classList.remove('racing','cer');if(engine)engine.g.gain.value=0;SFX.hum(false);stopVoice();finishMusicAt=0;playBgm('menu');refreshMenu();}
 let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$('pausePanel').hidden=true;}else if(state==='race'||state==='countdown'){beforePause=state;state='paused';keys.clear();$('pausePanel').hidden=false;stopVoice();}if(engine)engine.g.gain.value=soundOn&&state==='race'?.011:0;}
 function use(){if(state!=='race')return;useItem(racers[0]);}
@@ -2416,7 +2439,7 @@ function update(dt){
   if(me&&!autopilot){const target=(raceMirror?-1:1)*steering(),rate=(Math.sign(target)!==Math.sign(r.steerS||0)&&target!==0)?11:7;r.steerS=(r.steerS||0)+clamp(target-(r.steerS||0),-dt*rate,dt*rate);
    let st=r.steerS,gas=(autoGas||gasHeld||oh.on)&&r.stall<=0;
    let brk=held('ArrowDown')||held('KeyS');
-   if(assistOn&&!r.driftDir&&r.stun<=0){st=clamp(st+steerAssist(r)*(1-.55*Math.abs(st)),-1,1);const top=assistTop(r);if(r.boost<=0&&r.speed>top+1.5)gas=false;if(r.speed>top+5)brk=true;}
+   if(assistOn&&!r.driftDir&&r.stun<=0&&!(worldMode&&Math.abs(r.offset)>7.5)){st=clamp(st+steerAssist(r)*(1-.55*Math.abs(st)),-1,1);const top=assistTop(r);if(r.boost<=0&&r.speed>top+1.5)gas=false;if(r.speed>top+5)brk=true;}
    input={gas,brake:brk,steer:st,drift:driftKey};}
   else{input=aiInput(r,dt);r.steerS=(r.steerS||0)+(input.steer-(r.steerS||0))*Math.min(1,dt*8);}
   // Steckenbleib-Schutz: wer mit Gas laenger als 1,6 s fast steht, wird auf die Strecke gesetzt
@@ -2770,7 +2793,7 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  const lq=loops.length?loopAt(p.distance):null;
  // R44: Achterbahn-Twists drehen die Kamera nur zu 40 % mit (Horizont bleibt ruhiger), und die Kamera-Rolle ist auf
  // 3,2 rad/s begrenzt - schnelle Spiralen drehten das Bild vorher mit bis zu 15 rad/s
- const rl=(agrav.length?rollAt(p.distance):0)+(coasters.length?coasterRoll(p.distance,_rax2)*.4:0);
+ const rl=(agrav.length?rollAt(p.distance):0)+(coasters.length?coasterCamRoll(p.distance):0);
  // Gewicht fuer die Bahnkamera: der Sichthub der Rollzone faehrt ohnehin weich hoch und runter
  // Achterbahn (R38): ab ein paar Metern Hoehe setzt sich die Kamera ebenfalls auf die Bahn hinter
  // dem Kart - sonst schneidet sie an Kuppe und Abfahrt durch den Huegel.
