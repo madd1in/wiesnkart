@@ -3328,7 +3328,7 @@ if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,oh:()=>({...oh,
  loops:()=>loops.map(q=>({...q,s:Math.round(q.s),span:Math.round(q.span),R:Math.round(q.R)})),
  coasters:()=>coasters.map(c=>({s:Math.round(c.s),span:Math.round(c.span),kind:c.spec.kind,launch:c.spec.launch.map(Math.round),hills:c.spec.hills.map(q=>({c:Math.round(q.c),w:Math.round(q.w),h:+q.h.toFixed(1)})),arches:c.archX.map(Math.round),assets:{arch:!!P.magnetarch,truss:!!P.coastertruss},glow:!!coasterGlow})),
  // Videoaufnahme (R38): Bilder im festen Takt selbst weiterschalten (rAF-Schleife ruht bei dbg.manual)
- step:(n=2,dt=1/60)=>{for(let i=0;i<n-1;i++){update(dt);animateWorld(dt,performance.now());}frameStep(dt,performance.now());},
+ step:(n=2,dt=1/60)=>{for(let i=0;i<n-1;i++){update(dt);animateWorld(dt,performance.now());updateCamera(dt);}frameStep(dt,performance.now());},
  audio:()=>{armAudio();audioInit();return {ctx,masterGain};},
  coasterH:d=>coasterH(d),ridePhoto:()=>ridePhoto?ridePhoto.length:0,ridePhotoURL:()=>ridePhoto,coasterRun:()=>racers.map(r=>({id:r.id,run:r.czRun?{arch:r.czRun.arch,air:r.czRun.airHills,maxOff:+r.czRun.maxOff.toFixed(2),launched:r.czRun.launched}:null,g:r.czG,float:r.czFloat,vis:r.czVis,speed:r.speed})),
  // Standbild an beliebiger Stelle: Spieler auf Streckenmeter d setzen, Kamera einrasten, rendern

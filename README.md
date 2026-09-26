@@ -21,6 +21,11 @@ Live: https://madd1in.github.io/mushroom-rally/
   wechselndem Schattenempfang) gezeichnet wurden, liessen three.js bei jedem Zeichenaufruf das Shader-Programm neu
   bewerten; instanzierte Nutzer bekommen jetzt eine feste Kopie, im Leicht-Modus empfangen alle Meshes einheitlich.
 - 110/110 Tests; Autopilot-Rennen auf allen 7 Strecken ohne Fehler.
+- **Update-Video** media/r51_tux_wetter.mp4 (48 s, Hochformat, mit Ton; klein: _small, 8,6 MB): Tux in der
+  Frontkamera, Gewitter bei Nacht, UFO in der Daemmerung, Schnee mit Polarlicht, Sonnen-Turbos, Drachen-Spirale,
+  offenes Pilzland (art/r51/capture_frames.mjs -> prune_events.py -> edit_video_blender.py; Post-Texte in
+  media/social-texte-r51.md). Der Test-Hook `rallyTest.step` fuehrt die Kamera jetzt bei jedem Physikschritt nach -
+  vorher hing sie in Aufnahmen doppelt so weit hinter dem Kart wie im echten Spiel.
 
 ## Runde 50 (26.09.2026): Wetter und Tageszeit von Runde zu Runde, Controller, HUD-Feinschliff
 

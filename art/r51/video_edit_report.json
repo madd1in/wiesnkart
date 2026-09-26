@@ -1,0 +1,57 @@
+{
+  "container": "MPEG4",
+  "codec": "H264",
+  "audio": "AAC",
+  "frames": 1455,
+  "events": 11,
+  "placed": [
+    [
+      3.167,
+      "moo.wav"
+    ],
+    [
+      7.667,
+      "thunder.wav"
+    ],
+    [
+      13.233,
+      "boost.wav"
+    ],
+    [
+      14.7,
+      "whirl.wav"
+    ],
+    [
+      20.133,
+      "moo.wav"
+    ],
+    [
+      26.133,
+      "sun.wav"
+    ],
+    [
+      27.967,
+      "boost.wav"
+    ],
+    [
+      31.7,
+      "trick.wav"
+    ],
+    [
+      34.733,
+      "ring.wav"
+    ],
+    [
+      35.133,
+      "trick.wav"
+    ],
+    [
+      35.567,
+      "ring.wav"
+    ]
+  ],
+  "seconds": 48.5,
+  "small_kbps": 1383,
+  "big_bytes": 48567123,
+  "small_bytes": 8596678
+}
