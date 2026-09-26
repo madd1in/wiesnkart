@@ -4,6 +4,24 @@ Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser, gebaut am 13.09.2026.
 
 Live: https://madd1in.github.io/mushroom-rally/
 
+## Runde 51 (26.09.2026): Tux als Fahrer, Drachen-Spirale, offeneres Pilzland, Handy-Leistung
+
+- **Tux, der Linux-Pinguin, faehrt mit** (fuenfte Figur, eigener Entwurf, art/r51/create_penguin.py ->
+  assets/driver_penguin.glb): schwarzer Tropfenkoerper, weisser Bauch, gelber Schnabel und Plattfuesse, Flossen am
+  Lenkrad, Rennschal mit wehenden Enden und Rennbrille auf der Stirn - Schal und Brillenband in der Teamfarbe.
+  Kart "Kernel-Kufe": rutscht wie auf Eis (Grip 0,95), dafuer schnell (Tempo 1,05) und driftfreudig. Im Menue waehlbar,
+  in jedem Rennen faehrt ein KI-Tux (Nori) mit.
+- **Drachen-Spirale (Magnet-Kirmes):** die Kamera drehte in Achterbahn-Schrauben fest zu 40 % mit - nach einer vollen
+  360-Grad-Schraube stand sie bei 144 Grad, also kopfueber unter der Bahn, bis die Zone endete. Jetzt laeuft sie
+  verzoegert, aber ganz mit (in der Mitte weiter ~40 %) und steht am Ende jeder Schraube aufrecht ueber der Bahn.
+- **Pilzland offener:** keine Kurven- und Landeplanken mehr, die Lenkhilfe greift nur noch auf der Strasse (vorher
+  zog sie das Kart aus 40 m Entfernung zurueck) - die Wiesen sind frei befahrbar. Portal-Schleier und Namensschilder
+  blenden beim Heranfahren aus und verdecken die Strasse nicht mehr.
+- **Handy-Leistung:** Modell-Materialien, die sowohl fuer instanzierte als auch fuer normale Meshes (oder mit
+  wechselndem Schattenempfang) gezeichnet wurden, liessen three.js bei jedem Zeichenaufruf das Shader-Programm neu
+  bewerten; instanzierte Nutzer bekommen jetzt eine feste Kopie, im Leicht-Modus empfangen alle Meshes einheitlich.
+- 110/110 Tests; Autopilot-Rennen auf allen 7 Strecken ohne Fehler.
+
 ## Runde 50 (26.09.2026): Wetter und Tageszeit von Runde zu Runde, Controller, HUD-Feinschliff
 
 **Wetter und Tageszeit wechseln von Runde zu Runde** (weather.mjs, 12 Unit-Tests): jedes Rennen bekommt einen
