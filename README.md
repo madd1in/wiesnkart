@@ -26,6 +26,20 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
 - Neuer Erfolg "Halfpipe-Held" (3 Halfpipe-Tricks in einem Rennen) - jetzt 33. Autopilot-Rennen Kirmes und
   Pilzland ohne Sturz und ohne Fehler; 120/120 Tests.
 
+**Nachschliff (Teil 4):**
+- **Fehler behoben - Strecken-Cache:** vorgebaute Strecken werden aus einem Cache geladen; dabei fehlten die neuen
+  Halfpipe-Zonen, die Randstreifen-Tabelle (wo die Auslaufzone als Fahrbahn zaehlt) und die Weltgroesse. Nach Kirmes
+  oder Pilzland hatte die Pilz-Promenade unsichtbare Halfpipe-Zonen (Kart fiel auf 17 km/h), nach dem Vorbauen im
+  Menue galt der Randstreifen der zuletzt gebauten Strecke. Ein Test prueft jetzt, dass jede in buildWorld gesetzte
+  Variable mit in den Cache geht.
+- **Halfpipe:** eine Reihe Sporen schwebt 2,4 m ueber jeder Lippe - wer abhebt, sammelt auf dem Weg hinauf und
+  hinunter (im Test 3 je Air). Funken von der Metallkante beim Absprung, Aufsetz-Geraeusch, Absprung-Sound auch fuer
+  KI in der Naehe; auf der Minikarte ein eigenes rosa Band; keine Reifenspuren mehr hinter der Pipe im Gras.
+- **Bildblitz** hoechstens halbweiss (Gewitterwolken-Treffer war 70 %); mit "Bewegung reduzieren" im System nur ein
+  Viertel davon, ebenso Blitz-Aufhellung und Kamerawackeln.
+- **Siegerehrung:** "ERFOLG: Grand-Prix-Sieger" lag hinter der Ergebniskarte - jetzt darueber im freien Bereich.
+- **Menue quer:** die Garage-Zeilen verteilen sich ueber die ganze Hoehe (kein leerer Streifen mehr).
+
 **Minimal-HUD hochkant** (Handy, Nutzerwunsch "Anzeige im Rennen zu voll"): im Rennen stehen nur noch Platz (oben
 links, kompakt), Runde als kleine Pille (🏁 1/3), Pause-Knopf, Item-Blase darunter, Einblendungen und ein duenner
 Drift-Balken unten. Zeit, Wetterleiste, Rivalen-Schild, Sporen, Tempo, Minikarte sowie Ton-, Vollbild- und

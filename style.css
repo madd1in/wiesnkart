@@ -1065,6 +1065,8 @@ body #menu #modes button b{white-space:nowrap}
  body #menu .menu-picks{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:5px 9px}
  body #menu .menu-picks .pick:nth-child(n){display:contents}
  body #menu .menu-picks .pick:nth-child(n)>small{justify-self:start;align-self:center}
+ /* Zeilen ueber die ganze Hoehe verteilen - vorher blieb unter "Grafik" ein leerer Streifen bis zu den Chips */
+ body #menu .menu-picks{align-self:stretch;align-content:space-evenly}
  body #menu .menu-picks .pick>div{min-width:0}
  body #menu #colors{grid-template-columns:repeat(5,20px);gap:4px 5px}
  body #menu #modes button{padding-left:3px;padding-right:3px}body #menu #modes button b{font-size:12.5px}
@@ -1179,3 +1181,8 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin #owPanel{top:calc(64px + env(safe-area-inset-top,0px));padding:5px 10px 6px}
  body.hudmin #owPanel span{font-size:18px}
 }
+/* R52: Siegerehrung - "ERFOLG: Grand-Prix-Sieger" lag hinter der Ergebniskarte (quer/Desktop halb, hochkant ganz).
+   Jetzt ueber der Karte: breit mittig im freien Bereich links davon, hochkant oben zwischen Kopfleiste und Karte. */
+body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw - 470px);font-size:28px;top:max(18%,120px)}
+@media (pointer:coarse) and (orientation:landscape){body.cer #toast{left:calc((100vw - 352px) / 2);max-width:calc(100vw - 380px);font-size:20px;top:calc(60px + env(safe-area-inset-top,0px))}}
+@media (max-width:760px) and (orientation:portrait){body.cer #toast{left:50%;max-width:calc(100vw - 24px);font-size:19px;top:calc(62px + env(safe-area-inset-top,0px));-webkit-text-stroke:5px var(--mk-ink)}}

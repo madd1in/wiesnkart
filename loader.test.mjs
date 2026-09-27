@@ -40,3 +40,15 @@ for(const succeeds of [true,false])test(`GLB retry chain ${succeeds?'recovers on
  assert.equal(attempts,3);assert.deepEqual(delays,[1200,1200]);assert.equal(progress,1);assert.equal(marked,succeeds?1:0);
  if(succeeds)assert.equal(p.gate.asset,'assets/gate.glb');else assert.equal(p.gate,null);
 });
+// R52: loadCourse stellt eine vorgebaute Strecke aus dem Cache wieder her. Fehlte dort eine pro Strecke gesetzte
+// Variable, galt nach einem Streckenwechsel die der zuletzt gebauten (Halfpipe-Zonen der Kirmes auf der Pilz-Promenade,
+// Randstreifen-Tabelle, Weltgroesse des Pilzlands). Jede in buildWorld neu gesetzte Variable muss mit in den Cache.
+test('world cache saves and restores every per-course global',()=>{
+ const keys=f=>{const a=source.indexOf(f);assert.ok(a>=0,f);const b=source.indexOf('}',a);return source.slice(source.indexOf('{',a)+1,b).split(',').map(k=>k.split(':')[0].replace(/^\(\{/,'').trim()).filter(Boolean);};
+ const saved=keys('courseState=()=>({').filter(k=>!['bg','fog','revealed'].includes(k)),restored=keys('function loadCourse(c){({');
+ assert.deepEqual([...saved].sort(),[...restored].sort());
+ const bw=fragment('function buildWorld(){','course=courseAt(selected)');
+ const reset=[...bw.matchAll(/([A-Za-z_]\w*)=(\[\]|null|new Map\(\)|newTP\(\)|new T\.Group\(\))/g)].map(m=>m[1]).filter(k=>k!=='swayCache');
+ assert.ok(reset.length>30);
+ for(const k of reset.concat(['hpipes','SHT','WK','AK']))assert.ok(saved.includes(k),'not cached: '+k);
+});
