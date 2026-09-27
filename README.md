@@ -4,7 +4,29 @@ Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser, gebaut am 13.09.2026.
 
 Live: https://madd1in.github.io/mushroom-rally/
 
-## Runde 52 (27.09.2026): Layout-Feinschliff auf allen Bildschirmen
+## Runde 52 (27.09.2026): Halfpipes und Layout-Feinschliff
+
+**Halfpipes** (halfpipe.mjs, 9 Unit-Tests): U-foermige Abschnitte mit flachem Boden und Viertelkreis-Waenden
+(5,5 m hoch, Beton mit Pfeilen hinauf, Metallkante, Plattform und Rueckwand). Wie Looping und Rollzone wird flach
+gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geht es senkrecht in die Luft.
+- **Fahren:** schraeg auf die Wand halten (ab ~15,6 m/s Quertempo reicht es bis zur Lippe) - die Schwerkraft zieht
+  entlang des Querschnitts zurueck, die Nase folgt der Bahn. Ueber der Lippe fliegt man senkrecht hoch (hoechstens
+  6 m) und faellt in die Pipe zurueck; in der Luft SHIFT = Trick. Wertung bei der Rueckkehr: "HALFPIPE-AIR 4,2 m!"
+  mit kleinem Schub, gestandener Trick "HALFPIPE-TRICK" mit Trick-Turbo, ab 4,5 m auch eine Spore.
+- In Ein- und Ausfahrt wachsen die Waende weich aus dem Boden (dort haelt die Kante wie eine Bande); ein Flug, der
+  nicht mehr vor dem Ende landen wuerde, wird flacher. Wand und Flug drehen mit der Bahn mit - in einer Kurve trug
+  es das Kart sonst nach aussen (bis 2,8 m zusaetzliche Hoehe).
+- **Kamera** schaut in der Pipe die Bahn entlang und steht zur Mitte versetzt hoeher - folgte sie der Nase, stuende
+  sie beim Herunterfahren hinter der Wand. **KI:** je nach Koennen nimmt ein Fahrer eine Wand, fliegt, dreht einen
+  Trick und wechselt die Seite (im Test hoben 5-6 von 7 KI-Fahrern ab).
+- **Platz:** eine Suche (hpFindSpot) nimmt die naechste gerade, freie Stelle - Tunnel, Bruecken, Loopings,
+  Achterbahn, Seen, Gefahren am Rand, Portale und P-Schalter bleiben draussen; normale Schanzen und Sprungpilze
+  duerfen in der Pipe liegen. Platz fand sich auf der **Magnet-Kirmes** (Startgerade, mit der ersten Schanze in der
+  Pipe) und zweimal im **Pilzland**; die anderen Strecken sind lueckenlos belegt (laengstes freies Stueck ~70 m).
+- Neuer Erfolg "Halfpipe-Held" (3 Halfpipe-Tricks in einem Rennen) - jetzt 33. Autopilot-Rennen Kirmes und
+  Pilzland ohne Sturz und ohne Fehler; 120/120 Tests.
+
+### Layout-Feinschliff auf allen Bildschirmen
 
 Gemessen statt geschaetzt: ein Pruefskript legt Menue und Renn-HUD auf 15 Groessen (Handy hochkant 360-412 px,
 quer 640-915 px, Tablet, Laptop 1024-1920 px) und meldet jedes Element, das aus seinem Kasten ragt, abgeschnitten

@@ -83,3 +83,9 @@ test('weather achievements: ufo lift and winning in rough weather', () => {
   assert.ok(!achById('wxwin').t({...base, place: 2, stats: {wxRough: true}}));
   assert.ok(!achById('wxwin').t(base));
 });
+
+test('halfpipe achievement: three landed tricks in one race', () => {
+  const base = {place: 5, finished: true, track: 6, cc: 100, stats: {}};
+  assert.ok(achById('halfpipe').t({...base, stats: {hpTricks: 3}}));
+  assert.ok(!achById('halfpipe').t({...base, stats: {hpTricks: 2, hpAirs: 5}}));
+});

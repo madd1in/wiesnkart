@@ -5,6 +5,7 @@ import {armGlider,resetGlider,stepGlider} from './glider.mjs';
 import {isPrecisionFlight,ringBoostDuration} from './windring.mjs';
 import {COASTER,BANK,coasterSpec,coasterProfile,coasterSpeedFactor,coasterG,airtimeFloat,launchKick,launchArches,coasterRating,twistAt,bankAngle,bankEnvelope,bankAxis} from './coaster.mjs';
 import {ELEM,elemPlan,elemState,elemHeight} from './elem.mjs';
+import {HP,hpEnv,hpProfile,hpAccel,hpLaunchCap,hpRating,hpFindSpot} from './halfpipe.mjs';
 import {readPad,padPressed,pickPad,cycle} from './pad.mjs';
 import {weatherPlan,calmPlan,weatherMix,weatherLook,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
 import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP} from './progress.mjs';
@@ -84,7 +85,7 @@ const courses=[
  // dazu Looping auf der rechten Geraden und ein Korkenzieher links.
  {name:'Magnet-Kirmes',icon:'❂',kind:'Achterbahn · Magnet-Katapult · Airtime',medals:[119,125,136],music:'race',bgmRate:1.05,theme:'fair',seed:138,
   points:[[0,92],[70,94],[118,66],[132,10],[126,-48],[96,-92],[40,-110],[-30,-112],[-92,-100],[-126,-56],[-122,0],[-90,26],[-104,60],[-60,88]],
-  coaster:[[5.45,9.2,'dragon']],loopc:[[12.3,16,1,-1]],elem:[[1.82,4.75,'see',{loop:[2,15,1]}]],agrav:[[9.3,11.3,'roll',1]],
+  coaster:[[5.45,9.2,'dragon']],loopc:[[12.3,16,1,-1]],halfpipe:[[.95,110]],elem:[[1.82,4.75,'see',{loop:[2,15,1]}]],agrav:[[9.3,11.3,'roll',1]],
   hills:[[11.9,4,.03]],
   ramps:[[1.4,0,9]],pads:[[12.5,3]],
   boost:[.55,4.7,11.3],boxes:[.8,2.7,4.7,9.0,11.7,13.2],stands:[[.3,18],[4.4,-19]]}];
@@ -97,7 +98,7 @@ const PILZLAND={name:'Pilzland',icon:'🍄',kind:'Open World · Missionen · Por
  points:[[0,420],[160,400],[300,330],[380,200],[360,60],[420,-80],[380,-220],[260,-320],[120,-380],[-40,-360],[-180,-400],[-320,-320],[-400,-180],[-360,-40],[-420,100],[-360,240],[-240,340],[-110,400]],
  // langer Fluss (Boot an der Oberflaeche, Bojen-Slalom), lange Flugschneise (Ringflug), See mit Tauch-Spirale, zweiter Fluss
  elem:[[1.55,2.95,'bach'],[5.85,7.35,'flug',{fly:26}],[10.95,12.15,'see',{loop:[2,15,1]}],[15.9,17.2,'bach']],
- loopc:[[9.05,16,1,1],[13.9,13,3,-1,'curve']],agrav:[[4.15,4.95,'wallrun',90],[8.1,8.75,'tour',1]],
+ loopc:[[9.05,16,1,1],[13.9,13,3,-1,'curve']],agrav:[[4.15,4.95,'wallrun',90],[8.1,8.75,'tour',1]],halfpipe:[[3.74,120],[13.28,120]],
  hills:[[3.6,5,.01],[9.9,4,.01],[14.8,5,.01]],ramps:[[3.4,0,9],[10.3,0,8]],
  boost:[.3,4.0,8.4,13.2,15.4],boxes:[.6,3.8,5.3,9.5,12.6,14.9,17.5],stands:[[.08,18]],pads:[[3.9,-4],[13.3,4]],
  portals:[[.95,0],[3.15,1],[5.35,2],[8.0,3],[10.55,4],[12.75,5],[15.25,6]],
@@ -137,7 +138,7 @@ const ITEM_COL={storm:'#b7a4ff',boost:'#ffd45c',triple:'#ffd45c',shell:'#8fd8ff'
 const MT_COLORS={mini:0x3aa8ff,super:0xff3b2f,ultra:0xd36bff},MT_LABEL={mini:'MINI-TURBO',super:'SUPER-TURBO',ultra:'ULTRA-TURBO'};
 
 let selected=0,colorIndex=0,driverIndex=Math.max(0,Math.min(DRIVERS.length-1,store.get('driver',0)|0)),mode='single',cc=store.get('class',100),state='menu',elapsed=0,countdown=3,last=0,curve,length=1,course,theme,ctx,frame=0,noticeTimer=0,toastTimer=0;
-const loopMiss=[];let boxes=[],racers=[],hazards=[],flags=[],balloons=[],puffs=[],shots=[],ramps=[],pads=[],rings=[],spores=[],swingers=[],gaps=[],boostPads=[],sunPads=[],sporeMesh=null,crowd=null,boostTex=null,foamRing=null,fireflies=null,rails=[],forks=[],raises=[],tunnels=[],agrav=[],loops=[],crystals=[],coasters=[],ferris=null,dragon=null,elems=[],elemFx=null,owFx=null,worldMode=false,lastRaceSel=0,owPortalAt=null,ridePhoto=null,photoPending=false;
+const loopMiss=[];let boxes=[],racers=[],hazards=[],flags=[],balloons=[],puffs=[],shots=[],ramps=[],pads=[],rings=[],spores=[],swingers=[],gaps=[],boostPads=[],sunPads=[],sporeMesh=null,crowd=null,boostTex=null,foamRing=null,fireflies=null,rails=[],forks=[],raises=[],tunnels=[],agrav=[],loops=[],crystals=[],coasters=[],hpipes=[],ferris=null,dragon=null,elems=[],elemFx=null,owFx=null,worldMode=false,lastRaceSel=0,owPortalAt=null,ridePhoto=null,photoPending=false;
 let rainbowTex=null,mapInfo={cx:0,cz:0,k:.6},shake=0,lastPlace=8,leadAt=-99,finishMusicAt=0,soundOn=true,autoGas=false,startPress=-1,prevDrift=false,roulette=null,camFov=62,camH=0,camRoll=0,camRollPrev=0,cer=null,wrongT=0,autopilot=false;
 let gp={active:false,race:0,points:{}},stats=null,startLights=[],lightState=-1,chevrons=[];
 let fworks=[];
@@ -346,6 +347,26 @@ const _est={wl:0,dep:0,fly:0,hide:false,form:'kart',piece:null,z:null};
 // Zustand an Streckenmeter d (geteiltes Objekt - Werte sofort uebernehmen)
 function elemSt(d){const z=elemAt(d);_est.z=z;if(!z){_est.wl=_est.dep=_est.fly=0;_est.hide=false;_est.form='kart';_est.piece=null;return _est;}elemState(z.plan,lapDist(d-z.s),_est);return _est;}
 function elemH(d){const st=elemSt(d);if(!st.z)return 0;const [i,j,k]=tIdx(d);return elemHeight(st,TP.h[i]+(TP.h[j]-TP.h[i])*k,st.z.water);}
+// ---------- Halfpipe (R52, halfpipe.mjs): U-foermiger Querschnitt - wie Looping und Rollzone nur im Bild, gefahren
+// wird flach; der Querversatz ist die Bogenlaenge ueber Boden und Wand, ueber der Lippe geht es senkrecht hoch.
+function hpAt(d,pad=0){if(!hpipes.length)return null;for(const z of hpipes)if(lapDist(d-z.s+pad)<=z.span+2*pad)return z;return null;}
+const hpEnvAt=(z,d)=>hpEnv(lapDist(d-z.s),z.span),_hpp={},_hpq={};
+// Belegte Abschnitte einer Strecke in Metern [von, bis] - alles, was neben oder auf der Fahrbahn steht oder sie verbiegt
+function courseBusy(){const c=course,cd=v=>cpDist(v),out=[],pt=(v,r,k)=>out.push([cd(v)-r,cd(v)+r,k]);
+ for(const k of ['tunnel','raise','agrav','coaster','fork','elem','cows','hands','meteors','dunes'])for(const q of c[k]||[])out.push([cd(q[0])-8,cd(q[1])+8,k]);
+ if(c.plateau)out.push([cd(c.plateau[0])-8,cd(c.plateau[1])+8,'plateau']);
+ for(const [v,L] of c.gaps||[])pt(v,L/2+24,'gap');
+ for(const [v] of c.builds||[])pt(v,30,'build');
+ for(const v of [c.mansion,c.castle])if(v!==undefined)pt(v,50,'house');
+ for(const [v] of (c.pipes||[]).concat(c.beatgates||[],c.stampers||[],c.swing||[],c.cannons||[],c.towers||[],c.twisters||[]))pt(v,18,'fig');
+ for(const [v,,r=8] of c.sand||[])pt(v,r+8,'sand');
+ if(c.train)pt(c.train[0],50,'train');
+ for(const [v] of c.portals||[])pt(v,45,'portal');
+ for(const [v] of c.pswitch||[])pt(v,40,'pswitch');
+ for(const q of loops)out.push([q.s-12,q.s+q.span+12,'loop']);
+ for(const z of elems)out.push([z.s-10,z.s+z.span+10,'elemz']);
+ out.push([length-45,length+30,'start']);
+ return out;}
 function coasterAt(d){if(!coasters.length)return null;for(const c of coasters)if(lapDist(d-c.s)<=c.span)return c;return null;}
 const _cpf={h:0,s:0,k:0};
 // Profil an Streckenmeter d (geteiltes Objekt - Werte sofort uebernehmen)
@@ -417,6 +438,9 @@ function rollFree(d,base){let f=1;
 function posAt(d,off,h,out){const [i,j,k]=tIdx(d),x=TP.x[i]+(TP.x[j]-TP.x[i])*k,z=TP.z[i]+(TP.z[j]-TP.z[i])*k;
  let tx=TP.tx[i]+(TP.tx[j]-TP.tx[i])*k,tz=TP.tz[i]+(TP.tz[j]-TP.tz[i])*k;const tl=Math.hypot(tx,tz)||1;tx/=tl;tz/=tl;
  const bb=TP.b[i]+(TP.b[j]-TP.b[i])*k,hh=TP.h[i]+(TP.h[j]-TP.h[i])*k+(agrav.length?liftAt(d):0)+(coasters.length?coasterH(d):0)+(elems.length?elemH(d):0);
+ // Halfpipe (R52): Querversatz = Bogenlaenge ueber den U-Querschnitt, die Normale kippt mit der Wand
+ if(hpipes.length){const hz=hpAt(d);if(hz){hpProfile(off,hpEnvAt(hz,d),_hpp);const c=Math.cos(_hpp.phi),sn=Math.sin(_hpp.phi),lat=_hpp.lat,up=_hpp.up;
+  return out.set(x+tz*lat-tz*sn*h,hh-bb*lat+up+(c+bb*sn)*h,z-tx*lat+tx*sn*h);}}
  const ph=(agrav.length?rollAt(d):0)+(coasters.length?coasterRoll(d,_rax):0),cr=Math.cos(ph),sr=Math.sin(ph);
  const qx=tz*cr,qy=sr-bb*cr,qz=-tx*cr;                 // Querachse der Fahrbahn
  let nx=-tz*sr,ny=cr+bb*sr,nz=tx*sr,ax=0,ay=0,az=0;    // Flaechennormale
@@ -453,7 +477,9 @@ function raiseH(d){let h=0;for(const q of raises){const span=lapDist(q.e-q.s),re
 // Bezugshoehe fuer posAt: die Fahrbahnebene selbst. groundAt taugt dafuer nicht, weil es
 // neben der Bahn die Boeschung mitrechnet - das Bild wuerde an der Zonengrenze springen.
 function roadRef(d,off){const [i,j,k]=tIdx(d);return TP.h[i]+(TP.h[j]-TP.h[i])*k-off*(TP.b[i]+(TP.b[j]-TP.b[i])*k);}
-function groundAt(d,off){const tr=trackAt(d);let base=tr.h-off*tr.b;const edge=Math.abs(off)-(Math.abs(off)>8.6&&shoulderOk(d,off)?SHOULDER+.3:8.9);
+function groundAt(d,off){const tr=trackAt(d);let base=tr.h-off*tr.b;
+ // In der Halfpipe traegt die Wand (Bild) - flach gerechnet gibt es dort keine Boeschung, die abfaellt
+ if(hpipes.length&&hpAt(d))return {y:base,rh:rampAt(d,off)};const edge=Math.abs(off)-(Math.abs(off)>8.6&&shoulderOk(d,off)?SHOULDER+.3:8.9);
  // Die Anti-Grav-Bahn schwebt: daneben gibt es keine Boeschung, die abfaellt. Rechnete man sie
  // mit, loeste sich der Haltemagnet sobald das Kart etwas weiter aussen fuhr - es fiel heraus
  // und wurde zurueckgesetzt. Seitlich haelt die Fuehrung, nicht das Gelaende.
@@ -609,7 +635,7 @@ function smoothCurve(points,minR=24,sharp=[]){const S=TRACK_SCALE,n0=points.leng
  for(let it=0;it<400;it++){let bad=false;const tight=new Uint8Array(n);for(let i=0;i<n;i++){const r=rad(p[(i-3+n)%n],p[i],p[(i+3)%n]);if(r<lim[i])bad=true;if(r<lim[i]*1.25)for(let k=-8;k<=8;k++)tight[(i+k+n)%n]=1;}if(!bad)break;p=p.map((b,i)=>{if(!tight[i])return b;const a=p[(i-1+n)%n],c=p[(i+1)%n];return [b[0]+((a[0]+c[0])/2-b[0])*.5,b[1]+((a[1]+c[1])/2-b[1])*.5];});}
  const c=new T.CatmullRomCurve3(p.map(([x,z])=>new T.Vector3(x,0,z)),true,'centripetal');c.arcLengthDivisions=4000;return c;}
 function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world=new T.Group();obsGrid=new Map();TP=newTP();swayCache=new Map();
- flags=[];balloons=[];ramps=[];pads=[];rings=[];spores=[];swingers=[];gaps=[];zones=[];bats=null;boostPads=[];sunPads=[];sporeMesh=null;crowd=null;fireflies=null;rails=[];forks=[];raises=[];tunnels=[];agrav=[];loops=[];crystals=[];coasters=[];ferris=null;dragon=null;elems=[];elemFx=null;owFx=null;hz=null;
+ flags=[];balloons=[];ramps=[];pads=[];rings=[];spores=[];swingers=[];gaps=[];zones=[];bats=null;boostPads=[];sunPads=[];sporeMesh=null;crowd=null;fireflies=null;rails=[];forks=[];raises=[];tunnels=[];agrav=[];loops=[];crystals=[];coasters=[];hpipes=[];ferris=null;dragon=null;elems=[];elemFx=null;owFx=null;hz=null;
  course=courseAt(selected);theme=THEMES[course.theme];WK=(course.worldR||210)/210;AK=Math.min(WK*WK,4)*DENS;
  scene.background=skyTexture(hex(theme.skyTop),hex(theme.skyBottom));scene.fog=new T.Fog(theme.fog,theme.fogNear,theme.fogFar);applyTheme();
  curve=smoothCurve(course.points,24,course.sharp||[]);length=curve.getLength();bm('clear+theme');buildTable();bm('table');
@@ -656,6 +682,13 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
    zones.push({d:mid,half:q.span/2+26,x:TP.x[mi]+(TP.x[mj]-TP.x[mi])*mk,z:TP.z[mi]+(TP.z[mj]-TP.z[mi])*mk,r:26});
    for(let t=-6;t<=q.span+6;t+=9){const d=lapDist(q.s+t),[i,j,k]=tIdx(d);
     zones.push({d,half:0,x:TP.x[i]+(TP.x[j]-TP.x[i])*k,z:TP.z[i]+(TP.z[j]-TP.z[i])*k,r:LOOP.tilt+14});}}}
+ // Halfpipes (R52): [cp ungefaehr, Laenge m]. Gesucht wird die naechste gerade, freie Stelle - die Waende
+ // stehen bis ~15 m neben der Mitte, deshalb bleiben Bauwerke, Schanzen, Figuren und andere Zonen draussen.
+ if(course.halfpipe){const busy=courseBusy();
+  for(const [cpv,span=150] of course.halfpipe){const s=hpFindSpot({length,kap:d=>trackAt(d).kap,busy,span,near:cpDist(cpv),search:220});
+   if(s<0){console.warn('Halfpipe findet keinen Platz:',course.name,cpv);continue;}
+   busy.push([s-20,s+span+20]);hpipes.push({s,span,e:lapDist(s+span)});
+   for(let x=-12;x<=span+12;x+=8){const d=lapDist(s+x),[i,j,k]=tIdx(d);zones.push({d,half:0,x:TP.x[i]+(TP.x[j]-TP.x[i])*k,z:TP.z[i]+(TP.z[j]-TP.z[i])*k,r:25});}}}
  // Hoehenprofil: Huegel (Gauss) + Plateau; Ueberhoehung aus der Kruemmung
  // Huegel amplitude gedämpft (x .6): volle Hoehen fuehlten sich als staendiges Ruckeln an und
  // warfen das Kart bei Tempo von der Fahrbahn (Kuppenabsprung) - Flow geht vor Sprunghunger.
@@ -852,7 +885,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  if(poles.length){world.add(new T.Mesh(mergeGeometries(poles),cream));const geo=mergeGeometries(pens);const xn=new Float32Array(geo.attributes.position.count),dx=xn.slice(),dz=xn.slice();let o=0;for(const pg of pens){xn.set(pg.userData.xn,o);dx.set(pg.userData.dx,o);dz.set(pg.userData.dz,o);o+=pg.userData.xn.length;}geo.attributes.position.setUsage(T.DynamicDrawUsage);
   const penMesh=new T.Mesh(geo,glow?new T.MeshBasicMaterial({vertexColors:true,side:T.DoubleSide}):stdMat({vertexColors:true,side:T.DoubleSide,roughness:.8}));penMesh.frustumCulled=false;world.add(penMesh);flags.push({mesh:penMesh,base:geo.attributes.position.array.slice(),xn,dx,dz});}}
  // Zaeune aussen an scharfen Kurven (auch Kollision)
-  buildTunnels();buildBridges();buildRails();buildForkVisuals();
+  buildTunnels();buildBridges();buildRails();buildForkVisuals();if(hpipes.length)buildHalfpipes();
  bm('flags+fences');buildChevrons();bm('chevrons');
  buildScenery(random);bm('scenery');
  buildRamps();buildPads();buildSwingers();buildSpores();buildStands();bm('ramps..stands');
@@ -933,9 +966,40 @@ function buildBridges(){const deckMat=mat(theme.glow?0x2c2650:0x9a948a,{roughnes
   for(const [d0,d1] of segs){const steps=Math.ceil((d1-d0)/1.2);addStrip(strip(d0,d1,0,18.8,-1.2,6,steps),deckMat);const walls=[wallStrip(d0,d1,-9.4,-1.2,.12,steps),wallStrip(d0,d1,9.4,-1.2,.12,steps)];const wm=new T.Mesh(mergeGeometries(walls),deckMat);wm.castShadow=true;world.add(wm);
    const pg=[];for(let d=d0+5;d<d1-2;d+=14){const h=trackAt(d).h-1.2;if(h<1.8)continue;for(const side of [-1,1]){const p=samplePos(d,side*5.8,new T.Vector3());if(nearOtherRoad(p.x,p.z,d,11.5))continue;pg.push(new T.BoxGeometry(1.5,h,1.5).translate(p.x,h/2,p.z));addObstacle(p.x,p.z,1.15,h-.2);}}
    if(pg.length){const pm=new T.Mesh(mergeGeometries(pg),pillarMat);pm.castShadow=true;pm.receiveShadow=true;world.add(pm);}}}}
+// ---------- Halfpipe (R52): Wandflaechen aus demselben posAt wie die Physik (Bild und Fahren decken sich), Metallkante
+// (Coping) an der Lippe, Plattform oben und Rueckwand bis zum Boden. Pfeile auf der Wand zeigen hinauf.
+const HP_COL={forest:['#dfe6ea','#2ab7a9','#ff8a3d'],fair:['#f3e9f7','#ff3b6b','#ffd23f'],canyon:['#f1dcc0','#e0663a','#2b1d24'],night:['#2a2750','#2de2e6','#ff3cac'],haunted:['#3a3350','#8a5cff','#c9ff5c'],lava:['#3a2a2a','#ff5a1f','#ffd23f'],rainbow:['#2c2650','#4fd8ff','#ff4fd8']};
+function hpPoint(d,lat,up,out){const [i,j,k]=tIdx(d);let tx=TP.tx[i]+(TP.tx[j]-TP.tx[i])*k,tz=TP.tz[i]+(TP.tz[j]-TP.tz[i])*k;const l=Math.hypot(tx,tz)||1;tx/=l;tz/=l;
+ const bb=TP.b[i]+(TP.b[j]-TP.b[i])*k;return out.set(TP.x[i]+(TP.x[j]-TP.x[i])*k+tz*lat,TP.h[i]+(TP.h[j]-TP.h[i])*k-bb*lat+up,TP.z[i]+(TP.z[j]-TP.z[i])*k-tx*lat);}
+function buildHalfpipes(){const [base,c1,c2]=HP_COL[course.theme]||HP_COL.forest,glow=theme.glow;
+ const tex=canvasTex(128,256,(q,w,h)=>{q.fillStyle=base;q.fillRect(0,0,w,h);
+  // Beton-Sprenkel, Fugen, zwei Farbbaender unter der Lippe und Pfeile nach oben
+  for(let n=0;n<700;n++){q.fillStyle=Math.random()<.5?'#0000000d':'#ffffff12';q.fillRect(Math.random()*w,Math.random()*h,2,2);}
+  q.fillStyle='#00000018';q.fillRect(0,0,w,2);q.fillRect(0,h*.5,w,2);
+  q.fillStyle=c1;q.fillRect(0,h*.02,w,h*.07);q.fillStyle=c2;q.fillRect(0,h*.1,w,h*.035);
+  q.fillStyle=c1+'cc';for(const y of [.62,.8]){q.beginPath();q.moveTo(w*.28,h*y+18);q.lineTo(w*.5,h*y);q.lineTo(w*.72,h*y+18);q.lineTo(w*.72,h*y+30);q.lineTo(w*.5,h*y+12);q.lineTo(w*.28,h*y+30);q.fill();}},true);
+ const wallMat=stdMat({map:tex,roughness:.85,side:T.DoubleSide,...(glow?{emissive:0xffffff,emissiveMap:tex,emissiveIntensity:.35}:{})});
+ const deckMat=mat(glow?0x1c1838:0xb8b2a8,{roughness:.9,side:T.DoubleSide}),backMat=mat(glow?0x15122c:0x9a948c,{roughness:.95,side:T.DoubleSide});
+ const copMat=stdMat({color:glow?0xffffff:0xd9dde2,roughness:.3,metalness:.8,...(glow?{emissive:new T.Color(c1),emissiveIntensity:.8}:{})});
+ const wallG=[],deckG=[],backG=[],copG=[],N=14,DECK=2.4,_p=new T.Vector3();
+ for(const z of hpipes){const steps=Math.ceil(z.span/1.5);
+  for(const sg of [-1,1]){const cols=N+1,v=new Float32Array((steps+1)*cols*3),uv=new Float32Array((steps+1)*cols*2),idx=[],dv=[],bv=[],lip=[];
+   for(let i=0;i<=steps;i++){const x=z.span*i/steps,d=lapDist(z.s+x),env=hpEnv(x,z.span),top=HP.R*env*Math.PI/2;
+    for(let c=0;c<cols;c++){const u=top*c/N;posAt(d,sg*(HP.flat+u),.03,_p);const o=(i*cols+c);v[o*3]=_p.x;v[o*3+1]=_p.y;v[o*3+2]=_p.z;uv[o*2]=x/8;uv[o*2+1]=1-(1-c/N)*env;
+     if(i<steps&&c<N){const a=o,b=o+cols;idx.push(a,b,a+1,a+1,b,b+1);}}
+    // Lippe, Plattform (waagerecht nach aussen), Rueckwand bis knapp unter den Boden
+    const lat=HP.flat+HP.R*Math.sin(env*Math.PI/2),up=HP.R*(1-Math.cos(env*Math.PI/2));
+    hpPoint(d,sg*lat,up,_p);lip.push(_p.clone());dv.push(_p.clone());hpPoint(d,sg*(lat+DECK),up,_p);dv.push(_p.clone());
+    bv.push(_p.clone());hpPoint(d,sg*(lat+DECK),-.4,_p);bv.push(_p.clone());}
+   const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(v,3));g.setAttribute('uv',new T.BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();wallG.push(g);
+   const quad=(pts,arr)=>{const pv=new Float32Array(pts.length*3),ix=[];pts.forEach((p,i)=>pv.set([p.x,p.y,p.z],i*3));for(let i=0;i+3<pts.length;i+=2)ix.push(i,i+2,i+1,i+1,i+2,i+3);const q=new T.BufferGeometry();q.setAttribute('position',new T.BufferAttribute(pv,3));q.setIndex(ix);q.computeVertexNormals();arr.push(q);};
+   quad(dv,deckG);quad(bv,backG);
+   copG.push(new T.TubeGeometry(new T.CatmullRomCurve3(lip.filter((_,i)=>i%2===0)),Math.max(8,lip.length),.22,6,false));}}
+ const add=(geos,m,shadow=true)=>{const me=new T.Mesh(mergeGeometries(geos),m);me.castShadow=shadow;me.receiveShadow=true;world.add(me);return me;};
+ add(wallG,wallMat);add(deckG,deckMat);add(backG,backMat);add(copG,copMat,false);}
 // ---------- Leitplanken: aussen an kritischen Kurven und beidseitig auf erhoehten Abschnitten. Weiche Gleit-Kollision statt Stopp.
 const RAIL_OFF=9.2,RAIL_LIMIT=8.05,RAIL_COL={forest:['#e8352e','#ffffff',0x5a6470],canyon:['#ffd23f','#2b1d24',0x5a3a2a],night:['#2de2e6','#ff3cac',0x22204a],haunted:['#8a5cff','#1a1426',0x2e2840],lava:['#ff5a1f','#1a1012',0x3a2a2a],fair:['#ff3b6b','#ffe45c',0x3a2c62]};
-function railBlocked(d,side){if(inGap(d)||Math.abs(wrapDiff(d,0))<16)return true;
+function railBlocked(d,side){if(inGap(d)||Math.abs(wrapDiff(d,0))<16||hpAt(d,16))return true;
  // Im Looping und an seiner Anfahrt keine Planken: die Bahn kreuzt sich dort selbst, die Planken
  // der Geraden lägen quer im Kreis. Stattdessen haelt der Seitenmagnet das Kart auf der Bahn.
  if(loops.length)for(const q of loops)if(lapDist(d-q.s+20)<q.span+40)return true;
@@ -994,12 +1058,12 @@ function forkBlocks(d,off){const fk=forkAt(d,10);return !!fk&&Math.sign(off)===f
 // Achterbahnzonen, nicht auf der Abzweigseite und nicht am Start-Ziel-Tor (Pfeiler). Tabelle in 2-m-Schritten je Seite.
 const SHOULDER=11.2;let SHT=null;
 function buildShoulder(){const ds=2,n=Math.ceil(length/ds),L=new Uint8Array(n),R=new Uint8Array(n);SHT={ds,n,L,R};if(theme.space)return;
- for(let i=0;i<n;i++){const d=i*ds;if(inGap(d)||inGap(d-6)||inGap(d+6)||(agrav.length&&hasMag(d))||raiseH(d)>.3||raiseH(d-16)>.3||raiseH(d+16)>.3||coasterH(d)>.4||elemAt(d,14)||Math.abs(wrapDiff(d,0))<10)continue;
+ for(let i=0;i<n;i++){const d=i*ds;if(inGap(d)||inGap(d-6)||inGap(d+6)||(agrav.length&&hasMag(d))||raiseH(d)>.3||raiseH(d-16)>.3||raiseH(d+16)>.3||coasterH(d)>.4||elemAt(d,14)||hpAt(d,12)||Math.abs(wrapDiff(d,0))<10)continue;
   if(loops.length&&loops.some(q=>lapDist(d-q.s+24)<q.span+48))continue;const fk=forkAt(d,16);L[i]=fk&&fk.f.side<0?0:1;R[i]=fk&&fk.f.side>0?0:1;}
  // kurze Stuecke (unter 12 m) weglassen - kein Flackern zwischen breit und schmal
  for(const A of [L,R]){let a=-1;for(let i=0;i<=n;i++){const on=i<n&&A[i];if(on&&a<0)a=i;else if(!on&&a>=0){if(i-a<6)A.fill(0,a,i);a=-1;}}}}
 function shoulderOk(d,off){if(!SHT)return false;const i=Math.floor(lapDist(d)/SHT.ds)%SHT.n;return (off<0?SHT.L:SHT.R)[i]===1;}
-function onRoad(d,off){const a=Math.abs(off);return a<8.6||forkBand(d,off)||(a<SHOULDER&&shoulderOk(d,off));}
+function onRoad(d,off){if(hpipes.length&&hpAt(d))return true;const a=Math.abs(off);return a<8.6||forkBand(d,off)||(a<SHOULDER&&shoulderOk(d,off));}
 function nearFork(x,z,dist){for(const f of forks)for(let i=0;i<f.pts.length;i+=3){const p=f.pts[i];if(Math.abs(p.x-x)<dist&&Math.abs(p.z-z)<dist&&Math.hypot(p.x-x,p.z-z)<dist)return true;}return false;}
 function polyStripVar(pts,i0,i1,fn,lift,uvLen){const n=i1-i0+1,v=new Float32Array(n*6),uv=new Float32Array(n*4),idx=[];let acc=0;
  for(let i=0;i<n;i++){const p=pts[i0+i];if(i)acc+=Math.hypot(p.x-pts[i0+i-1].x,p.z-pts[i0+i-1].z);const e=fn(p,i/(n-1)),lx=p.tz,lz=-p.tx;
@@ -1969,6 +2033,11 @@ function dropPuff(r,color=0xdfe8e8){const i=puffIdx++%PUFFS,p=puffPool[i],s=Math
 
 // ---------------------------------------------------------------- Kart-Physik (vertikal), Kollisionen, Darstellung
 function vertical(r,dt){const {y:ground,rh}=groundAt(r.distance,r.offset);
+ // Halfpipe (R52): an Wand und ueber der Lippe haelt die Pipe-Physik das Kart (update); flach bleibt es am Boden.
+ // Wer mit normalem Luftstand (Kuppe, Treffer) an die Wand kommt, setzt dort auf.
+ if(r.hpOn){if(r.y===undefined)r.y=ground;const roadVy=clamp((ground-(r.lastGround??ground))/Math.max(dt,1e-3),-45,45);r.lastGround=ground;
+  if(r.air&&!r.hpAir)land(r,ground,roadVy);r.y=ground;r.vy=roadVy;r.rampY=0;r.onGapRamp=false;
+  if(r.air)r.airT+=dt;if(r.trick>0)r.trick=Math.min(.45,r.trick+dt);return;}
  if(r.y===undefined){r.y=ground;r.vy=0;r.air=false;r.airT=0;r.trick=0;r.lastGround=ground;r.rampY=0;r.padCd=0;r.ringCd=0;r.stall=0;r.driftVis=0;}
  const roadVy=clamp((ground-r.lastGround)/Math.max(dt,1e-3),-45,45);r.lastGround=ground;
  // Anti-Grav wie in Mario Kart 8: in der Rollzone haelt die Bahn bedingungslos fest. Aus JEDER
@@ -2002,10 +2071,10 @@ function startTrick(r){r.trick=.001;if(r.id===0)SFX.whoosh();}
 // Rettungspilz: nach einem Sturz in die Schlucht zurueck vor die Anlaufstrecke
 // Die Hoehe kommt aus groundAt, nicht aus sample: in einer Rollzone schwebt die sichtbare Bahn
 // bis zu 12,5 m ueber dem Boden, und wer dort oben eingesetzt wird, faellt endlos im Kreis.
-function respawn(r){resetGlider(r,true);const me=r.id===0,d=r.safeD??0,fromD=Math.round(lapDist(r.distance)),fromOff=+(r.offset||0).toFixed(1),s=sample(d,0),gy=groundAt(d,0).y,fell=gaps.some(g=>Math.abs(wrapDiff(g.c,lapDist(r.distance)))<40);r.x=s.p.x;r.z=s.p.z;r.h=s.angle;r.vx=r.vz=0;r.speed=0;r.distance+=wrapDiff(d,lapDist(r.distance));r.offset=0;r.y=gy+2.2;r.vy=0;r.air=true;r.airT=0;r.trick=0;r.driftDir=0;r.drift=0;r.stun=.5;r.lastGround=gy;
+function respawn(r){resetGlider(r,true);const me=r.id===0,d=r.safeD??0,fromD=Math.round(lapDist(r.distance)),fromOff=+(r.offset||0).toFixed(1),s=sample(d,0),gy=groundAt(d,0).y,fell=gaps.some(g=>Math.abs(wrapDiff(g.c,lapDist(r.distance)))<40);r.x=s.p.x;r.z=s.p.z;r.h=s.angle;r.vx=r.vz=0;r.speed=0;r.distance+=wrapDiff(d,lapDist(r.distance));r.offset=0;r.y=gy+2.2;r.vy=0;r.air=true;r.airT=0;r.trick=0;r.hpOn=r.hpAir=false;r.driftDir=0;r.drift=0;r.stun=.5;r.lastGround=gy;
  if(me&&stats){stats.falls++;(stats.fallAt||(stats.fallAt=[])).push([fromD,fromOff,Math.round(lapDist(r.distance))]);toast(fell?'RETTUNGSPILZ! Mit mehr Tempo über die Schanze':'RETTUNGSPILZ!',2,'bad');if(fell)SFX.splash();shake=.3;}}
 const nearPlayer=(r,range)=>racers[0]&&Math.abs(r.distance-racers[0].distance)<range;
-function collideStatic(r){hazardHits(r,r.id===0);trainHits(r,r.id===0);characterHits(r,r.id===0);const ix=Math.floor(r.x/16),iz=Math.floor(r.z/16);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const cell=obsGrid.get((ix+a+500)*1000+(iz+b+500));if(!cell)continue;for(const o of cell){const dx=r.x-o.x,dz=r.z-o.z,rr=o.r+1.05,d2=dx*dx+dz*dz;if(d2<rr*rr&&r.y<o.h){const d=Math.sqrt(d2)||1,nx=dx/d,nz=dz/d;r.x=o.x+nx*rr;r.z=o.z+nz*rr;bounce(r,nx,nz);}}}
+function collideStatic(r){hazardHits(r,r.id===0);trainHits(r,r.id===0);characterHits(r,r.id===0);if(r.hpOn&&Math.abs(r.offset)>HP.flat)return;const ix=Math.floor(r.x/16),iz=Math.floor(r.z/16);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const cell=obsGrid.get((ix+a+500)*1000+(iz+b+500));if(!cell)continue;for(const o of cell){const dx=r.x-o.x,dz=r.z-o.z,rr=o.r+1.05,d2=dx*dx+dz*dz;if(d2<rr*rr&&r.y<o.h){const d=Math.sqrt(d2)||1,nx=dx/d,nz=dz/d;r.x=o.x+nx*rr;r.z=o.z+nz*rr;bounce(r,nx,nz);}}}
  for(const s of swingers){if(s.kind==='ghost')continue;if(s.side){if(!s.active)continue;const dx=r.x-s.x,dz=r.z-s.z;if(dx*dx+dz*dz<7.3&&(r.burnCd||0)<elapsed&&(r.y||0)<trackAt(s.d).h+3){r.burnCd=elapsed+1.4;if(r.shield>0){r.shield=0;burst(r,0xffe263,10);}else{hitKart(r,1,.4);loseSpores(r,1);burst(r,0xff7a1a,16);if(r.id===0){SFX.hit();toast('ANGEBRANNT!',.9,'bad');}}}continue;}
   const dx=r.x-s.x,dz=r.z-s.z,rr=2.3+1.05,d2=dx*dx+dz*dz;if(d2<rr*rr&&r.y<trackAt(s.d).h+3){const d=Math.sqrt(d2)||1,nx=dx/d,nz=dz/d;r.x=s.x+nx*rr;r.z=s.z+nz*rr;bounce(r,nx,nz,true);}}
  const R=Math.hypot(r.x,r.z),RB=WK>1?210*WK-30:189;if(R>RB){const nx=-r.x/R,nz=-r.z/R;r.x=-nx*RB;r.z=-nz*RB;bounce(r,nx,nz);}}
@@ -2033,6 +2102,11 @@ function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin
   _kZ.set(tx*st.tf+tz*st.tl,st.tu,tz*st.tf-tx*st.tl);_kY.set(tx*st.nf,st.nu,tz*st.nf);
   _kX.crossVectors(_kY,_kZ).normalize();_kY.crossVectors(_kZ,_kX);
   r.mesh.quaternion.setFromRotationMatrix(_kM.makeBasis(_kX,_kY,_kZ)).multiply(_kQ.setFromEuler(_kE.set(0,yaw,roll,'YXZ')));}
+ // Halfpipe (R52): auf der Wand steht das Kart auf der gekippten Flaeche - Rahmen aus Streckentangente und
+ // Wandnormale, Lenk-, Drift- und Trickwinkel drehen um die Wandnormale (bei Winkel 0 genau die flache Lage)
+ if(r.hpOn&&!inLoop){const hz=hpAt(r.distance);if(hz){hpProfile(r.offset,hpEnvAt(hz,r.distance),_hpp);if(Math.abs(_hpp.phi)>1e-4){const tn=tanAt(r.distance),tx=tn.x,tz=tn.z,c=Math.cos(_hpp.phi),sn=Math.sin(_hpp.phi),yaw=angleDiff(e.y,Math.atan2(tx,tz));
+  _kZ.set(tx,0,tz);_kY.set(-tz*sn,c,tx*sn);_kX.crossVectors(_kY,_kZ).normalize();_kY.crossVectors(_kZ,_kX);
+  r.mesh.quaternion.setFromRotationMatrix(_kM.makeBasis(_kX,_kY,_kZ)).multiply(_kQ.setFromEuler(_kE.set(e.x,yaw,e.z,'YXZ')));}}}
  // R45 Riesenpilz: waechst weich auf 1,75-fach, blinkt in der letzten Sekunde zwischen gross und klein
  {const tgt=r.mega>0?(r.mega<1.1&&Math.sin(elapsed*26)>0?1.25:1.75):1;r.megaS=(r.megaS||1)+(tgt-(r.megaS||1))*Math.min(1,dt*(r.mega>0&&r.mega<1.1?30:5));}
  let sv=(r.shrinkVis??1)+(((r.shrink||0)>0?.58:1)-(r.shrinkVis??1))*Math.min(1,dt*7);if(Math.abs(sv-1)<.002)sv=1;r.shrinkVis=sv;
@@ -2104,9 +2178,14 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
   for(const q of desert.pits){const ahead=wrapDiff(q.d,r.distance);if(ahead>-12&&ahead<45&&Math.sign(q.off)*line>2)line=Math.sign(q.off)*2;}}
  if(hz){for(const st of hz.stampers){const ahead=wrapDiff(st.d,r.distance);if(ahead>0&&ahead<40&&Math.abs(st.off-line)<4.6){const a=stamperState(elapsed+ahead/Math.max(sp,5),st.ph);if(a.y<3||a.phase==='fall')line=st.off>0?st.off-5.4:st.off+5.4;}}
   for(const m of hz.missiles){if(m.d===undefined)continue;const ahead=wrapDiff(m.d,r.distance);if(ahead>0&&ahead<45&&Math.abs(m.off-line)<2.6)line=m.off>line?m.off-3.4:m.off+3.4;}}
- if(onFork){const fa=forkAt(r.distance+look);if(fa)line=fa.off;}else line=clamp(line,-6,6);r.lineS=r.lineS===undefined?line:r.lineS+(line-r.lineS)*Math.min(1,dt*(onFork?8:2.6));line=onFork?line:r.lineS;
+ if(onFork){const fa=forkAt(r.distance+look);if(fa)line=fa.off;}else line=clamp(line,-6,6);
+ // Halfpipe (R52): je nach Koennen sucht sich ein KI-Fahrer eine Wand und zielt ueber die Lippe; nach dem Air
+ // wechselt er die Seite oder bleibt unten (halfpipeStep). Ziel flach gerechnet - im Bild liegt die Wand woanders.
+ const hzA=hpipes.length?hpAt(r.distance+look):null;
+ if(hzA){if(r.hpFor!==hzA){r.hpFor=hzA;r.hpPick=Math.random()<.2+sk*.65?(Math.random()<.5?-1:1):0;}
+  const x=lapDist(r.distance+look-hzA.s);if(r.hpPick&&x>HP.ramp-4&&x<hzA.span-HP.ramp-6)line=r.hpPick*(HP.flat+HP.R*Math.PI/2+5);}r.lineS=r.lineS===undefined?line:r.lineS+(line-r.lineS)*Math.min(1,dt*(onFork?8:hzA?5:2.6));line=onFork?line:r.lineS;
  // Pure Pursuit: Zielpunkt auf der Linie, daraus benoetigte Gierrate -> Lenkeinschlag
- const tgt=samplePos(r.distance+look,line,_sp),L=Math.hypot(tgt.x-r.x,tgt.z-r.z)||1,err=angleDiff(Math.atan2(tgt.x-r.x,tgt.z-r.z),r.h);
+ const tgt=hzA||r.hpOn?flatPt(r.distance+look,line,_sp):samplePos(r.distance+look,line,_sp),L=Math.hypot(tgt.x-r.x,tgt.z-r.z)||1,err=angleDiff(Math.atan2(tgt.x-r.x,tgt.z-r.z),r.h);
  const needYaw=Math.max(sp,4)*2*Math.sin(err)/L;
  let steer=needYaw/(PHYS.turn*Math.max(.2,turnCurve(sp)))+Math.sin(elapsed*1.3+r.id*2)*.18*(1-sk);
  // Zieltempo: kleinste erlaubte Geschwindigkeit innerhalb der Bremsdistanz
@@ -2412,6 +2491,36 @@ function updateBombs(dt){for(let i=bombs.length-1;i>=0;i--){const b=bombs[i];b.t
 function updateShots(dt){for(let i=shots.length-1;i>=0;i--){const sh=shots[i];sh.t+=dt;const tg=sh.target!==undefined?racers[sh.target]:null;sh.d+=((tg?Math.max(tg.speed,0):Math.max(racers[sh.owner].speed,20))+24)*dt;if(tg)sh.off+=(tg.offset-sh.off)*Math.min(1,dt*5);const s=samplePos(sh.d,sh.off,_sp);sh.g.position.set(s.x,s.y+.15+Math.abs(Math.sin(sh.t*18))*.18,s.z);sh.g.rotation.y+=dt*16;
   if((tg&&sh.d>=tg.distance-1.2)||(!tg&&sh.t>1.2)||sh.t>4.5){if(tg)shellImpact(sh);else burst({mesh:sh.g},0x8beb73,8);actors.remove(sh.g);shots.splice(i,1);}}}
 
+// Halfpipe (R52): Schwerkraft entlang des Querschnitts, Kante in Ein-/Ausfahrt als Bande, Absprung ueber die Lippe
+// (senkrecht - man faellt in die Pipe zurueck), Wertung bei der Rueckkehr. Die Nase folgt der Bahn des Karts: die
+// Wand hinauf, ueber die Kuppe des Flugs und wieder hinunter - wie ein Skater, der nach dem Air zurueckfaehrt.
+function halfpipeStep(r,dt,me){const hz=hpAt(r.distance);if(!hz){if(r.hpAir){r.hpAir=false;land(r,groundAt(r.distance,r.offset).y,0);}r.hpOn=false;return;}
+ const env=hpEnvAt(hz,r.distance),pf=hpProfile(r.offset,env,_hpq),tn=tanAt(r.distance),sg=pf.s,ox=tn.z*sg,oz=-tn.x*sg;
+ r.hpOn=pf.u>-.3||!!r.hpAir;if(!r.hpOn)return;
+ if(pf.u>0){const a=HP.g*Math.sin(pf.th)*dt;r.vx-=ox*a;r.vz-=oz*a;
+  // Wand und Flug drehen mit der Pipe mit: in einer Kurve trug es das Kart sonst nach aussen (in der Luft
+  // wie zusaetzliche Hoehe, bis 2,8 m ueber dem Deckel) - so ist jede Pipe in ihrem eigenen Rahmen gerade
+  const fwd=r.vx*tn.x+r.vz*tn.z,t1=tanAt(r.distance+fwd*dt),tr=angleDiff(Math.atan2(t1.x,t1.z),Math.atan2(tn.x,tn.z));
+  if(tr){const c=Math.cos(tr),sn=Math.sin(tr),vx=r.vx*c+r.vz*sn,vz=-r.vx*sn+r.vz*c;r.vx=vx;r.vz=vz;r.h+=tr;}}
+ const vn=r.vx*ox+r.vz*oz;
+ if(!r.hpAir&&pf.u>pf.top){
+  if(env<HP.launchEnv){const ex=pf.u-pf.top,back=Math.min(ex,dt*(5+ex*8));r.x-=ox*back;r.z-=oz*back;r.offset=sg*(Math.abs(r.offset)-back);if(vn>0){r.vx-=ox*vn*1.3;r.vz-=oz*vn*1.3;}}
+  else{// der Flug muss vor dem Ende der Pipe wieder unten sein: sonst Quertempo kappen (die Lippe haelt)
+   const fwd=Math.max(5,r.vx*tn.x+r.vz*tn.z),room=Math.max(0,hz.span-HP.ramp*.6-lapDist(r.distance-hz.s)),cap=Math.min(hpLaunchCap(Math.max(vn,0)),HP.g*room/(2*fwd));
+   if(vn>cap){r.vx-=ox*(vn-cap);r.vz-=oz*(vn-cap);}
+   r.hpAir=true;r.hpSide=sg;r.hpMax=0;r.air=true;r.airT=0;r.trick=0;r.driftDir=0;r.drift=0;
+   // geschickte KI-Fahrer drehen auch einen Trick
+   if(!me&&Math.random()<r.skill*.9)r.trick=.001;
+   if(me){SFX.ramp(1);stats.hpLaunch=(stats.hpLaunch||0)+1;}}}
+ if(r.hpAir){
+  // Deckel: Rempler zweier Karts in der Luft koennen Schwung nach aussen uebertragen
+  const over=pf.u-pf.top-HP.maxAir-.3;if(over>0){r.x-=ox*over;r.z-=oz*over;r.offset=sg*(Math.abs(r.offset)-over);const v2=r.vx*ox+r.vz*oz;if(v2>0){r.vx-=ox*v2;r.vz-=oz*v2;}}
+  r.hpMax=Math.max(r.hpMax,Math.min(HP.maxAir,pf.u-pf.top));
+  if(pf.u<=pf.top||sg!==r.hpSide){r.hpAir=false;const tr=r.trick,h=r.hpMax;land(r,groundAt(r.distance,r.offset).y,0);
+   const rt=hpRating(h,tr>=.42);if(rt){r.boost=Math.max(r.boost,rt.boost);if(rt.spores)r.spores=Math.min(MAX_SPORES,(r.spores||0)+rt.spores);
+    if(me){stats.hpAirs=(stats.hpAirs||0)+1;if(tr>=.42)stats.hpTricks=(stats.hpTricks||0)+1;stats.hpBest=Math.max(stats.hpBest||0,h);toast(rt.label,1.3,'good');if(h>=4.5)burst(r,0xffe45c,16);}}
+   if(!me)r.hpPick=Math.random()<.55?-(r.hpPick||sg):0;}}
+ const sp=Math.hypot(r.vx,r.vz);if(pf.u>0&&sp>4){const k=1-Math.exp(-dt*(r.hpAir?10:6));r.h+=angleDiff(Math.atan2(r.vx,r.vz),r.h)*k;}}
 function update(dt){
  if(worldMode&&state==='race'){for(const r of racers)if(r.distance>length*1.5){r.distance-=length;if(r.safeD!==undefined)r.safeD=lapDist(r.safeD);}updateOW(dt);}
  // Feuerwerk vom Zieleinlauf abarbeiten (laeuft auch im Result-Schirm weiter)
@@ -2441,7 +2550,7 @@ function update(dt){
   if(me&&!autopilot){const target=(raceMirror?-1:1)*steering(),rate=(Math.sign(target)!==Math.sign(r.steerS||0)&&target!==0)?11:7;r.steerS=(r.steerS||0)+clamp(target-(r.steerS||0),-dt*rate,dt*rate);
    let st=r.steerS,gas=(autoGas||gasHeld||oh.on)&&r.stall<=0;
    let brk=held('ArrowDown')||held('KeyS');
-   if(assistOn&&!r.driftDir&&r.stun<=0&&!(worldMode&&Math.abs(r.offset)>7.5)){st=clamp(st+steerAssist(r)*(1-.55*Math.abs(st)),-1,1);const top=assistTop(r);if(r.boost<=0&&r.speed>top+1.5)gas=false;if(r.speed>top+5)brk=true;}
+   if(assistOn&&!r.driftDir&&r.stun<=0&&!(worldMode&&Math.abs(r.offset)>7.5)&&!(r.hpOn&&Math.abs(r.offset)>HP.flat-1)){st=clamp(st+steerAssist(r)*(1-.55*Math.abs(st)),-1,1);const top=assistTop(r);if(r.boost<=0&&r.speed>top+1.5)gas=false;if(r.speed>top+5)brk=true;}
    input={gas,brake:brk,steer:st,drift:driftKey};}
   else{input=aiInput(r,dt);r.steerS=(r.steerS||0)+(input.steer-(r.steerS||0))*Math.min(1,dt*8);}
   // Steckenbleib-Schutz: wer mit Gas laenger als 1,6 s fast steht, wird auf die Strecke gesetzt
@@ -2486,7 +2595,7 @@ function update(dt){
   if(me&&r.hopT>0&&!r.hopWas)SFX.hop();r.hopWas=r.hopT>0;desertHits(r,me,dt);
   // Luftfuehrung (R44): nach Schanzen und Luecken folgt das Kart in der Luft sanft dem Streckenverlauf und wird
   // Richtung Mitte gezogen - eine Kurve direkt hinter dem Sprung (12 Stellen im Audit) fuehrt nicht mehr zum Absturz
-  if(r.air&&!r.gliding&&!inRoll&&!lp&&r.stun<=0&&Math.abs(r.speed)>8){const tn=tanAt(r.distance+Math.abs(r.speed)*.3),want=Math.atan2(tn.x,tn.z),dh=angleDiff(want,r.h);
+  if(r.air&&!r.gliding&&!inRoll&&!lp&&!r.hpOn&&r.stun<=0&&Math.abs(r.speed)>8){const tn=tanAt(r.distance+Math.abs(r.speed)*.3),want=Math.atan2(tn.x,tn.z),dh=angleDiff(want,r.h);
    if(Math.abs(dh)<1.3){const tr=clamp(dh,-1.4*dt,1.4*dt),c=Math.cos(tr),sn=Math.sin(tr),vx=r.vx*c+r.vz*sn,vz=-r.vx*sn+r.vz*c;r.h+=tr;r.vx=vx;r.vz=vz;}
    if(Math.abs(r.offset)>4){const [i,j,k]=tIdx(r.distance),cx=TP.x[i]+(TP.x[j]-TP.x[i])*k,cz=TP.z[i]+(TP.z[j]-TP.z[i])*k,dx=cx-r.x,dz=cz-r.z,dl=Math.hypot(dx,dz)||1,pull=Math.min(6,(Math.abs(r.offset)-4)*2.2)*dt*(gravMul(r.distance)<1?2.5:1);r.vx+=dx/dl*pull*6;r.vz+=dz/dl*pull*6;}}
   r.braking=!!input.brake&&r.speed>1.5&&!r.air;
@@ -2501,7 +2610,7 @@ function update(dt){
   if(elapsed>4&&input.gas&&!r.air&&Math.abs(r.speed)<3&&r.stun<=0){r.stuckT=(r.stuckT||0)+dt;if(r.stuckT>stuckLimit){r.stuckT=0;respawn(r);}}else r.stuckT=0;
   let pr=project(r.x,r.z,r.distance),skipped=false;
   // Weit neben der lokalen Projektion (Kurve abgeschnitten): global neu zuordnen; grosse Abkuerzungen setzen zurueck.
-  if(Math.abs(pr.off)>14&&!forkBand(pr.d,pr.off,4)&&!nearLoop(r.distance)){const g2=project(r.x,r.z,projectGlobal(r.x,r.z,r.y||0));if(Math.abs(g2.off)<9){const jump=wrapDiff(g2.d,lapDist(r.distance));if(jump>60&&!worldMode){respawn(r);if(me)toast('ABKÜRZUNG ZÄHLT NICHT!',1.6,'bad');skipped=true;}else{r.distance+=jump;pr=g2;}}}
+  if(Math.abs(pr.off)>14&&!forkBand(pr.d,pr.off,4)&&!nearLoop(r.distance)&&!hpAt(r.distance,6)){const g2=project(r.x,r.z,projectGlobal(r.x,r.z,r.y||0));if(Math.abs(g2.off)<9){const jump=wrapDiff(g2.d,lapDist(r.distance));if(jump>60&&!worldMode){respawn(r);if(me)toast('ABKÜRZUNG ZÄHLT NICHT!',1.6,'bad');skipped=true;}else{r.distance+=jump;pr=g2;}}}
   if(!skipped){advanceProgress(r,pr.d,length);r.offset=pr.off;railCollide(r,me);
    // Anti-Grav-Seitenmagnet: in Rollzonen stehen keine Leitplanken – die Magnetbahn haelt das Kart
    // seitlich fest (wie vertikal). Weicher exponentieller Pull statt hartem Snap: kein Ruck im Bild,
@@ -2556,6 +2665,7 @@ function update(dt){
       const th=Math.atan2(tn.x,tn.z),dh=angleDiff(r.h,th);
       if(!soft&&Math.abs(dh)>.35)r.h=th+Math.sign(dh)*.35;}
      if(lp)r.h+=angleDiff(Math.atan2(tn.x,tn.z),r.h)*(1-Math.exp(-dt*1.4));}}}
+  if(hpipes.length)halfpipeStep(r,dt,me);
   vertical(r,dt);
   if(!r.air&&!inRoll&&Math.abs(r.offset)<ROAD_HALF&&!r.rampY){const toGap=gaps.find(g=>{const a=wrapDiff(g.start,r.distance);return a>0&&a<95;});if(!toGap)r.safeD=lapDist(r.distance);}
   if(r.lastMT){r.mts=(r.mts||0)+(r.lastMT==='ultra'?100:r.lastMT==='super'?10:1);if(me){stats.mt[r.lastMT]++;SFX.mt(r.lastMT);const combo=comboStep(r,elapsed);if(combo>=2){stats.maxCombo=Math.max(stats.maxCombo||0,combo);if(r.spores<MAX_SPORES)r.spores++;SFX.combo(combo);toast(`${MT_LABEL[r.lastMT]} · COMBO ×${combo}`,1,'mt-'+r.lastMT);}else toast(MT_LABEL[r.lastMT]+'!',.8,'mt-'+r.lastMT);const p=r.mesh.position;for(let i=0;i<14;i++){const a=Math.random()*TAU;emit(p.x,p.y+.4,p.z,MT_COLORS[r.lastMT],Math.sin(a)*3-Math.sin(r.h)*6,1+Math.random()*2,Math.cos(a)*3-Math.cos(r.h)*6,.5);}}r.lastMT=null;}
@@ -2782,7 +2892,10 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
   setFov(portrait?70:52,dt,true);return;}
  if(!racers.length)return;const p=racers[0];
  // Verfolgerkamera haengt am Kart (nicht an der Strecke): man sieht, wohin man wirklich faehrt
- const targetH=p.h+(p.driftDir?-p.driftDir*.12:0);camH=snap?targetH:camH+angleDiff(targetH,camH)*Math.min(1,dt*(p.driftDir?3.2:5));
+ let targetH=p.h+(p.driftDir?-p.driftDir*.12:0);
+ // Halfpipe (R52): die Kamera schaut die Pipe entlang - folgte sie der Nase, stuende sie beim Herunterfahren hinter der Wand
+ if(p.hpOn){const tn=tanAt(p.distance),ta=Math.atan2(tn.x,tn.z);targetH=ta+clamp(angleDiff(targetH,ta),-.3,.3);}
+ camH=snap?targetH:camH+angleDiff(targetH,camH)*Math.min(1,dt*(p.driftDir?3.2:5));
  const mgC=(p.megaS||1)-1,back0=(dbg.camBack??(portrait?10.5:8.4))*(1+mgC*.14),up0=(dbg.camUp??(portrait?4.8:3.7))*(1+mgC*.18),sx=Math.sin(camH),cz=Math.cos(camH),py=p.y??0;
 
  // Anti-Grav: Kamera folgt der gedrehten Fahrbahn (Versatz und Hochachse um die Fahrtrichtung gedreht)
@@ -2828,6 +2941,9 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  // Korkenzieher um den Drachen (R39): die Kamera bleibt unter der Drehachse, sonst saesse sie im Drachenkoerper
  if(coasters.length){coasterRoll(p.distance,_rax3);if(_rax3.A>0)up=Math.min(up,_rax3.A-3.6);}
  _agV.set(kx-fx*back+camUp.x*up,ky-fy*back+camUp.y*up,kz-fz*back+camUp.z*up);
+ // ... und steht hinter dem Kart zur Mitte der Pipe versetzt und etwas hoeher, je weiter es die Wand hinauf ist
+ if(p.hpOn&&hpipes.length){const hz=hpAt(p.distance);if(hz){hpProfile(p.offset,hpEnvAt(hz,p.distance),_hpp);const w=clamp(_hpp.u/3+.35,0,1);
+  if(w>0){const dB=lapDist(p.distance-back),tn=tanAt(dB),lat=_hpp.lat*.5;posAt(dB,0,0,_agB);_agB.x+=tn.z*lat;_agB.z-=tn.x*lat;_agB.y+=up+_hpp.up*.55;_agV.lerp(_agB,w);}}}
  // und sie setzt sich auf die Bahn an ihrer eigenen Stelle, nicht in den Rahmen des Karts
  if(rw>0){posAt(lapDist(p.distance-back),p.offset,up,_agB);_agV.lerp(_agB,rw);}
  if(snap)camera.position.copy(_agV);else camera.position.lerp(_agV,1-Math.exp(-dt*(7+rw*5)));
@@ -3344,6 +3460,13 @@ if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,oh:()=>({...oh,
  ready:()=>readyPromise.then(()=>new Promise(res=>{const c=()=>revealQueue?setTimeout(c,30):res(worldReady);c();})),forkTest:(a,b,k)=>{const f=computeFork(a,b,k);return {maxOff:+f.maxOff.toFixed(1),minR:Math.round(f.minR),saved:Math.round(f.span-f.len),span:Math.round(f.span),back:f.pts.filter((p,i)=>i&&p.rel<f.pts[i-1].rel-.3).length,jump:Math.round(Math.max(...f.pts.map((p,i)=>i?p.rel-f.pts[i-1].rel:0)))};},prebuild:i=>{const a=performance.now();prebuild(i);return Math.round(performance.now()-a);},cache:()=>[...worldCache.keys()],
  forks:()=>forks.map(f=>({dA:Math.round(f.dA),span:Math.round(f.span),maxOff:+f.maxOff.toFixed(1),minR:Math.round(f.minR),len:Math.round(f.len),main:Math.round(f.span)})),rails:()=>rails.map(r=>[Math.round(r.d0),Math.round(r.d1),r.side,r.kind]),
  minRadius:()=>{let m=1e9,at=0;for(let i=0;i<PS;i++){const r=1/Math.max(1e-4,Math.abs(TP.k[i]));if(r<m){m=r;at=i*length/PS;}}return {r:+m.toFixed(1),at:Math.round(at),length:Math.round(length)};},timeStart:()=>{const a=performance.now();start();const b=performance.now();const gl=renderer.getContext();renderer.render(scene,camera);gl.finish();return {startMs:+(b-a).toFixed(1),firstFrameMs:+(performance.now()-b).toFixed(1)};},
+ // R52 Halfpipe: Zonen, Zustand je Kart, Wertung; hpScan sucht freie gerade Stellen fuer eine neue Zone
+ hp:()=>({zones:hpipes.map(z=>({s:Math.round(z.s),span:z.span})),racers:racers.map(r=>({id:r.id,on:!!r.hpOn,air:!!r.hpAir,off:+(r.offset||0).toFixed(1),max:+(r.hpMax||0).toFixed(1),pick:r.hpPick||0})),stats:stats&&{air:stats.hpAirs||0,trick:stats.hpTricks||0,best:+(stats.hpBest||0).toFixed(1),launch:stats.hpLaunch||0}}),
+ hpScan:(span=150)=>{const busy=courseBusy(),out=[];for(let near=0;near<length;near+=30){const s=hpFindSpot({length,kap:d=>trackAt(d).kap,busy,span,near,search:15,step:3});if(s>=0&&!out.includes(Math.round(s)))out.push(Math.round(s));}
+  const st=[];let a=-1;for(let d=0;d<=length;d+=2){const ok=Math.abs(trackAt(d).kap)<1/HP.minR;if(ok&&a<0)a=d;if((!ok||d+2>length)&&a>=0){if(d-a>=40)st.push([a,d]);a=-1;}}
+  return {name:course.name,length:Math.round(length),cps:course.points.map((_,i)=>+cpDist(i).toFixed(0)),free:out,busy:busy.map(([x,y,k])=>[Math.round(x),Math.round(y),k]),straight:st};},
+ upd:(n=1,dt=1/60)=>{for(let i=0;i<n;i++)update(dt);return state;},
+ camSnap:()=>{updateCamera(1/60,true);for(let i=0;i<20;i++)updateCamera(1/60);syncKartInstances();animateWorld(1/60,performance.now());hud();renderer.render(scene,camera);return true;},
  tick:(n=60,dt=1/60)=>{for(let i=0;i<n;i++){update(dt);animateWorld(dt,performance.now());updateCamera(dt);}duckBgm(performance.now());renderer.render(scene,camera);if(photoPending)takeRidePhoto();return {state,elapsed:+elapsed.toFixed(2),place:ranking(racers).indexOf(racers[0])+1};}};
  const panel=document.createElement('aside');panel.id='testPanel';panel.style.cssText='position:fixed;bottom:0;left:35%;z-index:30;background:#111;padding:10px;display:flex;gap:8px';
  for(const [text,action] of [['Test: Turbo',()=>{window.rallyTest.setItem('boost');state='race';use();}],['Test: Ziel',()=>{state='race';window.rallyTest.finishNow();}]]){const b=document.createElement('button');b.textContent=text;b.style.cssText='color:#fff;background:#345;padding:10px';b.onclick=action;panel.append(b);}document.body.append(panel);}

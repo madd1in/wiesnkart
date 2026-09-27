@@ -70,6 +70,8 @@ export const ACH = [
   // R50: Wetter von Runde zu Runde
   {id: 'ufo', n: 'Nahbegegnung', d: 'Lass dich vom UFO-Strahl anheben', t: r => cnt(r.stats, 'ufoLifts') >= 1},
   {id: 'wxwin', n: 'Wetterfest', d: 'Gewinne bei Gewitter, Schnee oder Sandsturm', t: r => r.place === 1 && !!r.stats.wxRough},
+  // R52: Halfpipe
+  {id: 'halfpipe', n: 'Halfpipe-Held', d: 'Stehe 3 Halfpipe-Tricks in einem Rennen', t: r => cnt(r.stats, 'hpTricks') >= 3},
 ];
 export const achById = id => ACH.find(a => a.id === id);
 
