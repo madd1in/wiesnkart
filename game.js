@@ -2502,6 +2502,8 @@ function updateShots(dt){for(let i=shots.length-1;i>=0;i--){const sh=shots[i];sh
 // Wand hinauf, ueber die Kuppe des Flugs und wieder hinunter - wie ein Skater, der nach dem Air zurueckfaehrt.
 function halfpipeStep(r,dt,me){const hz=hpAt(r.distance);if(!hz){if(r.hpAir){r.hpAir=false;land(r,groundAt(r.distance,r.offset).y,0);}r.hpOn=false;return;}
  const env=hpEnvAt(hz,r.distance),pf=hpProfile(r.offset,env,_hpq),tn=tanAt(r.distance),sg=pf.s,ox=tn.z*sg,oz=-tn.x*sg;
+ // Hinweis bei den ersten Einfahrten (je Durchfahrt einmal, insgesamt dreimal)
+ if(me&&r.hpHintFor!==hz&&state==='race'){r.hpHintFor=hz;const n=store.get('hpHints',0);if(n<3){store.set('hpHints',n+1);toast(coarseInput?'HALFPIPE! Schräg hochfahren':'HALFPIPE! Schräg hoch · Luft: SHIFT',2,'good');}}
  r.hpOn=pf.u>-.3||!!r.hpAir;if(!r.hpOn)return;
  if(pf.u>0){const a=HP.g*Math.sin(pf.th)*dt;r.vx-=ox*a;r.vz-=oz*a;
   // Wand und Flug drehen mit der Pipe mit: in einer Kurve trug es das Kart sonst nach aussen (in der Luft
@@ -2796,7 +2798,7 @@ function end(){document.body.classList.remove('mirror');elapsed=racers[0].finish
  stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3)SFX.cheer();board.replaceChildren();
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
  const bestKey=`bestlap-${selected}`,oldBestLap=store.get(bestKey,Infinity),newBestLap=stats.bestLap<oldBestLap;if(newBestLap)store.set(bestKey,stats.bestLap);
- const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Mini-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Mini-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  // Rivale und Tages-Herausforderung (R46) vor dem Verbuchen, damit XP und Erfolge sie sehen
  if(rivalId!==null){stats.rivalBeaten=rivalBeaten(order.map(r=>r.id),rivalId);$('resultStats').insertAdjacentHTML('beforeend',`<div class="rival ${stats.rivalBeaten?'won':'lost'}"><span>⚔ Rivale ${racers[rivalId].name}</span><b>${stats.rivalBeaten?'GESCHLAGEN ✓':'vor dir'}</b></div>`);}
@@ -2819,7 +2821,7 @@ function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$
  $('resultTitle').textContent=m<3?`${['Gold','Silber','Bronze'][m]}-Medaille!`:'Knapp daneben – der Geist wartet!';
  $('resultTime').textContent=`${format(elapsed)}${record?' · NEUER REKORD 👻':isFinite(old)?' · Rekord '+format(old):''}`;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<3-m?'on':''}">★</i>`).join('')+(m<prevMedal&&m<3?'<b>NEUE MEDAILLE</b>':'');
- const st=[['Beste Runde',format(stats.bestLap)],['Mini-Turbos',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra}`],['Tricks / Ringe',`${stats.tricks} / ${stats.rings}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ const st=[['Beste Runde',format(stats.bestLap)],['Mini-Turbos',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra}`],['Tricks / Ringe',`${stats.tricks} / ${stats.rings}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`]]:[]),['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  const board=$('leaderboard');board.replaceChildren();course.medals.forEach((t,i)=>{const li=document.createElement('li');if(i===m)li.className='me';li.innerHTML=`<span>${MEDALS[i]}</span><span>${elapsed<=t?'✓ geschafft':'noch '+(elapsed-t).toFixed(1)+' s'}</span><span>${format(t)}</span>`;board.append(li);});
  $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();

@@ -35,6 +35,8 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
 - **Halfpipe:** eine Reihe Sporen schwebt 2,4 m ueber jeder Lippe - wer abhebt, sammelt auf dem Weg hinauf und
   hinunter (im Test 3 je Air). Funken von der Metallkante beim Absprung, Aufsetz-Geraeusch, Absprung-Sound auch fuer
   KI in der Naehe; auf der Minikarte ein eigenes rosa Band; keine Reifenspuren mehr hinter der Pipe im Gras.
+- Bei den ersten drei Einfahrten ein Hinweis ("HALFPIPE! Schraeg hochfahren"), im Ergebnis eine Kachel
+  "Halfpipe · Airs · Tricks" mit der hoechsten Flughoehe.
 - **Bildblitz** hoechstens halbweiss (Gewitterwolken-Treffer war 70 %); mit "Bewegung reduzieren" im System nur ein
   Viertel davon, ebenso Blitz-Aufhellung und Kamerawackeln.
 - **Siegerehrung:** "ERFOLG: Grand-Prix-Sieger" lag hinter der Ergebniskarte - jetzt darueber im freien Bereich.
