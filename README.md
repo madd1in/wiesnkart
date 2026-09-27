@@ -26,6 +26,15 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
 - Neuer Erfolg "Halfpipe-Held" (3 Halfpipe-Tricks in einem Rennen) - jetzt 33. Autopilot-Rennen Kirmes und
   Pilzland ohne Sturz und ohne Fehler; 120/120 Tests.
 
+**Pilzland frei fahren (Nutzerhinweis "staendig falsche Richtung und zurueckgesetzt"):**
+- Keine "FALSCHE RICHTUNG"-Anzeige mehr im Pilzland - dort gibt es keine Fahrtrichtung.
+- Wer an Baum, Fels oder Wall haengen bleibt, wird nicht mehr per Rettungspilz auf die Strasse gesetzt: das Kart
+  setzt 2,6 m zurueck und wendet ("↺ GEWENDET"), man faehrt dort weiter, wo man war.
+- Kurze Leitplanken-Stummel vor und hinter den Loopings (je 24 m, aus der Deko-Sperrzone) entfallen in der offenen
+  Welt - dort blieb man an ihnen haengen. Am Erdwall der Halfpipe gleitet man ab statt stehen zu bleiben.
+- Test: 10 freie Fahrten ueber die Wiese in alle Richtungen - vorher 6 Ruecksetzer, jetzt keiner.
+- Pause quer zweispaltig: alle sechs Knoepfe ohne Rollen sichtbar (640x360 zeigte vorher nur die Haelfte).
+
 **Nachschliff (Teil 4):**
 - **Fehler behoben - Strecken-Cache:** vorgebaute Strecken werden aus einem Cache geladen; dabei fehlten die neuen
   Halfpipe-Zonen, die Randstreifen-Tabelle (wo die Auslaufzone als Fahrbahn zaehlt) und die Weltgroesse. Nach Kirmes

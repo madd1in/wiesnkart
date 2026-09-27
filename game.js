@@ -1016,7 +1016,7 @@ function buildRails(){const list=[],ds=2;
  scan(d=>raiseH(d)>2&&!inGap(d)?1:0,'high',()=>[-1,1]);
  scan(d=>inTunnel(d)?1:0,'high',()=>[-1,1]);
  scan(d=>hasMag(d)?1:0,'high',()=>[-1,1]);
- scan(d=>inZone(d,2)?1:0,'high',()=>[-1,1]);
+ if(!course.openWorld)scan(d=>inZone(d,2)?1:0,'high',()=>[-1,1]);
  list.sort((a,b)=>a.side-b.side||a.d0-b.d0);for(const r of list){const last=rails[rails.length-1];if(last&&last.side===r.side&&r.d0<=last.d1+6){last.d1=Math.max(last.d1,r.d1);if(r.kind==='high')last.kind='high';}else rails.push({...r});}
  // Planke an die Aussenkante der Auslaufzone, wenn diese dort ueberwiegend vorhanden ist
  for(const r of rails){let on=0,all=0;for(let d=r.d0;d<=r.d1;d+=2){all++;if(shoulderOk(d,r.side))on++;}const wide=all&&on/all>.7;r.off=wide?SHOULDER+.6:RAIL_OFF;r.lim=wide?SHOULDER-.55:RAIL_LIMIT;}
@@ -2500,6 +2500,10 @@ function updateBombs(dt){for(let i=bombs.length-1;i>=0;i--){const b=bombs[i];b.t
 function updateShots(dt){for(let i=shots.length-1;i>=0;i--){const sh=shots[i];sh.t+=dt;const tg=sh.target!==undefined?racers[sh.target]:null;sh.d+=((tg?Math.max(tg.speed,0):Math.max(racers[sh.owner].speed,20))+24)*dt;if(tg)sh.off+=(tg.offset-sh.off)*Math.min(1,dt*5);const s=samplePos(sh.d,sh.off,_sp);sh.g.position.set(s.x,s.y+.15+Math.abs(Math.sin(sh.t*18))*.18,s.z);sh.g.rotation.y+=dt*16;
   if((tg&&sh.d>=tg.distance-1.2)||(!tg&&sh.t>1.2)||sh.t>4.5){if(tg)shellImpact(sh);else burst({mesh:sh.g},0x8beb73,8);actors.remove(sh.g);shots.splice(i,1);}}}
 
+// R52 Pilzland: wer an Baum, Fels oder Wall haengt, wird nicht mehr auf die Strasse zurueckgesetzt (Nutzerhinweis) -
+// das Kart setzt ein Stueck zurueck und wendet, man faehrt dort weiter, wo man war
+function owUnstick(r){const fx=Math.sin(r.h),fz=Math.cos(r.h);r.x-=fx*2.6;r.z-=fz*2.6;r.h+=Math.PI;r.vx=r.vz=0;r.speed=0;r.slowT=r.stuckT=0;r.driftDir=0;r.drift=0;
+ if(r.id===0){toast('↺ GEWENDET',.9);SFX.whoosh();}}
 // Halfpipe (R52): Schwerkraft entlang des Querschnitts, Kante in Ein-/Ausfahrt als Bande, Absprung ueber die Lippe
 // (senkrecht - man faellt in die Pipe zurueck), Wertung bei der Rueckkehr. Die Nase folgt der Bahn des Karts: die
 // Wand hinauf, ueber die Kuppe des Flugs und wieder hinunter - wie ein Skater, der nach dem Air zurueckfaehrt.
@@ -2508,7 +2512,9 @@ function halfpipeStep(r,dt,me){const hz=hpAt(r.distance);if(!hz){if(r.hpAir){r.h
  // Wer neben der Strasse (Pilzland-Wiese) in den Abschnitt kommt, ist draussen: der Erdwall haelt ihn fern. Sonst
  // laese die Pipe seinen grossen Querversatz als Flughoehe ueber der Lippe.
  if(r.hpIn!==hz){r.hpIn=hz;r.hpOut=!r.hpOn&&!r.hpAir&&Math.abs(r.offset)>HP.flat+3.5;}
- if(r.hpOut){r.hpOn=false;const ao=Math.abs(r.offset),want=HP.outer+.6;if(ao<want){const push=Math.min(want-ao,dt*(6+(want-ao)*4));r.x+=ox*push;r.z+=oz*push;r.offset=sg*(ao+push);const vn=r.vx*ox+r.vz*oz;if(vn<0){r.vx-=ox*vn*1.2;r.vz-=oz*vn*1.2;}}return;}
+ if(r.hpOut){r.hpOn=false;const ao=Math.abs(r.offset),want=HP.outer+.6;if(ao<want){const push=Math.min(want-ao,dt*(6+(want-ao)*4));r.x+=ox*push;r.z+=oz*push;r.offset=sg*(ao+push);const vn=r.vx*ox+r.vz*oz;
+  // am Wall entlang abgleiten statt stehen zu bleiben: Anteil nach innen in Laengsrichtung umlenken, Nase folgt
+  if(vn<0){const sp0=Math.hypot(r.vx,r.vz);r.vx-=ox*vn;r.vz-=oz*vn;const sp1=Math.hypot(r.vx,r.vz);if(sp1>.5){const k=Math.min(1,sp0*.85/sp1);r.vx*=k;r.vz*=k;r.h+=angleDiff(Math.atan2(r.vx,r.vz),r.h)*Math.min(1,dt*6);}}}return;}
  // Hinweis bei den ersten Einfahrten (je Durchfahrt einmal, insgesamt dreimal)
  if(me&&r.hpHintFor!==hz&&state==='race'){r.hpHintFor=hz;const n=store.get('hpHints',0);if(n<3){store.set('hpHints',n+1);toast(coarseInput?'HALFPIPE! Schräg hochfahren':'HALFPIPE! Schräg hoch · Luft: SHIFT',2,'good');}}
  r.hpOn=pf.u>-.3||!!r.hpAir;if(!r.hpOn)return;
@@ -2573,7 +2579,7 @@ function update(dt){
   else{input=aiInput(r,dt);r.steerS=(r.steerS||0)+(input.steer-(r.steerS||0))*Math.min(1,dt*8);}
   // Steckenbleib-Schutz: wer mit Gas laenger als 1,6 s fast steht, wird auf die Strecke gesetzt
   if(state==='race'&&r.stun<=0&&r.stall<=0&&input.gas&&Math.abs(r.speed)<2.5){r.slowT=(r.slowT||0)+dt;
-   if(r.slowT>(worldMode?4:1.6)){r.slowT=0;respawn(r);if(me)toast('ZURÜCK AUF DIE STRECKE',1.2);}}
+   if(r.slowT>(worldMode?4:1.6)){r.slowT=0;if(worldMode&&me)owUnstick(r);else{respawn(r);if(me)toast('ZURÜCK AUF DIE STRECKE',1.2);}}}
   else r.slowT=0;
   if(!me)aiItems(r,order);
   // In einer Rollzone schwebt die Bahn - daneben ist kein Gelaende, sondern nichts. Die
@@ -2625,7 +2631,7 @@ function update(dt){
   // trotz Gas nicht vorankommt, kommt ohne Handarbeit (Taste R) frei. Laengerer Limit und erst
   // nach dem Countdown, damit der Raketenstart (Gas halten bei Tempo 0) nichts faelschlich loest.
   const stuckLimit=me?2.6:1.6;
-  if(elapsed>4&&input.gas&&!r.air&&Math.abs(r.speed)<3&&r.stun<=0){r.stuckT=(r.stuckT||0)+dt;if(r.stuckT>stuckLimit){r.stuckT=0;respawn(r);}}else r.stuckT=0;
+  if(elapsed>4&&input.gas&&!r.air&&Math.abs(r.speed)<3&&r.stun<=0){r.stuckT=(r.stuckT||0)+dt;if(r.stuckT>stuckLimit){r.stuckT=0;if(worldMode&&me)owUnstick(r);else respawn(r);}}else r.stuckT=0;
   let pr=project(r.x,r.z,r.distance),skipped=false;
   // Weit neben der lokalen Projektion (Kurve abgeschnitten): global neu zuordnen; grosse Abkuerzungen setzen zurueck.
   if(Math.abs(pr.off)>14&&!forkBand(pr.d,pr.off,4)&&!nearLoop(r.distance)&&!hpAt(r.distance,6)){const g2=project(r.x,r.z,projectGlobal(r.x,r.z,r.y||0));if(Math.abs(g2.off)<9){const jump=wrapDiff(g2.d,lapDist(r.distance));if(jump>60&&!worldMode){respawn(r);if(me)toast('ABKÜRZUNG ZÄHLT NICHT!',1.6,'bad');skipped=true;}else{r.distance+=jump;pr=g2;}}}
@@ -2758,7 +2764,8 @@ function update(dt){
  if(place<lastPlace&&elapsed>2){stats.overtakes+=lastPlace-place;SFX.overtake();toast(`▲ PLATZ ${place}`,.9,'good');}
  if(place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
  // Falsche Richtung
- const tan=tanAt(player.distance),fdot=Math.sin(player.h)*tan.x+Math.cos(player.h)*tan.z;wrongT=fdot<-.35&&Math.abs(player.speed)>4?wrongT+dt:0;if(wrongT>1&&noticeTimer<=0){notice('FALSCHE RICHTUNG ↺',1);SFX.wrong();}
+ // R52: im Pilzland gibt es keine falsche Richtung - dort faehrt man, wohin man will (Nutzerhinweis: staendige Anzeige)
+ const tan=tanAt(player.distance),fdot=Math.sin(player.h)*tan.x+Math.cos(player.h)*tan.z;wrongT=!worldMode&&fdot<-.35&&Math.abs(player.speed)>4?wrongT+dt:0;if(wrongT>1&&noticeTimer<=0){notice('FALSCHE RICHTUNG ↺',1);SFX.wrong();}
  if(engine&&ctx){const t=ctx.currentTime,sp=Math.abs(player.speed);aset(engine.o1.frequency,55+sp*5.2+(player.air?50:0)+(player.boost>0?30:0),t,.06);aset(engine.o2.frequency,28+sp*2.6,t,.06);aset(engine.f.frequency,480+sp*36,t,.08);aset(engine.g.gain,soundOn?.011:0,t,.09);aset(engine.noise.gain,soundOn&&(player.driftDir||Math.abs(player.slide)>2.5)&&sp>8&&!player.air?.045:0,t,.07);aset(engine.bp.frequency,player.driftDir?1100+player.drift*260:900,t,.1);if(raceFilter)aset(raceFilter.frequency,Math.min(20000,3000+sp*430)*(1-.85*(elemFx?elemFx.uw:0)),t,.18);}
  syncKartInstances();if(player.finishTime!==null)end();}
 
