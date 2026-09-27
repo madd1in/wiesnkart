@@ -3267,7 +3267,7 @@ function ohRelease(){oh.id=null;oh.steer=0;oh.drift=false;oh.full=0;oh.taps.clea
 let ohPref=store.get('onehand',true);
 function ohSync(){const pref=ohPref,on=coarseInput&&pref&&innerHeight>innerWidth;if(on!==oh.on){oh.on=on;if(!on)ohRelease();}
  document.body.classList.toggle('onehand',on);
- for(const b of [ctrlButton,$('pauseCtrl')]){if(!b)continue;b.hidden=!coarseInput;b.textContent='Hochkant: '+(pref?'Ein-Hand':'Knöpfe');b.setAttribute('aria-pressed',String(pref));}}
+ for(const b of [ctrlButton,$('pauseCtrl')]){if(!b)continue;b.hidden=!coarseInput;b.innerHTML='<span class="pre">Hochkant: </span>'+(pref?'Ein-Hand':'Knöpfe');b.setAttribute('aria-pressed',String(pref));}}
 function ohDraw(x,y){const R=ohRadius(),dx=clamp(x-oh.ax,-R,R);ohStick.style.transform=`translate(${oh.ax}px,${y}px)`;ohStick.style.setProperty('--r',R+'px');ohKnob.style.transform=`translateX(${dx}px)`;}
 // Zeiten aus dem Ereignis-Zeitstempel (Beruehrung selbst), nicht aus dem Handler-Aufruf: ruckelt ein Bild, kaemen
 // Aufsetzen und Loslassen sonst verspaetet an und ein kurzes Tippen zaehlte nicht als Hops

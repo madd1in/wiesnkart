@@ -4,6 +4,29 @@ Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser, gebaut am 13.09.2026.
 
 Live: https://madd1in.github.io/mushroom-rally/
 
+## Runde 52 (27.09.2026): Layout-Feinschliff auf allen Bildschirmen
+
+Gemessen statt geschaetzt: ein Pruefskript legt Menue und Renn-HUD auf 15 Groessen (Handy hochkant 360-412 px,
+quer 640-915 px, Tablet, Laptop 1024-1920 px) und meldet jedes Element, das aus seinem Kasten ragt, abgeschnitten
+ist oder ein anderes ueberdeckt - vorher 30 Funde, jetzt keiner.
+- Pruefskript: art/r52/layout_check.mjs (`RACE=1` misst zusaetzlich das HUD).
+- **Menue quer (Handy):** die Garage steht jetzt als Zeilen "Etikett | Auswahl" - vorher liefen Kart-Farben und
+  "Sparsam" in die Tagesaufgabe, "Hochkant: Ein-Hand" schob sich unter "Los geht's" (quer jetzt "📱 Ein-Hand"),
+  "Geisterhaus" und "Regenbogen-" wurden in den Karten abgeschnitten.
+- **Modus-Knoepfe:** Breite nach Inhalt - "Zeitfahren" war hochkant abgeschnitten, "Grand Prix" brach auf Tablet
+  und Laptop zweizeilig um. Auf 360 px bekommt "Grafik" eine eigene Zeile.
+- **Einblendungen** (Turbo, Platz, Rivale ...) lagen auf Laptops mit 600-700 px Hoehe genau ueber Runde/Zeit; jetzt
+  immer darunter, die grosse Mitteilung (RUNDE 2) darunter. Hochkant brachen sie immer zweizeilig um und
+  ueberdeckten Platzanzeige und Rivalen-Schild: mit `left:50%` stand dem Text nur die halbe Schirmbreite zur
+  Verfuegung - jetzt einzeilig unter Rivalen-Schild und Item-Blase.
+- **Grand Prix hochkant:** der Kopfkasten (Runde · Zeit · GRAND PRIX) verdeckte die eigene Platzanzeige - dort
+  jetzt "GP" und etwas kleinere Ziffern. **Zeitfahren hochkant:** vier Felder liefen links aus dem Bild, jetzt
+  volle Breite. Geist, Medaillenzeit und GP-Zaehler in derselben Display-Schrift wie Runde/Zeit.
+- **Touch quer:** "DRIFT · TRICK" und "BREMSE" passen in ihre runden Knoepfe, das Item-Symbol in seine Blase,
+  die Tempoanzeige liegt auf kleinen Handys nicht mehr unter BREMSE. Item-Blase hochkant nicht mehr ueber Runde/Zeit.
+- **Kerbe/Kamera-Loch (iPhone quer):** Kopfleiste, Platz, Rivale, Pilzland-Tafel und Lenkknoepfe ruecken aus dem
+  sicheren Bereich nicht mehr heraus (geprueft mit simulierten Safe-Area-Raendern).
+
 ## Runde 51 (26.09.2026): Tux als Fahrer, Drachen-Spirale, offeneres Pilzland, Handy-Leistung
 
 - **Tux, der Linux-Pinguin, faehrt mit** (fuenfte Figur, eigener Entwurf, art/r51/create_penguin.py ->

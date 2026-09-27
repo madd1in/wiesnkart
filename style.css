@@ -1038,3 +1038,106 @@ body.pad #item kbd{width:17px;height:17px;padding:0;border-radius:50%;display:gr
 #wxStrip b{font-size:11px;font-weight:900;opacity:.45}
 @media(pointer:coarse) and (orientation:portrait){#wxStrip{left:0;transform:none;font-size:12px;padding:3px 9px;gap:4px}}
 @media(pointer:coarse) and (orientation:landscape){#wxStrip{font-size:11px;padding:2px 8px;top:calc(100% + 3px)}}
+
+/* =============================================================================================
+   R52: Feinschliff Layout - nichts ragt mehr aus seinem Kasten, Einblendungen liegen nie ueber
+   Runde/Zeit, Touch-Knoepfe und Menue passen auf kleine Handys (hochkant 360 px, quer 640 px).
+   ============================================================================================= */
+/* Modus-Knoepfe: Breite nach Inhalt statt gleich breit - "Zeitfahren" wurde abgeschnitten, "Grand Prix"
+   brach auf Tablet und Laptop zweizeilig um */
+body #menu #modes{flex-wrap:nowrap}
+body #menu #modes button{flex:1 1 auto;padding-left:6px;padding-right:6px}
+body #menu #modes button b{white-space:nowrap}
+@media (min-width:761px){body #menu #modes button b{font-size:14px}}
+@media (max-width:420px){
+ body #menu #modes{gap:4px;padding:4px}
+ body #menu #modes button{padding:9px 3px}
+ body #menu #modes button b{font-size:clamp(11px,3.3vw,13px);letter-spacing:-.2px}
+}
+/* Ganz schmal hochkant: Grafik bekommt eine eigene Zeile wie Fahrer und Kart ("Sparsam" ragte hinaus) */
+@media (max-width:380px){
+ body #menu .menu-picks .pick:nth-child(3),body #menu .menu-picks .pick:nth-child(4){grid-column:1/-1;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center;column-gap:8px}
+ body #menu .menu-picks .pick:nth-child(3)>small,body #menu .menu-picks .pick:nth-child(4)>small{justify-self:start}
+}
+/* Handy quer: Garage als Zeilen "Etikett | Auswahl" - vorher standen Kart und Grafik rechts neben Fahrer und
+   Lenkhilfe, die Farben und "Sparsam" liefen in die Tagesaufgabe hinein */
+@media (pointer:coarse) and (orientation:landscape){
+ body #menu .menu-picks{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:5px 9px}
+ body #menu .menu-picks .pick:nth-child(n){display:contents}
+ body #menu .menu-picks .pick:nth-child(n)>small{justify-self:start;align-self:center}
+ body #menu .menu-picks .pick>div{min-width:0}
+ body #menu #colors{grid-template-columns:repeat(5,20px);gap:4px 5px}
+ body #menu #modes button{padding-left:3px;padding-right:3px}body #menu #modes button b{font-size:12.5px}
+ /* "Hochkant: Ein-Hand" war der breiteste Chip und schob sich unter den Startknopf */
+ body #menu #ctrlMode .pre{display:none}
+ body #menu #ctrlMode:before{content:'📱 ';-webkit-text-stroke:0}
+ body #menu .menu-meta{min-width:0}
+}
+@media (pointer:coarse) and (orientation:landscape) and (max-width:760px){
+ /* Streckenspalte etwas breiter, damit "Geisterhaus" und "Regenbogen-" in die Karten passen */
+ body #menu .menu-panel{grid-template-columns:minmax(262px,1.02fr) minmax(0,1fr)}
+ body #menu #colors{grid-template-columns:repeat(5,18px);gap:3px 4px}
+ body #menu #colors .swatch{width:18px;height:18px}
+ body #menu #tracks .track b{font-size:9.5px;letter-spacing:0}
+ body #menu #modes button b{font-size:10.5px}
+ body #menu .ach-btn,body #menu #autoGas,body #menu #ctrlMode{padding:4px 6px;font-size:10px}
+}
+
+/* Einblendungen (Turbo, Platz, Rivale ...) unter Runde/Zeit und dem Wetterbericht - auf Laptops mit 600-700 px
+   Hoehe lagen sie genau ueber der Zeit. Die grosse Mitteilung (RUNDE 2, Countdown) bleibt darunter frei. */
+body #toast{top:max(24%,222px)}
+/* mit left:50% stand dem Text nur die halbe Schirmbreite zur Verfuegung - "WINDSCHATTEN-BOOST!" brach hochkant
+   immer zweizeilig um; jetzt einzeilig, bis er wirklich nicht mehr passt */
+body #toast{width:max-content}
+body #message{top:max(41%,330px)}
+@media (pointer:coarse) and (orientation:portrait){
+ /* hochkant: kleiner und einzeilig unter Rivalen-Schild und Item-Blase statt zweizeilig darueber */
+ body #toast{top:calc(236px + env(safe-area-inset-top,0px));font-size:clamp(19px,6vw,30px);line-height:1.1;-webkit-text-stroke:5px var(--mk-ink);max-width:calc(100vw - 24px)}
+ body #message{top:max(41%,calc(306px + env(safe-area-inset-top,0px)))}
+ /* Item-Blase lag 4 px ueber dem Runde/Zeit-Kasten */
+ body.onehand #touch .act{top:calc(168px + env(safe-area-inset-top,0px))}
+ body.ow #toast{top:calc(244px + env(safe-area-inset-top,0px))}
+}
+@media (pointer:coarse) and (orientation:landscape){
+ body #toast{top:calc(90px + env(safe-area-inset-top,0px));font-size:22px;line-height:1.1;-webkit-text-stroke:5px var(--mk-ink);max-width:min(620px,calc(100vw - 24px))}
+ body.ow #toast{top:calc(138px + env(safe-area-inset-top,0px))}
+ body #message{top:47%}
+ /* Beschriftungen passen in die runden Knoepfe, Item-Symbol in seine Blase */
+ body #touch .t-drift small{font-size:8px;letter-spacing:.2px;white-space:nowrap}
+ body #touch .t-brake{font-size:9px;letter-spacing:0}
+ body #titem #titemIcon{width:40px;height:40px}
+ /* Kerbe/Kamera-Loch seitlich (viewport-fit=cover): HUD und Knoepfe ruecken aus dem sicheren Bereich nicht heraus */
+ body header{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+ body .position{left:max(12px,env(safe-area-inset-left,0px))}
+ body #rivalTag{left:max(10px,env(safe-area-inset-left,0px))}
+ body #owPanel{left:max(10px,env(safe-area-inset-left,0px))}
+ /* ... und das Menue haelt rechts Platz fuer die mitgerueckten Kopfleisten-Knoepfe frei */
+ body #menu{padding-right:calc(64px + max(12px,env(safe-area-inset-right,0px)))}
+ body #touch{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
+}
+/* Zeitfahren und Grand Prix: Geist, Medaillenzeit und Rennzaehler in derselben Display-Schrift wie Runde/Zeit
+   (standen vorher in der Fliesstext-Schrift daneben) */
+body #ttDelta,body #ttMedalTime,body #gpRace{font-family:var(--mk-font);font-style:italic;font-weight:900;-webkit-text-stroke:4px var(--mk-ink);paint-order:stroke fill;color:#fff}
+body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
+/* Zeitfahren hochkant: vier Felder passten nicht in den rechts verankerten Kasten - er lief links aus dem Bild.
+   Die Platzanzeige fehlt im Zeitfahren, also volle Breite und etwas kleinere Ziffern */
+@media (pointer:coarse) and (orientation:portrait){
+ body #hud.tt .race-top{left:12px;right:12px;justify-content:space-between;gap:8px;padding:10px 12px}
+ body #hud.tt .race-top small{font-size:11px;letter-spacing:1.5px;white-space:nowrap}
+ body #hud.tt .race-top strong{font-size:clamp(18px,5.6vw,26px);white-space:nowrap}
+ body #hud.tt .race-top em{font-size:clamp(12px,3.6vw,16px)}
+}
+/* Grand Prix hochkant: mit dem breiten Etikett "GRAND PRIX" schob sich der Kasten ueber die Platzanzeige und
+   verdeckte die eigene Position - dort reicht "GP", die Felder ruecken zusammen */
+@media (pointer:coarse) and (orientation:portrait){
+ body #hud:not(.tt) .race-top:has(#gpBadge:not([hidden])){gap:10px;padding-left:12px;padding-right:12px}
+ body #hud:not(.tt) .race-top:has(#gpBadge:not([hidden])) strong{font-size:clamp(20px,6.6vw,30px)}
+ body #hud:not(.tt) .race-top:has(#gpBadge:not([hidden])) em{font-size:clamp(13px,4vw,18px)}
+ body #gpBadge small{font-size:0;letter-spacing:0}
+ body #gpBadge small:before{content:'GP';font-size:13px;letter-spacing:2px}
+}
+/* kurze Hochkant-Handys (360x640, SE): grosse Mitteilung etwas kleiner, sie liegt sonst breit ueber Karte und Tempo */
+@media (pointer:coarse) and (orientation:portrait) and (max-height:700px){body #message{font-size:46px;-webkit-text-stroke:7px var(--mk-ink)}}
+/* quer auf kleinen Handys: Tempo mittig zwischen Lenk- und Aktionsknoepfen, nicht unter BREMSE */
+@media (pointer:coarse) and (orientation:landscape) and (max-width:720px){body .speed{left:43%}}
+@media (pointer:coarse) and (orientation:landscape) and (max-width:760px){body #menu{padding-right:calc(58px + max(12px,env(safe-area-inset-right,0px)))}}
