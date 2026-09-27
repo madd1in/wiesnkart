@@ -439,7 +439,7 @@ function posAt(d,off,h,out){const [i,j,k]=tIdx(d),x=TP.x[i]+(TP.x[j]-TP.x[i])*k,
  let tx=TP.tx[i]+(TP.tx[j]-TP.tx[i])*k,tz=TP.tz[i]+(TP.tz[j]-TP.tz[i])*k;const tl=Math.hypot(tx,tz)||1;tx/=tl;tz/=tl;
  const bb=TP.b[i]+(TP.b[j]-TP.b[i])*k,hh=TP.h[i]+(TP.h[j]-TP.h[i])*k+(agrav.length?liftAt(d):0)+(coasters.length?coasterH(d):0)+(elems.length?elemH(d):0);
  // Halfpipe (R52): Querversatz = Bogenlaenge ueber den U-Querschnitt, die Normale kippt mit der Wand
- if(hpipes.length){const hz=hpAt(d);if(hz){hpProfile(off,hpEnvAt(hz,d),_hpp);const c=Math.cos(_hpp.phi),sn=Math.sin(_hpp.phi),lat=_hpp.lat,up=_hpp.up;
+ if(hpipes.length&&Math.abs(off)<HP.outer){const hz=hpAt(d);if(hz){hpProfile(off,hpEnvAt(hz,d),_hpp);const c=Math.cos(_hpp.phi),sn=Math.sin(_hpp.phi),lat=_hpp.lat,up=_hpp.up;
   return out.set(x+tz*lat-tz*sn*h,hh-bb*lat+up+(c+bb*sn)*h,z-tx*lat+tx*sn*h);}}
  const ph=(agrav.length?rollAt(d):0)+(coasters.length?coasterRoll(d,_rax):0),cr=Math.cos(ph),sr=Math.sin(ph);
  const qx=tz*cr,qy=sr-bb*cr,qz=-tx*cr;                 // Querachse der Fahrbahn
@@ -479,7 +479,7 @@ function raiseH(d){let h=0;for(const q of raises){const span=lapDist(q.e-q.s),re
 function roadRef(d,off){const [i,j,k]=tIdx(d);return TP.h[i]+(TP.h[j]-TP.h[i])*k-off*(TP.b[i]+(TP.b[j]-TP.b[i])*k);}
 function groundAt(d,off){const tr=trackAt(d);let base=tr.h-off*tr.b;
  // In der Halfpipe traegt die Wand (Bild) - flach gerechnet gibt es dort keine Boeschung, die abfaellt
- if(hpipes.length&&hpAt(d))return {y:base,rh:rampAt(d,off)};const edge=Math.abs(off)-(Math.abs(off)>8.6&&shoulderOk(d,off)?SHOULDER+.3:8.9);
+ if(hpipes.length&&Math.abs(off)<HP.outer&&hpAt(d))return {y:base,rh:rampAt(d,off)};const edge=Math.abs(off)-(Math.abs(off)>8.6&&shoulderOk(d,off)?SHOULDER+.3:8.9);
  // Die Anti-Grav-Bahn schwebt: daneben gibt es keine Boeschung, die abfaellt. Rechnete man sie
  // mit, loeste sich der Haltemagnet sobald das Kart etwas weiter aussen fuhr - es fiel heraus
  // und wurde zurueckgesetzt. Seitlich haelt die Fuehrung, nicht das Gelaende.
@@ -979,7 +979,7 @@ function buildHalfpipes(){const [base,c1,c2]=HP_COL[course.theme]||HP_COL.forest
   q.fillStyle=c1;q.fillRect(0,h*.02,w,h*.07);q.fillStyle=c2;q.fillRect(0,h*.1,w,h*.035);
   q.fillStyle=c1+'cc';for(const y of [.62,.8]){q.beginPath();q.moveTo(w*.28,h*y+18);q.lineTo(w*.5,h*y);q.lineTo(w*.72,h*y+18);q.lineTo(w*.72,h*y+30);q.lineTo(w*.5,h*y+12);q.lineTo(w*.28,h*y+30);q.fill();}},true);
  const wallMat=stdMat({map:tex,roughness:.85,side:T.DoubleSide,...(glow?{emissive:0xffffff,emissiveMap:tex,emissiveIntensity:.35}:{})});
- const deckMat=mat(glow?0x1c1838:0xb8b2a8,{roughness:.9,side:T.DoubleSide}),backMat=mat(glow?0x15122c:0x9a948c,{roughness:.95,side:T.DoubleSide});
+ const deckMat=mat(glow?0x1c1838:0xb8b2a8,{roughness:.9,side:T.DoubleSide}),backMat=mat(glow?0x15122c:theme.grass,{roughness:1,side:T.DoubleSide});
  const copMat=stdMat({color:glow?0xffffff:0xd9dde2,roughness:.3,metalness:.8,...(glow?{emissive:new T.Color(c1),emissiveIntensity:.8}:{})});
  const wallG=[],deckG=[],backG=[],copG=[],N=14,DECK=2.4,_p=new T.Vector3();
  for(const z of hpipes){const steps=Math.ceil(z.span/1.5);
@@ -990,7 +990,8 @@ function buildHalfpipes(){const [base,c1,c2]=HP_COL[course.theme]||HP_COL.forest
     // Lippe, Plattform (waagerecht nach aussen), Rueckwand bis knapp unter den Boden
     const lat=HP.flat+HP.R*Math.sin(env*Math.PI/2),up=HP.R*(1-Math.cos(env*Math.PI/2));
     hpPoint(d,sg*lat,up,_p);lip.push(_p.clone());dv.push(_p.clone());hpPoint(d,sg*(lat+DECK),up,_p);dv.push(_p.clone());
-    bv.push(_p.clone());hpPoint(d,sg*(lat+DECK),-.4,_p);bv.push(_p.clone());}
+    // Erdwall: Grasboeschung vom Plattformrand bis auf den Boden am Aussenrand (dort beginnt die Wiese)
+    bv.push(_p.clone());hpPoint(d,sg*HP.outer,groundAt(d,sg*(HP.outer+1)).y-roadRef(d,sg*HP.outer)-.25,_p);bv.push(_p.clone());}
    const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(v,3));g.setAttribute('uv',new T.BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();wallG.push(g);
    const quad=(pts,arr)=>{const pv=new Float32Array(pts.length*3),ix=[];pts.forEach((p,i)=>pv.set([p.x,p.y,p.z],i*3));for(let i=0;i+3<pts.length;i+=2)ix.push(i,i+2,i+1,i+1,i+2,i+3);const q=new T.BufferGeometry();q.setAttribute('position',new T.BufferAttribute(pv,3));q.setIndex(ix);q.computeVertexNormals();arr.push(q);};
    quad(dv,deckG);quad(bv,backG);
@@ -2075,7 +2076,7 @@ function startTrick(r){r.trick=.001;if(r.id===0)SFX.whoosh();}
 // Rettungspilz: nach einem Sturz in die Schlucht zurueck vor die Anlaufstrecke
 // Die Hoehe kommt aus groundAt, nicht aus sample: in einer Rollzone schwebt die sichtbare Bahn
 // bis zu 12,5 m ueber dem Boden, und wer dort oben eingesetzt wird, faellt endlos im Kreis.
-function respawn(r){resetGlider(r,true);const me=r.id===0,d=r.safeD??0,fromD=Math.round(lapDist(r.distance)),fromOff=+(r.offset||0).toFixed(1),s=sample(d,0),gy=groundAt(d,0).y,fell=gaps.some(g=>Math.abs(wrapDiff(g.c,lapDist(r.distance)))<40);r.x=s.p.x;r.z=s.p.z;r.h=s.angle;r.vx=r.vz=0;r.speed=0;r.distance+=wrapDiff(d,lapDist(r.distance));r.offset=0;r.y=gy+2.2;r.vy=0;r.air=true;r.airT=0;r.trick=0;r.hpOn=r.hpAir=false;r.driftDir=0;r.drift=0;r.stun=.5;r.lastGround=gy;
+function respawn(r){resetGlider(r,true);const me=r.id===0,d=r.safeD??0,fromD=Math.round(lapDist(r.distance)),fromOff=+(r.offset||0).toFixed(1),s=sample(d,0),gy=groundAt(d,0).y,fell=gaps.some(g=>Math.abs(wrapDiff(g.c,lapDist(r.distance)))<40);r.x=s.p.x;r.z=s.p.z;r.h=s.angle;r.vx=r.vz=0;r.speed=0;r.distance+=wrapDiff(d,lapDist(r.distance));r.offset=0;r.y=gy+2.2;r.vy=0;r.air=true;r.airT=0;r.trick=0;r.hpOn=r.hpAir=r.hpOut=false;r.hpIn=null;r.driftDir=0;r.drift=0;r.stun=.5;r.lastGround=gy;
  if(me&&stats){stats.falls++;(stats.fallAt||(stats.fallAt=[])).push([fromD,fromOff,Math.round(lapDist(r.distance))]);toast(fell?'RETTUNGSPILZ! Mit mehr Tempo über die Schanze':'RETTUNGSPILZ!',2,'bad');if(fell)SFX.splash();shake=.3;}}
 const nearPlayer=(r,range)=>racers[0]&&Math.abs(r.distance-racers[0].distance)<range;
 function collideStatic(r){hazardHits(r,r.id===0);trainHits(r,r.id===0);characterHits(r,r.id===0);if(r.hpOn&&Math.abs(r.offset)>HP.flat)return;const ix=Math.floor(r.x/16),iz=Math.floor(r.z/16);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const cell=obsGrid.get((ix+a+500)*1000+(iz+b+500));if(!cell)continue;for(const o of cell){const dx=r.x-o.x,dz=r.z-o.z,rr=o.r+1.05,d2=dx*dx+dz*dz;if(d2<rr*rr&&r.y<o.h){const d=Math.sqrt(d2)||1,nx=dx/d,nz=dz/d;r.x=o.x+nx*rr;r.z=o.z+nz*rr;bounce(r,nx,nz);}}}
@@ -2500,8 +2501,12 @@ function updateShots(dt){for(let i=shots.length-1;i>=0;i--){const sh=shots[i];sh
 // Halfpipe (R52): Schwerkraft entlang des Querschnitts, Kante in Ein-/Ausfahrt als Bande, Absprung ueber die Lippe
 // (senkrecht - man faellt in die Pipe zurueck), Wertung bei der Rueckkehr. Die Nase folgt der Bahn des Karts: die
 // Wand hinauf, ueber die Kuppe des Flugs und wieder hinunter - wie ein Skater, der nach dem Air zurueckfaehrt.
-function halfpipeStep(r,dt,me){const hz=hpAt(r.distance);if(!hz){if(r.hpAir){r.hpAir=false;land(r,groundAt(r.distance,r.offset).y,0);}r.hpOn=false;return;}
+function halfpipeStep(r,dt,me){const hz=hpAt(r.distance);if(!hz){if(r.hpAir){r.hpAir=false;land(r,groundAt(r.distance,r.offset).y,0);}r.hpOn=r.hpOut=false;r.hpIn=null;return;}
  const env=hpEnvAt(hz,r.distance),pf=hpProfile(r.offset,env,_hpq),tn=tanAt(r.distance),sg=pf.s,ox=tn.z*sg,oz=-tn.x*sg;
+ // Wer neben der Strasse (Pilzland-Wiese) in den Abschnitt kommt, ist draussen: der Erdwall haelt ihn fern. Sonst
+ // laese die Pipe seinen grossen Querversatz als Flughoehe ueber der Lippe.
+ if(r.hpIn!==hz){r.hpIn=hz;r.hpOut=!r.hpOn&&!r.hpAir&&Math.abs(r.offset)>HP.flat+3.5;}
+ if(r.hpOut){r.hpOn=false;const ao=Math.abs(r.offset),want=HP.outer+.6;if(ao<want){const push=Math.min(want-ao,dt*(6+(want-ao)*4));r.x+=ox*push;r.z+=oz*push;r.offset=sg*(ao+push);const vn=r.vx*ox+r.vz*oz;if(vn<0){r.vx-=ox*vn*1.2;r.vz-=oz*vn*1.2;}}return;}
  // Hinweis bei den ersten Einfahrten (je Durchfahrt einmal, insgesamt dreimal)
  if(me&&r.hpHintFor!==hz&&state==='race'){r.hpHintFor=hz;const n=store.get('hpHints',0);if(n<3){store.set('hpHints',n+1);toast(coarseInput?'HALFPIPE! Schräg hochfahren':'HALFPIPE! Schräg hoch · Luft: SHIFT',2,'good');}}
  r.hpOn=pf.u>-.3||!!r.hpAir;if(!r.hpOn)return;

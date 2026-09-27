@@ -17,6 +17,8 @@ export const HP = {
   ramp: 22,       // Laenge von Ein- und Ausfahrt (m), in denen die Waende wachsen bzw. schrumpfen
   launchEnv: .97, // ab diesem Hoehenanteil fliegt man ueber die Lippe (sonst haelt die Kante)
   maxAir: 6,      // hoechster Flug ueber der Lippe (m) - mit Turbo waeren sonst 20 m drin
+  outer: 25.5,    // Aussenkante des Erdwalls (m): innerhalb gilt der Pipe-Querschnitt, draussen ist Wiese. Ueber der
+                  // Lippe wird hoechstens flat + Bogen + maxAir = 23,8 m erreicht - dazwischen ist nie jemand
   minR: 45,       // kleinster Kurvenradius im Abschnitt (m); enger faltet die Luft ueber der Innenwand ein
 };
 

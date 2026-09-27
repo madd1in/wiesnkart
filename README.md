@@ -37,6 +37,10 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
   KI in der Naehe; auf der Minikarte ein eigenes rosa Band; keine Reifenspuren mehr hinter der Pipe im Gras.
 - Bei den ersten drei Einfahrten ein Hinweis ("HALFPIPE! Schraeg hochfahren"), im Ergebnis eine Kachel
   "Halfpipe · Airs · Tricks" mit der hoechsten Flughoehe.
+- **Erdwall:** aussen liegt jetzt eine Grasboeschung bis 25,5 m neben der Mitte (statt senkrechter Rueckwand). Wer im
+  Pilzland ueber die Wiese seitlich heranfaehrt, wird als "draussen" eingestuft und vom Wall ferngehalten - vorher
+  haette die Pipe seinen grossen Querversatz als Flughoehe gelesen und ihn ueber die Lippe gesetzt (geprueft:
+  parallel und schraeg von beiden Seiten, niemand kommt naeher als 26 m, keiner hebt ab).
 - **Bildblitz** hoechstens halbweiss (Gewitterwolken-Treffer war 70 %); mit "Bewegung reduzieren" im System nur ein
   Viertel davon, ebenso Blitz-Aufhellung und Kamerawackeln.
 - **Siegerehrung:** "ERFOLG: Grand-Prix-Sieger" lag hinter der Ergebniskarte - jetzt darueber im freien Bereich.
