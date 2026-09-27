@@ -1141,3 +1141,41 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
 /* quer auf kleinen Handys: Tempo mittig zwischen Lenk- und Aktionsknoepfen, nicht unter BREMSE */
 @media (pointer:coarse) and (orientation:landscape) and (max-width:720px){body .speed{left:43%}}
 @media (pointer:coarse) and (orientation:landscape) and (max-width:760px){body #menu{padding-right:calc(58px + max(12px,env(safe-area-inset-right,0px)))}}
+
+/* =============================================================================================
+   R52: Minimal-HUD hochkant (Nutzerwunsch "Anzeige im Rennen zu voll") - nur Platz, Runde, Item, Pause,
+   Einblendungen und Drift-Balken. Zeit, Wetterleiste, Rivalen-Schild, Sporen, Tempo, Karte und die Kopfleisten-
+   Knoepfe (Ton, Vollbild, Marke) gibt es mit "Anzeige hochkant: VOLL" im Pausemenue. Zeitfahren behaelt Zeit und Geist.
+   ============================================================================================= */
+@media (pointer:coarse) and (orientation:portrait){
+ body.hudmin.racing header .brand,body.hudmin.racing #sound,body.hudmin.racing #full{display:none!important}
+ body.hudmin.racing header{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0;justify-content:flex-end}
+ body.hudmin.racing #pause{width:44px;height:44px;padding:0!important;display:grid;place-items:center;font-size:16px;border-radius:50%;background:#15133a8c;border-color:#ffffff59}
+ body.hudmin .position{left:14px;top:calc(8px + env(safe-area-inset-top,0px))}
+ body.hudmin .position strong{font-size:58px;-webkit-text-stroke:7px var(--mk-ink)}
+ body.hudmin .position>span{font-size:19px}
+ body.hudmin .position small{display:none}
+ /* Runde als kleine Pille oben in der Mitte */
+ body.hudmin .race-top{top:calc(18px + env(safe-area-inset-top,0px));left:50%;right:auto;transform:translateX(-50%);gap:12px;padding:5px 14px 6px;border-radius:999px;background:#15133a8c;backdrop-filter:blur(6px)}
+ body.hudmin .race-top small{display:none}
+ body.hudmin .race-top strong{font-size:24px;line-height:1}
+ body.hudmin .race-top em{font-size:15px}
+ body.hudmin .race-top>div:nth-child(2),body.hudmin #wxStrip,body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
+ body.hudmin #lap:before{content:'🏁 ';font-size:15px;-webkit-text-stroke:0;vertical-align:3px}
+ /* Zeitfahren: Zeit und Geist bleiben (ohne Runde), Pilzland: Kopfkasten ganz weg */
+ body.hudmin #hud.tt .race-top>div:nth-child(2){display:block!important}
+ body.hudmin #hud.tt .race-top>div:first-child{display:none!important}
+ body.hudmin #hud.tt .race-top{left:50%;right:auto;padding:5px 14px 6px}
+ body.hudmin #hud.tt .race-top strong{font-size:22px}
+ body.hudmin.ow .race-top{display:none!important}
+ body.hudmin #rivalTag,body.hudmin #map,body.hudmin .speed .spores,body.hudmin .speed>strong,body.hudmin .speed>small{display:none!important}
+ /* Item-Blase unter dem Pause-Knopf, Drift-Balken als duenne Linie */
+ body.hudmin.onehand #touch .act{top:calc(66px + env(safe-area-inset-top,0px))}
+ body.hudmin.onehand .speed{right:auto;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+ body.hudmin .driftbar{width:130px;height:7px;opacity:.9}
+ body.hudmin #toast{top:calc(148px + env(safe-area-inset-top,0px));font-size:clamp(18px,5.4vw,26px)}
+ body.hudmin.ow #toast{top:calc(160px + env(safe-area-inset-top,0px))}
+ body.hudmin #message{top:max(36%,calc(230px + env(safe-area-inset-top,0px)))}
+ body.hudmin #owPanel{top:calc(64px + env(safe-area-inset-top,0px));padding:5px 10px 6px}
+ body.hudmin #owPanel span{font-size:18px}
+}

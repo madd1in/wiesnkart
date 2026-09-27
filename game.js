@@ -3380,10 +3380,14 @@ function setAutoGas(v){autoGas=v;store.set('autogas',v);document.body.classList.
 const ohPad=$('ohPad'),ohStick=$('ohStick'),ohKnob=ohStick.firstElementChild,ctrlButton=document.createElement('button');ctrlButton.id='ctrlMode';
 const ohRadius=()=>clamp(innerWidth*.15,44,80);
 function ohRelease(){oh.id=null;oh.steer=0;oh.drift=false;oh.full=0;oh.taps.clear();ohStick.classList.remove('on');}
-let ohPref=store.get('onehand',true);
+let ohPref=store.get('onehand',true),hudMinPref=store.get('hudMin',true);
 function ohSync(){const pref=ohPref,on=coarseInput&&pref&&innerHeight>innerWidth;if(on!==oh.on){oh.on=on;if(!on)ohRelease();}
  document.body.classList.toggle('onehand',on);
- for(const b of [ctrlButton,$('pauseCtrl')]){if(!b)continue;b.hidden=!coarseInput;b.innerHTML='<span class="pre">Hochkant: </span>'+(pref?'Ein-Hand':'Knöpfe');b.setAttribute('aria-pressed',String(pref));}}
+ for(const b of [ctrlButton,$('pauseCtrl')]){if(!b)continue;b.hidden=!coarseInput;b.innerHTML='<span class="pre">Hochkant: </span>'+(pref?'Ein-Hand':'Knöpfe');b.setAttribute('aria-pressed',String(pref));}
+ // R52 Minimal-HUD hochkant (Nutzerwunsch: Anzeige im Rennen zu voll) - Platz, Runde, Item, Pause, Drift-Balken;
+ // Zeit, Wetterleiste, Rivalen-Schild, Sporen, Tempo und Karte nur mit "Anzeige: VOLL" (Pause)
+ const hm=coarseInput&&hudMinPref&&innerHeight>innerWidth;document.body.classList.toggle('hudmin',hm);
+ const hb=$('pauseHud');if(hb){hb.hidden=!coarseInput;hb.textContent='Anzeige hochkant: '+(hudMinPref?'MINIMAL':'VOLL');hb.setAttribute('aria-pressed',String(hudMinPref));}}
 function ohDraw(x,y){const R=ohRadius(),dx=clamp(x-oh.ax,-R,R);ohStick.style.transform=`translate(${oh.ax}px,${y}px)`;ohStick.style.setProperty('--r',R+'px');ohKnob.style.transform=`translateX(${dx}px)`;}
 // Zeiten aus dem Ereignis-Zeitstempel (Beruehrung selbst), nicht aus dem Handler-Aufruf: ruckelt ein Bild, kaemen
 // Aufsetzen und Loslassen sonst verspaetet an und ein kurzes Tippen zaehlte nicht als Hops
@@ -3405,6 +3409,7 @@ ohPad.addEventListener('pointerup',ohUp);ohPad.addEventListener('pointercancel',
 ohPad.addEventListener('lostpointercapture',e=>{if(e.pointerId===oh.id)ohRelease();else oh.taps.delete(e.pointerId);});
 addEventListener('blur',ohRelease);addEventListener('resize',ohSync);
 ctrlButton.onclick=$('pauseCtrl').onclick=()=>{ohPref=!ohPref;store.set('onehand',ohPref);ohSync();};
+if($('pauseHud'))$('pauseHud').onclick=()=>{hudMinPref=!hudMinPref;store.set('hudMin',hudMinPref);ohSync();};
 autoButton.onclick=()=>setAutoGas(!autoGas);document.querySelector('.controls').after(autoButton,ctrlButton);ohSync();if($('pauseAutoGas'))$('pauseAutoGas').onclick=()=>setAutoGas(!autoGas);if(store.get('autogasV',0)<44){store.set('autogas',false);store.set('autogasV',44);}setAutoGas(store.get('autogas',false));
 
 // ---------------------------------------------------------------- Laden & Start

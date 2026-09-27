@@ -43,7 +43,9 @@ const CHECK_MENU = () => {
   for (let i = 0; i < areas.length; i++) for (let j = i + 1; j < areas.length; j++) {
     const a = areas[i].getBoundingClientRect(), b = areas[j].getBoundingClientRect();
     const ox = Math.min(a.right, b.right) - Math.max(a.left, b.left), oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
-    if (ox > 4 && oy > 4 && !(areas[i].id === 'tracks' || areas[j].id === 'tracks')) out.push(`overlap ${name(areas[i])} x ${name(areas[j])} (${Math.round(ox)}x${Math.round(oy)})`);
+    // der Startknopf klebt auf kleinen Handys absichtlich unten ueber dem scrollenden Inhalt (position: sticky)
+    const sticky = e => getComputedStyle(e).position === 'sticky';
+    if (ox > 4 && oy > 4 && !(areas[i].id === 'tracks' || areas[j].id === 'tracks') && !sticky(areas[i]) && !sticky(areas[j])) out.push(`overlap ${name(areas[i])} x ${name(areas[j])} (${Math.round(ox)}x${Math.round(oy)})`);
   }
   // 3) clipped text
   for (const el of panel.querySelectorAll('button, b, small, span, em')) {

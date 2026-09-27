@@ -4,7 +4,7 @@ Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser, gebaut am 13.09.2026.
 
 Live: https://madd1in.github.io/mushroom-rally/
 
-## Runde 52 (27.09.2026): Halfpipes und Layout-Feinschliff
+## Runde 52 (27.09.2026): Halfpipes, Minimal-HUD hochkant und Layout-Feinschliff
 
 **Halfpipes** (halfpipe.mjs, 9 Unit-Tests): U-foermige Abschnitte mit flachem Boden und Viertelkreis-Waenden
 (5,5 m hoch, Beton mit Pfeilen hinauf, Metallkante, Plattform und Rueckwand). Wie Looping und Rollzone wird flach
@@ -25,6 +25,13 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
   Pipe) und zweimal im **Pilzland**; die anderen Strecken sind lueckenlos belegt (laengstes freies Stueck ~70 m).
 - Neuer Erfolg "Halfpipe-Held" (3 Halfpipe-Tricks in einem Rennen) - jetzt 33. Autopilot-Rennen Kirmes und
   Pilzland ohne Sturz und ohne Fehler; 120/120 Tests.
+
+**Minimal-HUD hochkant** (Handy, Nutzerwunsch "Anzeige im Rennen zu voll"): im Rennen stehen nur noch Platz (oben
+links, kompakt), Runde als kleine Pille (🏁 1/3), Pause-Knopf, Item-Blase darunter, Einblendungen und ein duenner
+Drift-Balken unten. Zeit, Wetterleiste, Rivalen-Schild, Sporen, Tempo, Minikarte sowie Ton-, Vollbild- und
+Marken-Knopf entfallen; das Zeitfahren behaelt Zeit und Geist, im Pilzland bleibt die Missionstafel (kleiner).
+Standard ist MINIMAL - wer alles sehen will, schaltet im Pausemenue "Anzeige hochkant: VOLL" (wird gespeichert).
+Quer und am Desktop bleibt die Anzeige wie bisher.
 
 ### Layout-Feinschliff auf allen Bildschirmen
 
