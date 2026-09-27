@@ -1186,3 +1186,14 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
 body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw - 470px);font-size:28px;top:max(18%,120px)}
 @media (pointer:coarse) and (orientation:landscape){body.cer #toast{left:calc((100vw - 352px) / 2);max-width:calc(100vw - 380px);font-size:20px;top:calc(60px + env(safe-area-inset-top,0px))}}
 @media (max-width:760px) and (orientation:portrait){body.cer #toast{left:50%;max-width:calc(100vw - 24px);font-size:19px;top:calc(62px + env(safe-area-inset-top,0px));-webkit-text-stroke:5px var(--mk-ink)}}
+/* R52: Pause quer - sechs Knoepfe untereinander passten nicht (640x360: nur bis "Anzeige", "Zur Streckenauswahl" lag
+   unsichtbar im Rollbereich). Jetzt zweispaltig: Titel und Weiterfahren breit, Einstellungen 2x2, Ausgang darunter. */
+@media (orientation:landscape) and (max-height:500px){
+ body #pausePanel>div{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;align-content:start;width:min(620px,94vw);padding:16px 18px 14px}
+ body #pausePanel>div>.eyebrow,body #pausePanel>div>h2,body #pausePanel #resume,body #pausePanel #quit{grid-column:1/-1}
+ body #pausePanel h2{font-size:22px;margin:0 0 2px}
+ body #pausePanel .eyebrow{font-size:11px}
+ body #pausePanel button{margin:0!important}
+ body #pausePanel #resume{padding:9px 18px;font-size:17px}
+ body #pausePanel .secondary{padding:8px 10px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
