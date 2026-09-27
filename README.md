@@ -4,6 +4,57 @@ Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser, gebaut am 13.09.2026.
 
 Live: https://madd1in.github.io/mushroom-rally/
 
+## Runde 53 (28.09.2026): Neuschwanstein zum Durchfahren, Pilz-Wiesn, Gothic-Geisterhaus mit Besen-Zauberer, Kart-Glanz, Minimal-HUD, Strecken-Ereignisse
+
+**Neuschwanstein befahrbar (Pilz-Promenade)** - `assets/schloss.glb` aus `art/r53/create_schloss.py` (Blender-MCP, eigener
+Entwurf im Neuschwanstein-Stil, 18 300 Dreiecke): Die Strasse fuehrt durch den roten Backstein-**Torbau** (flacher Bogen,
+Zinnen, Ecktuermchen, hochgezogenes Fallgitter, Laternen), durch den offenen **Innenhof** (Arkaden, Wehrgang, blau-weisse
+Fahnen, Viereckturm mit 36 m und Pyramidendach, Kemenate, Ritterhaus) und unter dem **Palas** hindurch (Durchfahrt mit
+Bogenrippen und Laternen, drei Fensterreihen, Saengerbalkon, steiles Schieferdach, Rundtuerme mit goldenen Spitzen,
+Treppenturm 40 m). Das Schloss steht auf einem Felssockel aus den Blender-Felsen des Spiels. Es ersetzt das Kulissenschloss
+am Inselrand; der Holztunnel sitzt dahinter (kuerzer), die Roehren-Pflanzen stehen hinter dem Schloss.
+Durchfahrt innen 21 m breit, Kollider erst ab 10,7 m neben der Mitte - Autopilot-Test: alle 8 Karts fahren ohne Anstossen durch.
+
+**Pilz-Wiesn (Neon-Pilzwald als Oktoberfest)** - `assets/wiesn.glb` (`create_wiesn.py`): **Wiesn-Tor** zum Durchfahren
+gleich nach dem Start (blau-weiss gewundene Pfosten, Rautenmuster, Gluehbirnenkette, Schild "PILZ-WIESN", Riesenbrezeln,
+Lebkuchenherz), drei drehende **Kettenkarussells**, **Wiesn-Buden** mit Lebkuchenherzen, **Masskrug-Leuchtschilder**,
+Bierfass-Pyramiden, Biertische, ein zweites Festzelt "PILZBRAEU", blau-weisse **Wimpelketten** quer ueber die Strasse und
+das Riesenrad der Kirmes. Alles nur an freien Stellen (keine Zone, Rollzone, Tunnel, Bruecke oder anderer Streckenteil).
+
+**Gothic-Geisterhaus und Besen-Zauberer** - `assets/gothic.glb` (`create_gothic.py`, eigene Entwuerfe in
+Castlevania-Stimmung, keine Original-Assets): gotisches **Uhrturm-Tor** zum Durchfahren (Spitzbogen, Rosettenfenster aus
+Buntglas, Turmuhr, Fialen, Wasserspeier), 18 eiserne **Kandelaber** mit flackernden Kerzen, **Ruinenmauern** mit
+Buntglasfenstern, Saerge, **Fledermaus-Schwaerme** (Fluegel schlagen). Dazu der **Besen-Zauberer** (Kamek-Hommage: blaue
+Kutte und Spitzhut, Brille, Schnabel, Sternstab, Reisigbesen): Im Abschnitt Zielgerade bis Gruft fliegt er vor dem
+Spieler her und wirft alle 2,6-3,8 s Zauber-Formen (Ring, Quadrat, Dreieck) auf die Strasse - Wurfbahn als Bogen, gelandet
+bleiben sie 3,2 s liegen; wer hineinfaehrt, dreht sich ("VERZAUBERT!", eine Spore weg), Schild schuetzt, Spruenge
+fliegen darueber. Nie in Tunnel, Looping, Rollzone, Achterbahn oder Luecke. Logik in `kamek.mjs` (6 Unit-Tests).
+
+**Kart- und Fahrer-Glanz** - Karts und Fahrer spiegeln ein Studio-Licht (PMREM aus Softboxen und Himmelsverlauf):
+Karosserie mit Klarlack (MeshPhysical), Chrom-Felgen, Gold, Glas; dazu ein Cartoon-Randlicht in der Himmelsfarbe der
+Strecke. Nur fuer Karts und Fahrer (die Welt bleibt matt), nachts gedaempfte Spiegelung und kraeftigeres Randlicht.
+Im Leicht-Modus (Handy) unveraendert.
+
+**Minimal-HUD ueberall** (Nutzerwunsch "ingame gui minimal"): Was in R52 nur hochkant galt, ist jetzt auf Desktop und quer
+Standard - Platz klein oben links, Runde als Pille oben mittig, runder Pause-Knopf mit Item-Blase oben rechts,
+Drift-Balken unten mittig, Windschatten als schmaler Balken. Zeit, Wetterleiste, Rivale, Karte, Tempo, Sporen,
+Tastenhilfe, Marke, Ton- und Vollbild-Knopf mit "Anzeige: VOLL" im Pausemenue (jetzt auf allen Geraeten).
+
+**Runden-Ereignisse je Strecke** (Nutzerhinweis "zu aehnlich ueber die Strecken"): Kein Ereignis gibt es mehr auf zwei
+Strecken, und ab Runde 2 bekommt eine Runde mit 80 % eines (nicht zweimal dasselbe hintereinander):
+Pilz-Promenade Ballonfestival, Alpengluehen, Regenbogen, Gluehwuermchen · Sonnen-Canyon UFO-Lift, Sonnenfinsternis ·
+Magnet-Kirmes Feuerwerk, Luftballons · Pilz-Wiesn Himmelslaternen, Polarlicht · Geisterhaus Blutmond (roter Himmel und
+Mond), Fledermaus-Schwarm, Irrlichter · Regenbogenpiste Sternschnuppen, Komet · Lava-Feste Vulkanausbruch (Lavabomben,
+Beben, glutroter Horizont). weather.mjs +4 Tests (Exklusivitaet, Haeufigkeit, Passung, Himmelsfarben).
+
+**Windschatten mit Ausscheren** (lokale R52-Arbeit, jetzt eingebunden): Hinter einem Kart laedt sich in 1,2 s der
+Windschatten; ist er voll ("TURBO BEREIT"), heisst es seitlich ausscheren - das zuendet 1,05 s Turbo, danach 3 s
+Abklingzeit. HUD-Balken, Luftrauschen, eigene Chiptune-Signale; KI schert automatisch aus. `draft.mjs` mit Tests.
+Dazu Windfahnen aus Blender (`windsock.glb`) am Rand der ersten drei Strecken.
+
+MCP-Einsatz: Blender-MCP (alle drei neuen Modellpakete in der offenen Blender-Sitzung, eigene Szenen, Vorschau per
+Viewport-Screenshot), Playwright-MCP (Fahrtests und Bilder). 147/147 Tests.
+
 ## Runde 52 (27.09.2026): Halfpipes, Minimal-HUD hochkant und Layout-Feinschliff
 
 **Halfpipes** (halfpipe.mjs, 9 Unit-Tests): U-foermige Abschnitte mit flachem Boden und Viertelkreis-Waenden

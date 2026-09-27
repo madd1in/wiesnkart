@@ -13,7 +13,7 @@ function harness(){
  class Context{constructor(){this.destination=new Node('destination');this.currentTime=1;this.sampleRate=1000;this.state='running';this.resumes=0;}resume(){this.resumes++;this.state='running';return Promise.resolve();}createGain(){return new Node('gain');}createBiquadFilter(){return new Node('filter');}createOscillator(){return new Node('oscillator');}createBufferSource(){return new Node('bufferSource');}createDynamicsCompressor(){return new Node('compressor');}createDelay(){return new Node('delay');}createMediaElementSource(){return new Node('media');}createBuffer(ch,len,sr){const data=Array.from({length:ch},()=>new Float32Array(len));return {sampleRate:sr,numberOfChannels:ch,length:len,duration:len/sr,getChannelData:i=>data[i]};}}
  class Media{constructor(src){this.src=src;this.currentTime=0;this.duration=96;this.volume=0;}addEventListener(){}play(){this.paused=false;return Promise.resolve();}pause(){this.paused=true;}load(){}}
  const context=vm.createContext({console,Math,Set,Audio:Media,window:{AudioContext:Context},ctx:null,state:'race',soundOn:true,performance:{now:()=>1000},addEventListener(){},fetch:()=>new Promise(()=>{}),setTimeout:(fn,ms)=>timers.push({fn,ms}),clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),courses:[{music:'race'}],selected:0,$:()=>({setAttribute(){}})});
- vm.runInContext(audio+'\nglobalThis.audioApi={audioInit,prepClip,playClip,sfxNoise,sfxTone,syncAudioMix,duckBgm,starTick,star:()=>starSrc,driftTick,drift:()=>driftSnd,setAmbience,setSound,SFX,clipBuf,clipNorm,bgm,effectSources,get:()=>({ctx,sfxGain,effectsOut,worldGain,masterGain,voiceGain,raceFilter,duckLevel,ambSrc,ambLfo}),duck:v=>duckUntil=v};',context);
+ vm.runInContext(audio+'\nglobalThis.audioApi={audioInit,prepClip,playClip,sfxNoise,sfxTone,syncAudioMix,duckBgm,starTick,star:()=>starSrc,driftTick,drift:()=>driftSnd,draftTick,draft:()=>draftSnd,setAmbience,setSound,SFX,clipBuf,clipNorm,bgm,effectSources,get:()=>({ctx,sfxGain,effectsOut,worldGain,masterGain,voiceGain,raceFilter,duckLevel,ambSrc,ambLfo}),duck:v=>duckUntil=v};',context);
  const api=context.audioApi;api.audioInit();return {api,context,nodes,timers};
 }
 function reaches(node,target,seen=new Set()){if(node===target)return true;if(seen.has(node))return false;seen.add(node);return node.out.some(n=>reaches(n,target,seen));}
@@ -71,4 +71,39 @@ test('drift sizzle climbs with each mini-turbo level and stops with the drift',(
 
 test('ambience oscillator is released after its fade-out',()=>{
  const {api,timers}=harness();api.setAmbience(true);const {ambSrc,ambLfo}=api.get();api.setAmbience(false);timers.find(t=>t.ms===1400).fn();assert.equal(ambSrc.stopped,true);assert.equal(ambLfo.stopped,true);
+});
+test('stereo loop normalization protects every channel without changing the loop boundary',()=>{
+ const {api}=harness(),ctx=api.get().ctx,b=ctx.createBuffer(2,1000,1000);
+ b.getChannelData(1).fill(.02);b.getChannelData(1)[400]=1;
+ const out=api.prepClip('s_c_star',b);
+ assert.equal(out,b,'loop bytes and exact duration must be preserved');
+ assert.ok(api.clipNorm.s_c_star<=.82,'right-only impulse is below the peak ceiling');
+ const silent=ctx.createBuffer(2,1000,1000);api.prepClip('s_c_megaloop',silent);
+ assert.ok(Number.isFinite(api.clipNorm.s_c_megaloop)&&api.clipNorm.s_c_megaloop<=2.5);
+});
+test('slipstream air layer rises with charge, reuses its source and releases the whole graph',()=>{
+ const {api}=harness(),{ctx,worldGain}=api.get();
+ api.draftTick(.25);const draft=api.draft(),low=draft.g.gain.value,frequency=draft.f.frequency.value;
+ assert.ok(draft.s.started&&draft.s.loop);assert.ok(reaches(draft.s,worldGain),'wind follows world muting');
+ api.draftTick(1);assert.equal(api.draft(),draft);assert.ok(draft.g.gain.value>low);assert.ok(draft.f.frequency.value>frequency);
+ const high=draft.g.gain.value;api.draftTick(20);assert.equal(draft.g.gain.value,high,'overshoot is clamped');
+ api.draftTick(0);assert.equal(api.draft(),null);assert.ok(draft.s.stopAt>ctx.currentTime,'fade ends before release');
+ draft.s.onended();assert.ok(draft.s.disconnected&&draft.f.disconnected&&draft.g.disconnected);
+ api.draftTick(NaN);assert.equal(api.draft(),null,'invalid charge cannot poison AudioParams');
+});
+test('slipstream stops on pause, menu and mute and can restart cleanly',()=>{
+ const {api,context}=harness();
+ for(const next of ['paused','menu']){
+  context.state='race';api.draftTick(.6);const previous=api.draft();context.state=next;api.syncAudioMix();
+  assert.equal(api.draft(),null);assert.ok(previous.s.stopAt);api.draftTick(.8);assert.equal(api.draft(),null);
+ }
+ context.state='race';api.draftTick(.4);assert.ok(api.draft());context.soundOn=false;api.syncAudioMix();assert.equal(api.draft(),null);
+});
+test('slipstream chiptune cues have distinct phrases, cooldowns and pause protection',()=>{
+ const {api,context}=harness(),{ctx,sfxGain}=api.get();
+ api.SFX.draftready();assert.equal(api.effectSources.size,3);api.SFX.draftready();assert.equal(api.effectSources.size,3,'ready cue is not repeated every frame');
+ ctx.currentTime+=1;api.SFX.draftboost();assert.equal(api.effectSources.size,8,'boost adds four notes and one air sweep');
+ for(const src of api.effectSources)assert.ok(reaches(src,sfxGain));
+ api.SFX.draftboost();assert.equal(api.effectSources.size,8);
+ context.state='paused';api.syncAudioMix();api.SFX.draftready();api.SFX.draftboost();assert.equal(api.effectSources.size,0);
 });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WX_THEMES,TOD_KEYS,WX_KEYS,EV_KEYS,weatherPlan,calmPlan,weatherMix,weatherLook,WX_BLEND,lerpHex,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
+import {WX_THEMES,TOD_KEYS,WX_KEYS,EV_KEYS,weatherPlan,calmPlan,weatherMix,weatherLook,WX_BLEND,lerpHex,wxGrip,wxWind,forecast,lapNews,evFits} from './weather.mjs';
 
 const THEMES = Object.keys(WX_THEMES);
 const plans = th => Array.from({length: 300}, (_, i) => weatherPlan(i * 7919 + 13, th));
@@ -43,6 +43,55 @@ test('events fit the sky: rainbows follow rain, eclipses happen in clear dayligh
     if (s.ev === 'fireflies') assert.ok(s.tod === 'dusk' || s.tod === 'night');
   });
   assert.ok(rainbows > 5 && ufos > 50);
+});
+
+test('R53: every lap event belongs to exactly one track theme', () => {
+  const owner = new Map();
+  for (const th of THEMES) for (const e of WX_THEMES[th].ev) {
+    assert.ok(EV_KEYS.includes(e), e);
+    assert.ok(!owner.has(e), `${e} on ${owner.get(e)} and ${th}`);
+    owner.set(e, th);
+  }
+  for (const th of THEMES) assert.ok(WX_THEMES[th].ev.length >= 1, th + ' has its own events');
+});
+
+test('R53: nearly every race gets a track event, and events rarely repeat back to back', () => {
+  for (const th of THEMES) {
+    const ps = plans(th), withEv = ps.filter(p => p.some(s => s.ev)).length;
+    // Strecken mit Regen und Gewitter haben dazu viel Wetter-Abwechslung; Gruft, All und Lava leben von ihren Ereignissen
+    const min = ['haunted', 'rainbow', 'lava'].includes(th) ? .85 : .55;
+    assert.ok(withEv / ps.length > min, `${th}: ${withEv}/${ps.length}`);
+    if (WX_THEMES[th].ev.length > 1) {
+      const repeats = ps.filter(p => p[1].ev && p[1].ev === p[2].ev).length;
+      assert.ok(repeats / ps.length < .15, `${th} repeats ${repeats}`);
+    }
+  }
+});
+
+test('R53: track events fit time of day and weather', () => {
+  for (const th of THEMES) for (const p of plans(th)) p.forEach(s => {
+    if (s.ev === 'fireworks') assert.ok((s.tod === 'night' || s.tod === 'dusk') && s.wx !== 'rain' && s.wx !== 'storm');
+    if (s.ev === 'balloons' || s.ev === 'partyballoons') assert.notEqual(s.tod, 'night');
+    if (s.ev === 'alpenglow') assert.ok(s.tod === 'dusk' || s.tod === 'dawn');
+    if (s.ev === 'bloodmoon' || s.ev === 'lanterns') assert.ok(s.wx !== 'rain' && s.wx !== 'storm');
+    if (s.ev === 'comet' || s.ev === 'meteors') assert.equal(s.wx, 'clear');
+  });
+  assert.equal(evFits('haunted', 'bloodmoon', {tod: 'day', wx: 'fog'}), true);
+  assert.equal(evFits('forest', 'nope', {tod: 'day', wx: 'clear'}), false);
+});
+
+test('R53: event skies - blood moon, alpenglow and eruption tint the sky, the plain sky stays white-mooned', () => {
+  const base = {...forestBase, dark: true, stars: true};
+  const plain = weatherLook(base, weatherMix(calmPlan(1), 0));
+  assert.equal(plain.moonCol, 0xffffff);
+  const blood = weatherLook(base, weatherMix([{tod: 'day', wx: 'clear', ev: 'bloodmoon'}], 0));
+  assert.ok((blood.moonCol >> 16) > 0xf0 && (blood.moonCol & 0xff) < 0x40, 'red moon');
+  assert.ok((blood.skyBottom >> 16) > ((blood.skyBottom >> 8) & 255) * 2, 'red sky');
+  const glow = weatherLook(forestBase, weatherMix([{tod: 'dusk', wx: 'clear', ev: 'alpenglow'}], 0));
+  const dusk = weatherLook(forestBase, weatherMix([{tod: 'dusk', wx: 'clear', ev: null}], 0));
+  assert.notEqual(glow.skyBottom, dusk.skyBottom);
+  const lava = weatherLook({...forestBase, dark: true, sunGlow: true}, weatherMix([{tod: 'day', wx: 'ash', ev: 'eruption'}], 0));
+  assert.ok((lava.hemiSky >> 16) >= ((lava.hemiSky >> 8) & 255), 'orange light');
 });
 
 test('snow only falls by day or dawn', () => {

@@ -1,0 +1,38 @@
+{
+  "asset": "windsock.glb",
+  "authoring": "Original procedural Blender model",
+  "source": "art/r52/create_windsock.py",
+  "provider": null,
+  "generation_cost": 0,
+  "user_prompt": "mushroom rally weiter polishen, grafik, sound, new ideas, blender, unreal, elevenlabs chiptune, ggf update in social media posten",
+  "spec": "Turquoise and cream mushroom windsock; decorative wind/slipstream landmark; no textures",
+  "negative_prompt": "No logos, licensed meshes, textures, transparency, paid providers, or active scene modifications",
+  "units": "meters",
+  "axis": "+Y up; cloth extends +X; origin at ground",
+  "objects": 5,
+  "materials": 5,
+  "triangles": 2308,
+  "textures": 0,
+  "bounds_gltf": {
+    "min": [
+      -0.5100002288818359,
+      0.0,
+      -0.5100003480911255
+    ],
+    "max": [
+      2.837308168411255,
+      3.521200180053711,
+      0.5100001096725464
+    ]
+  },
+  "bytes": 54992,
+  "sha256": "e3cd46317b5ce064878f6013e13b4f78b8db4d2ba4ae4a5d4d069e095f5836d3",
+  "policy": {
+    "max_triangles": 3000,
+    "max_materials": 5,
+    "max_bytes": 160000,
+    "textures": 0,
+    "ground_y": 0
+  },
+  "license": "Original project asset; same ownership and licensing as Mushroom Rally"
+}

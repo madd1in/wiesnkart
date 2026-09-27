@@ -1,0 +1,16 @@
+{
+ "asset": "wiesn.glb",
+ "authoring": "Original procedural Blender models (Oktoberfest theme)",
+ "source": "art/r53/create_wiesn.py",
+ "triangles": 18642,
+ "parts": {
+  "WS_Gate": 6948,
+  "WS_CarouselBase": 1620,
+  "WS_CarouselTop": 3650,
+  "WS_Stall": 1860,
+  "WS_Stein": 1504,
+  "WS_Barrels": 2712,
+  "WS_Bench": 348
+ },
+ "bytes": 469480
+}

@@ -56,3 +56,37 @@ Beschreibung:
 Posten musst du selbst: Für TikTok, X, Facebook, Instagram und YouTube ist in dieser
 Sitzung kein Zugang verbunden, und Veröffentlichen in deinem Namen mache ich ohnehin nur,
 wenn du es im Einzelfall freigibst.
+
+## Update-Texte Runde 22-38 (Sep 2026)
+
+### X / Twitter — Grafik-Update
+
+> Großes Facelift für Mushroom Rally: neues Sporentor mit Ballonbogen und wehenden
+> Zielflaggen, Fahrer mit Großauftrag-Charm, Glas-Regenbogenpiste über dem Sternenhimmel,
+> Konfettistart und Feuerwerk im Ziel. Alles im Browser, wie immer.
+> 🍄 https://madd1in.github.io/mushroom-rally/
+>
+> #threejs #webgl #indiedev #kartracing
+
+### X / Twitter — Fahrgefühl-Update
+
+> Fahrflow-Patch: Spiralen mit durchgängiger Bahnmagnetik (kein seitliches Wegsacken
+> mehr an die Leitplanke), Looping jetzt offene Spirale, Kanten-Gnade bei Sprüngen —
+> 429 Respawn-Schleifen auf dem Canyon auf null reduziert. Messbar besser.
+> 🍄 https://madd1in.github.io/mushroom-rally/
+>
+> #gamedev #indiedev #physics
+
+### TikTok / Reels — Caption (neues Keyart)
+
+> Regenbogenpiste ist jetzt GLAS 🌈✨ Sterne scheinen durch die Fahrbahn.
+> Konfetti beim Start, Feuerwerk im Ziel, Geister mit Gesichtern.
+> Link in Bio 🍄🏁
+>
+> #gaming #indiegame #browsergame #kartracing #fyp
+
+### Instagram / Story (Hochformat-Keyart)
+
+> 9:16-Keyart frisch aus Unreal: Pilztor, Ballonbogen, Item-Boxen mit Goldkappen.
+> Im Browser spielbar — kein Download.
+> 🍄 https://madd1in.github.io/mushroom-rally/

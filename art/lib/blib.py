@@ -17,6 +17,60 @@ def init(collection_name='Export'):
     KEYS.clear()
     return EXPORT
 
+def init_scene(name):
+    """Wie init(), aber schonend fuer eine laufende Blender-Sitzung (Blender-MCP): eigene Szene statt
+    Werkseinstellungen - die Szene des Nutzers bleibt unangetastet. Wiederholbar (leert die eigene Szene)."""
+    global EXPORT
+    sc = bpy.data.scenes.get(name)
+    if sc is None:
+        sc = bpy.data.scenes.new(name)
+    for o in list(sc.objects):
+        bpy.data.objects.remove(o, do_unlink=True)
+    for c in list(sc.collection.children):
+        sc.collection.children.unlink(c)
+        if c.users == 0:
+            bpy.data.collections.remove(c)
+    if bpy.context.window:
+        bpy.context.window.scene = sc
+    EXPORT = bpy.data.collections.new(name + '_Export')
+    sc.collection.children.link(EXPORT)
+    M.clear()
+    KEYS.clear()
+    return EXPORT
+
+def export_glb(target, objs=None):
+    """Nur die Export-Sammlung als GLB (+Y oben) schreiben; gibt die Dreiecke je Objekt zurueck."""
+    objs = objs or [o for o in EXPORT.objects]
+    sc = next((s for s in bpy.data.scenes if EXPORT is not None and EXPORT.name in s.collection.children), bpy.context.scene)
+    vl = sc.view_layers[0]
+    tris = {}
+    for o in objs:
+        if o.type == 'MESH':
+            o.data.calc_loop_triangles()
+            tris[o.name] = len(o.data.loop_triangles)
+    # Auswahl und Export strikt in der eigenen Szene (die Szene des Nutzers kann Ausgewaehltes enthalten)
+    with bpy.context.temp_override(scene=sc, view_layer=vl):
+        for o in sc.objects:
+            o.select_set(o in objs, view_layer=vl)
+        vl.objects.active = objs[0]
+        bpy.ops.export_scene.gltf(filepath=str(target), export_format='GLB', use_selection=True, use_active_scene=True,
+                                  export_yup=True, export_apply=True, export_cameras=False, export_lights=False)
+    return tris
+
+def xy_prism(poly, z0, z1):
+    """Profil (Liste (x, y)) in der Querebene, entlang Spiel-z von z0 bis z1 extrudiert (Bogenzwickel, Giebel)."""
+    def b(bm):
+        a = [bm.verts.new(G(x, y, z0)) for x, y in poly]
+        c = [bm.verts.new(G(x, y, z1)) for x, y in poly]
+        n = len(poly)
+        fs = [bm.faces.new(a), bm.faces.new(list(reversed(c)))]
+        for i in range(n):
+            j = (i + 1) % n
+            fs.append(bm.faces.new((a[i], a[j], c[j], c[i])))
+        cen = sum((v.co for v in a + c), Vector()) / (2 * n)
+        fix_normals(bm, fs, cen)
+    return b
+
 def use_materials(d):
     M.update(d)
     KEYS[:] = list(M)
@@ -59,6 +113,9 @@ class Part:
         o = G(*origin) if origin is not None else None
         if o is not None:
             bmesh.ops.transform(self.bm, matrix=Matrix.Translation(-o), verts=self.bm.verts)
+        old = bpy.data.meshes.get(self.name)
+        if old is not None and old.users == 0:   # Rest eines frueheren Laufs (wiederholbar ohne .001-Namen)
+            bpy.data.meshes.remove(old)
         me = bpy.data.meshes.new(self.name)
         used = sorted({f[self.lay] for f in self.bm.faces})
         remap = {k: i for i, k in enumerate(used)}

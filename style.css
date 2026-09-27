@@ -1181,6 +1181,49 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin #owPanel{top:calc(64px + env(safe-area-inset-top,0px));padding:5px 10px 6px}
  body.hudmin #owPanel span{font-size:18px}
 }
+/* =============================================================================================
+   R53: Minimal-HUD jetzt ueberall Standard (Nutzerwunsch "ingame gui minimal") - Desktop und quer wie hochkant:
+   Platz (klein, oben links), Runde als Pille oben mittig, Item-Blase oben rechts unter dem runden Pause-Knopf,
+   Drift-Balken unten mittig, Windschatten nur als schmaler Balken. Zeit, Wetterleiste, Rivale, Karte, Tempo,
+   Sporen, Tastenhilfe und Kopfleisten-Knoepfe mit "Anzeige: VOLL" im Pausemenue.
+   ============================================================================================= */
+@media not all and (pointer:coarse) and (orientation:portrait){
+ body.hudmin.racing header .brand,body.hudmin.racing #sound,body.hudmin.racing #full{display:none!important}
+ body.hudmin.racing header{justify-content:flex-end}
+ body.hudmin.racing #pause{width:42px;height:42px;padding:0!important;display:grid;place-items:center;font-size:15px;border-radius:50%;background:#15133a8c;border-color:#ffffff59}
+ body.hudmin.racing #pause .lbl{display:none}
+ body.hudmin .position{left:26px;top:calc(14px + env(safe-area-inset-top,0px))}
+ body.hudmin .position strong{font-size:64px;-webkit-text-stroke:7px var(--mk-ink)}
+ body.hudmin .position>span{font-size:20px}
+ body.hudmin .position small{display:none}
+ body.hudmin .race-top{top:calc(20px + env(safe-area-inset-top,0px));gap:12px;padding:5px 16px 6px;border-radius:999px;background:#15133a8c;backdrop-filter:blur(6px)}
+ body.hudmin .race-top small{display:none}
+ body.hudmin .race-top strong{font-size:24px;line-height:1}
+ body.hudmin .race-top em{font-size:15px}
+ body.hudmin .race-top>div:nth-child(2),body.hudmin #wxStrip,body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
+ body.hudmin #lap:before{content:'🏁 ';font-size:15px;-webkit-text-stroke:0;vertical-align:3px}
+ body.hudmin #hud.tt .race-top>div:nth-child(2){display:block!important}
+ body.hudmin #hud.tt .race-top>div:first-child{display:none!important}
+ body.hudmin.ow .race-top{display:none!important}
+ body.hudmin #rivalTag,body.hudmin #map,body.hudmin #raceTip,body.hudmin #driftlabel,body.hudmin .speed .spores,body.hudmin .speed>strong,body.hudmin .speed>small{display:none!important}
+ body.hudmin #item{top:calc(70px + env(safe-area-inset-top,0px));right:22px;width:78px;height:78px;border-radius:24px}
+ body.hudmin #item small,body.hudmin #item kbd{display:none}
+ body.hudmin #itemIcon{font-size:40px}
+ body.hudmin .speed{right:auto;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+ body.hudmin .driftbar{width:170px;height:7px;opacity:.9}
+ body.hudmin #draftHud{left:26px;top:calc(96px + env(safe-area-inset-top,0px));min-width:0;width:132px;padding:5px 9px;gap:6px;border-width:1.5px;border-radius:10px}
+ body.hudmin #draftHud .draft-wind{font-size:22px}
+ body.hudmin #draftTitle{font-size:10px}
+ body.hudmin #draftHint{display:none}
+ body.hudmin #draftMeter{margin-top:3px;height:4px}
+ body.hudmin #toast{top:calc(84px + env(safe-area-inset-top,0px))}
+}
+@media (pointer:coarse) and (orientation:landscape){
+ body.hudmin .position{left:calc(14px + env(safe-area-inset-left,0px))}
+ body.hudmin .position strong{font-size:46px;-webkit-text-stroke:6px var(--mk-ink)}
+ body.hudmin #draftHud{top:calc(70px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px))}
+ body.hudmin #toast{top:calc(64px + env(safe-area-inset-top,0px))}
+}
 /* R52: Siegerehrung - "ERFOLG: Grand-Prix-Sieger" lag hinter der Ergebniskarte (quer/Desktop halb, hochkant ganz).
    Jetzt ueber der Karte: breit mittig im freien Bereich links davon, hochkant oben zwischen Kopfleiste und Karte. */
 body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw - 470px);font-size:28px;top:max(18%,120px)}
@@ -1197,3 +1240,19 @@ body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw -
  body #pausePanel #resume{padding:9px 18px;font-size:17px}
  body #pausePanel .secondary{padding:8px 10px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+
+/* R52: Windschatten – klarer Ladestand und ein ruhiges Signal zum Ausscheren. */
+#draftHud{position:absolute;left:40px;top:286px;display:flex;align-items:center;gap:9px;min-width:190px;padding:10px 14px 11px 10px;border:2px solid #a6f5ec;border-radius:15px;background:linear-gradient(125deg,#122c3cf5,#153b4af2);box-shadow:0 0 0 3px #15133a,0 5px 0 2px #15133a;color:#efffff;pointer-events:none}
+#draftHud[hidden]{display:none}
+#draftHud .draft-wind{font:900 44px/1 var(--mk-font);font-style:italic;color:#80e9ee}
+#draftHud>div{flex:1;min-width:0}
+#draftTitle{display:block;font:900 italic 13px/1.2 var(--mk-font);letter-spacing:.7px}
+#draftHint{display:block;margin-top:3px;font-size:10px;font-weight:800;letter-spacing:.4px;color:#b3dce5}
+#draftMeter{height:5px;margin-top:7px;overflow:hidden;border-radius:5px;background:#ffffff24}
+#draftMeter i{display:block;width:100%;height:100%;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,#59c8ef,#a3ffe5);transition:transform .08s linear}
+#draftHud.ready{border-color:#fcf0a4;background:linear-gradient(120deg,#174445f5,#176b61f2);box-shadow:0 0 0 3px #15133a,0 5px 0 2px #15133a,0 0 25px #8affd944}
+#draftHud.ready .draft-wind,#draftHud.ready #draftHint{color:#fff1a2}
+#draftHud.ready #draftMeter i{background:#fff1a2}
+@media(max-width:620px){#draftHud{left:14px;top:236px;min-width:156px;gap:6px;padding:7px 10px 8px 8px;border-radius:12px}#draftHud .draft-wind{font-size:32px}#draftTitle{font-size:11px}#draftHint{font-size:9px}}
+@media(pointer:coarse) and (orientation:landscape){#draftHud{left:12px;top:146px;min-width:148px;padding:5px 9px;gap:6px}#draftHud .draft-wind{font-size:28px}#draftTitle{font-size:10px}#draftHint{font-size:9px}#draftMeter{margin-top:4px;height:4px}}
+@media(prefers-reduced-motion:reduce){#draftMeter i{transition:none}}

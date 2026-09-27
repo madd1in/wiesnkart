@@ -1,0 +1,13 @@
+{
+ "asset": "schloss.glb",
+ "authoring": "Original procedural Blender model (Neuschwanstein-inspired, not a replica)",
+ "source": "art/r53/create_schloss.py",
+ "triangles": 18318,
+ "parts": {
+  "SC_Torbau": 3132,
+  "SC_Hof": 4396,
+  "SC_Palas": 10790
+ },
+ "bytes": 847864,
+ "clear_half_width_m": 10.6
+}
