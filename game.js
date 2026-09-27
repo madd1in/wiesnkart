@@ -2470,7 +2470,9 @@ function updateInk(dt){const pl=racers[0];if(pl){if(pl.ink>0&&pl.boost>0)pl.ink=
 function dropBanana(r){if(hazards.length>=MAX_HAZARDS){const old=hazards.shift();actors.remove(old.mesh);}const x=r.x-Math.sin(r.h)*3.2,z=r.z-Math.cos(r.h)*3.2,g=new T.Group();actors.add(g);g.position.set(x,r.y,z);
  // In Achterbahn und Rollzone liegt die Bahn im Bild hoeher als in der Physik - sonst laege die
  // Banane unsichtbar unter der schwebenden Fahrbahn. Getroffen wird weiter flach (x/z, r.y).
- if(hasMag(r.distance-3.2))posAt(r.distance-3.2,r.offset,0,g.position);g.rotation.y=Math.random()*TAU;if(P.banana){const b=cloneProto(P.banana);b.scale.setScalar(1.6);g.add(b);}else mesh(new T.ConeGeometry(.6,1.3,5),gold,g,0,.7,0);hazards.push({mesh:g,x,z,y:r.y,life:25,owner:r.id,arm:.4});}
+ if(hasMag(r.distance-3.2))posAt(r.distance-3.2,r.offset,0,g.position);g.rotation.y=Math.random()*TAU;
+ // R52: auf der Halfpipe-Wand liegt sie an der Wand (Bild), gekippt wie die Wand; getroffen wird weiter flach
+ {const hd=r.distance-3.2,hz=hpipes.length&&Math.abs(r.offset)<HP.outer?hpAt(hd):null;if(hz){posAt(hd,r.offset,0,g.position);hpProfile(r.offset,hpEnvAt(hz,hd),_hpp);if(_hpp.phi){const tn=tanAt(hd);g.quaternion.setFromAxisAngle(_agAxis.set(tn.x,0,tn.z),_hpp.phi).multiply(_kQ.setFromEuler(_kE.set(0,Math.random()*TAU,0)));}}}if(P.banana){const b=cloneProto(P.banana);b.scale.setScalar(1.6);g.add(b);}else mesh(new T.ConeGeometry(.6,1.3,5),gold,g,0,.7,0);hazards.push({mesh:g,x,z,y:r.y,life:25,owner:r.id,arm:.4});}
 function fireShell(r,target){const g=new T.Group();if(P.shell){const s=cloneProto(P.shell);s.scale.setScalar(1.25);g.add(s);}else sphere(g,mat(0x5cc46a),0,.4,0,.55,.4,.55);actors.add(g);shots.push({g,d:r.distance+2.5,off:r.offset,owner:r.id,target,t:0});}
 function hitSpores(r){const lost=loseSpores(r);if(lost){const p=r.mesh.position;for(let i=0;i<lost*3;i++){const a=Math.random()*TAU;emit(p.x,p.y+.8,p.z,0xfff27a,Math.sin(a)*5,4+Math.random()*3,Math.cos(a)*5,.9);}}return lost;}
 function shellImpact(sh){const t=racers[sh.target],me=sh.owner===0,onMe=sh.target===0,near=nearPlayer(t,60);

@@ -41,6 +41,7 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
   Pilzland ueber die Wiese seitlich heranfaehrt, wird als "draussen" eingestuft und vom Wall ferngehalten - vorher
   haette die Pipe seinen grossen Querversatz als Flughoehe gelesen und ihn ueber die Lippe gesetzt (geprueft:
   parallel und schraeg von beiden Seiten, niemand kommt naeher als 26 m, keiner hebt ab).
+- Bananen, die man auf der Halfpipe-Wand fallen laesst, liegen an der Wand (vorher im Gras hinter der Pipe).
 - **Bildblitz** hoechstens halbweiss (Gewitterwolken-Treffer war 70 %); mit "Bewegung reduzieren" im System nur ein
   Viertel davon, ebenso Blitz-Aufhellung und Kamerawackeln.
 - **Siegerehrung:** "ERFOLG: Grand-Prix-Sieger" lag hinter der Ergebniskarte - jetzt darueber im freien Bereich.
