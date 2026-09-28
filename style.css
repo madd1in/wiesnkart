@@ -1258,3 +1258,53 @@ body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw -
 @media(max-width:620px){#draftHud{left:14px;top:236px;min-width:156px;gap:6px;padding:7px 10px 8px 8px;border-radius:12px}#draftHud .draft-wind{font-size:32px}#draftTitle{font-size:11px}#draftHint{font-size:9px}}
 @media(pointer:coarse) and (orientation:landscape){#draftHud{left:12px;top:146px;min-width:148px;padding:5px 9px;gap:6px}#draftHud .draft-wind{font-size:28px}#draftTitle{font-size:10px}#draftHint{font-size:9px}#draftMeter{margin-top:4px;height:4px}}
 @media(prefers-reduced-motion:reduce){#draftMeter i{transition:none}}
+
+/* ===== R55: Online-Knopf im Menue und Lobby-Tafel (Peer-to-Peer, siehe net.mjs) ===== */
+body #menu .menu-brand{display:flex;align-items:center;gap:12px}
+.online-btn{margin-left:auto;display:grid;grid-template-columns:auto auto;column-gap:8px;align-items:center;padding:7px 14px;border-radius:16px;border:3px solid #fff;background:linear-gradient(180deg,#4a9dff,var(--wk-blue) 60%,#155aa8);color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);transform:skewX(-8deg);cursor:pointer;font-family:var(--wk-font);transition:transform .12s}
+.online-btn:hover{transform:skewX(-8deg) translateY(-2px)}
+.online-btn span{grid-row:span 2;font-size:24px;transform:skewX(8deg)}
+.online-btn b{font-style:italic;font-weight:900;font-size:17px;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill;transform:skewX(8deg);text-align:left;line-height:1.05}
+.online-btn small{font-size:10px;font-weight:800;opacity:.92;transform:skewX(8deg);text-align:left;white-space:nowrap}
+.online-btn.live{background:linear-gradient(180deg,#5fd88a,#1f9a4b);animation:wkPulse 1.6s ease-in-out infinite}
+#online [hidden]{display:none!important}
+#online .online-card{width:500px}
+#online .on-sub{opacity:.85;font-size:14px;margin:0 0 12px}
+#online label.on-name{display:flex;gap:10px;align-items:center;font-weight:800;font-size:13px}
+#online input,#online select{font:inherit;font-weight:800;padding:10px 12px;border-radius:12px;border:2px solid #fff5;background:#ffffff18;color:#fff;min-width:0}
+#online select option{color:#14264a}
+#online input#onName{flex:1}
+#online #onStart{display:grid;gap:10px;margin-top:12px}
+#online .on-join{display:flex;gap:8px}
+#online .on-join input{flex:1;text-transform:uppercase;letter-spacing:3px;text-align:center}
+#online .on-join button,#online #onCreate{margin-top:0}
+#online .on-code{display:flex;align-items:center;gap:10px;font-weight:800;margin-top:10px}
+#online .on-code b{font-size:30px;letter-spacing:4px;font-family:var(--wk-font);font-style:italic}
+#online .on-code button{margin:0 0 0 auto}
+#online #onPlayers{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#online #onPlayers li{border:0;background:#ffffff14;border-radius:10px;padding:7px 10px;align-items:center;gap:8px}
+#online #onPlayers li.me{background:#ffc83a30;outline:2px solid #ffc83a}
+#online #onPlayers li.bot{opacity:.55;font-size:13px}
+#online #onPlayers li em{margin-left:auto;font-size:11px;opacity:.8;font-style:normal}
+#online #onPlayers li i{font-style:normal}
+#online #onWhat{display:flex;gap:6px;margin-top:6px}
+#online #onWhat button{flex:1;margin:0}
+#online #onWhat button.selected{background:var(--wk-yellow);color:var(--wk-ink)}
+#online .on-sel{display:flex;gap:8px;margin-top:8px}
+#online .on-sel select{flex:1}
+#online select:disabled{opacity:.4}
+#online #onStatus{min-height:1em;font-size:13px;opacity:.9;margin:10px 0 0;word-break:break-all}
+#online #onWait{font-weight:700;opacity:.9}
+@media (max-width:560px){.online-btn small{display:none}.online-btn{padding:6px 10px}#online #onPlayers{grid-template-columns:1fr}}
+#online .on-tip{font-size:12px;opacity:.7;margin:6px 0 0}
+/* R55 Lobby auf der hellen Modal-Karte: dunkle Schrift in den Feldern, Code-Feld breit, Beitreten in Blau */
+body #online input,body #online select{background:#fff;color:var(--wk-ink);border:2.5px solid #14264a33;box-shadow:inset 0 2px 0 #14264a14}
+body #online input::placeholder{color:#14264a66}
+body #online .on-join{align-items:stretch}
+body #online .on-join input{flex:1 1 60%;font-size:20px}
+body #online .on-join button{width:auto;flex:0 0 auto;padding-left:22px;padding-right:22px}
+body #online #onJoin{background:linear-gradient(180deg,#4a9dff,var(--wk-blue) 60%,#155aa8)}
+body #online #onPlayers li{background:#14264a0f;color:var(--wk-ink)}
+body #online #onPlayers li.me{background:#ffc83a40}
+body #online .on-code{color:var(--wk-ink)}
+body #online .on-sub,body #online #onWait,body #online #onStatus,body #online .on-tip,body #online label.on-name{color:var(--wk-ink)}

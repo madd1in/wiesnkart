@@ -89,6 +89,10 @@ def material(name, color, rough, metal=0.0, emit=None, strength=0.0):
     if emit:
         p.inputs['Emission Color'].default_value = emit
         p.inputs['Emission Strength'].default_value = strength
+    else:
+        # R55: wiederverwendete Materialien behielten sonst ihr altes Leuchten (blaue Muenze/Glocke aus R41)
+        p.inputs['Emission Strength'].default_value = 0.0
+        p.inputs['Emission Color'].default_value = (0, 0, 0, 1)
     return m
 
 M = {}

@@ -1,0 +1,47 @@
+{
+  "startedAt": "2026-09-28T11:46:18.013Z",
+  "ccs": [
+    100
+  ],
+  "tune": "",
+  "races": [
+    {
+      "track": 3,
+      "cc": 100,
+      "outcome": "finished",
+      "state": "finished",
+      "finishTime": 101.91666666666217,
+      "place": 3,
+      "falls": 0,
+      "clean": 1,
+      "bumps": 2,
+      "simulated": 110,
+      "gapBestAI": -2.27,
+      "aiFinished": 2,
+      "leadAtFinish": 0.2,
+      "errors": 0,
+      "wallSeconds": 39.1
+    },
+    {
+      "track": 5,
+      "cc": 100,
+      "outcome": "finished",
+      "state": "finished",
+      "finishTime": 128.1666666666608,
+      "place": 2,
+      "falls": 0,
+      "clean": 0,
+      "bumps": 7,
+      "simulated": 140,
+      "gapBestAI": -2.8,
+      "aiFinished": 1,
+      "leadAtFinish": -0.2,
+      "errors": 0,
+      "wallSeconds": 31.4
+    }
+  ],
+  "errors": [],
+  "networkFailures": [],
+  "classes": "{\"50\":{\"ai\":0.79,\"skill\":0.4,\"rubber\":0.06},\"100\":{\"ai\":0.862,\"skill\":0.54,\"rubber\":0.05},\"150\":{\"ai\":1,\"skill\":0.9,\"rubber\":0.02}}",
+  "completedAt": "2026-09-28T11:48:19.732Z"
+}

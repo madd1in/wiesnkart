@@ -6,6 +6,36 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 55 (28.09.2026): Online mit Freunden, Lenkhilfe in drei Stufen, saubere Runden
+
+**Online-Modus (Peer-to-Peer, ohne Server und Anmeldung)** - Knopf "🌐 Online" im Menue: Raum erstellen (5-stelliger
+Code, "Link teilen" schickt `?room=CODE`) oder mit Code beitreten. Bis zu 8 Karts: Menschen plus Bots auf den freien
+Plaetzen. Der Host waehlt **Wiesnland** (frei fahren, Missionen) oder ein **Rennen** (Strecke, Klasse) und startet fuer
+alle; im Wiesnland startet ein Portal beim Host gleich ein gemeinsames Rennen. Technik: WebRTC ueber
+`vendor/trystero.mjs` (Trystero 0.25.4, MIT; oeffentliche Nostr-Relays vermitteln nur den Verbindungsaufbau), reine
+Protokoll-Logik in `net.mjs` (Tests `net.test.mjs`):
+- Jeder Browser faehrt sein eigenes Kart, der Host die Bots; Zustand ~15-mal pro Sekunde als kurzes Zahlen-Array,
+  Empfaenger zeigen fremde Karts 110 ms verzoegert und interpoliert (Richtung auf dem kurzen Weg, kurze Fortschreibung).
+- Jeder Browser sieht sich als Fahrer 0 (eigener und globaler Platz 0 werden getauscht), gleiche Startaufstellung,
+  gleiches Wetter (Host schickt den Wetter-Seed), Start erst, wenn alle ihre Strecke gebaut haben.
+- Items wirken beim Besitzer: der Werfer meldet Brezn, Bombe, Banane, Gewitterwolke, Tinte; jeder Browser spielt den
+  Wurf nach, getroffen wird nur, wer im eigenen Browser gefahren wird (getestet: Gewitterwolke schrumpft den Gast).
+- Namensschilder ueber Mitspielern, Namen werden gefiltert (nur Buchstaben/Ziffern, 12 Zeichen); nur der Besitzer eines
+  Karts darf dessen Zustand melden. Wer geht, wird vom Host durch einen Bot ersetzt; geht der Host, faehrt man allein weiter.
+- Playwright-Test mit zwei Browser-Fenstern: Beitritt ~15 s, Wiesnland und Neon-Pilzwald gemeinsam gefahren.
+
+**Mehr Koennen, mehr Belohnung** - Die Lenkhilfe war bisher standardmaessig an und hat Kurven mitgelenkt und vor Ecken
+gebremst: man musste fast nur Gas geben. Jetzt drei Stufen: **Aus** (Standard am Rechner, +25 % XP), **Leicht**
+(Standard auf Touch-Geraeten, faengt nur am Fahrbahnrand ab, +10 % XP) und **Voll** (wie bisher, ohne Bonus).
+**Saubere Runde** (kein Gras, keine Leitplanke/Wand, kein Absturz): "SAUBER ✓" in der Rundenanzeige, +20 XP je Runde,
+Anzeige im Ergebnis. Neue Erfolge **Freihändig** (Sieg ohne Lenkhilfe), **Blitzsauber** (drei saubere Runden) und
+**Wiesn-Legende** (Sieg in Wild ohne Lenkhilfe). KI in Locker und Flott etwas schneller (`CLASSES` in `core.mjs`).
+Messung mit `art/r55/difficulty.mjs` (Autopilot = guter Spieler ohne Lenkhilfe): Locker Sieg mit 100-370 m Vorsprung,
+Flott Platz 2-3 knapp hinter dem Rivalen (2-3 s), Wild Platz 7-8.
+
+**Kleinigkeiten** - Lebkuchenherz-Muenze und Glocke leuchteten noch blau (altes Material-Leuchten aus R41 blieb beim
+Wiederverwenden in Blender erhalten; `blib.material` setzt das Leuchten jetzt zurueck, `ow.glb` neu exportiert).
+
 ## Runde 54 (28.09.2026): Wiesn Kart - eigene Marke, eigene Figuren, ruhige KI-Karts
 
 **Neuer Name "Wiesn Kart"** - Titel, Logo (Brezn), Ladekarte, Startbogen ("WIESN KART"), Seitentitel und Vorschau-Texte.

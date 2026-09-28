@@ -6,9 +6,12 @@ export const CLASS_MUL = {50: 1, 100: 1.25, 150: 1.6};
 export const TRACKS = 7;
 // R46: Bonus fuer den geschlagenen Rivalen und die geschaffte Tages-Herausforderung
 export const RIVAL_XP = 25, DAILY_XP = 60;
+// R55: Wer ohne (oder mit leichter) Lenkhilfe faehrt, bekommt einen Aufschlag auf die Rennpunkte; jede saubere Runde
+// (kein Gras, keine Wand, kein Absturz) bringt CLEAN_XP.
+export const ASSIST_BONUS = {aus: .25, leicht: .1}, CLEAN_XP = 20;
 
 // XP eines Rennens mit Aufschluesselung (fuer die Ergebnisanzeige)
-export function raceXP({place, cc, stats = {}}) {
+export function raceXP({place, cc, stats = {}, assist}) {
   const mt = stats.mt || {}, parts = [['Platz ' + place, PLACE_XP[place - 1] || 20]];
   const add = (k, v) => {if (v > 0) parts.push([k, Math.round(v)]);};
   add('Drift-Turbos', (mt.mini || 0) * 4 + (mt.super || 0) * 8 + (mt.ultra || 0) * 15);
@@ -20,6 +23,9 @@ export function raceXP({place, cc, stats = {}}) {
   if (!(stats.hitsTaken > 0)) add('Ohne Treffer', 30);
   if (stats.rivalBeaten) add('Rivale geschlagen', RIVAL_XP);
   if (stats.daily) add('Tagesaufgabe', DAILY_XP);
+  add('Saubere Runden', (stats.cleanLaps || 0) * CLEAN_XP);
+  const bonus = ASSIST_BONUS[assist] || 0;
+  if (bonus) add(assist === 'aus' ? 'Ohne Lenkhilfe' : 'Leichte Lenkhilfe', parts.reduce((a, p) => a + p[1], 0) * bonus);
   const mul = CLASS_MUL[cc] || 1;
   return {parts, mul, total: Math.round(parts.reduce((a, p) => a + p[1], 0) * mul)};
 }
@@ -65,13 +71,17 @@ export const ACH = [
   // R47
   {id: 'sun', n: 'Sonnenanbeter', d: 'Hol dir 6 Sonnen-Turbos in einem Rennen', t: r => cnt(r.stats, 'sunBoosts') >= 6},
   {id: 'mirror', n: 'Spiegelmeister', d: 'Gewinne ein Rennen im Spiegel-Modus', t: r => r.place === 1 && !!r.mirror},
-  {id: 'mega', n: 'Riesenschritt', d: 'Mache mit dem Riesenpilz 3 Karts platt', t: r => cnt(r.stats, 'megaSquash') >= 3},
+  {id: 'mega', n: 'Riesenschritt', d: 'Mache mit dem Riesenwuchs 3 Karts platt', t: r => cnt(r.stats, 'megaSquash') >= 3},
   {id: 'ink', n: 'Tintenfisch', d: 'Triff mit einem Tintenpilz 4 Fahrer', t: r => cnt(r.stats, 'inkBest') >= 4},
   // R50: Wetter von Runde zu Runde
   {id: 'ufo', n: 'Nahbegegnung', d: 'Lass dich vom UFO-Strahl anheben', t: r => cnt(r.stats, 'ufoLifts') >= 1},
   {id: 'wxwin', n: 'Wetterfest', d: 'Gewinne bei Gewitter, Schnee oder Sandsturm', t: r => r.place === 1 && !!r.stats.wxRough},
   // R52: Halfpipe
   {id: 'halfpipe', n: 'Halfpipe-Held', d: 'Stehe 3 Halfpipe-Tricks in einem Rennen', t: r => cnt(r.stats, 'hpTricks') >= 3},
+  // R55: Koennen statt Lenkhilfe
+  {id: 'free', n: 'Freihändig', d: 'Gewinne ein Rennen ohne Lenkhilfe', t: r => r.place === 1 && r.assist === 'aus'},
+  {id: 'spotless', n: 'Blitzsauber', d: 'Fahre alle drei Runden sauber (kein Gras, keine Wand)', t: r => cnt(r.stats, 'cleanLaps') >= 3},
+  {id: 'wildfree', n: 'Wiesn-Legende', d: 'Gewinne in der Klasse Wild ohne Lenkhilfe', t: r => r.place === 1 && r.cc === 150 && r.assist === 'aus'},
 ];
 export const achById = id => ACH.find(a => a.id === id);
 

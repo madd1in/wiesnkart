@@ -14,7 +14,8 @@ export const MT_LEVELS=[[1.9,1.6,'ultra'],[1.15,1.05,'super'],[.55,.6,'mini']];
 export const SHRINK_T=4,SHRINK_TOP=.72;
 export const HOP_T=.3,HOP_GRACE=.22,HOP_TURN=1.3;
 // KI-Klassen: Tempo-Faktor und Fahrkoennen (Linienwahl, Bremspunkte, Drift-Nutzung, Fehlerrate).
-export const CLASSES={50:{ai:.76,skill:.34,rubber:.06},100:{ai:.855,skill:.52,rubber:.055},150:{ai:1,skill:.9,rubber:.02}};
+// R55: Locker und Flott etwas zuegiger (Messung art/r55: Autopilot gewann Locker mit 300-470 m, wurde in Flott Zweiter - mit .87/.56 Platz 2-4, zu hart).
+export const CLASSES={50:{ai:.79,skill:.4,rubber:.06},100:{ai:.862,skill:.54,rubber:.05},150:{ai:1,skill:.9,rubber:.02}};
 export function racer(id,name,color){return {id,name,color,x:0,z:0,h:0,vx:0,vz:0,speed:0,slide:0,distance:0,offset:0,boost:0,shield:0,stun:0,drift:0,driftDir:0,hop:0,lastMT:null,item:null,charges:0,spores:0,finishTime:null,cooldown:0};}
 // R44: etwas mehr Untersteuern bei Hoechsttempo (.32 -> .34; .40 war mit den schmalen Strassen zu viel)
 export function turnCurve(sp){return clamp(sp/5,0,1)*(1-.34*clamp(sp/PHYS.top,0,1.4));}

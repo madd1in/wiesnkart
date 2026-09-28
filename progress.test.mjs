@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {raceXP, levelOf, levelStart, recordRace, ACH, TRACKS, RIVAL_XP, DAILY_XP, DAILY_GOALS, dailyChallenge, dailyDone, dayKey, pickRival, rivalBeaten, achById} from './progress.mjs';
+import {raceXP, levelOf, levelStart, recordRace, ACH, TRACKS, RIVAL_XP, DAILY_XP, DAILY_GOALS, dailyChallenge, dailyDone, dayKey, pickRival, rivalBeaten, achById, ASSIST_BONUS, CLEAN_XP} from './progress.mjs';
 
 test('race XP: placement base, bonuses and class multiplier', () => {
   const plain = raceXP({place: 1, cc: 50, stats: {hitsTaken: 1}});
@@ -88,4 +88,16 @@ test('halfpipe achievement: three landed tricks in one race', () => {
   const base = {place: 5, finished: true, track: 6, cc: 100, stats: {}};
   assert.ok(achById('halfpipe').t({...base, stats: {hpTricks: 3}}));
   assert.ok(!achById('halfpipe').t({...base, stats: {hpTricks: 2, hpAirs: 5}}));
+});
+
+test('R55: clean laps and driving without steering assist earn extra XP', () => {
+  const base = raceXP({place: 2, cc: 50, stats: {hitsTaken: 1}}).total;
+  assert.equal(raceXP({place: 2, cc: 50, stats: {hitsTaken: 1, cleanLaps: 3}}).total, base + 3 * CLEAN_XP);
+  assert.equal(raceXP({place: 2, cc: 50, stats: {hitsTaken: 1}, assist: 'voll'}).total, base, 'full assist: no bonus');
+  assert.equal(raceXP({place: 2, cc: 50, stats: {hitsTaken: 1}, assist: 'aus'}).total, Math.round(base * (1 + ASSIST_BONUS.aus)));
+  assert.ok(raceXP({place: 2, cc: 50, stats: {}, assist: 'leicht'}).total < raceXP({place: 2, cc: 50, stats: {}, assist: 'aus'}).total);
+  const win = {place: 1, finished: true, track: 0, cc: 150, stats: {cleanLaps: 3}};
+  assert.ok(achById('free').t({...win, assist: 'aus'}) && !achById('free').t({...win, assist: 'leicht'}));
+  assert.ok(achById('wildfree').t({...win, assist: 'aus'}) && !achById('wildfree').t({...win, cc: 100, assist: 'aus'}));
+  assert.ok(achById('spotless').t(win) && !achById('spotless').t({...win, stats: {cleanLaps: 2}}));
 });
