@@ -1,6 +1,6 @@
-// Mushroom Rally R44: Fortschritt - Erfahrungspunkte je Rennen, Fahrerstufen mit Freischaltungen, Erfolge.
+// Wiesn Kart R44: Fortschritt - Erfahrungspunkte je Rennen, Fahrerstufen mit Freischaltungen, Erfolge.
 // Reine Funktionen (Spiel und Tests). Strecken-Index: 0 Promenade, 1 Canyon, 2 Neon, 3 Geisterhaus, 4 Lava,
-// 5 Regenbogen, 6 Magnet-Kirmes.
+// 5 Sternenbahn, 6 Magnet-Kirmes.
 export const PLACE_XP = [100, 80, 66, 56, 47, 40, 34, 28];
 export const CLASS_MUL = {50: 1, 100: 1.25, 150: 1.6};
 export const TRACKS = 7;
@@ -11,7 +11,7 @@ export const RIVAL_XP = 25, DAILY_XP = 60;
 export function raceXP({place, cc, stats = {}}) {
   const mt = stats.mt || {}, parts = [['Platz ' + place, PLACE_XP[place - 1] || 20]];
   const add = (k, v) => {if (v > 0) parts.push([k, Math.round(v)]);};
-  add('Mini-Turbos', (mt.mini || 0) * 4 + (mt.super || 0) * 8 + (mt.ultra || 0) * 15);
+  add('Drift-Turbos', (mt.mini || 0) * 4 + (mt.super || 0) * 8 + (mt.ultra || 0) * 15);
   add('Tricks', (stats.tricks || 0) * 6);
   add('Windschatten', (stats.drafts || 0) * 6);
   add('Überholt', (stats.overtakes || 0) * 3);
@@ -38,8 +38,8 @@ const mtAll = s => cnt(s.mt || {}, 'mini') + cnt(s.mt || {}, 'super') + cnt(s.mt
 export const ACH = [
   {id: 'win', n: 'Erster Sieg', d: 'Gewinne ein Rennen', t: r => r.place === 1},
   {id: 'podium', n: 'Treppchen', d: 'Fahre unter die ersten drei', t: r => r.place <= 3},
-  {id: 'mt10', n: 'Turbo-Profi', d: '10 Mini-Turbos in einem Rennen', t: r => mtAll(r.stats) >= 10},
-  {id: 'ultra', n: 'Lila Funken', d: 'Zünde einen Ultra-Turbo', t: r => cnt(r.stats.mt || {}, 'ultra') >= 1},
+  {id: 'mt10', n: 'Turbo-Profi', d: '10 Drift-Turbos in einem Rennen', t: r => mtAll(r.stats) >= 10},
+  {id: 'ultra', n: 'Blitzfunken', d: 'Zünde einen Blitz-Turbo', t: r => cnt(r.stats.mt || {}, 'ultra') >= 1},
   {id: 'combo', n: 'Combo-König', d: 'Schaffe eine Turbo-Combo ×4', t: r => cnt(r.stats, 'maxCombo') >= 4},
   {id: 'clean', n: 'Unberührbar', d: 'Gewinne, ohne getroffen zu werden', t: r => r.place === 1 && !(r.stats.hitsTaken > 0)},
   {id: 'tricks', n: 'Luftakrobat', d: '5 Tricks in einem Rennen', t: r => cnt(r.stats, 'tricks') >= 5},
@@ -47,7 +47,7 @@ export const ACH = [
   {id: 'overtake', n: 'Überholkünstler', d: '10 Überholmanöver in einem Rennen', t: r => cnt(r.stats, 'overtakes') >= 10},
   {id: 'coins', n: 'Münzsammler', d: 'Trage alle 10 Münzen gleichzeitig', t: r => cnt(r.stats, 'maxSpores') >= 10},
   {id: 'rocket', n: 'Raketenstart', d: 'Gelungener Raketenstart', t: r => cnt(r.stats, 'rocket') >= 1},
-  {id: 'cc150', n: '150cc-Champion', d: 'Gewinne ein Rennen in 150cc', t: r => r.place === 1 && r.cc === 150},
+  {id: 'cc150', n: 'Wild-Champion', d: 'Gewinne ein Rennen in der Klasse Wild', t: r => r.place === 1 && r.cc === 150},
   {id: 'gp', n: 'Grand-Prix-Sieger', d: 'Gewinne einen Grand Prix', t: r => !!r.gpWon},
   {id: 'allTracks', n: 'Weltenbummler', d: 'Fahre jede Strecke einmal', t: (r, p) => (p.done || []).length >= TRACKS},
   {id: 'allWins', n: 'Pokalsammler', d: 'Gewinne auf jeder Strecke', t: (r, p) => (p.won || []).length >= TRACKS},
@@ -56,9 +56,9 @@ export const ACH = [
   {id: 'beat', n: 'Taktgefühl', d: '3 Turbos im Takt (Neon-Pilzwald)', t: r => cnt(r.stats, 'beatBoosts') >= 3},
   {id: 'ghost', n: 'Geisterjäger', d: 'Geisterhaus, ohne gepackt zu werden', t: r => r.track === 3 && r.finished && !cnt(r.stats, 'grabs')},
   {id: 'stomp', n: 'Stampfer-Tänzer', d: 'Lava-Feste, ohne plattgedrückt zu werden', t: r => r.track === 4 && r.finished && !cnt(r.stats, 'squashed')},
-  {id: 'star', n: 'Sternenkind', d: 'Regenbogenpiste ohne Sternschnuppen-Treffer', t: r => r.track === 5 && r.finished && !cnt(r.stats, 'meteorHits')},
+  {id: 'star', n: 'Sternenkind', d: 'Sternenbahn ohne Sternschnuppen-Treffer', t: r => r.track === 5 && r.finished && !cnt(r.stats, 'meteorHits')},
   {id: 'coaster', n: 'Achterbahn-Fan', d: 'Fahre in einem Rennen drei Achterbahnen', t: r => cnt(r.stats, 'coasters') >= 3},
-  {id: 'ow', n: 'Entdecker', d: 'Erledige 3 Missionen im Pilzland', t: r => (r.owDone || 0) >= 3},
+  {id: 'ow', n: 'Entdecker', d: 'Erledige 3 Missionen im Wiesnland', t: r => (r.owDone || 0) >= 3},
   {id: 'rival', n: 'Rivalen-Bezwinger', d: 'Lass deinen Rivalen hinter dir', t: r => !!r.stats.rivalBeaten},
   {id: 'storm', n: 'Wettermacher', d: 'Triff 4 Karts mit einer Gewitterwolke', t: r => cnt(r.stats, 'stormBest') >= 4},
   {id: 'daily', n: 'Tagesheld', d: 'Schaffe eine Tages-Herausforderung', t: r => !!r.stats.daily},
@@ -89,11 +89,11 @@ export function recordRace(prog, r) {
 }
 
 // Tages-Herausforderung (R46): aus dem Datum (JJJJ-MM-TT) folgen Strecke, Klasse und Aufgabe - fuer alle gleich,
-// ohne Server. "Gewinnen" nur in 50/100cc. Geschafft zaehlt sie einmal am Tag (das merkt sich das Spiel).
+// ohne Server. "Gewinnen" nur in den Klassen Locker/Flott. Geschafft zaehlt sie einmal am Tag (das merkt sich das Spiel).
 export const DAILY_GOALS = [
   {id: 'podium', t: 'Fahre aufs Treppchen', ok: (s, pl) => pl <= 3},
   {id: 'win', t: 'Gewinne das Rennen', ok: (s, pl) => pl === 1},
-  {id: 'mt8', t: 'Zünde 8 Mini-Turbos', ok: s => mtAll(s) >= 8},
+  {id: 'mt8', t: 'Zünde 8 Drift-Turbos', ok: s => mtAll(s) >= 8},
   {id: 'clean', t: 'Komm ohne Treffer ins Ziel', ok: s => !(s.hitsTaken > 0)},
   {id: 'coins', t: 'Trage 10 Münzen gleichzeitig', ok: s => cnt(s, 'maxSpores') >= 10},
   {id: 'tricks', t: 'Schaffe 4 Tricks', ok: s => cnt(s, 'tricks') >= 4},

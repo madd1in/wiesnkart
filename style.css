@@ -53,7 +53,7 @@ p{font-size:15px;line-height:1.65;color:#e1eddd}
 #toast{position:fixed;top:24%;left:50%;transform:translate(-50%,-10px) scale(.9);padding:8px 18px;border-radius:14px;background:#1b2a3ad9;color:#fff;font-weight:900;font-size:22px;letter-spacing:1px;font-style:italic;opacity:0;pointer-events:none;z-index:4;white-space:nowrap;transition:opacity .15s,transform .15s}
 #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
 #toast.good{background:#2f9a57e6}#toast.bad{background:#c2413be6}
-#toast.mt-mini{background:#1f8ec9e6}#toast.mt-super{background:#e07a12e6}#toast.mt-ultra{background:#9a3fd1e6;box-shadow:0 0 24px #d36bff}
+#toast.mt-mini{background:#c9921fe6}#toast.mt-super{background:#e0551ae6}#toast.mt-ultra{background:#1fa8c9e6;box-shadow:0 0 24px #5ff2ff}
 #resultStars{font-size:40px;letter-spacing:6px;color:#ffffff30;display:flex;align-items:center;gap:4px}
 #resultStars i{font-style:normal}#resultStars i.on{color:#ffd23f;text-shadow:0 0 14px #ffb70088}
 #resultStars b{font-size:13px;letter-spacing:2px;background:#ffd23f;color:#203e2f;border-radius:8px;padding:4px 8px;margin-left:10px}
@@ -498,65 +498,65 @@ body:not(.racing):not(.cer) header .brand{opacity:0;pointer-events:none}
 #menu #tracks .track.selected{transform:translateY(-1px)}
 
 /* ============================================================================================
-   R40: Menue und Schrift naeher an Mario Kart World - fette kursive Display-Schrift mit dicker
-   dunkler Kontur und farbigem Schlagschatten, helle Karten, schraege Knoepfe, Zielflaggen-Muster.
+   R40: Menue und Schrift im Arcade-Stil - fette kursive Display-Schrift mit dicker
+   dunkler Kontur und farbigem Schlagschatten, helle Karten, schraege Knoepfe, weiss-blaue Rauten (R54 Wiesn Kart).
    Steht am Ende und ueberstimmt die aelteren Schichten (body-Praefix fuer die Spezifitaet).
    ============================================================================================ */
-:root{--mk-ink:#15133a;--mk-red:#e8202a;--mk-red2:#b0101b;--mk-yellow:#ffd21f;--mk-orange:#ff8a00;--mk-blue:#1c7cff;--mk-sky:#62c9ff;
- --mk-font:'Rubik','Baloo 2','Trebuchet MS',Arial,sans-serif;
- --mk-check:repeating-conic-gradient(var(--mk-ink) 0 25%,#fff 0 50%) 0 0/14px 14px}
-body .menu-title,body .position strong,body #toast{font-family:var(--mk-font);font-style:italic;font-weight:900;paint-order:stroke fill}
-/* Titel: weiss mit dicker Kontur, "Rally" gelb, roter Versatzschatten */
-body .menu-title{font-size:clamp(46px,5vw,68px);letter-spacing:-1px;line-height:.92;color:#fff;-webkit-text-stroke:9px var(--mk-ink);text-shadow:0 6px 0 var(--mk-red),0 10px 18px #0007;transform:skewX(-6deg);transform-origin:left bottom}
-body .menu-title em{color:var(--mk-yellow);font-style:italic}
-body .menu-tag{font-family:var(--mk-font);font-style:italic;font-weight:800;color:#fff;letter-spacing:.3px;-webkit-text-stroke:4px var(--mk-ink);paint-order:stroke fill;font-size:15px;margin-top:4px}
+:root{--wk-ink:#14264a;--wk-red:#d8262e;--wk-red2:#a3141c;--wk-yellow:#ffc83a;--wk-orange:#ff7a1a;--wk-blue:#1f78d1;--wk-sky:#62c9ff;
+ --wk-font:'Rubik','Baloo 2','Trebuchet MS',Arial,sans-serif;
+ --wk-check:conic-gradient(from 45deg,var(--wk-blue) 25%,#fff 0 50%,var(--wk-blue) 0 75%,#fff 0) 0 0/14px 14px}
+body .menu-title,body .position strong,body #toast{font-family:var(--wk-font);font-style:italic;font-weight:900;paint-order:stroke fill}
+/* Titel: weiss mit dicker Kontur, "Kart" gold, roter Versatzschatten */
+body .menu-title{font-size:clamp(46px,5vw,68px);letter-spacing:-1px;line-height:.92;color:#fff;-webkit-text-stroke:9px var(--wk-ink);text-shadow:0 6px 0 var(--wk-red),0 10px 18px #0007;transform:skewX(-6deg);transform-origin:left bottom}
+body .menu-title em{color:var(--wk-yellow);font-style:italic}
+body .menu-tag{font-family:var(--wk-font);font-style:italic;font-weight:800;color:#fff;letter-spacing:.3px;-webkit-text-stroke:4px var(--wk-ink);paint-order:stroke fill;font-size:15px;margin-top:4px}
 /* Helle Karte mit Zielflaggen-Streifen */
-body #menu .menu-panel{position:relative;padding:22px 18px 18px;border-radius:26px;background:linear-gradient(180deg,#ffffffef,#e7f3ffe8);box-shadow:0 8px 0 #15133a40,0 24px 60px -20px #000a;color:var(--mk-ink)}
-body #menu .menu-panel:before{content:'';position:absolute;left:18px;right:18px;top:-9px;height:14px;border-radius:7px;background:var(--mk-check);box-shadow:0 3px 0 #15133a55}
+body #menu .menu-panel{position:relative;padding:22px 18px 18px;border-radius:26px;background:linear-gradient(180deg,#ffffffef,#e7f3ffe8);box-shadow:0 8px 0 #15133a40,0 24px 60px -20px #000a;color:var(--wk-ink)}
+body #menu .menu-panel:before{content:'';position:absolute;left:18px;right:18px;top:-9px;height:14px;border-radius:7px;background:var(--wk-check);box-shadow:0 3px 0 #15133a55}
 body #menu .menu-brand{margin:-6px 0 2px}
 /* Segmente (Modus, Klasse, Lenkhilfe, Grafik): schraege Knoepfe */
 body #menu .seg,body #menu #gfx,body #menu #assist{background:#15133a14;border-radius:16px;padding:5px;gap:6px;backdrop-filter:none}
-body #menu .seg button,body #menu #gfx button,body #menu #assist button{transform:skewX(-10deg);border-radius:11px;background:#fff;color:var(--mk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font-family:var(--mk-font);font-style:italic;font-weight:800;transition:transform .12s,box-shadow .12s,background .12s}
+body #menu .seg button,body #menu #gfx button,body #menu #assist button{transform:skewX(-10deg);border-radius:11px;background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font-family:var(--wk-font);font-style:italic;font-weight:800;transition:transform .12s,box-shadow .12s,background .12s}
 body #menu .seg button b{font-style:italic;font-weight:900;display:inline-block;transform:skewX(10deg);font-size:15px}
 body #menu .seg button:hover,body #menu #gfx button:hover,body #menu #assist button:hover{transform:skewX(-10deg) translateY(-2px);box-shadow:0 5px 0 #15133a33}
-body #menu .seg button.selected,body #menu #gfx button.selected,body #menu #assist button.selected{background:linear-gradient(180deg,var(--mk-yellow),var(--mk-orange));color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--mk-ink),0 4px 0 2px var(--mk-ink);-webkit-text-stroke:3.5px var(--mk-ink);paint-order:stroke fill}
-body #menu .pick small{font-family:var(--mk-font);font-style:italic;font-weight:900;letter-spacing:.5px;color:var(--mk-ink);font-size:12px}
+body #menu .seg button.selected,body #menu #gfx button.selected,body #menu #assist button.selected{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange));color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3.5px var(--wk-ink);paint-order:stroke fill}
+body #menu .pick small{font-family:var(--wk-font);font-style:italic;font-weight:900;letter-spacing:.5px;color:var(--wk-ink);font-size:12px}
 /* Strecken-Karten: dicker weisser Rand, Auswahl gelb mit dunkler Kontur und Glanz */
 body #menu #tracks{gap:8px}
 body #menu #tracks .track{border:3px solid #fff;border-radius:14px;box-shadow:0 3px 0 #15133a55;overflow:hidden}
-body #menu #tracks .track b{font-family:var(--mk-font);font-style:italic;font-weight:900;color:#fff;-webkit-text-stroke:3px var(--mk-ink);paint-order:stroke fill;letter-spacing:.2px}
-body #menu #tracks .track.selected{border-color:var(--mk-yellow);box-shadow:0 0 0 3px var(--mk-ink),0 6px 0 3px var(--mk-ink),0 14px 26px -10px var(--mk-yellow);transform:translateY(-3px) scale(1.03)}
-body #menu #tracks .track.selected:before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,#fff0 30%,#ffffff55 42%,#fff0 54%) -200% 0/250% 100% no-repeat;animation:mkShine 2.4s ease-in-out infinite}
-@keyframes mkShine{0%,40%{background-position:-200% 0}100%{background-position:200% 0}}
+body #menu #tracks .track b{font-family:var(--wk-font);font-style:italic;font-weight:900;color:#fff;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill;letter-spacing:.2px}
+body #menu #tracks .track.selected{border-color:var(--wk-yellow);box-shadow:0 0 0 3px var(--wk-ink),0 6px 0 3px var(--wk-ink),0 14px 26px -10px var(--wk-yellow);transform:translateY(-3px) scale(1.03)}
+body #menu #tracks .track.selected:before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,#fff0 30%,#ffffff55 42%,#fff0 54%) -200% 0/250% 100% no-repeat;animation:wkShine 2.4s ease-in-out infinite}
+@keyframes wkShine{0%,40%{background-position:-200% 0}100%{background-position:200% 0}}
 /* Fahrer und Farben */
 body #menu #drivers button{border-radius:14px;border:2.5px solid #15133a26;background:#fff;box-shadow:0 3px 0 #15133a33}
-body #menu #drivers button.selected{border-color:var(--mk-yellow);box-shadow:0 0 0 2.5px var(--mk-ink),0 4px 0 2px var(--mk-ink)}
+body #menu #drivers button.selected{border-color:var(--wk-yellow);box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink)}
 body #menu #colors .swatch{border:3px solid #fff;box-shadow:0 0 0 2px #15133a55,0 3px 0 #15133a44}
-body #menu #colors .swatch.selected{box-shadow:0 0 0 3px var(--mk-ink),0 4px 0 2px var(--mk-ink)}
+body #menu #colors .swatch.selected{box-shadow:0 0 0 3px var(--wk-ink),0 4px 0 2px var(--wk-ink)}
 /* Start: grosser roter schraeger Knopf mit Zielflagge */
-body #menu #start{position:relative;overflow:hidden;transform:skewX(-8deg);border-radius:18px;padding:18px 26px;background:linear-gradient(180deg,#ff4a4a,var(--mk-red) 55%,var(--mk-red2));border:3px solid #fff;box-shadow:0 0 0 3px var(--mk-ink),0 7px 0 3px var(--mk-ink),0 16px 30px -12px #e8202aaa;color:#fff;animation:mkPulse 1.8s ease-in-out infinite}
-body #menu #start b{display:inline-block;transform:skewX(8deg);font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:26px;letter-spacing:.5px;text-transform:uppercase;-webkit-text-stroke:5px var(--mk-ink);paint-order:stroke fill}
-body #menu #start span{position:absolute;right:0;top:0;bottom:0;width:70px;float:none;background:var(--mk-check);opacity:.9;-webkit-mask:linear-gradient(90deg,#0000,#000 60%);mask:linear-gradient(90deg,#0000,#000 60%);font-size:0}
+body #menu #start{position:relative;overflow:hidden;transform:skewX(-8deg);border-radius:18px;padding:18px 26px;background:linear-gradient(180deg,#ff4a4a,var(--wk-red) 55%,var(--wk-red2));border:3px solid #fff;box-shadow:0 0 0 3px var(--wk-ink),0 7px 0 3px var(--wk-ink),0 16px 30px -12px #e8202aaa;color:#fff;animation:wkPulse 1.8s ease-in-out infinite}
+body #menu #start b{display:inline-block;transform:skewX(8deg);font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:26px;letter-spacing:.5px;text-transform:uppercase;-webkit-text-stroke:5px var(--wk-ink);paint-order:stroke fill}
+body #menu #start span{position:absolute;right:0;top:0;bottom:0;width:70px;float:none;background:var(--wk-check);opacity:.9;-webkit-mask:linear-gradient(90deg,#0000,#000 60%);mask:linear-gradient(90deg,#0000,#000 60%);font-size:0}
 body #menu #start:hover{transform:skewX(-8deg) translateY(-3px)}
-body #menu #start:active{transform:skewX(-8deg) translateY(3px);box-shadow:0 0 0 3px var(--mk-ink),0 3px 0 3px var(--mk-ink)}
-@keyframes mkPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+body #menu #start:active{transform:skewX(-8deg) translateY(3px);box-shadow:0 0 0 3px var(--wk-ink),0 3px 0 3px var(--wk-ink)}
+@keyframes wkPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
 body #menu .controls,body #menu #trophies{color:#15133ab3;font-weight:700}
-body #menu kbd{background:#fff;color:var(--mk-ink);border:2px solid #15133a33;border-radius:6px;box-shadow:0 2px 0 #15133a33}
+body #menu kbd{background:#fff;color:var(--wk-ink);border:2px solid #15133a33;border-radius:6px;box-shadow:0 2px 0 #15133a33}
 /* HUD: Platz, Rundenzaehler, Zeit und Einblendungen in derselben Schrift */
-body .position strong{color:var(--mk-yellow);-webkit-text-stroke:8px var(--mk-ink);text-shadow:0 5px 0 var(--mk-red)}
-body .position>span,body #lap,body #time{font-family:var(--mk-font);font-style:italic;font-weight:900;-webkit-text-stroke:4px var(--mk-ink);paint-order:stroke fill;color:#fff}
+body .position strong{color:var(--wk-yellow);-webkit-text-stroke:8px var(--wk-ink);text-shadow:0 5px 0 var(--wk-red)}
+body .position>span,body #lap,body #time{font-family:var(--wk-font);font-style:italic;font-weight:900;-webkit-text-stroke:4px var(--wk-ink);paint-order:stroke fill;color:#fff}
 /* R50: Tempo war auf Wasser, Sand und heller Fahrbahn kaum lesbar - gleiche Kontur wie Runde/Zeit, im Turbo tuerkis */
-body #speed{font-family:var(--mk-font);font-weight:900;-webkit-text-stroke:6px var(--mk-ink);paint-order:stroke fill;color:#fff;text-shadow:0 4px 0 var(--mk-ink);font-variant-numeric:tabular-nums;transition:color .15s}
-body.boosting #speed{color:#7cf3ff;text-shadow:0 4px 0 var(--mk-ink),0 0 18px #7cf3ffaa}
-body .speed>small,body #driftlabel{font-weight:800;text-shadow:0 0 3px var(--mk-ink),0 1px 2px var(--mk-ink),0 0 1px var(--mk-ink)}
-body #toast{background:none;color:#fff;font-size:34px;-webkit-text-stroke:7px var(--mk-ink);text-shadow:0 5px 0 var(--mk-red),0 8px 16px #0006;letter-spacing:.5px}
+body #speed{font-family:var(--wk-font);font-weight:900;-webkit-text-stroke:6px var(--wk-ink);paint-order:stroke fill;color:#fff;text-shadow:0 4px 0 var(--wk-ink);font-variant-numeric:tabular-nums;transition:color .15s}
+body.boosting #speed{color:#7cf3ff;text-shadow:0 4px 0 var(--wk-ink),0 0 18px #7cf3ffaa}
+body .speed>small,body #driftlabel{font-weight:800;text-shadow:0 0 3px var(--wk-ink),0 1px 2px var(--wk-ink),0 0 1px var(--wk-ink)}
+body #toast{background:none;color:#fff;font-size:34px;-webkit-text-stroke:7px var(--wk-ink);text-shadow:0 5px 0 var(--wk-red),0 8px 16px #0006;letter-spacing:.5px}
 body #toast.good{background:none;text-shadow:0 5px 0 #1f9a4b,0 8px 16px #0006}
-body #toast.bad{background:none;text-shadow:0 5px 0 var(--mk-red),0 8px 16px #0006}
-body #toast.mt-mini{background:none;text-shadow:0 5px 0 var(--mk-blue),0 8px 16px #0006}
-body #toast.mt-super{background:none;text-shadow:0 5px 0 var(--mk-orange),0 8px 16px #0006}
-body #toast.mt-ultra{background:none;box-shadow:none;text-shadow:0 5px 0 #9a3fd1,0 0 24px #d36bff}
+body #toast.bad{background:none;text-shadow:0 5px 0 var(--wk-red),0 8px 16px #0006}
+body #toast.mt-mini{background:none;text-shadow:0 5px 0 #c9921f,0 8px 16px #0006}
+body #toast.mt-super{background:none;text-shadow:0 5px 0 var(--wk-orange),0 8px 16px #0006}
+body #toast.mt-ultra{background:none;box-shadow:none;text-shadow:0 5px 0 #1a7fa8,0 0 24px #5ff2ff}
 /* Ladekarte */
-body .loader-card b{font-family:var(--mk-font);font-style:italic;font-weight:900;-webkit-text-stroke:6px var(--mk-ink);paint-order:stroke fill;color:#fff;text-shadow:0 5px 0 var(--mk-red)}
+body .loader-card b{font-family:var(--wk-font);font-style:italic;font-weight:900;-webkit-text-stroke:6px var(--wk-ink);paint-order:stroke fill;color:#fff;text-shadow:0 5px 0 var(--wk-red)}
 @media (prefers-reduced-motion:reduce){body #menu #start,body #menu #tracks .track.selected:before{animation:none}}
 /* R40: Streckenliste darf nicht schrumpfen - sonst quetschte das Raster die Zeilen und die Karten
    ueberlappten sich. Breit: vier Spalten (sieben Strecken in zwei Zeilen), schmal: zwei Spalten. */
@@ -568,41 +568,41 @@ body #menu #tracks{flex-shrink:0;grid-template-columns:repeat(4,1fr)}
    Nebenknoepfe. Dazu Handy-Feinschliff im Menue.
    ============================================================================================ */
 body .modal{background:#15133a8c;backdrop-filter:blur(8px)}
-body .modal>div,body #ceremony>div{position:relative;overflow:visible;background:linear-gradient(180deg,#fffffff5,#e7f3fff0);color:var(--mk-ink);border:0;border-radius:26px;box-shadow:0 8px 0 #15133a40,0 24px 60px -20px #000c;padding:30px 26px 22px}
-body .modal>div:before,body #ceremony>div:before{content:'';position:absolute;left:18px;right:18px;top:-9px;height:14px;border-radius:7px;background:var(--mk-check);box-shadow:0 3px 0 #15133a55}
+body .modal>div,body #ceremony>div{position:relative;overflow:visible;background:linear-gradient(180deg,#fffffff5,#e7f3fff0);color:var(--wk-ink);border:0;border-radius:26px;box-shadow:0 8px 0 #15133a40,0 24px 60px -20px #000c;padding:30px 26px 22px}
+body .modal>div:before,body #ceremony>div:before{content:'';position:absolute;left:18px;right:18px;top:-9px;height:14px;border-radius:7px;background:var(--wk-check);box-shadow:0 3px 0 #15133a55}
 /* Inhalt scrollt innen, damit der Zielflaggen-Streifen oben nicht abgeschnitten wird */
 body .modal>div{max-height:min(92vh,calc(100dvh - 40px));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
-body .modal .eyebrow,body #ceremony .eyebrow{color:var(--mk-red);font-family:var(--mk-font);font-style:italic;font-weight:900;letter-spacing:1.5px}
-body .modal .eyebrow i{background:var(--mk-red)}
-body .modal h2,body #ceremony h2{font-family:var(--mk-font);font-style:italic;font-weight:900;letter-spacing:0;line-height:1.02;color:#fff;-webkit-text-stroke:7px var(--mk-ink);paint-order:stroke fill;text-shadow:0 5px 0 var(--mk-red),0 8px 16px #0004;margin:10px 0 14px}
+body .modal .eyebrow,body #ceremony .eyebrow{color:var(--wk-red);font-family:var(--wk-font);font-style:italic;font-weight:900;letter-spacing:1.5px}
+body .modal .eyebrow i{background:var(--wk-red)}
+body .modal h2,body #ceremony h2{font-family:var(--wk-font);font-style:italic;font-weight:900;letter-spacing:0;line-height:1.02;color:#fff;-webkit-text-stroke:7px var(--wk-ink);paint-order:stroke fill;text-shadow:0 5px 0 var(--wk-red),0 8px 16px #0004;margin:10px 0 14px}
 body .modal p,body #ceremony p{color:#15133acc}
-body #resultTime{font-family:var(--mk-font);font-style:italic;font-weight:800;font-size:18px;color:var(--mk-ink);margin:4px 0 8px}
+body #resultTime{font-family:var(--wk-font);font-style:italic;font-weight:800;font-size:18px;color:var(--wk-ink);margin:4px 0 8px}
 body #cerUnlock{color:#c25a00}
 /* Hauptknopf rot und schraeg wie "Los geht's", Nebenknoepfe weiss */
-body .modal button:not(.secondary),body #ceremony button:not(.secondary){position:relative;overflow:hidden;transform:skewX(-8deg);border-radius:16px;padding:15px 22px;background:linear-gradient(180deg,#ff4a4a,var(--mk-red) 55%,var(--mk-red2));border:3px solid #fff;box-shadow:0 0 0 3px var(--mk-ink),0 6px 0 3px var(--mk-ink);color:#fff;font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:19px;letter-spacing:.3px;-webkit-text-stroke:4px var(--mk-ink);paint-order:stroke fill;text-align:center;margin-top:18px}
+body .modal button:not(.secondary),body #ceremony button:not(.secondary){position:relative;overflow:hidden;transform:skewX(-8deg);border-radius:16px;padding:15px 22px;background:linear-gradient(180deg,#ff4a4a,var(--wk-red) 55%,var(--wk-red2));border:3px solid #fff;box-shadow:0 0 0 3px var(--wk-ink),0 6px 0 3px var(--wk-ink);color:#fff;font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:19px;letter-spacing:.3px;-webkit-text-stroke:4px var(--wk-ink);paint-order:stroke fill;text-align:center;margin-top:18px}
 body .modal button:not(.secondary):hover,body #ceremony button:not(.secondary):hover{transform:skewX(-8deg) translateY(-2px);filter:brightness(1.08)}
-body .modal button:not(.secondary):active,body #ceremony button:not(.secondary):active{transform:skewX(-8deg) translateY(3px);box-shadow:0 0 0 3px var(--mk-ink),0 3px 0 3px var(--mk-ink)}
-body .modal .secondary,body #ceremony .secondary{transform:skewX(-8deg);border-radius:13px;margin-top:12px;padding:11px 16px;background:#fff;color:var(--mk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font-family:var(--mk-font);font-style:italic;font-weight:800;font-size:15px}
+body .modal button:not(.secondary):active,body #ceremony button:not(.secondary):active{transform:skewX(-8deg) translateY(3px);box-shadow:0 0 0 3px var(--wk-ink),0 3px 0 3px var(--wk-ink)}
+body .modal .secondary,body #ceremony .secondary{transform:skewX(-8deg);border-radius:13px;margin-top:12px;padding:11px 16px;background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font-family:var(--wk-font);font-style:italic;font-weight:800;font-size:15px}
 body .modal .secondary:hover,body #ceremony .secondary:hover{transform:skewX(-8deg) translateY(-2px);box-shadow:0 5px 0 #15133a33}
-body .modal .secondary[aria-pressed="true"]{background:linear-gradient(180deg,var(--mk-yellow),var(--mk-orange));color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--mk-ink),0 4px 0 2px var(--mk-ink);-webkit-text-stroke:3px var(--mk-ink);paint-order:stroke fill}
+body .modal .secondary[aria-pressed="true"]{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange));color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
 /* Sterne und Werte */
 body #resultStars{color:#15133a26;-webkit-text-stroke:0}
-body #resultStars i.on{color:var(--mk-yellow);-webkit-text-stroke:2px var(--mk-ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--mk-orange)}
-body #resultStars b{background:var(--mk-red);color:#fff;font-family:var(--mk-font);font-style:italic;font-weight:900;transform:skewX(-8deg)}
+body #resultStars i.on{color:var(--wk-yellow);-webkit-text-stroke:2px var(--wk-ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--wk-orange)}
+body #resultStars b{background:var(--wk-red);color:#fff;font-family:var(--wk-font);font-style:italic;font-weight:900;transform:skewX(-8deg)}
 body #resultStats div{background:#fff;border:2px solid #15133a1f;box-shadow:0 2px 0 #15133a26}
 body #resultStats span{color:#15133aa6;opacity:1;font-weight:700}
-body #resultStats b{color:var(--mk-ink);font-family:var(--mk-font);font-style:italic;font-weight:900}
+body #resultStats b{color:var(--wk-ink);font-family:var(--wk-font);font-style:italic;font-weight:900}
 /* Rangliste: Zeilen als kleine Karten, eigene Zeile gelb */
 body .modal ol,body #ceremony ol{display:flex;flex-direction:column;gap:4px}
-body .modal li,body #ceremony li{border:0;border-radius:10px;padding:6px 12px;background:#15133a0d;color:var(--mk-ink);font-weight:700}
-body .modal li span:first-child,body #ceremony li span:first-child{font-family:var(--mk-font);font-style:italic;font-weight:900;min-width:26px}
-body .modal li.me,body #ceremony li.me{background:linear-gradient(90deg,var(--mk-yellow),#ffe98a);color:var(--mk-ink);box-shadow:0 0 0 2px var(--mk-ink)}
+body .modal li,body #ceremony li{border:0;border-radius:10px;padding:6px 12px;background:#15133a0d;color:var(--wk-ink);font-weight:700}
+body .modal li span:first-child,body #ceremony li span:first-child{font-family:var(--wk-font);font-style:italic;font-weight:900;min-width:26px}
+body .modal li.me,body #ceremony li.me{background:linear-gradient(90deg,var(--wk-yellow),#ffe98a);color:var(--wk-ink);box-shadow:0 0 0 2px var(--wk-ink)}
 body .modal li .gain{color:#1f9a4b}
 body #ceremony>div{background:linear-gradient(180deg,#fffffff2,#e7f3ffe8);backdrop-filter:blur(6px)}
 /* Fehler- und Ladeanzeige */
-body #error{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));border-radius:22px;background:#fff;color:var(--mk-ink);box-shadow:0 0 0 3px var(--mk-ink),0 8px 0 3px var(--mk-ink);padding:28px;font-weight:700}
-body #trackLoading{background:#fff;color:var(--mk-ink);box-shadow:0 0 0 3px var(--mk-ink),0 5px 0 3px var(--mk-ink);font-family:var(--mk-font);font-style:italic;font-weight:900}
-body #trackLoading i{border-color:#15133a26;border-top-color:var(--mk-red)}
+body #error{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));border-radius:22px;background:#fff;color:var(--wk-ink);box-shadow:0 0 0 3px var(--wk-ink),0 8px 0 3px var(--wk-ink);padding:28px;font-weight:700}
+body #trackLoading{background:#fff;color:var(--wk-ink);box-shadow:0 0 0 3px var(--wk-ink),0 5px 0 3px var(--wk-ink);font-family:var(--wk-font);font-style:italic;font-weight:900}
+body #trackLoading i{border-color:#15133a26;border-top-color:var(--wk-red)}
 /* Streckenkarten: Auswahl hebt sich an und hat einen Rahmen - im scrollenden Raster brauchte
    sie Luft, sonst schnitt der Rand oben und links die gewaehlte Karte ab. */
 body #menu #tracks{padding:8px 7px 11px;margin:-8px -7px -11px}
@@ -633,7 +633,7 @@ body #menu #tracks{padding:8px 7px 11px;margin:-8px -7px -11px}
 }
 /* Countdown und Einblendungen (RUNDE 2, LOS!) in der Display-Schrift, etwas tiefer als die
    Streckeneinblendung, damit sich beide nicht mehr ueberlappen; springen bei jedem Wechsel auf */
-body #message{top:41%;font-family:var(--mk-font);font-weight:900;font-style:italic;color:var(--mk-yellow);-webkit-text-stroke:9px var(--mk-ink);paint-order:stroke fill;text-shadow:0 7px 0 var(--mk-red),0 12px 22px #0006;letter-spacing:1px}
+body #message{top:41%;font-family:var(--wk-font);font-weight:900;font-style:italic;color:var(--wk-yellow);-webkit-text-stroke:9px var(--wk-ink);paint-order:stroke fill;text-shadow:0 7px 0 var(--wk-red),0 12px 22px #0006;letter-spacing:1px}
 body #message.pop{animation:mkPop .42s cubic-bezier(.2,1.6,.4,1)}
 @keyframes mkPop{0%{transform:translate(-50%,-50%) scale(.35) rotate(-8deg);opacity:0}60%{opacity:1}100%{transform:translate(-50%,-50%) scale(1) rotate(0)}}
 /* Die Rand-Vignette (z-index 2) lag ueber dem Menue und dunkelte die Ecken des Panels ab - der
@@ -650,14 +650,14 @@ body #menu{z-index:3}
  body header .top-actions button{white-space:nowrap;height:auto;min-height:0;padding:8px 12px;line-height:1.1}
 }
 @media (prefers-reduced-motion:reduce){body .modal button,body #ceremony button{transition:none}body #message.pop{animation:none}}
-/* R41: Pilzland (Open World) - Missionsanzeige oben links, Portal-Knopf, keine Platz-/Rundenanzeige */
-#owPanel{display:none;position:fixed;left:18px;top:74px;z-index:3;padding:10px 16px 11px;border-radius:18px;background:linear-gradient(180deg,#ffffffee,#e7f3ffe6);box-shadow:0 0 0 3px var(--mk-ink),0 5px 0 3px var(--mk-ink);color:var(--mk-ink);pointer-events:none;max-width:min(360px,70vw);transform:skewX(-6deg)}
+/* R41: Wiesnland (Open World) - Missionsanzeige oben links, Portal-Knopf, keine Platz-/Rundenanzeige */
+#owPanel{display:none;position:fixed;left:18px;top:74px;z-index:3;padding:10px 16px 11px;border-radius:18px;background:linear-gradient(180deg,#ffffffee,#e7f3ffe6);box-shadow:0 0 0 3px var(--wk-ink),0 5px 0 3px var(--wk-ink);color:var(--wk-ink);pointer-events:none;max-width:min(360px,70vw);transform:skewX(-6deg)}
 body.ow #owPanel{display:block}
-#owPanel b{font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:13px;letter-spacing:1px;color:var(--mk-red)}
-#owPanel span{display:block;font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:30px;line-height:1.05;color:var(--mk-yellow);-webkit-text-stroke:6px var(--mk-ink);paint-order:stroke fill}
+#owPanel b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:13px;letter-spacing:1px;color:var(--wk-red)}
+#owPanel span{display:block;font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:30px;line-height:1.05;color:var(--wk-yellow);-webkit-text-stroke:6px var(--wk-ink);paint-order:stroke fill}
 #owPanel small{display:block;font-weight:800;font-size:13px;margin-top:3px}
-#owPortal{position:fixed;left:50%;bottom:22%;z-index:5;transform:translateX(-50%) skewX(-8deg);padding:14px 26px;border-radius:18px;border:3px solid #fff;background:linear-gradient(180deg,#ff4a4a,var(--mk-red) 55%,var(--mk-red2));box-shadow:0 0 0 3px var(--mk-ink),0 6px 0 3px var(--mk-ink);color:#fff;cursor:pointer;animation:mkPulse 1.2s ease-in-out infinite}
-#owPortal b{display:block;font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:24px;-webkit-text-stroke:5px var(--mk-ink);paint-order:stroke fill}
+#owPortal{position:fixed;left:50%;bottom:22%;z-index:5;transform:translateX(-50%) skewX(-8deg);padding:14px 26px;border-radius:18px;border:3px solid #fff;background:linear-gradient(180deg,#ff4a4a,var(--wk-red) 55%,var(--wk-red2));box-shadow:0 0 0 3px var(--wk-ink),0 6px 0 3px var(--wk-ink);color:#fff;cursor:pointer;animation:wkPulse 1.2s ease-in-out infinite}
+#owPortal b{display:block;font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:24px;-webkit-text-stroke:5px var(--wk-ink);paint-order:stroke fill}
 #owPortal span{display:block;font-size:12px;font-weight:800;opacity:.9}
 body.ow .position,body.ow #lap,body.ow #gpBadge{display:none!important}
 body.ow .race-top>div:first-child{display:none!important}
@@ -666,11 +666,11 @@ body #menu #tracks.locked,body #menu #classes.locked{opacity:.38;pointer-events:
 /* R44: Bildraten-Anzeige (?fps) */
 #fpsMeter{position:fixed;left:6px;top:calc(env(safe-area-inset-top,0px) + 4px);z-index:99;font:600 11px/1.3 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.55);padding:2px 6px;border-radius:6px;pointer-events:none}
 
-/* ===== R44: Touch-Steuerung im Mario-Kart-Tour/World-Stil =====
+/* ===== R44: Touch-Steuerung (grosse Daumenflaechen) =====
    Runde Knoepfe mit weissem Rand, Verlauf und kraeftiger Kursivschrift. Gas und Hopser getrennt:
    GAS (gruen, gross) unten rechts, HOPS (rot) links daneben im Daumenbogen, Item-Blase oben, Bremse klein. */
 body #touch{padding:0 12px calc(12px + env(safe-area-inset-bottom,0px));align-items:flex-end}
-body #touch button{font-family:var(--mk-font,'Rubik',system-ui,sans-serif);font-style:italic;font-weight:900;letter-spacing:.5px;color:#fff;
+body #touch button{font-family:var(--wk-font,'Rubik',system-ui,sans-serif);font-style:italic;font-weight:900;letter-spacing:.5px;color:#fff;
  border:3px solid #fff;border-radius:50%;backdrop-filter:none;-webkit-backdrop-filter:none;
  text-shadow:0 2px 0 rgba(0,0,0,.35);box-shadow:0 5px 0 rgba(0,0,0,.28),inset 0 -6px 0 rgba(0,0,0,.18),inset 0 5px 0 rgba(255,255,255,.28);
  transition:transform .06s ease-out,filter .06s;line-height:1}
@@ -707,7 +707,7 @@ body.autogas #touch .t-drift{margin-bottom:0;width:clamp(100px,27vw,120px);heigh
 
 /* ===== R44: Fortschritt - XP-Balken im Ergebnis, Erfolge-Tafel ===== */
 #resultProg{margin:10px 0 6px;text-align:left}
-#resultProg .xp-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;letter-spacing:.5px}
+#resultProg .xp-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--wk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;letter-spacing:.5px}
 #resultProg .xp-head b{font-size:18px;color:#f07800;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 #resultProg .xp-bar,#achBar{position:relative;height:14px;border-radius:9px;background:rgba(0,0,0,.35);border:2px solid #fff;overflow:hidden;margin:6px 0}
 #resultProg .xp-bar i,#achBar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#2fd35f,#b6ff5c);border-radius:7px;transition:width .9s cubic-bezier(.2,.8,.2,1);display:block;height:100%}
@@ -726,12 +726,12 @@ body.autogas #touch .t-drift{margin-bottom:0;width:clamp(100px,27vw,120px);heigh
 .ach-colors{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .ach-colors span{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;border:2px solid var(--c);color:#fff;opacity:.6}
 .ach-colors span.on{background:var(--c);opacity:1;text-shadow:0 1px 0 rgba(0,0,0,.5)}
-.ach-btn{font-family:var(--mk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;border-radius:999px;padding:6px 14px;border:3px solid #fff;background:linear-gradient(180deg,#ffd43b,#f59f00);color:#3a2300;box-shadow:0 4px 0 rgba(0,0,0,.25);cursor:pointer;margin-right:10px}
+.ach-btn{font-family:var(--wk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;border-radius:999px;padding:6px 14px;border:3px solid #fff;background:linear-gradient(180deg,#ffd43b,#f59f00);color:#3a2300;box-shadow:0 4px 0 rgba(0,0,0,.25);cursor:pointer;margin-right:10px}
 .ach-btn small{font-size:11px;font-weight:800;margin-left:4px;opacity:.85}
 
 /* ===== R44: Fortschritt - XP-Balken im Ergebnis, Erfolge-Tafel ===== */
 #resultProg{margin:10px 0 6px;text-align:left}
-#resultProg .xp-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;letter-spacing:.5px}
+#resultProg .xp-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--wk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;letter-spacing:.5px}
 #resultProg .xp-head b{font-size:18px;color:#f07800;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 #resultProg .xp-bar,#achBar{position:relative;height:14px;border-radius:9px;background:rgba(0,0,0,.35);border:2px solid #fff;overflow:hidden;margin:6px 0}
 #resultProg .xp-bar i,#achBar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#2fd35f,#b6ff5c);border-radius:7px;transition:width .9s cubic-bezier(.2,.8,.2,1);display:block;height:100%}
@@ -750,7 +750,7 @@ body.autogas #touch .t-drift{margin-bottom:0;width:clamp(100px,27vw,120px);heigh
 .ach-colors{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .ach-colors span{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;border:2px solid var(--c);color:#fff;opacity:.6}
 .ach-colors span.on{background:var(--c);opacity:1;text-shadow:0 1px 0 rgba(0,0,0,.5)}
-.ach-btn{font-family:var(--mk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;border-radius:999px;padding:6px 14px;border:3px solid #fff;background:linear-gradient(180deg,#ffd43b,#f59f00);color:#3a2300;box-shadow:0 4px 0 rgba(0,0,0,.25);cursor:pointer;margin-right:10px}
+.ach-btn{font-family:var(--wk-font,'Rubik',sans-serif);font-style:italic;font-weight:900;border-radius:999px;padding:6px 14px;border:3px solid #fff;background:linear-gradient(180deg,#ffd43b,#f59f00);color:#3a2300;box-shadow:0 4px 0 rgba(0,0,0,.25);cursor:pointer;margin-right:10px}
 .ach-btn small{font-size:11px;font-weight:800;margin-left:4px;opacity:.85}
 
 /* ===== R45: Ein-Hand-Steuerung (Handy hochkant) - keine Fahrknoepfe, eine Wischflaeche ueber dem Spielbild ===== */
@@ -759,7 +759,7 @@ body.autogas #touch .t-drift{margin-bottom:0;width:clamp(100px,27vw,120px);heigh
 @media(pointer:coarse){#ctrlMode:not([hidden]){display:inline-block;margin:0 0 0 8px}}
 #ctrlMode{background:transparent;border:1px solid #fff4;border-radius:20px;padding:6px 12px;font-size:11px;color:#e4e9d5}
 #ctrlMode[aria-pressed=true]{background:#ffe16a;color:#234d39}
-/* Die Flaeche liegt unter der Kopfzeile (Pause, Ton), dem Pilzland-Portal und der Item-Blase */
+/* Die Flaeche liegt unter der Kopfzeile (Pause, Ton), dem Wiesnland-Portal und der Item-Blase */
 body.onehand #touch{top:0;z-index:3;padding:0}
 body.onehand #ohPad{display:block;position:fixed;inset:0;pointer-events:auto;touch-action:none;-webkit-user-select:none;user-select:none}
 body.onehand #touch .steer,body.onehand #touch .t-drift,body.onehand #touch .t-brake,body.onehand #touch .t-gas{display:none!important}
@@ -777,9 +777,9 @@ body.onehand #autoGas{display:none!important}
 /* Kurzanleitung zum Rennstart, blendet sich aus */
 #ohHint{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:5px 8px;
  width:min(360px,calc(100vw - 32px));padding:10px 12px;border-radius:18px;background:#15133acc;border:2px solid #ffffff55;pointer-events:none;
- font-family:var(--mk-font,'Rubik',sans-serif);font-style:italic;font-weight:800;font-size:12px;letter-spacing:.4px;color:#fff;opacity:0;transition:opacity .4s,transform .4s;transform:translate(-50%,10px)}
+ font-family:var(--wk-font,'Rubik',sans-serif);font-style:italic;font-weight:800;font-size:12px;letter-spacing:.4px;color:#fff;opacity:0;transition:opacity .4s,transform .4s;transform:translate(-50%,10px)}
 #ohHint.show{opacity:1;transform:translate(-50%,0)}
-#ohHint b{flex-basis:100%;text-align:center;font-weight:900;font-size:14px;color:var(--mk-yellow,#ffd21f)}
+#ohHint b{flex-basis:100%;text-align:center;font-weight:900;font-size:14px;color:var(--wk-yellow,#ffd21f)}
 #ohHint span{padding:3px 8px;border-radius:999px;background:#ffffff1f}
 
 /* Einblendungen nie breiter als der Schirm (lange Streckennamen im Hochformat) */
@@ -792,10 +792,10 @@ body.onehand #autoGas{display:none!important}
    ============================================================================================= */
 /* Panel: dunkle Kontur wie die Knoepfe, feines Diagonalmuster */
 body #menu .menu-panel{background:repeating-linear-gradient(135deg,#15133a06 0 9px,#15133a00 9px 18px),linear-gradient(180deg,#fffffff4,#e2f0ffef);
- box-shadow:0 0 0 3px var(--mk-ink),0 9px 0 3px var(--mk-ink),0 30px 70px -24px #000c}
-body #menu .menu-panel:before{left:22px;right:22px;top:-10px;height:15px;box-shadow:0 0 0 2.5px var(--mk-ink)}
+ box-shadow:0 0 0 3px var(--wk-ink),0 9px 0 3px var(--wk-ink),0 30px 70px -24px #000c}
+body #menu .menu-panel:before{left:22px;right:22px;top:-10px;height:15px;box-shadow:0 0 0 2.5px var(--wk-ink)}
 /* Abschnittsnamen als kleine schraege Tinten-Schilder */
-body #menu .pick>small{display:inline-block;align-self:flex-start;padding:2px 9px 3px;border-radius:7px;background:var(--mk-ink);color:#fff;font-size:10.5px;letter-spacing:1.2px;line-height:1.25;transform:skewX(-8deg)}
+body #menu .pick>small{display:inline-block;align-self:flex-start;padding:2px 9px 3px;border-radius:7px;background:var(--wk-ink);color:#fff;font-size:10.5px;letter-spacing:1.2px;line-height:1.25;transform:skewX(-8deg)}
 /* Garage: Fahrer | Kart, darunter Lenkhilfe | Grafik */
 body #menu .menu-picks{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 18px;align-items:start;margin:0;padding:11px 13px 12px;border-radius:18px;background:#15133a0c;border:2px solid #15133a14}
 body #menu .menu-picks .pick{min-width:0;gap:6px}
@@ -808,13 +808,13 @@ body #menu #drivers{gap:6px}
 body #menu #assist button,body #menu #gfx button{padding:6px 11px;font-size:12px;white-space:nowrap}
 /* Streckenkarten: Vorschau nie verzerrt, Name in der Display-Schrift */
 body #menu #tracks .track canvas{object-fit:cover}
-body #menu #tracks .track b{font-family:var(--mk-font);font-style:italic;font-weight:900;letter-spacing:.2px;-webkit-text-stroke:3.5px #0b0a22;paint-order:stroke fill}
-body #menu #tracks .track.selected{border-color:var(--mk-yellow);box-shadow:0 0 0 3px var(--mk-ink),0 5px 0 3px var(--mk-ink),0 0 22px #ffd21f88;transform:translateY(-2px) scale(1.02);z-index:1}
+body #menu #tracks .track b{font-family:var(--wk-font);font-style:italic;font-weight:900;letter-spacing:.2px;-webkit-text-stroke:3.5px #0b0a22;paint-order:stroke fill}
+body #menu #tracks .track.selected{border-color:var(--wk-yellow);box-shadow:0 0 0 3px var(--wk-ink),0 5px 0 3px var(--wk-ink),0 0 22px #ffd21f88;transform:translateY(-2px) scale(1.02);z-index:1}
 /* Fuss: Erfolge links, Umschalter als Chips */
 body #menu .menu-meta{flex-wrap:wrap;gap:8px 10px;justify-content:flex-start;border:0;padding:0;margin:0}
 body #menu .menu-meta .controls{margin-left:auto}
-body #menu #autoGas,body #menu #ctrlMode{margin:0;padding:7px 13px;border-radius:11px;transform:skewX(-8deg);background:#fff;color:var(--mk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font-family:var(--mk-font);font-style:italic;font-weight:800;font-size:13px}
-body #menu #autoGas[aria-pressed=true],body #menu #ctrlMode[aria-pressed=true]{background:linear-gradient(180deg,var(--mk-yellow),var(--mk-orange));color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--mk-ink),0 4px 0 2px var(--mk-ink);-webkit-text-stroke:3px var(--mk-ink);paint-order:stroke fill}
+body #menu #autoGas,body #menu #ctrlMode{margin:0;padding:7px 13px;border-radius:11px;transform:skewX(-8deg);background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font-family:var(--wk-font);font-style:italic;font-weight:800;font-size:13px}
+body #menu #autoGas[aria-pressed=true],body #menu #ctrlMode[aria-pressed=true]{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange));color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
 body #menu #ctrlMode[hidden]{display:none!important}
 
 /* ---- Breit: Modus und Klasse in einer Zeile, vier Karten je Reihe, letzte Reihe fuellt aus ---- */
@@ -835,7 +835,7 @@ body #menu #ctrlMode[hidden]{display:none!important}
  body #menu .menu-panel{gap:9px;padding:18px 14px 12px}
  body #menu .menu-brand{margin:-4px 0 0;gap:10px}
  body .menu-title{font-size:clamp(29px,8.6vw,38px)}body .menu-title em{display:inline}
- body #menu .menu-tag{font-size:12.5px;-webkit-text-stroke:3px var(--mk-ink)}
+ body #menu .menu-tag{font-size:12.5px;-webkit-text-stroke:3px var(--wk-ink)}
  body #menu .mb-icon{width:42px;height:42px;font-size:22px}
  body #menu #tracks{grid-template-columns:repeat(6,1fr);grid-auto-rows:clamp(70px,10.2vh,94px);gap:7px}
  body #menu #tracks .track{grid-column:span 2;aspect-ratio:auto;height:auto;border-width:2.5px}
@@ -905,10 +905,10 @@ body #menu #ctrlMode[hidden]{display:none!important}
 }
 /* v6 Feinschliff: Einstellungsgruppen ohne grauen Balken, Hochkant-Garage in voller Breite, Fuss kompakt */
 body #menu #assist,body #menu #gfx{display:inline-flex;width:max-content;max-width:100%;background:transparent;padding:0;gap:5px}
-body #menu .ach-btn{margin:0;padding:6px 13px;font-size:13px;border-width:2.5px;transform:skewX(-8deg);box-shadow:0 0 0 2.5px var(--mk-ink),0 4px 0 2px var(--mk-ink)}
+body #menu .ach-btn{margin:0;padding:6px 13px;font-size:13px;border-width:2.5px;transform:skewX(-8deg);box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink)}
 body #menu .ach-btn small{font-size:11px}
 /* R50: ".menu-meta small" faerbt gelb - auf dem gelben Knopf war "Stufe N" unlesbar; jetzt dunkles Abzeichen */
-body #menu .ach-btn small:not(:empty){color:var(--mk-yellow);background:var(--mk-ink);opacity:1;border-radius:999px;padding:1px 7px 2px;margin-left:6px;letter-spacing:.3px;vertical-align:1px}
+body #menu .ach-btn small:not(:empty){color:var(--wk-yellow);background:var(--wk-ink);opacity:1;border-radius:999px;padding:1px 7px 2px;margin-left:6px;letter-spacing:.3px;vertical-align:1px}
 @media (max-width:620px){
  body #menu .menu-picks{grid-template-columns:auto minmax(0,1fr);gap:8px 14px}
  body #menu .menu-picks .pick:nth-child(1),body #menu .menu-picks .pick:nth-child(2){grid-column:1/-1;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center;column-gap:8px}
@@ -935,21 +935,21 @@ body #menu .ach-btn small:not(:empty){color:var(--mk-yellow);background:var(--mk
 @media (pointer:coarse) and (orientation:landscape) and (min-width:761px) and (max-width:900px){
  body #menu .ach-btn,body #menu #autoGas,body #menu #ctrlMode{padding:4px 7px;font-size:10.5px}
 }
-/* Pilzland-Tafel (seit dem Merge-Marker-Fix wirklich fixiert): hochkant unter der Zeitanzeige, links neben der Item-Blase */
+/* Wiesnland-Tafel (seit dem Merge-Marker-Fix wirklich fixiert): hochkant unter der Zeitanzeige, links neben der Item-Blase */
 @media (max-width:620px){
  #owPanel{top:calc(150px + env(safe-area-inset-top,0px));left:12px;max-width:calc(100vw - 108px);padding:7px 12px 8px;border-radius:14px}
- #owPanel b{font-size:11px}#owPanel span{font-size:22px;-webkit-text-stroke:5px var(--mk-ink)}#owPanel small{font-size:11.5px}
+ #owPanel b{font-size:11px}#owPanel span{font-size:22px;-webkit-text-stroke:5px var(--wk-ink)}#owPanel small{font-size:11.5px}
 }
 @media (pointer:coarse) and (orientation:landscape){
  #owPanel{top:calc(56px + env(safe-area-inset-top,0px));left:10px;max-width:min(300px,40vw);padding:5px 10px 6px;border-radius:12px}
- #owPanel b{font-size:10px}#owPanel span{font-size:18px;-webkit-text-stroke:4px var(--mk-ink)}#owPanel small{font-size:10.5px}
+ #owPanel b{font-size:10px}#owPanel span{font-size:18px;-webkit-text-stroke:4px var(--wk-ink)}#owPanel small{font-size:10.5px}
 }
 
 /* ===== R46: Rivale im HUD, Tages-Herausforderung im Menue ===== */
 #rivalTag{position:absolute;left:40px;top:238px;display:flex;align-items:center;gap:6px;padding:4px 12px 5px 9px;border-radius:12px;transform:skewX(-8deg);
- background:linear-gradient(180deg,#34c46a,#1f9a4b);border:2.5px solid #fff;box-shadow:0 0 0 2.5px var(--mk-ink),0 4px 0 2px var(--mk-ink);
- font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:13px;letter-spacing:.6px;color:#fff;-webkit-text-stroke:3px var(--mk-ink);paint-order:stroke fill;pointer-events:none}
-#rivalTag.ahead{background:linear-gradient(180deg,#ff4a4a,var(--mk-red) 60%,var(--mk-red2))}
+ background:linear-gradient(180deg,#34c46a,#1f9a4b);border:2.5px solid #fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);
+ font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:13px;letter-spacing:.6px;color:#fff;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill;pointer-events:none}
+#rivalTag.ahead{background:linear-gradient(180deg,#ff4a4a,var(--wk-red) 60%,var(--wk-red2))}
 #rivalTag b{font-size:14px;-webkit-text-stroke:0}
 @media (max-width:620px){#rivalTag{left:14px;top:192px;font-size:12px}}
 @media (pointer:coarse) and (orientation:landscape){#rivalTag{left:12px;top:112px;font-size:11px;padding:3px 9px 4px 7px}}
@@ -960,14 +960,14 @@ body.ow #rivalTag{display:none!important}
 
 /* Tages-Herausforderung: Karte ueber dem Startknopf */
 body #menu #daily{grid-area:daily;display:flex;align-items:center;gap:10px;margin:0;padding:8px 12px 8px 10px;border-radius:16px;text-align:left;
- background:linear-gradient(100deg,#fff7d6,#ffffff 60%);border:2.5px solid var(--mk-ink);box-shadow:0 4px 0 var(--mk-ink);color:var(--mk-ink);transition:transform .12s}
+ background:linear-gradient(100deg,#fff7d6,#ffffff 60%);border:2.5px solid var(--wk-ink);box-shadow:0 4px 0 var(--wk-ink);color:var(--wk-ink);transition:transform .12s}
 body #menu #daily:hover{transform:translateY(-2px)}
 body #menu #daily i{font-style:normal;font-size:24px;line-height:1}
 body #menu #daily span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-body #menu #daily small{font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:10.5px;letter-spacing:1.1px;color:var(--mk-red)}
-body #menu #daily b{font-family:var(--mk-font);font-style:italic;font-weight:900;font-size:15px;line-height:1.1}
+body #menu #daily small{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:10.5px;letter-spacing:1.1px;color:var(--wk-red)}
+body #menu #daily b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:15px;line-height:1.1}
 body #menu #daily em{font-style:normal;font-weight:700;font-size:11.5px;color:#15133aa8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body #menu #daily u{text-decoration:none;flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(180deg,#ff4a4a,var(--mk-red));color:#fff;font-size:14px;border:2.5px solid var(--mk-ink)}
+body #menu #daily u{text-decoration:none;flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(180deg,#ff4a4a,var(--wk-red));color:#fff;font-size:14px;border:2.5px solid var(--wk-ink)}
 body #menu #daily.done{background:linear-gradient(100deg,#dcffe6,#fff 60%)}
 body #menu #daily.done small{color:#1f9a4b}
 body #menu #daily.done u{background:linear-gradient(180deg,#34c46a,#1f9a4b)}
@@ -975,7 +975,7 @@ body #menu #daily.done u{background:linear-gradient(180deg,#34c46a,#1f9a4b)}
 @media (max-width:620px){body #menu #daily{padding:6px 10px 6px 8px}body #menu #daily b{font-size:14px}body #menu #daily i{font-size:20px}body #menu #tracks{grid-auto-rows:clamp(64px,8.2vh,80px)}}
 @media (pointer:coarse) and (orientation:landscape){
  body #menu .menu-panel{grid-template-rows:auto auto auto minmax(0,1fr) auto auto;grid-template-areas:"brand tracks" "modes tracks" "classes tracks" "picks tracks" "picks daily" "meta start"}
- body #menu #daily{padding:4px 8px;gap:7px;border-radius:12px;box-shadow:0 3px 0 var(--mk-ink)}
+ body #menu #daily{padding:4px 8px;gap:7px;border-radius:12px;box-shadow:0 3px 0 var(--wk-ink)}
  body #menu #daily i{font-size:16px}body #menu #daily small{font-size:9px}body #menu #daily b{font-size:12px}body #menu #daily em{font-size:10px}
  body #menu #daily u{width:24px;height:24px;font-size:11px}
 }
@@ -1026,7 +1026,7 @@ body.mirror #game,body.mirror #map{transform:scaleX(-1)}
 #menu #classes .mirror-btn b{display:none}
 #menu #classes .mirror-btn.locked::after{content:'🔒';position:absolute;right:-4px;bottom:-4px;font-size:10px}
 /* R50 Controller: sichtbarer Fokus in Pause, Ergebnis, Siegerehrung und Erfolgen */
-body.pad .modal button:focus,body.pad #ceremony button:focus{outline:4px solid var(--mk-yellow);outline-offset:3px}
+body.pad .modal button:focus,body.pad #ceremony button:focus{outline:4px solid var(--wk-yellow);outline-offset:3px}
 body.pad #item kbd{width:17px;height:17px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;background:#1c7cff;border:2px solid #fff;box-shadow:0 2px 0 #15133a}
 /* R50 Wetterbericht: ein Symbol je Runde als Pille unter Runde/Zeit, die aktuelle Runde gross (ausserhalb des
    Kastens, sonst zog die Zeile ihn am Handy ueber die Platzanzeige) */
@@ -1076,7 +1076,7 @@ body #menu #modes button b{white-space:nowrap}
  body #menu .menu-meta{min-width:0}
 }
 @media (pointer:coarse) and (orientation:landscape) and (max-width:760px){
- /* Streckenspalte etwas breiter, damit "Geisterhaus" und "Regenbogen-" in die Karten passen */
+ /* Streckenspalte etwas breiter, damit "Geisterhaus" und "Sternenbahn" in die Karten passen */
  body #menu .menu-panel{grid-template-columns:minmax(262px,1.02fr) minmax(0,1fr)}
  body #menu #colors{grid-template-columns:repeat(5,18px);gap:3px 4px}
  body #menu #colors .swatch{width:18px;height:18px}
@@ -1094,14 +1094,14 @@ body #toast{width:max-content}
 body #message{top:max(41%,330px)}
 @media (pointer:coarse) and (orientation:portrait){
  /* hochkant: kleiner und einzeilig unter Rivalen-Schild und Item-Blase statt zweizeilig darueber */
- body #toast{top:calc(236px + env(safe-area-inset-top,0px));font-size:clamp(19px,6vw,30px);line-height:1.1;-webkit-text-stroke:5px var(--mk-ink);max-width:calc(100vw - 24px)}
+ body #toast{top:calc(236px + env(safe-area-inset-top,0px));font-size:clamp(19px,6vw,30px);line-height:1.1;-webkit-text-stroke:5px var(--wk-ink);max-width:calc(100vw - 24px)}
  body #message{top:max(41%,calc(306px + env(safe-area-inset-top,0px)))}
  /* Item-Blase lag 4 px ueber dem Runde/Zeit-Kasten */
  body.onehand #touch .act{top:calc(168px + env(safe-area-inset-top,0px))}
  body.ow #toast{top:calc(244px + env(safe-area-inset-top,0px))}
 }
 @media (pointer:coarse) and (orientation:landscape){
- body #toast{top:calc(90px + env(safe-area-inset-top,0px));font-size:22px;line-height:1.1;-webkit-text-stroke:5px var(--mk-ink);max-width:min(620px,calc(100vw - 24px))}
+ body #toast{top:calc(90px + env(safe-area-inset-top,0px));font-size:22px;line-height:1.1;-webkit-text-stroke:5px var(--wk-ink);max-width:min(620px,calc(100vw - 24px))}
  body.ow #toast{top:calc(138px + env(safe-area-inset-top,0px))}
  body #message{top:47%}
  /* Beschriftungen passen in die runden Knoepfe, Item-Symbol in seine Blase */
@@ -1119,7 +1119,7 @@ body #message{top:max(41%,330px)}
 }
 /* Zeitfahren und Grand Prix: Geist, Medaillenzeit und Rennzaehler in derselben Display-Schrift wie Runde/Zeit
    (standen vorher in der Fliesstext-Schrift daneben) */
-body #ttDelta,body #ttMedalTime,body #gpRace{font-family:var(--mk-font);font-style:italic;font-weight:900;-webkit-text-stroke:4px var(--mk-ink);paint-order:stroke fill;color:#fff}
+body #ttDelta,body #ttMedalTime,body #gpRace{font-family:var(--wk-font);font-style:italic;font-weight:900;-webkit-text-stroke:4px var(--wk-ink);paint-order:stroke fill;color:#fff}
 body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
 /* Zeitfahren hochkant: vier Felder passten nicht in den rechts verankerten Kasten - er lief links aus dem Bild.
    Die Platzanzeige fehlt im Zeitfahren, also volle Breite und etwas kleinere Ziffern */
@@ -1139,7 +1139,7 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body #gpBadge small:before{content:'GP';font-size:13px;letter-spacing:2px}
 }
 /* kurze Hochkant-Handys (360x640, SE): grosse Mitteilung etwas kleiner, sie liegt sonst breit ueber Karte und Tempo */
-@media (pointer:coarse) and (orientation:portrait) and (max-height:700px){body #message{font-size:46px;-webkit-text-stroke:7px var(--mk-ink)}}
+@media (pointer:coarse) and (orientation:portrait) and (max-height:700px){body #message{font-size:46px;-webkit-text-stroke:7px var(--wk-ink)}}
 /* quer auf kleinen Handys: Tempo mittig zwischen Lenk- und Aktionsknoepfen, nicht unter BREMSE */
 @media (pointer:coarse) and (orientation:landscape) and (max-width:720px){body .speed{left:43%}}
 @media (pointer:coarse) and (orientation:landscape) and (max-width:760px){body #menu{padding-right:calc(58px + max(12px,env(safe-area-inset-right,0px)))}}
@@ -1154,7 +1154,7 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin.racing header{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0;justify-content:flex-end}
  body.hudmin.racing #pause{width:44px;height:44px;padding:0!important;display:grid;place-items:center;font-size:16px;border-radius:50%;background:#15133a8c;border-color:#ffffff59}
  body.hudmin .position{left:14px;top:calc(8px + env(safe-area-inset-top,0px))}
- body.hudmin .position strong{font-size:58px;-webkit-text-stroke:7px var(--mk-ink)}
+ body.hudmin .position strong{font-size:58px;-webkit-text-stroke:7px var(--wk-ink)}
  body.hudmin .position>span{font-size:19px}
  body.hudmin .position small{display:none}
  /* Runde als kleine Pille oben in der Mitte */
@@ -1165,7 +1165,7 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin .race-top>div:nth-child(2),body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
  body.hudmin #wxStrip{left:50%;transform:translateX(-50%);top:calc(100% + 4px);font-size:12px;padding:2px 9px;gap:4px;background:#15133a8c}
  body.hudmin #lap:before{content:'🏁 ';font-size:15px;-webkit-text-stroke:0;vertical-align:3px}
- /* Zeitfahren: Zeit und Geist bleiben (ohne Runde), Pilzland: Kopfkasten ganz weg */
+ /* Zeitfahren: Zeit und Geist bleiben (ohne Runde), Wiesnland: Kopfkasten ganz weg */
  body.hudmin #hud.tt .race-top>div:nth-child(2){display:block!important}
  body.hudmin #hud.tt .race-top>div:first-child{display:none!important}
  body.hudmin #hud.tt .race-top{left:50%;right:auto;padding:5px 14px 6px}
@@ -1194,7 +1194,7 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin.racing #pause{width:42px;height:42px;padding:0!important;display:grid;place-items:center;font-size:15px;border-radius:50%;background:#15133a8c;border-color:#ffffff59}
  body.hudmin.racing #pause .lbl{display:none}
  body.hudmin .position{left:26px;top:calc(14px + env(safe-area-inset-top,0px))}
- body.hudmin .position strong{font-size:64px;-webkit-text-stroke:7px var(--mk-ink)}
+ body.hudmin .position strong{font-size:64px;-webkit-text-stroke:7px var(--wk-ink)}
  body.hudmin .position>span{font-size:20px}
  body.hudmin .position small{display:none}
  body.hudmin .race-top{top:calc(20px + env(safe-area-inset-top,0px));gap:12px;padding:5px 16px 6px;border-radius:999px;background:#15133a8c;backdrop-filter:blur(6px)}
@@ -1222,7 +1222,7 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
 }
 @media (pointer:coarse) and (orientation:landscape){
  body.hudmin .position{left:calc(14px + env(safe-area-inset-left,0px))}
- body.hudmin .position strong{font-size:46px;-webkit-text-stroke:6px var(--mk-ink)}
+ body.hudmin .position strong{font-size:46px;-webkit-text-stroke:6px var(--wk-ink)}
  body.hudmin #draftHud{top:calc(70px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px))}
  body.hudmin #toast{top:calc(64px + env(safe-area-inset-top,0px))}
 }
@@ -1230,7 +1230,7 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
    Jetzt ueber der Karte: breit mittig im freien Bereich links davon, hochkant oben zwischen Kopfleiste und Karte. */
 body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw - 470px);font-size:28px;top:max(18%,120px)}
 @media (pointer:coarse) and (orientation:landscape){body.cer #toast{left:calc((100vw - 352px) / 2);max-width:calc(100vw - 380px);font-size:20px;top:calc(60px + env(safe-area-inset-top,0px))}}
-@media (max-width:760px) and (orientation:portrait){body.cer #toast{left:50%;max-width:calc(100vw - 24px);font-size:19px;top:calc(62px + env(safe-area-inset-top,0px));-webkit-text-stroke:5px var(--mk-ink)}}
+@media (max-width:760px) and (orientation:portrait){body.cer #toast{left:50%;max-width:calc(100vw - 24px);font-size:19px;top:calc(62px + env(safe-area-inset-top,0px));-webkit-text-stroke:5px var(--wk-ink)}}
 /* R52: Pause quer - sechs Knoepfe untereinander passten nicht (640x360: nur bis "Anzeige", "Zur Streckenauswahl" lag
    unsichtbar im Rollbereich). Jetzt zweispaltig: Titel und Weiterfahren breit, Einstellungen 2x2, Ausgang darunter. */
 @media (orientation:landscape) and (max-height:500px){
@@ -1246,9 +1246,9 @@ body.cer #toast{z-index:11;left:calc((100vw - 430px) / 2);max-width:calc(100vw -
 /* R52: Windschatten – klarer Ladestand und ein ruhiges Signal zum Ausscheren. */
 #draftHud{position:absolute;left:40px;top:286px;display:flex;align-items:center;gap:9px;min-width:190px;padding:10px 14px 11px 10px;border:2px solid #a6f5ec;border-radius:15px;background:linear-gradient(125deg,#122c3cf5,#153b4af2);box-shadow:0 0 0 3px #15133a,0 5px 0 2px #15133a;color:#efffff;pointer-events:none}
 #draftHud[hidden]{display:none}
-#draftHud .draft-wind{font:900 44px/1 var(--mk-font);font-style:italic;color:#80e9ee}
+#draftHud .draft-wind{font:900 44px/1 var(--wk-font);font-style:italic;color:#80e9ee}
 #draftHud>div{flex:1;min-width:0}
-#draftTitle{display:block;font:900 italic 13px/1.2 var(--mk-font);letter-spacing:.7px}
+#draftTitle{display:block;font:900 italic 13px/1.2 var(--wk-font);letter-spacing:.7px}
 #draftHint{display:block;margin-top:3px;font-size:10px;font-weight:800;letter-spacing:.4px;color:#b3dce5}
 #draftMeter{height:5px;margin-top:7px;overflow:hidden;border-radius:5px;background:#ffffff24}
 #draftMeter i{display:block;width:100%;height:100%;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,#59c8ef,#a3ffe5);transition:transform .08s linear}

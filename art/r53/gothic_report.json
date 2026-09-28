@@ -1,8 +1,8 @@
 {
  "asset": "gothic.glb",
- "authoring": "Original procedural Blender models (gothic horror mood, Kamek-style broom wizard homage; no original game assets)",
+ "authoring": "Original procedural Blender models (gothic horror mood, original broom wizard; no third-party characters or game assets)",
  "source": "art/r53/create_gothic.py",
- "triangles": 8924,
+ "triangles": 9218,
  "parts": {
   "GT_Gate": 3266,
   "GT_Candelabra": 712,
@@ -11,10 +11,10 @@
   "GT_Coffin": 148,
   "GT_BatBody": 368,
   "GT_BatWing": 12,
-  "GT_Wizard": 2710,
-  "GT_SpellRing": 448,
-  "GT_SpellSquare": 176,
-  "GT_SpellTri": 324
+  "GT_Wizard": 2868,
+  "GT_SpellRing": 732,
+  "GT_SpellSquare": 180,
+  "GT_SpellTri": 172
  },
- "bytes": 275208
+ "bytes": 288200
 }

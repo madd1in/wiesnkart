@@ -1,0 +1,13 @@
+{
+ "ow": {
+  "EL_PSwitch": 848,
+  "EL_PSwitchCap": 1636,
+  "EL_Coin": 624
+ },
+ "ghost": {
+  "GhostSheet": 1624
+ },
+ "shell": {
+  "Shell": 1284
+ }
+}

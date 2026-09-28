@@ -1,0 +1,19 @@
+{
+ "asset": "hazards.glb",
+ "round": "R54",
+ "source": "art/r54/create_hazards.py",
+ "triangles": 15302,
+ "parts": {
+  "HZ_Stamper": 1448,
+  "HZ_Pipe": 2672,
+  "HZ_PipeRing": 1440,
+  "HZ_PlantStem": 320,
+  "HZ_PlantJawTop": 604,
+  "HZ_PlantJawBot": 604,
+  "HZ_Statue": 5664,
+  "HZ_Cannon": 1336,
+  "HZ_Missile": 602,
+  "HZ_Sign": 612
+ },
+ "bytes": 340360
+}

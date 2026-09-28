@@ -1,5 +1,5 @@
-"""Mushroom Rally R53: Gothic-Paket fuer das Geisterhaus (Castlevania-Stimmung) und ein Besen-Zauberer im
-Kamek-Stil - eigene, stilisierte Entwuerfe (keine Original-Modelle, keine Logos). Export assets/gothic.glb:
+"""Wiesn Kart R53/R54: Gothic-Paket fuer das Geisterhaus (Gothic-Horror-Stimmung) und ein Besen-Zauberer - eigene,
+stilisierte Entwuerfe ohne Anlehnung an fremde Figuren (R54: Zauberer neu gestaltet). Export assets/gothic.glb:
   GT_Gate        gotisches Uhrturm-Tor zum Durchfahren: zwei Pfeiler mit Strebepfeilern und Fialen, Spitzbogen,
                  Rosettenfenster aus Buntglas, Turmuhr mit Zeigern, Wasserspeier, Fledermaus-Silhouette
   GT_Candelabra  eiserner Kandelaber (Dreifuss, drei Arme, Kerzen); Flammen als eigenes Teil GT_Flame (flackert im Spiel)
@@ -7,9 +7,9 @@ Kamek-Stil - eigene, stilisierte Entwuerfe (keine Original-Modelle, keine Logos)
   GT_Ruin        Ruinenmauer mit Spitzbogenfenster aus Buntglas und abgebrochenen Zinnen
   GT_Coffin      aufrechter Sarg mit Deckelkreuz aus Messing und Kerze davor
   GT_BatBody / GT_BatWing   Fledermaus (Fluegel als eigene Instanz, schlaegt im Spiel)
-  GT_Wizard      Besen-Zauberer: blaue Kutte und Spitzhut, runde Brille, Schnabel-Schnauze, Zauberstab
-                 (Kugel mit Stern), sitzt quer auf einem Reisigbesen - fliegt nach +z
-  GT_SpellRing / GT_SpellSquare / GT_SpellTri   Zauber-Formen (leuchtend), die der Zauberer auf die Strasse wirft
+  GT_Wizard      Wiesn-Zauberer: moosgruene Kutte mit goldenen Sternen, Filzhut mit Feder, langer weisser Bart,
+                 buschige Brauen, Knollennase, Knorrenstab mit Irrlicht - sitzt quer auf einem Reisigbesen, fliegt nach +z
+  GT_SpellRing / GT_SpellSquare / GT_SpellTri   Irrlicht-Zauber (leuchtende Sporenkugel, Funkenstern, Ahornblatt)
 Koordinaten: Spielkoordinaten ueber blib.G (x rechts, y hoch, z vorwaerts), Ursprung jeweils Boden Mitte.
 """
 import sys, math, json, pathlib, importlib
@@ -21,7 +21,7 @@ importlib.reload(blib)
 from blib import *
 
 ROOT = pathlib.Path(r'C:/Users/User/Documents/Playground/mushroom-rally')
-blib.init_scene('R53_Gothic')
+blib.init_scene('R54_Gothic')
 use_materials({
     'Stone': material('GothStone', (.36, .33, .4, 1), .88),
     'StoneLt': material('GothStoneLight', (.52, .48, .55, 1), .85),
@@ -40,19 +40,19 @@ use_materials({
     'Bat': material('BatFur', (.12, .08, .16, 1), .8),
     'BatWing': material('BatWing', (.22, .12, .26, 1), .7),
     'BatEye': material('BatEye', (1, .2, .2, 1), .3, 0, (1, .15, .1, 1), 3.0),
-    'Robe': material('WizardRobe', (.12, .3, .82, 1), .6),
-    'RobeTrim': material('WizardTrim', (.95, .95, .98, 1), .5),
-    'Skin': material('WizardSkin', (.98, .86, .56, 1), .6),
-    'Beak': material('WizardBeak', (1, .72, .3, 1), .5),
-    'Glasses': material('WizardGlasses', (.9, .95, 1, 1), .1, 0, (.7, .85, 1, 1), .4),
-    'Frame': material('WizardFrame', (.85, .7, .2, 1), .3, .8),
+    'Robe': material('WizardRobe', (.16, .34, .2, 1), .7),
+    'RobeTrim': material('WizardTrim', (.95, .76, .25, 1), .35, .6),
+    'Skin': material('WizardSkin', (.95, .74, .6, 1), .6),
+    'Beard': material('WizardBeard', (.95, .95, .93, 1), .8),
+    'Hat': material('WizardHat', (.3, .2, .14, 1), .85),
+    'Feather': material('WizardFeather', (.9, .2, .15, 1), .6),
     'Eye': material('Eye', (.05, .05, .08, 1), .2),
     'Broom': material('BroomStick', (.55, .35, .18, 1), .7),
     'Straw': material('BroomStraw', (.9, .72, .35, 1), .8),
     'Wand': material('WandGlow', (1, .95, .5, 1), .2, 0, (1, .9, .4, 1), 3.0),
-    'SpellR': material('SpellRed', (1, .25, .3, 1), .2, 0, (1, .2, .25, 1), 3.2),
-    'SpellG': material('SpellGreen', (.3, 1, .45, 1), .2, 0, (.25, 1, .4, 1), 3.2),
-    'SpellB': material('SpellBlue', (.35, .55, 1, 1), .2, 0, (.3, .5, 1, 1), 3.2),
+    'SpellR': material('SpellRed', (1, .55, .2, 1), .2, 0, (1, .5, .15, 1), 3.2),
+    'SpellG': material('SpellGreen', (.5, 1, .45, 1), .2, 0, (.45, 1, .4, 1), 3.2),
+    'SpellB': material('SpellBlue', (.8, .6, 1, 1), .2, 0, (.75, .55, 1, 1), 3.2),
 })
 
 def cone(base, tip, r, seg=12):
@@ -176,57 +176,75 @@ for sx in (-1, 1):
     bw.add('BatWing', lambda bm, pts=pts: bmesh.ops.recalc_face_normals(bm, faces=[bm.faces.new([bm.verts.new(G(x, .05 + abs(x) * .18, -z * .9)) for x, z in pts])]), smooth=False)
 bw.finish()
 
-# ======================================================== Besen-Zauberer (Kamek-Stil, eigener Entwurf)
+# ======================================================== Wiesn-Zauberer auf dem Reisigbesen (eigener Entwurf)
 wz = Part('GT_Wizard')
 wz.add('Broom', cyl((0, 0, -2.2), (0, 0, 1.9), .07, .07, 8))              # Besenstiel entlang z
 wz.add('Straw', cone((0, 0, -1.9), (0, 0, -3.4), .55, 14))
 wz.add('Straw', cyl((0, 0, -1.9), (0, 0, -1.75), .56, .56, 14))
 wz.add('Broom', torus((0, 0, -1.95), .5, .05, (0, 0, 1), 16, 4))
-wz.add('Robe', cone((0, -.1, .1), (0, 1.9, .1), .95, 18))                # Kutte (Kegel) sitzt auf dem Stiel
+wz.add('Robe', cone((0, -.1, .1), (0, 1.9, .1), .95, 18))                # Kutte
 wz.add('Robe', cyl((0, -.15, .1), (0, .15, .1), .98, .98, 18))
-wz.add('RobeTrim', torus((0, -.12, .1), .98, .07, (0, 1, 0), 24, 5))
-wz.add('RobeTrim', cyl((0, 1.1, .1), (0, 1.4, .1), .62, .55, 16))         # weisser Kragen
-wz.add('Skin', sphere((0, 1.85, .25), .55, (1, .95, 1), 16, 12))          # Kopf
-wz.add('Beak', sphere((0, 1.72, .78), .3, (1, .75, 1.2), 12, 8))          # Schnabel-Schnauze
+wz.add('RobeTrim', torus((0, -.12, .1), .98, .05, (0, 1, 0), 24, 5))      # goldene Borte
+for k in range(7):                                                        # goldene Sterne auf der Kutte
+    a = k * 2 * math.pi / 7
+    r = .75 - (k % 3) * .12
+    y = .35 + (k % 3) * .38
+    wz.add('RobeTrim', sphere((math.cos(a) * r, y, .1 + math.sin(a) * r), .07, (1, 1, .4), 6, 4))
+wz.add('Skin', sphere((0, 1.85, .25), .5, (1, .95, 1), 16, 12))           # Kopf
+wz.add('Skin', sphere((0, 1.8, .72), .16, (1, .9, 1.1), 10, 8))           # Knollennase
 for sx in (-1, 1):
-    wz.add('Frame', torus((sx * .22, 1.98, .7), .17, .03, (0, 0, 1), 16, 4))
-    wz.add('Glasses', cyl((sx * .22, 1.98, .69), (sx * .22, 1.98, .71), .15, .15, 12))
-    wz.add('Eye', sphere((sx * .22, 1.98, .66), .06, (1, 1, .5), 8, 6))
-wz.add('Frame', cyl((-.06, 1.98, .72), (.06, 1.98, .72), .02, .02, 4))
-wz.add('Robe', cone((0, 2.15, .2), (0, 3.6, -.35), .72, 18))              # Spitzhut, leicht nach hinten
-wz.add('RobeTrim', torus((0, 2.2, .2), .68, .08, (0, 1, .2), 22, 5))
+    wz.add('Eye', sphere((sx * .18, 1.98, .66), .06, (1, 1.2, .5), 8, 6))
+    wz.add('Beard', rbox((sx * .2, 2.12, .66), (.28, .09, .1), .03, 1, rot=(0, 0, -sx * .25)))   # buschige Brauen
+wz.add('Beard', cone((0, 1.65, .55), (0, .55, .95), .42, 14))              # langer Bart
+wz.add('Beard', sphere((0, 1.62, .6), .38, (1.1, .6, .6), 12, 8))          # Schnauzbart
+wz.add('Hat', cyl((0, 2.2, .2), (0, 2.28, .2), .95, .95, 22))              # breite Krempe
+wz.add('Hat', cone((0, 2.26, .2), (0, 3.25, 0), .55, 18))                  # Filzhut
+wz.add('RobeTrim', torus((0, 2.36, .2), .5, .05, (0, 1, 0), 20, 4))        # Hutband
+wz.add('Feather', tube([(.45, 2.4, .1), (.75, 2.9, -.1), (.8, 3.35, -.35)], .06, 6))   # Feder
 for sx in (-1, 1):                                                        # Aermel und Haende
     wz.add('Robe', cyl((sx * .5, 1.2, .2), (sx * .85, .85, .75), .22, .28, 10))
-    wz.add('RobeTrim', torus((sx * .85, .85, .75), .27, .05, (sx * .5, -.4, 1), 14, 4))
+    wz.add('RobeTrim', torus((sx * .85, .85, .75), .27, .04, (sx * .5, -.4, 1), 14, 4))
     wz.add('Skin', sphere((sx * .88, .8, .88), .16, (1, 1, 1), 8, 6))
-wz.add('Broom', cyl((.9, .75, .9), (1.1, 1.9, 1.5), .045, .04, 6))       # Zauberstab rechts
-wz.add('Wand', sphere((1.12, 2.0, 1.55), .17, (1, 1, 1), 10, 8))
-wz.add('Wand', lambda bm: bmesh.ops.recalc_face_normals(bm, faces=[bm.faces.new([bm.verts.new(G(1.12 + math.cos(a) * r, 2.0 + math.sin(a) * r, 1.62))
-        for a, r in [(math.pi / 2 + i * math.pi / 5, .42 if i % 2 == 0 else .18) for i in range(10)]])]), smooth=False)
-for sx in (-1, 1):                                                        # Fuesse unter der Kutte
-    wz.add('Beak', sphere((sx * .35, -.25, .55), .18, (1, .6, 1.5), 8, 6))
+wz.add('Broom', tube([(.9, .75, .9), (1.0, 1.3, 1.2), (1.1, 1.9, 1.5)], .05, 6))  # Knorrenstab
+wz.add('Wand', sphere((1.12, 2.02, 1.55), .2, (1, 1, 1), 10, 8))           # Irrlicht am Stab
+for sx in (-1, 1):                                                        # Stiefel unter der Kutte
+    wz.add('Hat', sphere((sx * .35, -.25, .55), .18, (1, .6, 1.5), 8, 6))
 wz.finish()
 
-# ======================================================== Zauber-Formen (Ring, Quadrat, Dreieck)
-sr = Part('GT_SpellRing')
-sr.add('SpellR', torus((0, 0, 0), .8, .18, (0, 1, 0), 28, 8))
+# ======================================================== Irrlicht-Zauber (Sporenkugel, Funkenstern, Ahornblatt)
+sr = Part('GT_SpellRing')                                                 # Sporenkugel: Kern mit sechs Sporen
+sr.add('SpellR', sphere((0, 0, 0), .45, (1, 1, 1), 14, 10))
+for k in range(6):
+    a = k * math.pi / 3
+    sr.add('SpellR', sphere((math.cos(a) * .8, math.sin(a * 2) * .12, math.sin(a) * .8), .16, (1, 1, 1), 8, 6))
 sr.finish()
-sq = Part('GT_SpellSquare')
-for k in range(4):
-    a = k * math.pi / 2
-    sq.add('SpellG', rbox((math.cos(a) * .72, 0, math.sin(a) * .72), (.28, .28, 1.72), .06, 1, rot=(0, a, 0)))
+sq = Part('GT_SpellSquare')                                               # Funkenstern: acht spitze Strahlen, flach
+for k in range(8):
+    a = k * math.pi / 4
+    L = .95 if k % 2 == 0 else .55
+    sq.add('SpellG', cone((0, 0, 0), (math.cos(a) * L, 0, math.sin(a) * L), .16, 6), smooth=False)
+sq.add('SpellG', sphere((0, 0, 0), .25, (1, .6, 1), 10, 6))
 sq.finish()
-tr = Part('GT_SpellTri')
-for k in range(3):
-    a0, a1 = k * 2 * math.pi / 3 + math.pi / 2, (k + 1) * 2 * math.pi / 3 + math.pi / 2
-    p0 = (math.cos(a0) * .95, 0, math.sin(a0) * .95)
-    p1 = (math.cos(a1) * .95, 0, math.sin(a1) * .95)
-    tr.add('SpellB', cyl(p0, p1, .15, .15, 8))
-    tr.add('SpellB', sphere(p0, .17, (1, 1, 1), 8, 6))
+tr = Part('GT_SpellTri')                                                  # Ahornblatt, flach
+leaf = []
+for i in range(40):
+    u = 2 * math.pi * i / 40
+    r = .55 + .35 * abs(math.sin(u * 2.5)) ** 1.5
+    leaf.append((math.cos(u) * r, math.sin(u) * r))
+def leaf_slab(bm):
+    a = [bm.verts.new(G(x, 0, z)) for x, z in leaf]
+    c = [bm.verts.new(G(x, .08, z)) for x, z in leaf]
+    fs = [bm.faces.new(a), bm.faces.new(list(reversed(c)))]
+    for i in range(len(leaf)):
+        j = (i + 1) % len(leaf)
+        fs.append(bm.faces.new((a[i], a[j], c[j], c[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+tr.add('SpellB', leaf_slab, smooth=False)
+tr.add('SpellB', cyl((0, .04, 0), (0, .04, -1.2), .05, .03, 5))
 tr.finish()
 
 tris = export_glb(ROOT / 'assets' / 'gothic.glb')
-report = {'asset': 'gothic.glb', 'authoring': 'Original procedural Blender models (gothic horror mood, Kamek-style broom wizard homage; no original game assets)',
+report = {'asset': 'gothic.glb', 'authoring': 'Original procedural Blender models (gothic horror mood, original broom wizard; no third-party characters or game assets)',
           'source': 'art/r53/create_gothic.py', 'triangles': sum(tris.values()), 'parts': tris, 'bytes': (ROOT / 'assets' / 'gothic.glb').stat().st_size}
 (ROOT / 'art' / 'r53' / 'gothic_report.json').write_text(json.dumps(report, indent=1), encoding='utf-8')
 print('REPORT', json.dumps(report))

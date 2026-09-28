@@ -1,4 +1,4 @@
-// Mushroom Rally R44: Taktgeber der neuen Hindernisse (reine Funktionen, im Spiel und in Tests genutzt).
+// Wiesn Kart R44: Taktgeber der neuen Hindernisse (reine Funktionen, im Spiel und in Tests genutzt).
 // Stampfer: warten oben -> fallen -> liegen (Hindernis) -> hochziehen. Feuerkoenig: Feuerball aus dem Maul
 // in einem Bogen auf Fahrhoehe und quer ueber die Bahn. Roehrenkanone: Kugelblitze in wechselnden Spuren.
 export const STAMP={up:1.5,fall:.28,down:.9,rise:.92,top:7.2,half:2.2};

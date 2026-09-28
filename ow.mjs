@@ -1,13 +1,13 @@
-// Pilzland (R41): Missionen der Open World, ohne Browser pruefbar. Die Welt ist eine grosse
+// Wiesnland (R41): Missionen der Open World, ohne Browser pruefbar. Die Welt ist eine grosse
 // Rundstrasse; Missionen haengen an Streckenmetern (d) und Querversatz (off) wie alles andere.
-//   pswitch  P-Schalter ueberfahren -> 8 Muenzen erscheinen auf der Strasse voraus, alle einsammeln
+//   pswitch  Glockenschalter ueberfahren -> 8 Muenzen erscheinen auf der Strasse voraus, alle einsammeln
 //            bevor die Zeit ablaeuft
 //   slalom   Bojentore auf dem Fluss der Reihe nach durchfahren (Boot)
 //   rings    Alle Ringe eines Flugabschnitts in einem Flug durchfliegen
 // Fortschritt: Menge erledigter Missions-IDs (im Spiel im localStorage).
 
 export const OW = {
-  coins: 8,          // Muenzen je P-Schalter
+  coins: 8,          // Muenzen je Glockenschalter
   coinTime: 22,      // Sekunden
   coinFirst: 22,     // erste Muenze so viele Meter hinter dem Schalter
   coinGap: 17,       // Abstand zwischen Muenzen (m)
@@ -24,7 +24,7 @@ export function coinPattern(d0, n = OW.coins) {
   return out;
 }
 
-// Zustand einer P-Schalter-Mission. t = Spielzeit in Sekunden.
+// Zustand einer Glockenschalter-Mission. t = Spielzeit in Sekunden.
 export function pswitchMission(id, d0) {
   return {id, kind: 'pswitch', d0, state: 'ready', coins: [], got: 0, t0: 0, tEnd: 0};
 }

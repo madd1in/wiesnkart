@@ -2,15 +2,15 @@ export const LAPS=3;
 export const GP_POINTS=[10,8,6,5,4,3,2,1];
 export const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
-// Freie Fahrphysik (Meter, Sekunden). Tempo bewusst Mario-Kart-nah: ~30 m/s Spitze, Boost 40 m/s.
+// Freie Fahrphysik (Meter, Sekunden). Tempo bewusst arcade-typisch: ~30 m/s Spitze, Boost 40 m/s.
 export const PHYS={top:30,accel:15,brake:32,reverse:8,coast:4,offTop:12.5,offDrag:2.6,turn:2.25,grip:9,offGrip:5,driftGrip:4.4,boostTop:40,boostAccel:34,airTurn:.3,driftMin:9,driftSlide:.5};
 export const SPORE_BONUS=.35,MAX_SPORES=10;
-// Mini-Turbo-Stufen: [Driftzeit, Boostdauer, Name]. Lange, saubere Drifts in Kurvenrichtung laden schneller.
+// Drift-Turbo-Stufen (Funken/Glut/Blitz): [Driftzeit, Boostdauer, Name]. Lange, saubere Drifts in Kurvenrichtung laden schneller.
 export const MT_LEVELS=[[1.9,1.6,'ultra'],[1.15,1.05,'super'],[.55,.6,'mini']];
-// Bunny-Hop (R44, wie Mario Kart): die Drifttaste laesst das Kart hopsen. Waehrend des Hopsers legt die Lenkung die
+// Bunny-Hop (R44): die Drifttaste laesst das Kart hopsen. Waehrend des Hopsers legt die Lenkung die
 // Richtung fest (und dreht etwas williger), bei der Landung mit gehaltener Taste beginnt der Funkendrift.
 // Gewitterwolke (R46): Blitze treffen alle Karts vor dem Nutzer - kurzer Dreher, Item weg, SHRINK_T Sekunden klein
-// und langsamer (SHRINK_TOP); klein darf man ueberfahren werden. Der Sternenschild blockt.
+// und langsamer (SHRINK_TOP); klein darf man ueberfahren werden. Der Herzschild blockt.
 export const SHRINK_T=4,SHRINK_TOP=.72;
 export const HOP_T=.3,HOP_GRACE=.22,HOP_TURN=1.3;
 // KI-Klassen: Tempo-Faktor und Fahrkoennen (Linienwahl, Bremspunkte, Drift-Nutzung, Fehlerrate).
@@ -99,7 +99,7 @@ export function itemWeights(place,count){const t=count>1?(place-1)/(count-1):0;r
 export const MEGA_T=7,INK_T=4.5;
 // Explosion: Karts im Radius werden getroffen (Schild blockt). Rueckgabe: false | 'blocked' | true
 export function blastHit(k,dx,dz,radius=6.5){if(Math.hypot(dx,dz)>radius)return false;if(k.shield>0)return 'blocked';hitKart(k,1.3,.3);return true;}
-// Drift-Combo: Mini-Turbos in kurzer Folge ohne Fehler zaehlen hoch; Fehler (Treffer, Wand, Wiese) setzen auf 0
+// Drift-Combo: Drift-Turbos in kurzer Folge ohne Fehler zaehlen hoch; Fehler (Treffer, Wand, Wiese) setzen auf 0
 export const COMBO_WINDOW=4.5;
 export function comboStep(k,time){k.combo=(k.combo>0&&time-(k.comboT??-99)<=COMBO_WINDOW)?k.combo+1:1;k.comboT=time;return k.combo;}
 export function rollItem(place,count,rnd=Math.random){const w=itemWeights(place,count);let x=rnd()*Object.values(w).reduce((a,b)=>a+b,0);for(const [k,v] of Object.entries(w)){if((x-=v)<0)return k;}return 'boost';}

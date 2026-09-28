@@ -8,7 +8,7 @@ import {ELEM,elemPlan,elemState,elemHeight} from './elem.mjs';
 import {HP,hpEnv,hpProfile,hpAccel,hpLaunchCap,hpRating,hpFindSpot} from './halfpipe.mjs';
 import {readPad,padPressed,pickPad,cycle} from './pad.mjs';
 import {createDraftState,updateDraft} from './draft.mjs';
-import {KAMEK,inSection,castInterval,pickTarget,spellPos,stepSpell,spellHits} from './kamek.mjs';
+import {WIZARD,inSection,castInterval,pickTarget,spellPos,stepSpell,spellHits} from './wizard.mjs';
 import {weatherPlan,calmPlan,weatherMix,weatherLook,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
 import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP} from './progress.mjs';
 import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannonLane,missileAt} from './hazards.mjs';
@@ -32,7 +32,7 @@ const THEMES={
   grass:0x2a3526,grassSpot:0x3f4d33,skirt:0x1f2419,road:0x3a3442,roadSpot:0x4f4858,edge:0x8f86a3,curbA:'#8a5cff',curbB:'#1a1426',line:'#9dff7a',glow:1,sea:0x1b1433,foam:0x9dff7a,
   caps:[0x8a5cff,0x9dff7a,0xff8a3d],leaves:[0x3a2d4a,0x2e2a3a,0x4a3550],hills:[0x1d1830,0x261f3a],clouds:false,balloons:0,stars:true,magnetCol:0x6a2fc0,magGlow:0x9dff7a},
  rainbow:{skyTop:0x05030f,skyBottom:0x1b0b3a,fog:0x140a2e,fogNear:220,fogFar:640,exposure:1.36,hemiSky:0xc9b8ff,hemiGround:0x241a44,hemiInt:1.5,sunCol:0xffffff,sunInt:2.0,sunPos:[70,150,60],fillCol:0x7df3ff,fillInt:.7,head:60,
-  grass:0x241a44,grassSpot:0x2e2358,skirt:0x1a1234,road:0x2a2050,roadSpot:0x3a2c6e,edge:0xffffff,curbA:'#ffffff',curbB:'#8a5cff',line:'#ffffff',glow:1,sea:0x0a0620,foam:0x9d8cff,
+  grass:0x241a44,grassSpot:0x2e2358,skirt:0x1a1234,road:0x2a2050,roadSpot:0x3a2c6e,edge:0xffffff,curbA:'#ffffff',curbB:'#ffc83a',line:'#ffffff',glow:1,sea:0x0a0620,foam:0x9d8cff,
   caps:[0xff4fa3,0x4fd8ff,0xffe45c,0x8affc8],leaves:[0x3a2d6a,0x2a2050],hills:[0x1a1240,0x241a50],pennants:[0xff4fa3,0x4fd8ff],chev:'#ffffff',
   space:true,rainbowRoad:true,clouds:false,balloons:0,stars:true,magnetCol:0xd23a8a},
  lava:{skyTop:0x150409,skyBottom:0x8a2410,fog:0x40120c,fogNear:110,fogFar:430,exposure:1.3,hemiSky:0xffc59a,hemiGround:0x241010,hemiInt:1.05,sunCol:0xffd0a0,sunInt:2.6,sunPos:[-90,110,-70],fillCol:0x6a7dff,fillInt:.5,head:80,
@@ -75,7 +75,7 @@ const courses=[
   hills:[[3.5,4,.03],[13.6,5,.03]],mansion:7.8,raise:[[9.9,11.1,8,34,1]],tunnel:[[2.2,3.6,'crypt']],agrav:[[11.4,13.4,'ceiling',1]],coaster:[[8.2,9.82,'hills']],loopc:[[4.1,14,2,-1]],elem:[[5.9,7.85,'see']],
   ramps:[[5.4,0,9],[13.5,0,8]],pads:[[4.6,3],[14.6,-3]],
   // R53: gotisches Uhrturm-Tor, Kandelaber, Ruinen mit Buntglas, Saerge, Fledermaus-Schwaerme und der Besen-Zauberer
-  builds:[[1.0,'gothgate']],kamek:[13.45,1.9],
+  builds:[[1.0,'gothgate']],wizard:[13.45,1.9],
   gothic:{candles:[[.3,1],[.55,-1],[.85,1],[1.3,-1],[1.65,1],[2.0,-1],[3.85,1],[4.9,-1],[5.35,1],[8.0,-1],[9.95,1],[11.2,-1],[13.55,1],[13.9,-1],[14.25,1],[14.6,-1],[14.95,1],[15.3,-1]],
    ruins:[[1.2,-1,27],[5.1,1,27],[9.2,-1,30],[14.3,1,27],[12.2,1,32]],coffins:[[.7,-1],[3.95,-1],[14.7,1],[10.1,-1]],bats:[[1.0,1,0],[7.8,-1,0],[14.0,-1,18]]},
   hands:[[.7,2.1,6]],boost:[.5,6,12.5],ghosts:[[1.6,5.5,.9,0],[5.3,5.5,1.1,2],[7.5,4.2,1,.5],[10.4,5.5,.8,4],[12.9,5.5,1.2,1]],boxes:[1.2,4.1,9.6,13.9],stands:[[.3,-19],[13.2,19]]},
@@ -85,7 +85,7 @@ const courses=[
   swing:[[5.6,5,1,.9],[7.0,5,1.05,2],[12.2,5,1,.3]],cannons:[[2.2,1],[13.3,0,1]],stampers:[[13.72,-3.6,0],[13.95,3.6,1.8]],
   ramps:[[2.4,0,9],[9.7,0,8]],pads:[[5.9,-4]],
   boost:[.55,6.4,11.8],boxes:[1.6,4.4,8.0,9.9,13.6],stands:[[.4,18],[8.6,-19]]},
- {name:'Regenbogenpiste',icon:'\u2727',kind:'Sternenstrasse \u00b7 Stampfer \u00b7 Sternschnuppen',medals:[127,133,144],music:'night',bgmRate:1.04,theme:'rainbow',seed:101,
+ {name:'Sternenbahn',icon:'\u2727',kind:'Sternenstrasse \u00b7 Stampfer \u00b7 Sternschnuppen',medals:[127,133,144],music:'night',bgmRate:1.04,theme:'rainbow',seed:101,
   points:[[0,90],[70,88],[120,52],[108,-2],[128,-52],[96,-96],[36,-104],[-18,-78],[-8,-30],[-52,-8],[-104,-30],[-126,16],[-96,64],[-40,84]],
   loopc:[[6.2,21,2,-1,'curve']],agrav:[[2.05,4.05,'roll',1],[8.85,10.8,'ceiling',1]],coaster:[[10.9,12.95,'hills']],
   hills:[[8.4,5,.03]],gaps:[[4.55,13]],elem:[[.3,1.72,'flug']],stampers:[[5.0,3.6,.9],[13.1,-3.6,0],[13.28,3.6,1.8]],
@@ -99,12 +99,12 @@ const courses=[
   hills:[[11.9,4,.03]],
   ramps:[[1.4,0,9]],pads:[[12.5,3]],
   boost:[.55,4.7,11.3],boxes:[.8,2.7,4.7,9.0,11.7,13.2],stands:[[.3,18],[4.4,-19]]}];
-// ---------- Pilzland (R41): Open World, die die Rennstrecken verbindet. Eine grosse Rundstrasse durch
+// ---------- Wiesnland (R41): Open World, die die Rennstrecken verbindet. Eine grosse Rundstrasse durch
 // Wald, Flussaue, Canyon, Seen und Flugschneisen - an Portalen geht es in jede Rennstrecke, dazu
-// Missionen (P-Schalter mit 8 Muenzen, Bojen-Slalom als Boot, Ringflug als Flugzeug). Steht nicht in
+// Missionen (Glockenschalter mit 8 Muenzen, Bojen-Slalom als Boot, Ringflug als Flugzeug). Steht nicht in
 // der Rennliste (Grand Prix, Rekorde und Streckenwahl bleiben unberuehrt), sondern unter Index 99.
 const WORLD_IDX=99;
-const PILZLAND={name:'Pilzland',icon:'🍄',kind:'Open World · Missionen · Portale',medals:[9999,9999,9999],music:'race',theme:'forest',seed:4141,worldR:680,openWorld:true,
+const PILZLAND={name:'Wiesnland',icon:'🍄',kind:'Open World · Missionen · Portale',medals:[9999,9999,9999],music:'race',theme:'forest',seed:4141,worldR:680,openWorld:true,
  points:[[0,420],[160,400],[300,330],[380,200],[360,60],[420,-80],[380,-220],[260,-320],[120,-380],[-40,-360],[-180,-400],[-320,-320],[-400,-180],[-360,-40],[-420,100],[-360,240],[-240,340],[-110,400]],
  // langer Fluss (Boot an der Oberflaeche, Bojen-Slalom), lange Flugschneise (Ringflug), See mit Tauch-Spirale, zweiter Fluss
  elem:[[1.55,2.95,'bach'],[5.85,7.35,'flug',{fly:26}],[10.95,12.15,'see',{loop:[2,15,1]}],[15.9,17.2,'bach']],
@@ -117,7 +117,7 @@ const courseAt=i=>i===WORLD_IDX?PILZLAND:courses[i];
 // Streckenlayouts haben sich geaendert (Viadukt, Abzweigungen, Kurvenglaettung) -> alte Rekorde/Geister einmalig verwerfen
 const LAYOUT_VER=18;if(store.get('layoutVer',0)!==LAYOUT_VER){try{for(let i=0;i<courses.length;i++){for(const k of ['tt-','medal-','ghost-','bestlap-'])localStorage.removeItem('mr-'+k+i);for(const cc2 of [50,100,150]){localStorage.removeItem('mr-best-'+i+'-'+cc2);localStorage.removeItem('mr-stars-'+i+'-'+cc2);}}}catch(e){}store.set('layoutVer',LAYOUT_VER);}
 // Seit R38 je Strecke: nur Strecken mit geaendertem Layout verlieren Rekorde und Geister
-// (Geisterhaus und Regenbogenpiste bekamen eine Achterbahn), der Rest bleibt erhalten.
+// (Geisterhaus und Sternenbahn bekamen eine Achterbahn), der Rest bleibt erhalten.
 // R39: alle Strecken - Schraeg- und Mehrfach-Loopings, laengere Wand- und Ueberkopffahrten.
 const TRACK_VER={0:1,1:1,2:1,3:2,4:1,5:2,6:1};
 for(const [i,v] of Object.entries(TRACK_VER))if(store.get('trackVer-'+i,0)!==v){try{for(const k of ['tt-','medal-','ghost-','bestlap-'])localStorage.removeItem('mr-'+k+i);for(const cc2 of [50,100,150]){localStorage.removeItem('mr-best-'+i+'-'+cc2);localStorage.removeItem('mr-stars-'+i+'-'+cc2);}}catch(e){}store.set('trackVer-'+i,v);}
@@ -126,7 +126,7 @@ const KART_COLORS=[{c:0xff3b30,n:'Ruby / Rot'},{c:0xffc400,n:'Sunny / Gelb'},{c:
  {c:0x2f8cff,n:'Blitz / Blau',lvl:2},{c:0xff7a1a,n:'Lava / Orange',lvl:3},{c:0x22c55e,n:'Wald / Grün',lvl:5},{c:0xff5fc8,n:'Bonbon / Pink',lvl:7},{c:0xeef1f6,n:'Diamant / Weiß',lvl:10}];
 const progLevel=()=>levelOf(store.get('prog',{xp:0}).xp||0).level;
 // R47 Spiegel-Modus (ab Fahrerstufe 3): das Bild wird gespiegelt (auch Schilder, wie im grossen Vorbild), die Lenkung
-// entsprechend umgedreht - Strecken und Physik bleiben gleich. Nicht im Zeitfahren und nicht im Pilzland.
+// entsprechend umgedreht - Strecken und Physik bleiben gleich. Nicht im Zeitfahren und nicht im Wiesnland.
 const MIRROR_LVL=3;let mirrorOn=store.get('mirror',false),raceMirror=false;
 // Jede Figur faehrt ihr eigenes Kart: Beschleunigung, Hoechsttempo, Grip, Lenkung und Bauform
 const DRIVERS=[
@@ -137,15 +137,17 @@ const DRIVERS=[
  // R51 Tux, der Linux-Pinguin: rutscht wie auf Eis (weniger Grip), dafuer schnell und driftfreudig
  {k:'driver_penguin',n:'Tux',i:'🐧',kart:'Kernel-Kufe',acc:.95,top:1.05,grip:.95,turn:1.06,sc:[.98,1,1.02],tip:'rutschig, schnell'}];
 const AI_DRIVERS=[0,1,2,3,1,2,3,4];
-const AI_NAMES=['Du','Peachy','Bramble','Pip','Luna','Mochi','Sunny','Nori'],AI_COLORS=[0xff4f8b,0x5cc93a,0xffb800,0x7b61ff,0x1fb0ff,0xff7a1a,0x13b39a];
+// R54 Klassen heissen nach Tempo statt Hubraum (intern bleiben 50/100/150)
+const CC_NAME={50:'Locker',100:'Flott',150:'Wild'},ccName=c=>CC_NAME[c]||c+'cc';
+const AI_NAMES=['Du','Resi','Bramble','Pip','Luna','Mochi','Sunny','Nori'],AI_COLORS=[0xff4f8b,0x5cc93a,0xffb800,0x7b61ff,0x1fb0ff,0xff7a1a,0x13b39a];
 const TRACK_SCALE=1.35,ROAD_HALF=7.6,G=30,G_STICK=74,RAMP_LEN=6.2,RAMP_H=1.15,FAN_COLS=[0xed6350,0xffd45c,0x55bdb2,0xa688dc,0xf1b35a,0xef7160],PLAYER_SLOT=5;
 // Weltgroesse (R41): Rennstrecken liegen auf einer Insel mit 210 m Radius, die Open World ist groesser.
 // WK skaliert Insel, Meer, Streufelder und Kulisse; AK die Anzahl flaechig gestreuter Deko (hoechstens 4x).
 let WK=1,AK=1,hz=null;
-const ITEM_ICONS={boost:'⚡',triple:'⚡',shell:'◉',banana:'🍌',shield:'★',bomb:'💣',mega:'🍄',ink:'✒'},ITEM_NAMES={boost:'TURBO',triple:'DREIFACH-TURBO',shell:'SUCH-PANZER',banana:'BANANE',shield:'STERNENSCHILD',bomb:'PILZBOMBE',storm:'GEWITTERWOLKE',mega:'RIESENPILZ',ink:'TINTENPILZ'};
-const ITEM_ART={storm:"<svg viewBox='0 0 48 48'><path d='M14 28a8 8 0 0 1 1-16 11 11 0 0 1 20 2 7 7 0 0 1-1 14z' fill='#5b4f86' stroke='#2b2346' stroke-width='3' stroke-linejoin='round'/><path d='M26 26l-7 10h6l-3 9 10-12h-6l3-7z' fill='#ffe27a' stroke='#b5760c' stroke-width='2' stroke-linejoin='round'/></svg>",empty:"<svg viewBox='0 0 48 48'><path d='M17 17a7 7 0 1 1 9.8 6.4c-1.9.9-2.8 2-2.8 4.1v2' fill='none' stroke='#d8e6dc' stroke-width='5' stroke-linecap='round'/><circle cx='24' cy='37' r='3.2' fill='#d8e6dc'/></svg>",boost:"<svg viewBox='0 0 48 48'><path d='M28 3 10 27h10l-3 18 21-26H27z' fill='#ffe27a' stroke='#b5760c' stroke-width='3' stroke-linejoin='round'/></svg>",triple:"<svg viewBox='0 0 48 48'><path d='M19 4 6 24h7l-2 14 14-18h-7z' fill='#ffe27a' stroke='#b5760c' stroke-width='2.6' stroke-linejoin='round'/><path d='M36 10 25 26h6l-2 12 12-16h-6z' fill='#fff0ad' stroke='#b5760c' stroke-width='2.6' stroke-linejoin='round'/></svg>",shell:"<svg viewBox='0 0 48 48'><path d='M5 34a19 16 0 0 1 38 0z' fill='#8fd8ff' stroke='#1d6c99' stroke-width='3' stroke-linejoin='round'/><path d='M24 18v16M13 23l-3 11M35 23l3 11' stroke='#1d6c99' stroke-width='2.6' fill='none' stroke-linecap='round'/><rect x='4' y='33' width='40' height='7' rx='3.5' fill='#fff4d9' stroke='#1d6c99' stroke-width='3'/></svg>",banana:"<svg viewBox='0 0 48 48'><path d='M10 9c1 15 8 25 27 28-3 4-9 5-14 4C11 39 5 28 6 13z' fill='#ffe45c' stroke='#9a7a12' stroke-width='3' stroke-linejoin='round'/><path d='M8 9c-2-2-4-2-5 0' stroke='#6c5a2a' stroke-width='3.4' fill='none' stroke-linecap='round'/></svg>",shield:"<svg viewBox='0 0 48 48'><path d='M24 3 30 18l16 1-12 10 4 16-14-9-14 9 4-16L2 19l16-1z' fill='#ffe9fb' stroke='#c95bb0' stroke-width='3' stroke-linejoin='round'/><circle cx='24' cy='24' r='4.5' fill='#ff9ee0'/></svg>",bomb:"<svg viewBox='0 0 48 48'><circle cx='21' cy='29' r='15' fill='#3b3546' stroke='#14101c' stroke-width='3'/><path d='M30 16c3-6 8-8 12-5' stroke='#a8764a' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M43 8l2-4 2 4-4 1z' fill='#ffb02e'/><circle cx='43.5' cy='10' r='3.6' fill='#ffd45c'/><ellipse cx='16' cy='24' rx='4' ry='2.6' fill='#6a6478' opacity='.8'/></svg>",mega:"<svg viewBox='0 0 48 48'><path d='M5 27C5 14 13 6 24 6s19 8 19 21z' fill='#ff4a3d' stroke='#9b1b17' stroke-width='3' stroke-linejoin='round'/><circle cx='15' cy='16' r='4.2' fill='#fff'/><circle cx='30' cy='13' r='3.4' fill='#fff'/><circle cx='36' cy='22' r='2.6' fill='#fff'/><circle cx='23' cy='22' r='3' fill='#fff'/><path d='M15 27h18v9a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7z' fill='#fff1d6' stroke='#9b6b3a' stroke-width='3' stroke-linejoin='round'/><circle cx='21' cy='33' r='1.6' fill='#3a2a1c'/><circle cx='27' cy='33' r='1.6' fill='#3a2a1c'/><path d='M40 3l5 6h-3v6h-4V9h-3z' fill='#ffd45c' stroke='#b5760c' stroke-width='1.6' stroke-linejoin='round'/></svg>",ink:"<svg viewBox='0 0 48 48'><path d='M24 3c9 0 14 9 14 21v4H10v-4C10 12 15 3 24 3z' fill='#f4f1ea' stroke='#3a3440' stroke-width='3' stroke-linejoin='round'/><path d='M10 24h28v5c0 3-2 7-3.5 4S33 36 31 33s-2 4-3.5 1-2 4-3.5 1-2 4-3.5 0-2 3-3.5 0-2 2-3 0z' fill='#15121c'/><rect x='20.5' y='31' width='7' height='14' rx='3.5' fill='#f4f1ea' stroke='#3a3440' stroke-width='2.5'/><circle cx='18.5' cy='16' r='3.6' fill='#fff' stroke='#15121c' stroke-width='1.6'/><circle cx='29.5' cy='16' r='3.6' fill='#fff' stroke='#15121c' stroke-width='1.6'/><circle cx='19' cy='16.8' r='1.7' fill='#15121c'/><circle cx='30' cy='16.8' r='1.7' fill='#15121c'/><path d='M13 36c0 4-4 4-4 0l2-5zM39 38c0 4-4 4-4 0l2-5z' fill='#15121c'/></svg>"};
-const ITEM_COL={storm:'#b7a4ff',boost:'#ffd45c',triple:'#ffd45c',shell:'#8fd8ff',banana:'#ffe45c',shield:'#ffb8ec',bomb:'#ff9a6a',mega:'#ff6b5a',ink:'#c9c2dc'};
-const MT_COLORS={mini:0x3aa8ff,super:0xff3b2f,ultra:0xd36bff},MT_LABEL={mini:'MINI-TURBO',super:'SUPER-TURBO',ultra:'ULTRA-TURBO'};
+const ITEM_ICONS={boost:'⚡',triple:'⚡',shell:'🥨',banana:'🍌',shield:'❤',bomb:'💣',mega:'💪',ink:'✒'},ITEM_NAMES={boost:'TURBO',triple:'DREIFACH-TURBO',shell:'SUCH-BREZN',banana:'BANANE',shield:'HERZSCHILD',bomb:'PILZBOMBE',storm:'GEWITTERWOLKE',mega:'RIESENWUCHS',ink:'TINTENPILZ'};
+const ITEM_ART={storm:"<svg viewBox='0 0 48 48'><path d='M14 28a8 8 0 0 1 1-16 11 11 0 0 1 20 2 7 7 0 0 1-1 14z' fill='#5b4f86' stroke='#2b2346' stroke-width='3' stroke-linejoin='round'/><path d='M26 26l-7 10h6l-3 9 10-12h-6l3-7z' fill='#ffe27a' stroke='#b5760c' stroke-width='2' stroke-linejoin='round'/></svg>",empty:"<svg viewBox='0 0 48 48'><path d='M17 17a7 7 0 1 1 9.8 6.4c-1.9.9-2.8 2-2.8 4.1v2' fill='none' stroke='#d8e6dc' stroke-width='5' stroke-linecap='round'/><circle cx='24' cy='37' r='3.2' fill='#d8e6dc'/></svg>",boost:"<svg viewBox='0 0 48 48'><path d='M28 3 10 27h10l-3 18 21-26H27z' fill='#ffe27a' stroke='#b5760c' stroke-width='3' stroke-linejoin='round'/></svg>",triple:"<svg viewBox='0 0 48 48'><path d='M19 4 6 24h7l-2 14 14-18h-7z' fill='#ffe27a' stroke='#b5760c' stroke-width='2.6' stroke-linejoin='round'/><path d='M36 10 25 26h6l-2 12 12-16h-6z' fill='#fff0ad' stroke='#b5760c' stroke-width='2.6' stroke-linejoin='round'/></svg>",shell:"<svg viewBox='0 0 48 48'><path d='M24 40c-6-5-17-9-18-19-.7-7 4-13 10-13 5 0 8 4 8 9 0-5 3-9 8-9 6 0 10.7 6 10 13-1 10-12 14-18 19z' fill='none' stroke='#6e3514' stroke-width='10' stroke-linejoin='round'/><path d='M24 40c-6-5-17-9-18-19-.7-7 4-13 10-13 5 0 8 4 8 9 0-5 3-9 8-9 6 0 10.7 6 10 13-1 10-12 14-18 19z' fill='none' stroke='#c7702e' stroke-width='5.4' stroke-linejoin='round'/><path d='M13 33l22-13M35 33L13 20' stroke='#6e3514' stroke-width='9' stroke-linecap='round'/><path d='M13 33l22-13M35 33L13 20' stroke='#c7702e' stroke-width='4.6' stroke-linecap='round'/><g fill='#fffdf5'><rect x='9' y='14' width='2.4' height='2.4' rx='.6'/><rect x='20' y='11' width='2.4' height='2.4' rx='.6'/><rect x='33' y='12' width='2.4' height='2.4' rx='.6'/><rect x='38' y='22' width='2.4' height='2.4' rx='.6'/><rect x='23' y='24' width='2.4' height='2.4' rx='.6'/><rect x='15' y='30' width='2.4' height='2.4' rx='.6'/><rect x='30' y='31' width='2.4' height='2.4' rx='.6'/></g></svg>",banana:"<svg viewBox='0 0 48 48'><path d='M10 9c1 15 8 25 27 28-3 4-9 5-14 4C11 39 5 28 6 13z' fill='#ffe45c' stroke='#9a7a12' stroke-width='3' stroke-linejoin='round'/><path d='M8 9c-2-2-4-2-5 0' stroke='#6c5a2a' stroke-width='3.4' fill='none' stroke-linecap='round'/></svg>",shield:"<svg viewBox='0 0 48 48'><path d='M24 43C9 32 3 24 3 15.5 3 9 8 4 14 4c4.4 0 8 2.5 10 6.2C26 6.5 29.6 4 34 4c6 0 11 5 11 11.5C45 24 39 32 24 43z' fill='#c9713a' stroke='#6e3514' stroke-width='3' stroke-linejoin='round'/><path d='M24 36.5C13.5 28.5 9 22.5 9 16.3 9 12.5 11.7 10 15 10c3.6 0 6.3 2.6 9 6.6 2.7-4 5.4-6.6 9-6.6 3.3 0 6 2.5 6 6.3 0 6.2-4.5 12.2-15 20.2z' fill='none' stroke='#fff6ea' stroke-width='2.4' stroke-dasharray='3 2.4' stroke-linecap='round'/><circle cx='18' cy='20' r='2.4' fill='#ff5fa0'/><circle cx='30' cy='20' r='2.4' fill='#5fd0ff'/><circle cx='24' cy='27' r='2.4' fill='#ffe066'/></svg>",bomb:"<svg viewBox='0 0 48 48'><circle cx='21' cy='29' r='15' fill='#3b3546' stroke='#14101c' stroke-width='3'/><path d='M30 16c3-6 8-8 12-5' stroke='#a8764a' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M43 8l2-4 2 4-4 1z' fill='#ffb02e'/><circle cx='43.5' cy='10' r='3.6' fill='#ffd45c'/><ellipse cx='16' cy='24' rx='4' ry='2.6' fill='#6a6478' opacity='.8'/></svg>",mega:"<svg viewBox='0 0 48 48'><path d='M24 17C20 9 14 5.5 9 6.5c1 5.5 6.5 9.5 15 10.5z' fill='#4caf50' stroke='#1f6b2a' stroke-width='2.4' stroke-linejoin='round'/><path d='M24 17c4-8 10-11.5 15-10.5-1 5.5-6.5 9.5-15 10.5z' fill='#62c562' stroke='#1f6b2a' stroke-width='2.4' stroke-linejoin='round'/><path d='M24 17c-1-6 0-10 2-13.5' stroke='#1f6b2a' stroke-width='2.4' fill='none' stroke-linecap='round'/><path d='M13 23c0-4.5 4.5-7.5 11-7.5s11 3 11 7.5c0 8-5.5 16-11 23-5.5-7-11-15-11-23z' fill='#fff6f2' stroke='#8a3a4a' stroke-width='3' stroke-linejoin='round'/><path d='M13.6 21c1.6-3.4 5.4-5.5 10.4-5.5s8.8 2.1 10.4 5.5c-3.2 1.7-6.6 2.3-10.4 2.3s-7.2-.6-10.4-2.3z' fill='#ff7aa0'/><path d='M18 29h5M21 35h5' stroke='#d9a3ac' stroke-width='1.8' stroke-linecap='round'/><path d='M41 33V20M36.5 25l4.5-5.5 4.5 5.5' stroke='#ffd45c' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>",ink:"<svg viewBox='0 0 48 48'><rect x='21.5' y='28' width='5' height='17' rx='2.5' fill='#f4f1ea' stroke='#3a3440' stroke-width='2.2'/><path d='M24 3c7 0 11 8 11 18v6H13v-6C13 11 17 3 24 3z' fill='#f4f1ea' stroke='#3a3440' stroke-width='3' stroke-linejoin='round'/><path d='M17 12l3 2M27 9l3 2M20 19l3 2M28 17l3 2M16 24l3 1M26 24l3 1' stroke='#b9b2a6' stroke-width='2' stroke-linecap='round'/><path d='M13 26h22v3c0 2-1.5 4-2.7 2.2S31 34 29.6 31.5s-1.3 4.5-2.8 1.6-1.4 5-2.8 1.7-1.4 4-2.8.9-1.4 3.3-2.8.4-1.5 2-2.6 0-2.7 1.5-2.9-1z' fill='#15121c'/><path d='M18 40c0 3.4-3.4 3.4-3.4 0l1.7-4.4zM33.4 42c0 3.4-3.4 3.4-3.4 0l1.7-4.4z' fill='#15121c'/></svg>"};
+const ITEM_COL={storm:'#b7a4ff',boost:'#ffd45c',triple:'#ffd45c',shell:'#f0b46a',banana:'#ffe45c',shield:'#ffb8ec',bomb:'#ff9a6a',mega:'#ff6b5a',ink:'#c9c2dc'};
+const MT_COLORS={mini:0xffc72e,super:0xff6a1a,ultra:0x5ff2ff},MT_LABEL={mini:'FUNKEN-TURBO',super:'GLUT-TURBO',ultra:'BLITZ-TURBO'};
 
 let selected=0,colorIndex=0,driverIndex=Math.max(0,Math.min(DRIVERS.length-1,store.get('driver',0)|0)),mode='single',cc=store.get('class',100),state='menu',elapsed=0,countdown=3,last=0,curve,length=1,course,theme,ctx,frame=0,noticeTimer=0,toastTimer=0;
 const loopMiss=[];let boxes=[],racers=[],hazards=[],flags=[],balloons=[],puffs=[],shots=[],ramps=[],pads=[],rings=[],spores=[],swingers=[],gaps=[],boostPads=[],sunPads=[],sporeMesh=null,crowd=null,boostTex=null,foamRing=null,fireflies=null,rails=[],forks=[],raises=[],tunnels=[],agrav=[],loops=[],crystals=[],coasters=[],hpipes=[],ferris=null,dragon=null,elems=[],elemFx=null,owFx=null,worldMode=false,lastRaceSel=0,owPortalAt=null,ridePhoto=null,photoPending=false;
@@ -275,6 +277,9 @@ function kartLook(root){if(!LITE&&root)root.traverse(o=>{if(o.isMesh)o.material=
 // Lack der Karosserie mit Klarlack (MeshPhysical): kraeftiger Glanz ueber der Farbe, auch bei Instanz-Farben
 function clearcoatRoot(root){if(LITE)return root;root.traverse(o=>{if(!o.isMesh||o.material?.name!=='BodyPaint'||o.material.isMeshPhysicalMaterial)return;const s=o.material,p=new T.MeshPhysicalMaterial();T.MeshStandardMaterial.prototype.copy.call(p,s);p.defines={STANDARD:'',PHYSICAL:''};p.clearcoat=1;p.clearcoatRoughness=.12;o.material=p;});return root;}
 for(const k of ['kart','kartkit','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin'])PREP[k]=r=>kartLook(k==='kart'||k==='kartkit'?clearcoatRoot(r):r);
+// R54 Pilzi in Tracht: gruene Weste und rotes Halstuch statt blau-gelb (eigenstaendiger Look). Vor dem
+// Verschmelzen umfaerben - danach stecken die Farben in den Vertexfarben.
+const PRE_MERGE={driver:r=>{applyTint(r,'Suit',0x3f7a44);applyTint(r,'Scarf',0xd0342c);}};
 // Je Thema: Spiegelung am Tag voll, nachts gedaempft; Randlicht in der Himmelsfarbe, nachts kraeftiger
 function kartLookTheme(){const dark=!!theme.stars||!!theme.lavaSea;kartEnvK.value=dark?.6:1;kartRimK.value=dark?.5:.18;kartRim.value.setHex(theme.hemiSky).lerp(new T.Color(0xffffff),dark?.25:.55);}
 // Asset-Laden robust (R31): schlug eine GLB beim ersten Versuch fehl (Deploy-Propagation,
@@ -292,7 +297,7 @@ function createPrototypeRecovery(names,prototypes,onRecovered){
 // Leicht-Modus: Low-Poly-Fassungen aus art/r44/make_lod.py (Blender Decimate, gleiche Objekt- und Materialnamen)
 const LO_FILES=new Set(['balloon', 'castle', 'rock', 'coastertruss', 'coin', 'dragon', 'driver', 'driver_cat', 'driver_robot', 'driver_turtle', 'elements', 'ferriswheel', 'gate', 'ghost', 'glider', 'grandstand', 'gravestone', 'itembox', 'kart', 'kartkit', 'kartwheel', 'mansion', 'mushroom', 'pumpkin', 'roottree', 'spectator', 'tree', 'clouds']);
 function loadProto(name){return new Promise(resolve=>{
- const tryLoad=attempt=>{new GLTFLoader().load(`assets/${LITE&&LO_FILES.has(name)?'lo/':''}${name}.glb`,g=>{let root=NO_MERGE.has(name)?g.scene:mergeByMaterial(g.scene);if(PREP[name])root=PREP[name](root);const merged=liteRoot(root);markShared(merged);P[name]=merged;progress();resolve();},undefined,
+ const tryLoad=attempt=>{new GLTFLoader().load(`assets/${LITE&&LO_FILES.has(name)?'lo/':''}${name}.glb`,g=>{PRE_MERGE[name]?.(g.scene);let root=NO_MERGE.has(name)?g.scene:mergeByMaterial(g.scene);if(PREP[name])root=PREP[name](root);const merged=liteRoot(root);markShared(merged);P[name]=merged;progress();resolve();},undefined,
   ()=>{if(attempt<2){setTimeout(()=>tryLoad(attempt+1),1200);}else{P[name]=null;progress();resolve();}});};
  tryLoad(0);});}
 function progress(){loaded++;const el=$('loaderBar');if(el)el.style.width=Math.round(loaded/PROTO_FILES.length*100)+'%';}
@@ -474,7 +479,7 @@ function coasterExit(r,me){const run=r.czRun;r.czRun=null;r.czFloat=0;r.czG=1;r.
   // Ansage nicht jede Runde: erste Super-Wertung und in der letzten Runde
   if(rt.spores>1&&(!r.saidCoaster||lap(r,length)===LAPS)){r.saidCoaster=true;say('coaster');}}}
 // Zum Ende einer Rollzone hin enger fuehren: wer dort noch weit aussen haengt, faellt beim
-// Austritt neben die Bahn - auf der Regenbogenpiste ins Leere.
+// Austritt neben die Bahn - auf der Sternenbahn ins Leere.
 function rollFree(d,base){let f=1;
  for(const q of agrav){const rel=lapDist(d-q.s);if(rel>q.span)continue;const u=rel/q.span;
   if(u>.72)f=Math.min(f,1-(u-.72)/.28*.55);}
@@ -803,17 +808,24 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
  // Dreiecke in Twists (16 Grad Drehung je Rasterschritt) bis 60 cm durch die Fahrbahn.
  {const em=mat(theme.edge,glow?{emissive:theme.edge,emissiveIntensity:.35}:{});for(const o of [-8.25,8.25])stripSegs(o,1.3,.04,6,em);}
  if(theme.rainbowRoad){
-  // Farbband laengs der Fahrbahn, leicht leuchtend und langsam wandernd
-  const rb=canvasTex(8,256,(q,w,h)=>{const g=q.createLinearGradient(0,0,0,h);
-   ['#ff3b6b','#ff9a3c','#ffe45c','#5cff9a','#4fd8ff','#8a5cff','#ff4fd8','#ff3b6b'].forEach((c,i,a)=>g.addColorStop(i/(a.length-1),c));
-   q.fillStyle=g;q.fillRect(0,0,w,h);},true);
+  // R54 Sternenbahn: tiefblaues Glas mit Milchstrassen-Band in der Mitte und funkelnden Sternen (Gold, Weiss,
+  // Eisblau) statt Farbband - eigenstaendiger Look. Die Sterne kacheln nahtlos laengs (v) und wandern langsam.
+  const rb=canvasTex(128,128,(q,w,h)=>{const g=q.createLinearGradient(0,0,w,0);
+   [['#0d1440',0],['#1b2a78',.18],['#3a3f9e',.4],['#5b56b8',.5],['#3a3f9e',.6],['#1b2a78',.82],['#0d1440',1]].forEach(([c,k])=>g.addColorStop(k,c));
+   q.fillStyle=g;q.fillRect(0,0,w,h);
+   let sd=54;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+   for(let i=0;i<150;i++){const x=rnd()*w,y=rnd()*h,band=Math.exp(-((x/w-.5)**2)/.03),r=rnd()<.08?1.6:rnd()*.9+.35;if(rnd()>.35+band*.6)continue;
+    q.fillStyle=['#ffffff','#ffe08a','#bfe8ff','#ffd24a'][Math.floor(rnd()*4)];for(const dy of [-h,0,h]){q.beginPath();q.arc(x,y+dy,r,0,6.283);q.fill();}}
+   q.strokeStyle='#fff3c0';q.lineWidth=1.2;for(let i=0;i<5;i++){const x=8+rnd()*(w-16),y=rnd()*h,L=3+rnd()*4;
+    for(const dy of [-h,0,h]){q.beginPath();q.moveTo(x-L,y+dy);q.lineTo(x+L,y+dy);q.moveTo(x,y+dy-L);q.lineTo(x,y+dy+L);q.stroke();}}
+   const e=q.createLinearGradient(0,0,w,0);e.addColorStop(0,'#7fd6ffcc');e.addColorStop(.05,'#7fd6ff00');e.addColorStop(.95,'#7fd6ff00');e.addColorStop(1,'#7fd6ffcc');q.fillStyle=e;q.fillRect(0,0,w,h);},true);
   rb.repeat.set(1,1);
   // Glasbahn (R28): halbtransparent und beidseitig - der Sternenhimmel scheint durch die
-  // Regenbogenpiste, wie bei der Regenbogenstrasse ueber dem Kosmos. depthWrite aus, sonst
+  // Sternenbahn, wie bei der Regenbogenstrasse ueber dem Kosmos. depthWrite aus, sonst
   // verdeckte die eigene Flaeche die transparenten Nachbarn an Looping und Kuppen.
   // R29: Deckkraft 60 % und Emission zurueckgenommen - 80 % war dem Nutzer noch zu dicht.
-  const rbMat=stdMat({map:rb,emissive:0xffffff,emissiveMap:rb,emissiveIntensity:.7,roughness:.5,metalness:.1,transparent:true,opacity:.6,depthWrite:false,side:T.DoubleSide});
-  rainbowTex=rb;stripSegs(0,15.2,.065,6,rbMat);}
+  const rbMat=stdMat({map:rb,emissive:0xffffff,emissiveMap:rb,emissiveIntensity:.85,roughness:.35,metalness:.15,transparent:true,opacity:.72,depthWrite:false,side:T.DoubleSide});
+  rainbowTex=rb;stripSegs(0,15.2,.065,15.2,rbMat);}
  else stripSegs(0,15.2,.065,6,stdMat({map:speckleTexture(hex(theme.road),hex(theme.roadSpot),900),roughness:.9}));
  buildShoulder();if(!theme.space){const shM=stdMat({map:speckleTexture(hex(new T.Color(theme.road).lerp(new T.Color(0xffffff),.16).getHex()),hex(theme.roadSpot),900),roughness:.92}),edgeM=stdMat({color:theme.line?new T.Color(theme.line):0xffffff,roughness:.7,...(glow?{emissive:0xffffff,emissiveIntensity:.8}:{})});
   for(const side of [-1,1]){const A=side<0?SHT.L:SHT.R;let a=-1;for(let i=0;i<=SHT.n;i++){const on=i<SHT.n&&A[i];if(on&&a<0)a=i;else if(!on&&a>=0){const d0=a*SHT.ds,d1=i*SHT.ds,st=Math.max(2,Math.ceil((d1-d0)/1.6));addStrip(strip(d0,d1,side*9.9,2.7,.058,6,st),shM);addStrip(strip(d0,d1,side*10.95,.2,.07,6,st),edgeM,false);a=-1;}}}}
@@ -904,7 +916,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  if(P.gate){const g=cloneProto(P.gate);applyTint(g,'CapPaint',theme.caps[0]);arch.add(g);}else{box(arch,cream,-9,4,0,.6,8,.6);box(arch,cream,9,4,0,.6,8,.6);box(arch,mat(0xed6350),0,8,0,19,2,.7);}
  for(const side of [-1,1]){const p=sample(0,side*9.3).p;addObstacle(p.x,p.z,1);}
  // Schriftzug schmaler als der Balken (R44): die Pilzhuete der Pfeiler verdeckten sonst das M und das Y
- const bz=P.gate?.26:.37,lw=P.gate?13.4:16;mesh(new T.PlaneGeometry(lw,1.5),label('MUSHROOM RALLY','#ed6350','#fff5d9'),arch,0,8,bz);mesh(new T.PlaneGeometry(lw,1.5),label('MUSHROOM RALLY','#ed6350','#fff5d9'),arch,0,8,-bz).rotation.y=Math.PI;
+ const bz=P.gate?.26:.37,lw=P.gate?13.4:16;mesh(new T.PlaneGeometry(lw,1.5),label('WIESN KART','#1f78d1','#ffffff'),arch,0,8,bz);mesh(new T.PlaneGeometry(lw,1.5),label('WIESN KART','#1f78d1','#ffffff'),arch,0,8,-bz).rotation.y=Math.PI;
  const checker=canvasTex(64,16,(q)=>{for(let x=0;x<16;x++)for(let y=0;y<4;y++){q.fillStyle=(x+y)%2?'#273943':'#fff1d9';q.fillRect(x*4,y*4,4,4);}});checker.magFilter=T.NearestFilter;
  {const panel=new T.Group();panel.position.set(0,5.6,-.75);arch.add(panel);box(panel,dark,0,0,0,5.2,1.5,.3);startLights=[-1.7,0,1.7].map(x=>{const m=stdMat({color:0x220808,emissive:0x000000,roughness:.4});const l=new T.Mesh(new T.SphereGeometry(.5,16,12),m);l.position.set(x,0,-.2);panel.add(l);return m;});lightState=-1;}addStrip(strip(-1.6,1.6,0,15.2,.09,3.2,2),stdMat({map:checker,roughness:.8}));
  // Wehende Zielflaggen neben dem Tor - Schachbrett wie auf der Ziellinie, im Wimpel-Wind
@@ -1516,7 +1528,7 @@ function syncTransform(r,dt){const u=r.mesh.userData,tf=u.tf;if(!tf)return;let f
   if(tf.cur==='boat')for(const sx of [-1.3,1.3]){_fp.set(sx,.2,-1.9);r.mesh.localToWorld(_fp);emit(_fp.x,_fp.y,_fp.z,0xffffff,(Math.random()-.5)*3+sx*1.5,3+Math.random()*3,(Math.random()-.5)*3,.35);}
   else if(tf.cur==='dive'){_fp.set((Math.random()-.5)*1.6,.9,-2.1);r.mesh.localToWorld(_fp);emit(_fp.x,_fp.y,_fp.z,0xcff6ff,(Math.random()-.5)*1.5,6+Math.random()*3,(Math.random()-.5)*1.5,.55);}
   else for(const sx of [-2.9,2.9]){_fp.set(sx,.85,-.1);r.mesh.localToWorld(_fp);emit(_fp.x,_fp.y,_fp.z,0xf4fbff,0,4,0,.5);}}}
-// ---------- Pilzland: Portale, P-Schalter, Muenzen, Bojen-Slalom (Blender: ow.glb, elements.glb)
+// ---------- Wiesnland: Portale, Glockenschalter, Muenzen, Bojen-Slalom (Blender: ow.glb, elements.glb)
 function owPart(name){const src=P.ow;if(!src)return null;let hit=null;src.traverse(o=>{if(!hit&&o.name===name)hit=o;});return hit;}
 function labelPlane(text,sub,col,w=16,h=3.6){const tex=canvasTex(512,116,(q,W,H)=>{q.fillStyle='#15133a';q.beginPath();q.roundRect(4,4,W-8,H-8,26);q.fill();q.fillStyle=col;q.beginPath();q.roundRect(12,12,W-24,H-24,20);q.fill();
   q.font='italic 900 50px Rubik, "Baloo 2", sans-serif';q.textAlign='center';q.textBaseline='middle';q.lineJoin='round';q.lineWidth=10;q.strokeStyle='#15133a';q.strokeText(text,W/2,H/2-(sub?12:0));q.fillStyle='#fff';q.fillText(text,W/2,H/2-(sub?12:0));
@@ -1530,8 +1542,8 @@ function buildOW(){const fx={switches:[],portals:[],slaloms:[],ringMs:[],coins:n
   // leuchtender Portalschleier
   const veil=new T.Mesh(new T.PlaneGeometry(16,7.5),new T.MeshBasicMaterial({color:col,transparent:true,opacity:.18,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending}));veil.position.set(0,4.2,0);g.add(veil);
   fx.portals.push({d,ti,veil,lab,cool:0});}
- // P-Schalter: Sockel und Kappe (Kappe wird beim Ueberfahren gestaucht)
- const baseSrc=owPart('EL_PSwitch'),capSrc=owPart('EL_PSwitchCap');
+ // Glockenschalter: Sockel und Kappe (Kappe wird beim Ueberfahren gestaucht)
+ const baseSrc=owPart('EL_PSwitch'),capSrc=owPart('EL_PSwitchCap');if(capSrc)applyTint(capSrc,'SwitchBlue',0xd08a22,{metalness:.35,roughness:.3});
  for(const [cp,off,id] of course.pswitch||[]){const d=cpDist(cp),p=posAt(d,off,0,new T.Vector3()),g=new T.Group();g.position.copy(p);g.rotation.y=sample(d,0).angle;world.add(g);
   let cap=null;if(baseSrc){g.add(cloneProto(baseSrc));cap=cloneProto(capSrc);cap.position.y=.5;g.add(cap);}
   else{cap=mesh(new T.CylinderGeometry(1.2,1.2,.8,24),mat(0x1f5cff,{emissive:0x1030ff,emissiveIntensity:.5}),g,0,.9,0);}
@@ -1574,7 +1586,7 @@ function owReset(){const fx=owFx;if(!fx)return;fx.done=store.get('owDone',[]);fx
  for(const r of fx.ringMs){r.m=ringsMission(r.m.id,r.m.count);if(fx.done.includes(r.m.id))r.m.state='done';}
  for(const im of fx.coinParts){for(let i=0;i<OW.coins;i++)im.setMatrixAt(i,_zeroM);im.instanceMatrix.needsUpdate=true;}
  owHud();}
-// Erfolg direkt gutschreiben (Grand Prix, Pilzland-Missionen)
+// Erfolg direkt gutschreiben (Grand Prix, Wiesnland-Missionen)
 function grantAch(id){const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});if((pr.ach||[]).includes(id))return;pr.ach=[...(pr.ach||[]),id];store.set('prog',pr);const a=achById(id);if(a){toast('🏅 ERFOLG: '+a.n,2.4,'good');playClip('s_c_unlock',sfxGain,.8);}}
 function owComplete(id,label){const fx=owFx;fx.done=progressAdd(fx.done,id);store.set('owDone',fx.done);if(fx.done.length>=3)grantAch('ow');const p=racers[0];
  if(p){p.boost=Math.max(p.boost,1.6);p.spores=Math.min(MAX_SPORES,(p.spores||0)+3);}
@@ -1588,10 +1600,10 @@ function updateOW(dt){const fx=owFx,p=racers[0];if(!fx||!p)return;const t=elapse
  if(fx.hunt){const H=fx.hunt;H.list.forEach((c,i)=>{const on=!H.got.has(i);if(on&&Math.hypot(p.x-c.x,p.z-c.z)<2.8&&(p.y||0)<4){H.got.add(i);store.set('owHunt',[...H.got]);SFX.spore(H.got.size);burst(p,0xffd23f,10);
    toast(`MÜNZJAGD ${H.got.size}/${H.list.length}`,1,'good');if(H.got.size>=H.list.length)owComplete('hunt','Münzjagd');}
   _e.set(0,t*2.2+i,0);_q.setFromEuler(_e);_m.compose(_v.set(c.x,1.5+Math.sin(t*2.4+i)*.25,c.z),_q,_s.setScalar(on?1.7:0));H.im.setMatrixAt(i,_m);});H.im.instanceMatrix.needsUpdate=true;}
- // P-Schalter und Muenzen
+ // Glockenschalter und Muenzen
  for(const sw of fx.switches){const m=sw.m;
-  if(m.state==='ready'&&Math.abs(wrapDiff(d,sw.d))<2.4&&Math.abs(p.offset-sw.off)<2.8&&!p.air&&pswitchPress(m,t)){fx.active=sw;sw.cap.scale.y=.35;SFX.pickup();toast(`P-SCHALTER! ${OW.coins} Münzen in ${OW.coinTime} s`,1.6,'good');}
-  if(m.state==='running'){for(let i=0;i<m.coins.length;i++){const c=m.coins[i];if(!c.taken&&Math.abs(wrapDiff(d,c.d))<OW.coinR&&Math.abs(p.offset-c.off)<OW.coinR&&pswitchCollect(m,i,t)){SFX.spore(m.got);if(m.state==='done'){owComplete(sw.id,'P-SCHALTER');fx.active=null;}}}}
+  if(m.state==='ready'&&Math.abs(wrapDiff(d,sw.d))<2.4&&Math.abs(p.offset-sw.off)<2.8&&!p.air&&pswitchPress(m,t)){fx.active=sw;sw.cap.scale.y=.35;SFX.pickup();toast(`GLOCKENSCHALTER! ${OW.coins} Münzen in ${OW.coinTime} s`,1.6,'good');}
+  if(m.state==='running'){for(let i=0;i<m.coins.length;i++){const c=m.coins[i];if(!c.taken&&Math.abs(wrapDiff(d,c.d))<OW.coinR&&Math.abs(p.offset-c.off)<OW.coinR&&pswitchCollect(m,i,t)){SFX.spore(m.got);if(m.state==='done'){owComplete(sw.id,'GLOCKENSCHALTER');fx.active=null;}}}}
   const prev=m.state;pswitchTick(m,t);if(prev==='running'&&m.state==='failed'){toast('ZEIT UM!',1.4,'bad');fx.active=null;}
   if(prev==='failed'&&m.state==='ready')sw.cap.scale.y=1;}
  // Muenzen zeichnen (drehen sich, schweben), sonst verborgen
@@ -1615,7 +1627,7 @@ function updateOW(dt){const fx=owFx,p=racers[0];if(!fx||!p)return;const t=elapse
 // Anzeige oben links und Portal-Knopf
 let owHudKey='';
 function owHud(){const fx=owFx;if(!fx||!worldMode)return;const act=fx.switches.find(s=>s.m.state==='running');
- const line=act?`P-Schalter: ${act.m.got}/${OW.coins} · ${Math.ceil(timeLeft(act.m,elapsed))} s`:fx.msg||(fx.hunt&&fx.hunt.got.size<fx.hunt.list.length?`Münzjagd ${fx.hunt.got.size}/${fx.hunt.list.length} – fahr frei über die Insel`:'Fahr durch Pilzland – Portale führen zu den Rennen');
+ const line=act?`Glockenschalter: ${act.m.got}/${OW.coins} · ${Math.ceil(timeLeft(act.m,elapsed))} s`:fx.msg||(fx.hunt&&fx.hunt.got.size<fx.hunt.list.length?`Münzjagd ${fx.hunt.got.size}/${fx.hunt.list.length} – fahr frei über die Insel`:'Fahr durch Wiesnland – Portale führen zu den Rennen');
  const hk=fx.hunt?fx.hunt.got.size:0;
  const k=`${fx.done.length}|${fx.total}|${line}|${hk}|${owPortalAt?owPortalAt.ti:-1}`;if(k===owHudKey)return;owHudKey=k;
  $('owStars').textContent=`★ ${fx.done.length}/${fx.total}`;$('owMission').textContent=line;
@@ -1680,7 +1692,7 @@ function placeBuilding(cp,kind){const B=BUILDINGS[kind];if(!B)return;
  zones.push({d,half:B.half,x:s.p.x,z:s.p.z,r:B.zone});}
 // Felssockel des Schlosses: [x, z, Groesse, Drehung] in Gebaeudekoordinaten, links und rechts gespiegelt
 const SCHLOSS_ROCKS=[[30,-19,2.6,.4],[34,-5,3.2,1.3],[32,10,2.9,2.2],[29,23,2.4,.9],[24,-30,1.9,2.7],[23,30,1.8,1.8],[39,18,2.2,.2],[38,-16,2,1.1]];
-// Pilzland: Pilzring um den Pilzberg und Haine auf der Wiese - gebuendelt (Instanzen) statt einzeln
+// Wiesnland: Pilzring um den Pilzberg und Haine auf der Wiese - gebuendelt (Instanzen) statt einzeln
 function owScenery(random){const offRoad=(x,z,m)=>{const d=projectGlobal(x,z),q=sample(d);return Math.hypot(q.p.x-x,q.p.z-z)>m;};
  for(let i=0;i<16;i++){const a=i/16*TAU+random()*.3,rr=38+random()*46,x=Math.cos(a)*rr,z=Math.sin(a)*rr;mushroom(x,z,2.6+random()*4,theme.caps[i%theme.caps.length]);addObstacle(x,z,2.4);}
  for(let g=0;g<12;g++){const a=random()*TAU,rr=110+random()*300,cx=Math.cos(a)*rr,cz=Math.sin(a)*rr;
@@ -1859,7 +1871,7 @@ function buildSwingers(){for(const [v,amp,spd,ph] of course.swing||[]){const d=o
  else{g=P.mushroom?cloneProto(P.mushroom):new T.Group();if(P.mushroom)applyTint(g,'CapPaint',0xff3cac,{emissiveColor:0xff3cac,emissiveIntensity:1.2});else sphere(g,mat(0xff3cac),0,2.6,0,1.6,.75,1.6);world.add(g);}
  g.scale.setScalar(theme.ember?1.5:1.7);const sw={d,amp,spd,ph,mesh:g,x:0,z:0,fire:!!theme.ember};swingers.push(sw);
  // R44: Feuerkoenig-Statue neben der Bahn spuckt den Feuerball quer ueber die Strecke (Seiten abwechselnd)
- if(sw.fire){sw.side=swingers.filter(q=>q.fire).length%2?1:-1;const st=hzPart('HZ_Statue');if(st){const p=samplePos(d,sw.side*(ROAD_HALF+9),new T.Vector3()),c=samplePos(d,0,_sp);st.position.copy(p);st.rotation.y=Math.atan2(c.x-p.x,c.z-p.z);world.add(st);addObstacle(p.x,p.z,4.2);sw.statue=st;}}}
+ if(sw.fire){sw.side=swingers.filter(q=>q.fire).length%2?1:-1;const st=hzPart('HZ_Statue');if(st){applyTint(st,'StonePaint',0x8a8078);const p=samplePos(d,sw.side*(ROAD_HALF+9),new T.Vector3()),c=samplePos(d,0,_sp);st.position.copy(p);st.rotation.y=Math.atan2(c.x-p.x,c.z-p.z);world.add(st);addObstacle(p.x,p.z,4.2);sw.statue=st;}}}
  for(const [v,amp,spd,ph] of course.ghosts||[]){let d=outOfRoll(cpDist(v));for(const r of [...ramps,...pads])if(Math.abs(wrapDiff(d,r.d))<32)d=lapDist(r.d+42);let g;if(P.ghost){g=cloneProto(P.ghost);g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.88;}});}else{g=new T.Group();sphere(g,mat(0xeef3ff,{emissive:0x9fb4ff,emissiveIntensity:.4}),0,1.7,0,1);}
   g.scale.setScalar(1.2);world.add(g);swingers.push({d,amp,spd,ph,mesh:g,x:0,z:0,y:0,kind:'ghost'});}}
 function buildSpores(){const add=(d,off,lift)=>{if(inGap(d))return;const p=sample(d,off).p;spores.push({d:lapDist(d),off,x:p.x,z:p.z,y:p.y+lift,cd:0,ph:spores.length*.7});};
@@ -1896,11 +1908,12 @@ function hzPart(n){const o=P.hazards?.getObjectByName(n);if(!o)return null;const
 let HZ_SHADOW=null;
 function buildHazards(){hz={stampers:[],plants:[],cannons:[],missiles:[]};if(!P.hazards)return;
  if(!HZ_SHADOW)HZ_SHADOW={geo:new T.PlaneGeometry(4.6,3.6).rotateX(-Math.PI/2),mat:new T.MeshBasicMaterial({color:0x05030a,transparent:true,opacity:.3,depthWrite:false})};
- const stoneCol=course.theme==='lava'?0x5a403c:theme.space?0xb9a8ff:0x9aa0ad;
+ // R54 Wiesn Kart: Stampfer ist ein Hau-den-Lukas-Holzhammer, die Roehre ein Bierfass, die Pflanze eine Fliegenfalle
+ const stoneCol=course.theme==='lava'?0x6a3a24:theme.space?0x7a5ab0:0x8a5a32;
  for(const [v,off,ph=0] of course.stampers||[]){const d=cpDist(v),g=hzPart('HZ_Stamper');if(!g)break;applyTint(g,'StonePaint',stoneCol);const p=samplePos(d,off,new T.Vector3());g.position.copy(p);g.rotation.y=sample(d).angle;world.add(g);
   const sh=new T.Mesh(HZ_SHADOW.geo,HZ_SHADOW.mat.clone());sh.position.set(p.x,p.y+.06,p.z);sh.rotation.y=g.rotation.y;sh.renderOrder=2;world.add(sh);
   hz.stampers.push({d,off,ph,g,base:p.y,sh,was:'up',st:null});}
- const pipeCol=theme.glow?0x2de2e6:0x2aa84a,plantCol=theme.glow?0xff3cac:0xd21f6a;
+ const pipeCol=theme.glow?0x3a6fc8:0x8a5a30,plantCol=theme.glow?0x7dff6a:0x4caf3a;
  for(const [v,side,plant=1] of course.pipes||[]){const d=cpDist(v),off=side*(ROAD_HALF+5.3),g=hzPart('HZ_Pipe');if(!g)break;applyTint(g,'PipePaint',pipeCol);const p=samplePos(d,off,new T.Vector3());g.position.copy(p);world.add(g);addObstacle(p.x,p.z,1.7);
   if(!plant)continue;const root=new T.Group(),lean=new T.Group(),stem=hzPart('HZ_PlantStem'),top=hzPart('HZ_PlantJawTop'),bot=hzPart('HZ_PlantJawBot');
   for(const q of [top,bot])applyTint(q,'PlantPaint',plantCol);lean.add(stem,top,bot);root.add(lean);root.position.set(p.x,p.y+3.2,p.z);world.add(root);
@@ -1962,7 +1975,7 @@ function buildLandmarks(){trainFx=null;if(!P.landmarks)return;const L=course.lan
 // ---------------------------------------------------------------- R53: Pilz-Wiesn und Gothic-Geisterhaus
 // Modelle: art/r53/create_wiesn.py (wiesn.glb) und art/r53/create_gothic.py (gothic.glb), Teile per Name.
 // Kurs-Eintraege [cp, Seite, Versatz m]: wiesn:{stalls, steins, barrels, benches, carousels, tent2, bunting:[cp], ferris}
-// gothic:{candles, ruins, coffins, bats}, kamek:[cpVon, cpBis] (Abschnitt, in dem der Besen-Zauberer mitfliegt).
+// gothic:{candles, ruins, coffins, bats}, wizard:[cpVon, cpBis] (Abschnitt, in dem der Besen-Zauberer mitfliegt).
 function r53Part(file,n){const o=P[file]?.getObjectByName(n);if(!o)return null;const c=o.clone(true);c.position.set(0,0,0);c.traverse(q=>{if(q.isMesh){q.castShadow=true;q.receiveShadow=true;}});return c;}
 // Freie Stelle neben der Strasse: keine Zone und kein anderer Streckenteil naeher als der eigene Versatz;
 // dicht an der Strasse zusaetzlich nicht an Tunneln, Bruecken, Rollzonen, Luecken oder Hochstrassen
@@ -1971,9 +1984,9 @@ function decoSpot(d,off,rad){if(inZone(d,rad*.5)||nearLoop(d)||forkBlocks(d,off)
  const s=sample(d,off);if(!Number.isFinite(groundAt(d,off).y)||nearTrack(s.p.x,s.p.z,Math.min(Math.abs(off)-1.5,rad+9.5)))return null;
  for(const cell of obsGrid.values())for(const o of cell)if(Math.hypot(s.p.x-o.x,s.p.z-o.z)<(o.r||0)+rad)return null;return s;}
 
-function buildDeco(){deco=null;const W=course.wiesn,Gt=course.gothic;if(!W&&!Gt&&!course.kamek)return;
- deco={spin:[],flameMat:null,bats:null,kamek:null};
- if(W&&P.wiesn)buildWiesn(W);if(Gt&&P.gothic)buildGothic(Gt);if(course.kamek&&P.gothic)buildKamek(course.kamek);}
+function buildDeco(){deco=null;const W=course.wiesn,Gt=course.gothic;if(!W&&!Gt&&!course.wizard)return;
+ deco={spin:[],flameMat:null,bats:null,wizard:null};
+ if(W&&P.wiesn)buildWiesn(W);if(Gt&&P.gothic)buildGothic(Gt);if(course.wizard&&P.gothic)buildWizard(course.wizard);}
 function decoPut(file,name,list,off,rad,sc=1,after){let n=0;for(const [v,side,o2] of list||[]){const d=cpDist(v),of=side*(o2||off);if(!decoSpot(d,of,rad))continue;
   const g=r53Part(file,name);if(!g)continue;const p=lmAt(g,d,of,sc);addObstacle(p.x,p.z,rad*.8);after?.(g,p,d);n++;}return n;}
 function buildWiesn(W){
@@ -2001,9 +2014,9 @@ function buildGothic(Gt){
  const centers=[];for(const [v,side,o2=0] of Gt.bats){const d=cpDist(v),s=sample(d,side*o2).p;centers.push([s.x,Math.max(0,groundAt(d,side*o2).y)+11,s.z]);}
  const PER=6,n=centers.length*PER,parts=[];for(const src of [body,wing])src.traverse(q=>{if(q.isMesh){const im=new T.InstancedMesh(q.geometry,q.material,n);im.frustumCulled=false;im.userData.wing=src===wing;world.add(im);parts.push(im);}});
  deco.bats={parts,centers,n,PER};}
-function buildKamek([a,b]){const src=P.gothic.getObjectByName('GT_Wizard');if(!src)return;const g=r53Part('gothic','GT_Wizard');g.visible=false;g.scale.setScalar(1.7);world.add(g);
+function buildWizard([a,b]){const src=P.gothic.getObjectByName('GT_Wizard');if(!src)return;const g=r53Part('gothic','GT_Wizard');g.visible=false;g.scale.setScalar(1.7);world.add(g);
  const shapes=['GT_SpellRing','GT_SpellSquare','GT_SpellTri'].map(n=>P.gothic.getObjectByName(n)).filter(Boolean);
- deco.kamek={g,sec:[cpDist(a),cpDist(b)],shapes,spells:[],castT:KAMEK.warmup,t:0,show:0,casts:0};}
+ deco.wizard={g,sec:[cpDist(a),cpDist(b)],shapes,spells:[],castT:WIZARD.warmup,t:0,show:0,casts:0};}
 // Zauber nur auf ebene, freie Strasse (nicht in Tunneln, Rollzonen, Loopings, Elementen, Luecken, Achterbahn)
 function spellOk(d){return !(inTunnel(d)||hasRoll(d)||nearLoop(d)||inGap(d)||elemAt(d)||raiseH(d)>.5||(hpipes.length&&hpAt(d))||coasters.some(c=>lapDist(d-c.s)<c.span));}
 const _kv=new T.Vector3(),_kw=new T.Vector3(),_kq=new T.Quaternion(),_ke=new T.Euler(),_ks=new T.Vector3();
@@ -2014,18 +2027,18 @@ function updateDeco(dt,now){
    _kv.set(c[0]+Math.cos(a)*rr,c[1]+Math.sin(now*.0017+i)*1.6+(i%3),c[2]+Math.sin(a)*rr);_ke.set(0,-a,0);_kq.setFromEuler(_ke);
    for(const im of B.parts){_ks.set(.6,im.userData.wing?.6*3*Math.sin(now*.019+i*1.3):.6,.6);_m.compose(_kv,_kq,_ks);im.setMatrixAt(i,_m);}}
   for(const im of B.parts)im.instanceMatrix.needsUpdate=true;}
- if(deco.kamek)updateKamek(dt);}
-function updateKamek(dt){const k=deco.kamek,p=racers[0];if(!p)return;const racing=state==='race';
+ if(deco.wizard)updateWizard(dt);}
+function updateWizard(dt){const k=deco.wizard,p=racers[0];if(!p)return;const racing=state==='race';
  // Menue, Countdown, Ziel: liegende Zauber raeumen (sonst schweben sie beim naechsten Start noch in der Luft)
- if(!racing&&state!=='paused'&&k.spells.length){for(const s of k.spells)world.remove(s.m);k.spells.length=0;k.castT=KAMEK.warmup;}
+ if(!racing&&state!=='paused'&&k.spells.length){for(const s of k.spells)world.remove(s.m);k.spells.length=0;k.castT=WIZARD.warmup;}
  const want=racing&&!isTT()&&inSection(k.sec,p.distance,length);k.show=clamp(k.show+(want?dt*.8:-dt*.6),0,1);k.t+=dt;k.g.visible=k.show>.01;
- if(k.g.visible){const d=p.distance+KAMEK.lead,off=Math.sin(k.t*.7)*KAMEK.sway,s=sample(d,off),gy=groundAt(d,off).y;
-  k.g.position.set(s.p.x,(Number.isFinite(gy)?Math.max(0,gy):0)+KAMEK.height+Math.sin(k.t*2.1)*.5+(1-k.show)*(1-k.show)*30,s.p.z);
+ if(k.g.visible){const d=p.distance+WIZARD.lead,off=Math.sin(k.t*.7)*WIZARD.sway,s=sample(d,off),gy=groundAt(d,off).y;
+  k.g.position.set(s.p.x,(Number.isFinite(gy)?Math.max(0,gy):0)+WIZARD.height+Math.sin(k.t*2.1)*.5+(1-k.show)*(1-k.show)*30,s.p.z);
   k.g.rotation.set(0,s.angle+Math.PI,Math.cos(k.t*.7)*.22);
   // Wurf: meist auf den Spieler, sonst auf ein Kart in der Naehe; nie in Tunnel, Loopings oder Rollzonen
   if(want&&k.show>.9&&(k.castT-=dt)<=0){k.castT=castInterval(Math.random());
    let r=p;if(Math.random()<.35){const near=racers.filter(q=>q!==p&&!q.finishTime&&Math.abs(q.distance-p.distance)<45);if(near.length)r=near[Math.floor(Math.random()*near.length)];}
-   const tg=pickTarget(r,Math.random());if(spellOk(tg.d)&&k.spells.length<KAMEK.maxSpells&&k.shapes.length){
+   const tg=pickTarget(r,Math.random());if(spellOk(tg.d)&&k.spells.length<WIZARD.maxSpells&&k.shapes.length){
     const shape=k.shapes[k.casts++%k.shapes.length],m=shape.clone(true);m.scale.setScalar(1.35);world.add(m);k.g.updateMatrixWorld(true);
     const from=k.g.localToWorld(new T.Vector3(1.12,2,1.55)),tp=sample(tg.d,tg.off).p,ty=groundAt(tg.d,tg.off).y;
     k.spells.push({m,d:tg.d,off:tg.off,from:{x:from.x,y:from.y,z:from.z},to:{x:tp.x,y:(Number.isFinite(ty)?Math.max(0,ty):0)+.35,z:tp.z},age:0,landed:false});
@@ -2033,7 +2046,7 @@ function updateKamek(dt){const k=deco.kamek,p=racers[0];if(!p)return;const racin
  for(let i=k.spells.length-1;i>=0;i--){const s=k.spells[i],was=s.landed,st=stepSpell(s,racing?dt:0);
   if(st==='gone'||s.gone){world.remove(s.m);k.spells.splice(i,1);continue;}
   if(st==='fly'){spellPos(s.from,s.to,s.age,_kv);s.m.position.set(_kv.x,_kv.y,_kv.z);s.m.rotation.set(Math.sin(s.age*9)*.6,s.age*8,0);continue;}
-  const fade=Math.min(1,(KAMEK.flight+KAMEK.life-s.age)*2);s.m.position.set(s.to.x,s.to.y+.12*Math.sin(s.age*5),s.to.z);s.m.rotation.set(0,s.age*2.4,0);s.m.scale.setScalar(1.35*Math.max(.05,fade));
+  const fade=Math.min(1,(WIZARD.flight+WIZARD.life-s.age)*2);s.m.position.set(s.to.x,s.to.y+.12*Math.sin(s.age*5),s.to.z);s.m.rotation.set(0,s.age*2.4,0);s.m.scale.setScalar(1.35*Math.max(.05,fade));
   if(!was){for(let j=0;j<10;j++){const a=j/10*TAU;emit(s.to.x,s.to.y+.3,s.to.z,[0xff5a6a,0x5aff7a,0x6a8aff][j%3],Math.cos(a)*4,2+Math.random()*2,Math.sin(a)*4,.5);}if(nearPlayer({distance:s.d},50))SFX.spellLand();}
   if(!racing)continue;
   for(const r of racers){if(!spellHits(s,r,length))continue;s.gone=true;const me=r===p;
@@ -2116,7 +2129,7 @@ function desertHits(r,me,dt){if(!desert)return;
 // ---------------------------------------------------------------- R44: Streckencharakter (assets/critters.glb)
 // Pilz-Promenade "Almwiese": Kuehe wandern ueber die Strasse und grasen. Neon-Pilzwald "Beat": Taktschranken senken
 // sich im Takt abwechselnd links/rechts, Turbo-Felder im Takt geben mehr Schub. Geisterhaus "Spuk": Geisterhaende
-// schiessen aus dem Boden (Riss als Warnung) und packen zu, dazu Gewitter mit Blitz und Donner. Regenbogenpiste
+// schiessen aus dem Boden (Riss als Warnung) und packen zu, dazu Gewitter mit Blitz und Donner. Sternenbahn
 // "Schwerelos": Mondschwerkraft-Zone (weite, lenkbare Spruenge) und Sternschnuppen mit Warnkreis.
 const BEAT=.5; // Neon: 120 Schlaege pro Minute
 function crPart(n){const o=P.critters?.getObjectByName(n);if(!o)return null;const c=o.clone(true);c.traverse(q=>{if(q.isMesh){q.castShadow=true;q.receiveShadow=true;}});return c;}
@@ -2165,7 +2178,7 @@ function characterHits(r,me){if(!chr)return;
   hitKart(r,.9,.3);loseSpores(r,1);burst(r,0x7dffb0,14);if(me){stats.grabs++;SFX.grab();toast('GEPACKT!',.9,'bad');}}
  for(const m of chr.mets){if(!m.boom)continue;const dx=r.x-m.x,dz=r.z-m.z;if(dx*dx+dz*dz>16||(r.metCd||0)>elapsed)continue;r.metCd=elapsed+1.5;if(r.shield>0){r.shield=0;continue;}r.air=true;r.airT=0;r.vy=8;r.y=(r.y||0)+.1;hitKart(r,1,.5);loseSpores(r,1);if(me){stats.meteorHits++;SFX.hit();toast('STERNSCHNUPPE!',.9,'bad');}}}
 function updateSwingers(t=elapsed){const pl=racers[0];for(const s of swingers){const fb=s.fire&&s.side?fireballAt(t,s.ph,s.side):null,off=fb?fb.off:Math.sin(t*s.spd+s.ph)*s.amp,p=samplePos(s.d,off,_sp);s.x=p.x;s.z=p.z;if(fb){s.active=fb.vis&&fb.y<2.4;s.mesh.visible=fb.vis;}
- if(s.kind==='ghost'){s.y=p.y+.9+Math.sin(t*2.2+s.ph)*.45;s.mesh.position.set(p.x,s.y,p.z);const face=pl?Math.atan2(pl.x-p.x,pl.z-p.z):t;s.mesh.rotation.set(0,face,-Math.cos(t*s.spd+s.ph)*.25);const near=pl&&Math.hypot(pl.x-p.x,pl.z-p.z)<18;s.boo=(s.boo||0)+((near?1:0)-(s.boo||0))*.08;s.mesh.scale.setScalar(1.2+s.boo*.35);}
+ if(s.kind==='ghost'){s.y=p.y+.9+Math.sin(t*2.2+s.ph)*.45;s.mesh.position.set(p.x,s.y,p.z);const face=pl?Math.atan2(pl.x-p.x,pl.z-p.z):t;s.mesh.rotation.set(0,face,-Math.cos(t*s.spd+s.ph)*.25);const near=pl&&Math.hypot(pl.x-p.x,pl.z-p.z)<18;s.nearK=(s.nearK||0)+((near?1:0)-(s.nearK||0))*.08;s.mesh.scale.setScalar(1.2+s.nearK*.35);}
  else{s.mesh.position.copy(p);s.mesh.rotation.y=t*1.5+s.ph;
   if(s.fire){const fl=1+Math.sin(t*9+s.ph*3)*.12;s.mesh.scale.setScalar(1.5*fl);s.mesh.position.y=p.y+(fb?fb.y:1.4+Math.sin(t*3+s.ph)*.35);if(fb)s.mesh.rotation.y=sample(s.d).angle+(s.side>0?-Math.PI/2:Math.PI/2);
    s.cd=Math.max(0,(s.cd||0)-.016);
@@ -2204,7 +2217,7 @@ function vertical(r,dt){const {y:ground,rh}=groundAt(r.distance,r.offset);
   if(r.air)r.airT+=dt;if(r.trick>0)r.trick=Math.min(.45,r.trick+dt);return;}
  if(r.y===undefined){r.y=ground;r.vy=0;r.air=false;r.airT=0;r.trick=0;r.lastGround=ground;r.rampY=0;r.padCd=0;r.ringCd=0;r.stall=0;r.driftVis=0;}
  const roadVy=clamp((ground-r.lastGround)/Math.max(dt,1e-3),-45,45);r.lastGround=ground;
- // Anti-Grav wie in Mario Kart 8: in der Rollzone haelt die Bahn bedingungslos fest. Aus JEDER
+ // Anti-Grav: in der Rollzone haelt die Bahn bedingungslos fest. Aus JEDER
  // Hoehe wird das Kart eingeholt (Anflug ueber der Zone, Absprung, Treffer) - das alte Fenster
  // (nur unter ground+3.4) liess jeden fallen, der hoch hineinflog. Einholen mit festem Zug,
  // damit sich der Fang wie ein Magnet anfuehlt, nicht wie ein Teleport.
@@ -2401,7 +2414,8 @@ function aiItems(r,order){if(r.cooldown>0||!r.item||r.itemPending)return;const p
 let audioReady=false;
 function armAudio(){if(audioReady)return;audioReady=true;if(soundOn){audioInit();playBgm(state==='menu'||state==='finished'?'menu':raceTrack());if(state==='menu')say('welcome');}}
 addEventListener('pointerdown',armAudio,{once:true});addEventListener('keydown',armAudio,{once:true});
-const VOICE={start:'Auf die Plätze — fertig — los!',lap2:'Runde zwei',lastlap:'Letzte Runde!',turbo:'Turbo!',hit:'Volltreffer!',ouch:'Autsch!',banana:'Banane gelegt!',shield:'Sternenschild!',lead:'Du führst!',win:'Erster Platz!',podium:'Aufs Treppchen!',finish:'Im Ziel!',best:'Neue Bestzeit!',welcome:'Willkommen bei Mushroom Rally!',rocket:'Raketenstart!',early:'Zu früh!',trick:'Super Trick!',spores:'Volle Sporen-Power!',gpnext:'Weiter zum nächsten Rennen!',gpwin:'Grand-Prix-Sieger!',gppodium:'Aufs Grand-Prix-Treppchen!',gpfinish:'Grand Prix beendet!',coaster:'Super-Achterbahn!',launch:'Magnet-Katapult!'};
+// R54: 'shield' (sagte noch "Sternenschild") und 'welcome' (alter Spielname) sind stumm, bis neue Aufnahmen da sind
+const VOICE={start:'Auf die Plätze — fertig — los!',lap2:'Runde zwei',lastlap:'Letzte Runde!',turbo:'Turbo!',hit:'Volltreffer!',ouch:'Autsch!',banana:'Banane gelegt!',lead:'Du führst!',win:'Erster Platz!',podium:'Aufs Treppchen!',finish:'Im Ziel!',best:'Neue Bestzeit!',rocket:'Raketenstart!',early:'Zu früh!',trick:'Super Trick!',spores:'Volle Sporen-Power!',gpnext:'Weiter zum nächsten Rennen!',gpwin:'Grand-Prix-Sieger!',gppodium:'Aufs Grand-Prix-Treppchen!',gpfinish:'Grand Prix beendet!',coaster:'Super-Achterbahn!',launch:'Magnet-Katapult!'};
 const VIP=new Set(['start','lap2','lastlap','win','podium','finish','best','gpnext','gpwin','gppodium','gpfinish']);
 const SFX_MAX={pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
 // Musik bleibt das Fundament. Kurze Hinweise liegen darueber, Kollisionen und Jubel dahinter.
@@ -2439,7 +2453,7 @@ function syncAudioMix(){if(!ctx)return;const quiet=!soundOn||state==='paused',t=
  if(quiet||state!=='race')draftTick(0);
  if(quiet!==mixMuted){if(quiet){for(const s of effectSources){try{s.stop();}catch{}}effectSources.clear();}mixMuted=quiet;}
  aset(sfxGain.gain,quiet?0:AUDIO_MIX.effects,t,.045);aset(effectsOut.gain,quiet?0:1,t,.035);aset(worldGain.gain,quiet||!['race','countdown'].includes(state)?0:AUDIO_MIX.world,t,.08);aset(masterGain.gain,soundOn?.92:0,t,.035);}
-// Sternenschild (R45): eigene Chiptune-Schleife solange der Schild haelt, die Streckenmusik tritt so lange zurueck
+// Herzschild (R45, R54 umbenannt): eigene Chiptune-Schleife solange der Schild haelt, die Streckenmusik tritt so lange zurueck
 let starSrc=null,starOut=null;
 // R48: waehrend des Riesenpilzes laeuft statt der Stern-Melodie ein eigener Marsch (der Riesenpilz setzt intern das Schild)
 function starTick(p){const k=p&&p.mega>0?'s_c_megaloop':p&&p.shield>0?'s_c_star':null,want=soundOn&&!!ctx&&!!k&&(state==='race'||state==='paused');
@@ -2447,7 +2461,7 @@ function starTick(p){const k=p&&p.mega>0?'s_c_megaloop':p&&p.shield>0?'s_c_star'
  if(want&&!starSrc&&clipBuf[k]){starSrc=ctx.createBufferSource();starSrc._k=k;starSrc.buffer=clipBuf[k];starSrc.loop=true;starOut=ctx.createGain();starOut.gain.value=.95*(clipNorm[k]||1);starSrc.connect(starOut);starOut.connect(sfxGain||masterGain);starSrc.start();}
  else if(!want&&starSrc){const t=ctx.currentTime,s=starSrc,g=starOut;g.gain.setTargetAtTime(0,t,.05);try{s.stop(t+.3);}catch{}s.onended=()=>{s.disconnect();g.disconnect();};starSrc=starOut=null;}}
 // Drift-Knistern (R46): solange der Spieler driftet, ein leises Chiptune-Trillern plus Funkenrauschen. Jede
-// Mini-Turbo-Stufe hebt Tonhoehe und Tempo (blau -> rot -> lila) und klickt kurz - man hoert, wann loslassen lohnt.
+// Drift-Turbo-Stufe hebt Tonhoehe und Tempo (blau -> rot -> lila) und klickt kurz - man hoert, wann loslassen lohnt.
 const DRIFT_SND=[[196,14,.016,1400],[392,20,.022,2600],[587,26,.026,3800],[880,34,.03,5200]];let driftSnd=null;
 function driftTick(level){const want=soundOn&&!!ctx&&level>=0&&state==='race';
  if(!want){if(driftSnd){const d=driftSnd,t=ctx.currentTime;driftSnd=null;d.g.gain.setTargetAtTime(0,t,.03);for(const o of d.src)try{o.stop(t+.2);}catch{}d.src[0].onended=()=>d.g.disconnect();}return;}
@@ -2609,7 +2623,7 @@ function start(){wxRestore();if(gp.active)selected=gp.race;worldMode=mode==='wor
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();finishMusicAt=0;playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
- splitSharedMaterials(scene);toast(`${course.name} · ${isTT()?'Zeitfahren':cc+'cc'}${raceMirror?' · 🪞 Spiegel':''}`,2.2);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8);},2400);}if(coarseInput){wantFs=true;enterFs();}}
+ splitSharedMaterials(scene);toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8);},2400);}if(coarseInput){wantFs=true;enterFs();}}
 function home(){wxRestore();document.body.classList.remove('mirror');raceMirror=false;owPortalHide();setAmbience(false);gp.active=false;state='menu';keys.clear();buildCourse();for(const id of ['hud','touch','pause','pausePanel','result','ceremony'])$(id).hidden=true;$('menu').hidden=false;setText('message','');document.body.classList.remove('racing','cer');if(engine)engine.g.gain.value=0;SFX.hum(false);stopVoice();finishMusicAt=0;playBgm('menu');refreshMenu();}
 let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$('pausePanel').hidden=true;}else if(state==='race'||state==='countdown'){beforePause=state;state='paused';keys.clear();$('pausePanel').hidden=false;stopVoice();}if(engine)engine.g.gain.value=soundOn&&state==='race'?.011:0;}
 function use(){if(state!=='race')return;useItem(racers[0]);}
@@ -2619,7 +2633,7 @@ function useItem(r){if(r.itemPending)return null;const prevStun=racers.map(x=>x.
  if(res.type==='banana')dropBanana(r);if(res.type==='shell')fireShell(r,res.target);if(res.type==='bomb')throwBomb(r);if(res.type==='storm')stormStrike(r,res.hit);
  if(res.type==='mega'){burst(r,0xff4a3d,16);if(!me&&Math.hypot(r.x-racers[0].x,r.z-racers[0].z)<60)SFX.mega();}
  if(res.type==='ink'){for(const id of res.targets)spawnInkcap(racers[id]);if(me)stats.inkBest=Math.max(stats.inkBest||0,res.targets.length);if(res.targets.includes(0)){inkSplash();SFX.ink();toast('TINTE! 🖋',1.1,'bad');}}
- if(me){if(res.type==='boost'||res.type==='triple')say('turbo');if(res.type==='shield')say('shield');if(res.type==='banana')say('banana');notice({boost:'TURBO!',triple:'TURBO ×'+(res.charges||0),shield:'STERNENSCHILD',banana:'BANANE!',shell:'SUCH-PANZER!',bomb:'PILZBOMBE!',storm:'GEWITTERWOLKE!',mega:'RIESENPILZ!',ink:res.targets&&res.targets.length?'TINTE FÜR '+res.targets.length+'!':'TINTENPILZ!'}[res.type],.8);}
+ if(me){if(res.type==='boost'||res.type==='triple')say('turbo');if(res.type==='shield')say('shield');if(res.type==='banana')say('banana');notice({boost:'TURBO!',triple:'TURBO ×'+(res.charges||0),shield:'HERZSCHILD',banana:'BANANE!',shell:'SUCH-BREZN!',bomb:'PILZBOMBE!',storm:'GEWITTERWOLKE!',mega:'RIESENWUCHS!',ink:res.targets&&res.targets.length?'TINTE FÜR '+res.targets.length+'!':'TINTENPILZ!'}[res.type],.8);}
  return res;}
 const MAX_HAZARDS=14;
 // Gewitterwolke (R46): ueber jedem getroffenen Kart eine dunkle Wolke, ein Zickzack-Blitz faehrt herab (geteilte
@@ -2688,7 +2702,7 @@ function updateBombs(dt){for(let i=bombs.length-1;i>=0;i--){const b=bombs[i];b.t
 function updateShots(dt){for(let i=shots.length-1;i>=0;i--){const sh=shots[i];sh.t+=dt;const tg=sh.target!==undefined?racers[sh.target]:null;sh.d+=((tg?Math.max(tg.speed,0):Math.max(racers[sh.owner].speed,20))+24)*dt;if(tg)sh.off+=(tg.offset-sh.off)*Math.min(1,dt*5);const s=samplePos(sh.d,sh.off,_sp);sh.g.position.set(s.x,s.y+.15+Math.abs(Math.sin(sh.t*18))*.18,s.z);sh.g.rotation.y+=dt*16;
   if((tg&&sh.d>=tg.distance-1.2)||(!tg&&sh.t>1.2)||sh.t>4.5){if(tg)shellImpact(sh);else burst({mesh:sh.g},0x8beb73,8);actors.remove(sh.g);shots.splice(i,1);}}}
 
-// R52 Pilzland: wer an Baum, Fels oder Wall haengt, wird nicht mehr auf die Strasse zurueckgesetzt (Nutzerhinweis) -
+// R52 Wiesnland: wer an Baum, Fels oder Wall haengt, wird nicht mehr auf die Strasse zurueckgesetzt (Nutzerhinweis) -
 // das Kart setzt ein Stueck zurueck und wendet, man faehrt dort weiter, wo man war
 function owUnstick(r){const fx=Math.sin(r.h),fz=Math.cos(r.h);r.x-=fx*2.6;r.z-=fz*2.6;r.h+=Math.PI;r.vx=r.vz=0;r.speed=0;r.slowT=r.stuckT=0;r.driftDir=0;r.drift=0;
  if(r.id===0){toast('↺ GEWENDET',.9);SFX.whoosh();}}
@@ -2697,7 +2711,7 @@ function owUnstick(r){const fx=Math.sin(r.h),fz=Math.cos(r.h);r.x-=fx*2.6;r.z-=f
 // Wand hinauf, ueber die Kuppe des Flugs und wieder hinunter - wie ein Skater, der nach dem Air zurueckfaehrt.
 function halfpipeStep(r,dt,me){const hz=hpAt(r.distance);if(!hz){if(r.hpAir){r.hpAir=false;land(r,groundAt(r.distance,r.offset).y,0);}r.hpOn=r.hpOut=false;r.hpIn=null;return;}
  const env=hpEnvAt(hz,r.distance),pf=hpProfile(r.offset,env,_hpq),tn=tanAt(r.distance),sg=pf.s,ox=tn.z*sg,oz=-tn.x*sg;
- // Wer neben der Strasse (Pilzland-Wiese) in den Abschnitt kommt, ist draussen: der Erdwall haelt ihn fern. Sonst
+ // Wer neben der Strasse (Wiesnland-Wiese) in den Abschnitt kommt, ist draussen: der Erdwall haelt ihn fern. Sonst
  // laese die Pipe seinen grossen Querversatz als Flughoehe ueber der Lippe.
  if(r.hpIn!==hz){r.hpIn=hz;r.hpOut=!r.hpOn&&!r.hpAir&&Math.abs(r.offset)>HP.flat+3.5;}
  if(r.hpOut){r.hpOn=false;const ao=Math.abs(r.offset),want=HP.outer+.6;if(ao<want){const push=Math.min(want-ao,dt*(6+(want-ao)*4));r.x+=ox*push;r.z+=oz*push;r.offset=sg*(ao+push);const vn=r.vx*ox+r.vz*oz;
@@ -2783,7 +2797,7 @@ function update(dt){
   if(inRoll&&!r.air&&frame%2===0&&nearPlayer(r,60)){const p=r.mesh.position;
    emit(p.x+(Math.random()-.5)*1.6,p.y+.15,p.z+(Math.random()-.5)*1.6,theme.glow?0x7cf3ff:0x59d7ff,(Math.random()-.5)*2.5,-1.5-Math.random()*2.5,(Math.random()-.5)*2.5,.4);}
   // Saubere Spirale: wer die Rollzone auf der Linie durchfaehrt (nie an die Magnetbande),
-  // kriegt beim Austritt einen Mini-Turbo - belohnt Fahren statt Anecken.
+  // kriegt beim Austritt einen Drift-Turbo - belohnt Fahren statt Anecken.
   if(inSpiral){if(!r.inAgPrev)r.agMax=0;r.agMax=Math.max(r.agMax||0,Math.abs(r.offset));}
   else if(r.inAgPrev&&r.finishTime===null&&(r.agMax||9)<5.5&&Math.abs(r.speed)>15){r.boost=Math.max(r.boost,.8);
    if(me){toast('SAUBERE SPIRALE!',1,'good');SFX.whoosh();}}
@@ -2956,7 +2970,7 @@ function update(dt){
  if(place<lastPlace&&elapsed>2){stats.overtakes+=lastPlace-place;SFX.overtake();toast(`▲ PLATZ ${place}`,.9,'good');}
  if(place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
  // Falsche Richtung
- // R52: im Pilzland gibt es keine falsche Richtung - dort faehrt man, wohin man will (Nutzerhinweis: staendige Anzeige)
+ // R52: im Wiesnland gibt es keine falsche Richtung - dort faehrt man, wohin man will (Nutzerhinweis: staendige Anzeige)
  const tan=tanAt(player.distance),fdot=Math.sin(player.h)*tan.x+Math.cos(player.h)*tan.z;wrongT=!worldMode&&fdot<-.35&&Math.abs(player.speed)>4?wrongT+dt:0;if(wrongT>1&&noticeTimer<=0){notice('FALSCHE RICHTUNG ↺',1);SFX.wrong();}
  if(engine&&ctx){const t=ctx.currentTime,sp=Math.abs(player.speed);aset(engine.o1.frequency,55+sp*5.2+(player.air?50:0)+(player.boost>0?30:0),t,.06);aset(engine.o2.frequency,28+sp*2.6,t,.06);aset(engine.f.frequency,480+sp*36,t,.08);aset(engine.g.gain,soundOn?.011:0,t,.09);aset(engine.noise.gain,soundOn&&(player.driftDir||Math.abs(player.slide)>2.5)&&sp>8&&!player.air?.045:0,t,.07);aset(engine.bp.frequency,player.driftDir?1100+player.drift*260:900,t,.1);if(raceFilter)aset(raceFilter.frequency,Math.min(20000,3000+sp*430)*(1-.85*(elemFx?elemFx.uw:0)),t,.18);}
  syncKartInstances();if(player.finishTime!==null)end();}
@@ -2999,18 +3013,18 @@ function showProgress(res){store.set('prog',res.prog);const el=$('resultProg');i
 function end(){document.body.classList.remove('mirror');elapsed=racers[0].finishTime??elapsed;qualityRaceEnd();if(isTT())return endTT();state='finished';keys.clear();roulette=null;SFX.hum(false);burst(racers[0],0xffd452,26);burst(racers[0],0xed6350,16);burst(racers[0],0x55bdb2,16);
  $('result').hidden=false;$('touch').hidden=true;showRidePhoto();const order=ranking(racers),place=order.indexOf(racers[0])+1,board=$('leaderboard'),rs=raceStars(place,stats.hitsTaken);
  $('resultTitle').textContent=place===1?(rs.perfect?'Perfektes Rennen!':'Der Pokal gehört dir!'):place<=3?`Platz ${place} – aufs Treppchen!`:`Platz ${place}. Da geht noch was!`;
- $('resultTime').textContent=`${course.name} · ${cc}cc · ${format(elapsed)}`;
+ $('resultTime').textContent=`${course.name} · ${ccName(cc)} · ${format(elapsed)}`;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<rs.stars?'on':''}">★</i>`).join('')+(rs.perfect?'<b>PERFEKT</b>':'');
  stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3)SFX.cheer();board.replaceChildren();
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
  const bestKey=`bestlap-${selected}`,oldBestLap=store.get(bestKey,Infinity),newBestLap=stats.bestLap<oldBestLap;if(newBestLap)store.set(bestKey,stats.bestLap);
- const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Mini-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  // Rivale und Tages-Herausforderung (R46) vor dem Verbuchen, damit XP und Erfolge sie sehen
  if(rivalId!==null){stats.rivalBeaten=rivalBeaten(order.map(r=>r.id),rivalId);$('resultStats').insertAdjacentHTML('beforeend',`<div class="rival ${stats.rivalBeaten?'won':'lost'}"><span>⚔ Rivale ${racers[rivalId].name}</span><b>${stats.rivalBeaten?'GESCHLAGEN ✓':'vor dir'}</b></div>`);}
  {const ch=dailyChallenge(dayKey());if(!worldMode&&store.get('dailyDone','')!==ch.day&&dailyDone(ch,{track:selected,cc,place,finished:true,stats})){stats.daily=true;store.set('dailyDone',ch.day);dailyShown=null;setTimeout(()=>toast(`📅 TAGESAUFGABE GESCHAFFT! +${DAILY_XP} XP`,2,'good'),600);}}
  showProgress(recordRace(store.get('prog',{xp:0,ach:[],done:[],won:[]}),{track:selected,cc,place,finished:true,stats:{...stats},mirror:raceMirror}));
- if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=GP_POINTS[i]);addGpPoints(gp.points,order);$('resultEyebrow').textContent=`GRAND PRIX ${cc}cc · RENNEN ${gp.race+1} / ${courses.length}`;
+ if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=GP_POINTS[i]);addGpPoints(gp.points,order);$('resultEyebrow').textContent=`GRAND PRIX ${ccName(cc).toUpperCase()} · RENNEN ${gp.race+1} / ${courses.length}`;
   gpStandings(gp.points,racers.map(r=>r.id)).forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${racers[id].name}</span><span class="gain">+${gained[id]}</span><span>${gp.points[id]} P</span>`;board.append(li);});
   $('again').textContent=gp.race<courses.length-1?'Nächstes Rennen →':'Zur Siegerehrung 🏆';if(gp.race<courses.length-1)say('gpnext');}
  else{$('resultEyebrow').textContent='ZIEL ERREICHT';$('again').textContent='Nochmal – schneller! ↻';order.forEach((r,i)=>{const li=document.createElement('li');if(r.id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${r.name}</span><span>${r.finishTime!==null?format(r.finishTime):'noch im Rennen'}</span>`;board.append(li);});}
@@ -3027,7 +3041,7 @@ function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$
  $('resultTitle').textContent=m<3?`${['Gold','Silber','Bronze'][m]}-Medaille!`:'Knapp daneben – der Geist wartet!';
  $('resultTime').textContent=`${format(elapsed)}${record?' · NEUER REKORD 👻':isFinite(old)?' · Rekord '+format(old):''}`;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<3-m?'on':''}">★</i>`).join('')+(m<prevMedal&&m<3?'<b>NEUE MEDAILLE</b>':'');
- const st=[['Beste Runde',format(stats.bestLap)],['Mini-Turbos',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra}`],['Tricks / Ringe',`${stats.tricks} / ${stats.rings}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`]]:[]),['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ const st=[['Beste Runde',format(stats.bestLap)],['Drift-Turbos',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra}`],['Tricks / Ringe',`${stats.tricks} / ${stats.rings}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`]]:[]),['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  const board=$('leaderboard');board.replaceChildren();course.medals.forEach((t,i)=>{const li=document.createElement('li');if(i===m)li.className='me';li.innerHTML=`<span>${MEDALS[i]}</span><span>${elapsed<=t?'✓ geschafft':'noch '+(elapsed-t).toFixed(1)+' s'}</span><span>${format(t)}</span>`;board.append(li);});
  $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();
@@ -3045,8 +3059,8 @@ function ceremony(){state='ceremony';worldDirty=true;clearGroup(actors);kartInst
  group.updateMatrixWorld(true);cer={group,trophy,podium,t:0,burstT:0,center:new T.Vector3(pos.x,4,pos.z),angle:group.rotation.y};
  const mine=standings.indexOf(0)+1,tKey=`trophy-${cc}`,prevT=store.get(tKey,9);if(mine<=3&&mine<prevT)store.set(tKey,mine);
  let unlock='';if(mine===1)grantAch('gp');if(mine===1&&cc>=100&&!store.get('gold',false)){store.set('gold',true);unlock='🔓 GOLDPILZ-KART FREIGESCHALTET!';}
- $('cerTitle').textContent=mine===1?`Grand-Prix-Sieger ${cc}cc! 🏆`:mine<=3?`Platz ${mine} im Grand Prix ${cc}cc!`:`Grand Prix beendet – Platz ${mine}`;
- $('cerUnlock').textContent=unlock||(mine===1&&cc<150?`Nächste Herausforderung: ${cc===50?100:150}cc`:mine>1?'Hol dir Gold – drifte die Kurven sauberer!':'');
+ $('cerTitle').textContent=mine===1?`Grand-Prix-Sieger ${ccName(cc)}! 🏆`:mine<=3?`Platz ${mine} im Grand Prix ${ccName(cc)}!`:`Grand Prix beendet – Platz ${mine}`;
+ $('cerUnlock').textContent=unlock||(mine===1&&cc<150?`Nächste Herausforderung: Klasse ${ccName(cc===50?100:150)}`:mine>1?'Hol dir Gold – drifte die Kurven sauberer!':'');
  const board=$('cerBoard');board.replaceChildren();standings.forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${['🥇','🥈','🥉'][i]||(i+1)+'.'}</span><span>${racers[id].name}</span><span>${gp.points[id]} P</span>`;board.append(li);});
  $('ceremony').hidden=false;stopVoice();say(mine===1?'gpwin':mine<=3?'gppodium':'gpfinish');SFX.cheer();stopBgm();if(!playClip(mine<=3?'s_jingle':'s_goodtry',sfxGain,.8))SFX.fanfare();finishMusicAt=performance.now()+(mine<=3?6800:4800);}
 function updateCeremony(dt){if(!cer)return;cer.t+=dt;cer.burstT-=dt;cer.podium.forEach((k,i)=>{const d=k.userData.parts?.driver;if(!d)return;d.position.y=.95+Math.abs(Math.sin(cer.t*(6-i)+i))*(i===0?.5:.3);d.rotation.z=Math.sin(cer.t*4+i)*.18;d.rotation.y=i===0?Math.sin(cer.t*2)*.5:0;});if(cer.trophy){cer.trophy.rotation.y+=dt*1.2;cer.trophy.position.y=1.5*2.2+3.1+Math.sin(cer.t*2)*.25;}
@@ -3334,14 +3348,14 @@ function openAchievements(){const pr=store.get('prog',{xp:0,ach:[]}),lv=levelOf(
   `<div class="ach-colors">${KART_COLORS.filter(k=>k.lvl).map(k=>`<span class="${lv.level>=k.lvl?'on':''}" style="--c:#${k.c.toString(16).padStart(6,'0')}">${lv.level>=k.lvl?'':'🔒 '}${k.n.split(' /')[0]} · Stufe ${k.lvl}</span>`).join('')}</div>`;
  $('achPanel').hidden=false;}
 function refreshMirror(){const b=$('mirrorBtn');if(!b)return;const lock=progLevel()<MIRROR_LVL;b.classList.toggle('locked',lock);b.classList.toggle('selected',mirrorOn&&!lock);b.setAttribute('aria-pressed',String(mirrorOn&&!lock));b.title=lock?`Spiegel-Modus ab Fahrerstufe ${MIRROR_LVL}`:'Spiegel-Modus: Strecken seitenverkehrt';}
-function refreshMenu(){refreshMirror();const goldOk=store.get('gold',false),lv=progLevel();$('colors').querySelectorAll('button').forEach((b,i)=>{const k=KART_COLORS[i],locked=!!(k.gold&&!goldOk)||!!(k.lvl&&lv<k.lvl);b.classList.toggle('locked',locked);b.title=locked?(k.lvl?`Ab Fahrerstufe ${k.lvl}`:'Gewinne einen Grand Prix ab 100cc'):k.n;});setText('achBtnLvl','Stufe '+lv);
- const tro=[50,100,150].map(c=>{const t=store.get(`trophy-${c}`,9);return t<=3?`${['🏆','🥈','🥉'][t-1]} ${c}cc`:'';}).filter(Boolean).join('  ');const medals=courses.map((_,i)=>store.get(`medal-${i}`,3)),mc=[0,1,2].map(k=>medals.filter(x=>x===k).length);setText('trophies',[tro,mc.some(Boolean)?`🥇${mc[0]} 🥈${mc[1]} 🥉${mc[2]}`:''].filter(Boolean).join('   '));$('classes').classList.toggle('locked',mode==='tt');
+function refreshMenu(){refreshMirror();const goldOk=store.get('gold',false),lv=progLevel();$('colors').querySelectorAll('button').forEach((b,i)=>{const k=KART_COLORS[i],locked=!!(k.gold&&!goldOk)||!!(k.lvl&&lv<k.lvl);b.classList.toggle('locked',locked);b.title=locked?(k.lvl?`Ab Fahrerstufe ${k.lvl}`:'Gewinne einen Grand Prix ab Klasse Flott'):k.n;});setText('achBtnLvl','Stufe '+lv);
+ const tro=[50,100,150].map(c=>{const t=store.get(`trophy-${c}`,9);return t<=3?`${['🏆','🥈','🥉'][t-1]} ${ccName(c)}`:'';}).filter(Boolean).join('  ');const medals=courses.map((_,i)=>store.get(`medal-${i}`,3)),mc=[0,1,2].map(k=>medals.filter(x=>x===k).length);setText('trophies',[tro,mc.some(Boolean)?`🥇${mc[0]} 🥈${mc[1]} 🥉${mc[2]}`:''].filter(Boolean).join('   '));$('classes').classList.toggle('locked',mode==='tt');
  document.querySelectorAll('#classes .cls').forEach(b=>{const on=Number(b.dataset.cc)===cc;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(on));});$('tracks').classList.toggle('locked',mode==='gp');
  // Medaille je Strecke auf die Karte
  $('tracks').querySelectorAll('.track').forEach((b,i)=>{const m=medals[i];b.dataset.medal=String(m);const em=b.querySelector('.medal');if(em)em.textContent=m<3?['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'][m]:'';});
  refreshBest();refreshDaily();}
 KART_COLORS.forEach((k,i)=>{const b=document.createElement('button');b.className='swatch'+(i===0?' selected':'')+(k.gold?' gold':'');b.style.setProperty('--swatch','#'+k.c.toString(16).padStart(6,'0'));b.setAttribute('aria-label',k.n);b.setAttribute('aria-pressed',String(i===0));
- b.onclick=()=>{if(k.gold&&!store.get('gold',false)){toast('🔒 Gewinne einen Grand Prix ab 100cc',2,'bad');return;}if(k.lvl&&progLevel()<k.lvl){toast(`🔒 Ab Fahrerstufe ${k.lvl}`,2,'bad');return;}colorIndex=i;$('colors').querySelectorAll('button').forEach((x,j)=>{x.classList.toggle('selected',i===j);x.setAttribute('aria-pressed',String(i===j));});try{driverThumbs();}catch(e){}buildCourse();};$('colors').append(b);});
+ b.onclick=()=>{if(k.gold&&!store.get('gold',false)){toast('🔒 Gewinne einen Grand Prix ab Klasse Flott',2,'bad');return;}if(k.lvl&&progLevel()<k.lvl){toast(`🔒 Ab Fahrerstufe ${k.lvl}`,2,'bad');return;}colorIndex=i;$('colors').querySelectorAll('button').forEach((x,j)=>{x.classList.toggle('selected',i===j);x.setAttribute('aria-pressed',String(i===j));});try{driverThumbs();}catch(e){}buildCourse();};$('colors').append(b);});
 // Mini-Streckenplan fuer die Auswahlkarten: dieselbe Mittellinie wie im Spiel, nur flach gezeichnet
 function trackThumb(cv,c){const q=cv.getContext('2d'),W=cv.width,H=cv.height,th=THEMES[c.theme];
  const cur=new T.CatmullRomCurve3(c.points.map(([x,z])=>new T.Vector3(x,0,z)),true,'catmullrom',.38),p=cur.getSpacedPoints(220);
@@ -3357,11 +3371,11 @@ function trackThumb(cv,c){const q=cv.getContext('2d'),W=cv.width,H=cv.height,th=
 // Tages-Herausforderung (R46): Karte ueber dem Startknopf - antippen waehlt Strecke, Klasse und Modus
 let dailyShown=null;const dailyBtn=document.createElement('button');dailyBtn.id='daily';dailyBtn.type='button';$('start').before(dailyBtn);
 function refreshDaily(){const ch=dailyChallenge(dayKey()),done=store.get('dailyDone','')===ch.day,key=ch.day+done;if(dailyShown===key)return;dailyShown=key;
- dailyBtn.classList.toggle('done',done);dailyBtn.innerHTML=`<i>📅</i><span><small>TAGESAUFGABE${done?' · GESCHAFFT':''}</small><b>${ch.text}</b><em>${courses[ch.track].name} · ${ch.cc}cc${done?' · morgen gibt es eine neue':` · +${DAILY_XP} XP`}</em></span>${done?'<u>✓</u>':'<u>▶</u>'}`;}
+ dailyBtn.classList.toggle('done',done);dailyBtn.innerHTML=`<i>📅</i><span><small>TAGESAUFGABE${done?' · GESCHAFFT':''}</small><b>${ch.text}</b><em>${courses[ch.track].name} · ${ccName(ch.cc)}${done?' · morgen gibt es eine neue':` · +${DAILY_XP} XP`}</em></span>${done?'<u>✓</u>':'<u>▶</u>'}`;}
 dailyBtn.onclick=()=>{const ch=dailyChallenge(dayKey());if(mode!=='single')document.querySelector('#modes [data-mode="single"]').click();document.querySelector(`#classes [data-cc="${ch.cc}"]`)?.click();$('tracks').children[ch.track]?.click();toast('📅 Aufgabe gewählt – los geht\'s!',1.4,'good');};
 courses.forEach((c,i)=>{const b=document.createElement('button'),th=THEMES[c.theme];b.className='track'+(i===0?' selected':'');
  const wide=courses.length%2===1&&i===courses.length-1;   // letzte Karte einer ungeraden Anzahl geht ueber die ganze Breite
- b.innerHTML=`<canvas width="${wide?520:240}" height="${wide?150:126}"></canvas><i>${c.icon}</i><em class="medal"></em><b>${c.name.replace('Regenbogenpiste','Regenbogen&shy;piste')}</b><u class="kind">${c.kind}</u><span class="best"></span>`;
+ b.innerHTML=`<canvas width="${wide?520:240}" height="${wide?150:126}"></canvas><i>${c.icon}</i><em class="medal"></em><b>${c.name}</b><u class="kind">${c.kind}</u><span class="best"></span>`;
  b.style.setProperty('--c1',hex(th.skyBottom));b.style.setProperty('--c2',hex(th.road));b.style.setProperty('--acc',th.curbA);
  b.title=c.kind;b.setAttribute('aria-pressed',String(i===0));b.onclick=()=>{if(mode==='gp')return;selected=i;syncTrackButtons();buildCourse();};
  $('tracks').append(b);try{trackThumb(b.querySelector('canvas'),c);}catch(e){}});
@@ -3392,7 +3406,7 @@ addEventListener('keyup',e=>keys.delete(e.code));addEventListener('blur',()=>{ke
 // Ziellinie, Licht, Himmel und Nebel aus dem Thema gemischt. Regen, Schnee, Sand, Asche und Gluehwuermchen sind
 // Teilchen im Shader (folgen der Kamera, keine CPU-Arbeit je Tropfen). Dazu Blitze mit Donner, Windboeen, nasse
 // Fahrbahn (weniger Grip fuer alle), ein UFO mit Schwebe-Strahl, Regenbogen, Polarlicht, Sternschnuppen und
-// Sonnenfinsternis. Zeitfahren und Pilzland bleiben ruhig (faire Bestzeiten), in der Pause abschaltbar.
+// Sonnenfinsternis. Zeitfahren und Wiesnland bleiben ruhig (faire Bestzeiten), in der Pause abschaltbar.
 let wxOn=store.get('weather',true)!==false,wxPlan=calmPlan(LAPS),wxRacePlan=null,wxM=null,wxExp=null,wxHead=null,wxGripMul=1,wxWindA=0,wxWindDir=0,wxActive=false,
  wxBase=null,wxSkyKey='',wxLapSeen=0,wxNewsT=-1,wxNews='',wxBoltT=4,wxFlash=0,wxThunderT=-1,wxSeed=1,wxStripKey='';
 const WX_DARK=['night','haunted','rainbow','lava'],_wv1=new T.Vector3(),_wv2=new T.Vector3();
@@ -3461,7 +3475,7 @@ function wxBatsTick(dt,amt){if(!wxBats){if(amt<.02)return;const body=P.gothic?.g
   _ke.set(0,a+Math.PI/2,Math.sin(wxBats.t*3+i)*.3);_kq.setFromEuler(_ke);
   for(const im of wxBats.parts){const s=1.5*Math.min(1,amt*1.4);_ks.set(s,im.userData.wing?s*3.2*Math.sin(wxBats.t*17+i*1.7):s,s);_m.compose(_kv,_kq,_ks);im.setMatrixAt(i,_m);}}
  for(const im of wxBats.parts)im.instanceMatrix.needsUpdate=true;}
-// Komet (Regenbogenpiste): langer Schweif, zieht langsam ueber den Himmel; Vulkanausbruch (Lava-Feste): gluehende
+// Komet (Sternenbahn): langer Schweif, zieht langsam ueber den Himmel; Vulkanausbruch (Lava-Feste): gluehende
 // Lavabomben stuerzen am Horizont herab, der Boden bebt kurz
 const wxStreak=col=>{const s=new T.Sprite(new T.SpriteMaterial({map:wxStreakTex,color:col,transparent:true,depthWrite:false,fog:false,blending:T.AdditiveBlending}));s.visible=false;s.userData={t:-1,p:new T.Vector3(),v:new T.Vector3()};wxRoot.add(s);return s;};
 let wxComet=null,wxBombs=null;
@@ -3536,7 +3550,7 @@ function wxAudio(rain,wind){if(!ctx)return;if(!wxAud){const b=ctx.createBuffer(1
    if(f2){const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=f2;a.connect(lp);lp.connect(g);}else a.connect(g);g.connect(worldGain);s.start(0,Math.random()*1.5);return g;};
   wxAud={rain:mk('highpass',1300,.5,7200),wind:mk('lowpass',360,1.4)};}
  const t=ctx.currentTime,on=soundOn&&state!=='paused';wxAud.rain.gain.setTargetAtTime(on?rain*.085:0,t,.4);wxAud.wind.gain.setTargetAtTime(on?wind*.16:0,t,.25);}
-// Rennen: Plan waehlen (Zeitfahren/Pilzland/aus: ruhig), Themawerte merken
+// Rennen: Plan waehlen (Zeitfahren/Wiesnland/aus: ruhig), Themawerte merken
 function wxStart(){wxRestore();wxSeed=(Math.random()*4294967296)>>>0;const calm=!wxOn||isTT()||worldMode;
  wxRacePlan=calm?null:weatherPlan(wxSeed,course.theme,LAPS);wxPlan=wxRacePlan||calmPlan(LAPS);wxLapSeen=0;wxNewsT=-1;wxBoltT=5+Math.random()*4;wxThunderT=-1;wxFlash=0;wxStripKey='';
  const th=theme;wxBase={bg:scene.background,fog:scene.fog?{o:scene.fog,c:scene.fog.color.getHex(),n:scene.fog.near,f:scene.fog.far}:null,look:{skyTop:th.skyTop,skyBottom:th.skyBottom,fog:th.fog,fogNear:th.fogNear,fogFar:th.fogFar,exposure:th.exposure,hemiSky:th.hemiSky,hemiInt:th.hemiInt,sunCol:th.sunCol,sunInt:th.sunInt,head:th.head!==undefined?th.head:(th.stars?90:0),dark:WX_DARK.includes(course.theme),stars:!!th.stars,sunGlow:!th.stars}};
@@ -3715,10 +3729,12 @@ protoAll.then(()=>{protoRecovery.settle();
 Promise.race([protoAll,new Promise(r=>setTimeout(r,9000))]).finally(()=>{protoRecovery.snapshot();try{applyGfx();}catch(e){}buildCourse();resize();refreshMenu();try{driverThumbs();}catch(e){}try{buildItemThumbs();}catch(e){console.error('itemThumbs0',e);}readyPromise.then(()=>{updateCamera(1/60,true);try{renderer.render(scene,camera);}catch(e){}
  requestAnimationFrame(()=>{playBgm('menu');const l=$('loader');l.classList.add('done');setTimeout(()=>l.hidden=true,600);requestAnimationFrame(loop);setInterval(prebuildTick,900);
   // Grossbauten nachladen und die betroffenen Strecken neu bauen lassen
-  Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].landmarks||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}});});});});
+  Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].landmarks||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}
+   // R54: auch das Wiesnland (Index 99) neu bauen - sonst blieben nach einem Erststart dort Platzhalter (blaue Scheibe statt Glockenschalter)
+   if(builtSel===WORLD_IDX){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(WORLD_IDX);});});});});
 
 // Testschnittstelle nur mit ?test=1
-if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,oh:()=>({...oh,taps:oh.taps.size}),dizzy:()=>{const m=new T.Matrix4(),out=[];for(let i=0;i<6;i++){dizzyMesh.getMatrixAt(i,m);out.push(new T.Vector3().setFromMatrixPosition(m).toArray().map(v=>+v.toFixed(1)));}return {out,cam:camera.position.toArray().map(v=>+v.toFixed(1)),p:racers[0].mesh.position.toArray().map(v=>+v.toFixed(1))};},star:()=>({playing:!!starSrc,loaded:!!clipBuf.s_c_star,dur:clipBuf.s_c_star?.duration,duck:+duckLevel.toFixed(2)}),
+if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,wizard:()=>{const k=deco?.wizard;if(!k)return null;const p=k.g.getWorldPosition(new T.Vector3());return {vis:k.g.visible,show:+k.show.toFixed(2),casts:k.casts,spells:k.spells.length,sec:k.sec,pos:p.toArray().map(v=>+v.toFixed(1)),kids:k.g.children.length};},oh:()=>({...oh,taps:oh.taps.size}),dizzy:()=>{const m=new T.Matrix4(),out=[];for(let i=0;i<6;i++){dizzyMesh.getMatrixAt(i,m);out.push(new T.Vector3().setFromMatrixPosition(m).toArray().map(v=>+v.toFixed(1)));}return {out,cam:camera.position.toArray().map(v=>+v.toFixed(1)),p:racers[0].mesh.position.toArray().map(v=>+v.toFixed(1))};},star:()=>({playing:!!starSrc,loaded:!!clipBuf.s_c_star,dur:clipBuf.s_c_star?.duration,duck:+duckLevel.toFixed(2)}),
  windsocks:()=>world.userData.windsocks||[],
  windringInfo:()=>rings.filter(r=>!r.ag).map(r=>({d:r.d,off:r.off,y:r.y,asset:!!P.windring,materials:r.glow?.length||0,precision:r.precision})),
  gliderState:()=>racers.map(r=>({id:r.id,armed:!!r.glideArmed,gliding:!!r.gliding,open:r.gliderOpen||0,visible:!!r.mesh.userData.glider?.visible,asset:!!P.glider})),

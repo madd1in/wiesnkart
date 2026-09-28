@@ -1,4 +1,4 @@
-// Mushroom Rally R50: Controller (Gamepad-API, Standard-Belegung von Xbox-, PlayStation- und Switch-Pads).
+// Wiesn Kart R50: Controller (Gamepad-API, Standard-Belegung von Xbox-, PlayStation- und Switch-Pads).
 // Reine Funktionen, im Spiel und in Tests genutzt: Stick mit Totzone, Trigger als Gas/Bremse, Tasten-Flanken.
 export const PAD={dead:.18,curve:1.35,trig:.3,nav:.6};
 // Standard-Mapping (https://w3c.github.io/gamepad/#remapping)

@@ -1,8 +1,43 @@
-# Mushroom Rally
+# Wiesn Kart
 
-Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser, gebaut am 13.09.2026.
+Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser (bis Runde 53 "Mushroom Rally"), gebaut ab 13.09.2026.
+Kleine Karts, grosse Gaudi: Rennen rund ums Volksfest, durch Pilzwald, Schloss, Festzelt und Geisterhaus.
+Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
-Live: https://madd1in.github.io/mushroom-rally/
+Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
+
+## Runde 54 (28.09.2026): Wiesn Kart - eigene Marke, eigene Figuren, ruhige KI-Karts
+
+**Neuer Name "Wiesn Kart"** - Titel, Logo (Brezn), Ladekarte, Startbogen ("WIESN KART"), Seitentitel und Vorschau-Texte.
+Das Menue traegt weiss-blaue Rauten statt Zielflaggen-Karos, Farben in Bayern-Blau, Festzelt-Rot und Bier-Gold.
+Die Open World heisst jetzt **Wiesnland**.
+
+**Alles, was an fremde Spiele erinnerte, ist neu gestaltet oder umbenannt** (eigene Entwuerfe, Blender-MCP):
+- **Hau-den-Lukas-Hammer** statt Stampf-Block mit Gesicht: Holzklotz mit Eisenbaendern und Messingplakette am Stiel
+  (`art/r54/create_hazards.py`, `assets/hazards.glb`). Auf der Lava-Feste und im Weltall passend eingefaerbt.
+- **Bierfaesser mit Fliegenfallen** statt gruener Roehren mit Schnapp-Pflanzen; die befahrbare Einfahrt ist ein
+  riesiger Fassring. **Bayerischer Steinloewe** (spuckt Feuerbaelle) statt Drachen-Buste, **Roehrenkanone** mit
+  gluehender Kanonenkugel statt Geschoss mit Gesicht.
+- **Bettlaken-Gespenst mit Laterne** (`assets/ghost.glb`, Wellensaum, Ovalaugen, keine Zunge).
+- **Glockenschalter** (Messingglocke auf Holzsockel) statt Druckschalter, dazu **Lebkuchenherz-Muenzen** mit
+  Zuckerguss-Rand (`art/r54/create_safe_props.py`, `assets/ow.glb`).
+- **Such-Brezn** statt Panzer (`assets/shell.glb`, Brezel mit Salzkoernern, eigenes Symbol im Item-Fenster),
+  **Herzschild** (Lebkuchenherz-Symbol) statt Stern, **Riesenwuchs** statt Riesenpilz.
+- **Wiesn-Zauberer** statt Brillen-Zauberer: moosgruene Kutte mit goldenen Sternen, Filzhut mit Feder, weisser Bart,
+  Knollennase, Knorrenstab mit Irrlicht; er wirft **Sporenkugel, Funkenstern und Ahornblatt** (`create_gothic.py`).
+- **Sternenbahn** (frueher Sternenbahn): tiefblaues Sternenglas mit Milchstrassen-Band und funkelnden Sternen statt
+  Regenbogen-Farbband, Randsteine weiss-gold.
+- **Drift-Turbos in Funken, Glut und Blitz** (gold, orange, eisblau) statt Mini/Super/Ultra in blau-rot-lila.
+- **Klassen Locker, Flott, Wild** statt Hubraum-Angaben (intern weiter 50/100/150, Bestzeiten bleiben erhalten).
+- **Pilzi in Tracht:** gruene Weste und rotes Halstuch (statt blau-gelb). neue KI-Fahrerin **Resi**.
+- **Wiesn-Polka** als Schild-Melodie (`art/r44/make_chiptune.mjs`) statt der alten Stern-Schleife.
+- Die Sprachansagen "Schild" und "Willkommen" (alter Name) sind stumm, bis neue Aufnahmen da sind.
+- Code: `kamek.mjs` heisst `wizard.mjs` (Tests `wizard.test.mjs`), alle Vergleiche mit fremden Spielen aus Kommentaren
+  und README entfernt.
+
+**KI-Karts ruckeln nicht mehr im Pulk (Teil 1)** - Kollisions-Korrekturen werden im Bild als Versatz aufgefangen und
+klingen in ~0,1 s ab, KI-Lenkung leicht geglaettet, Abstands-Entscheidung mit 0,7 s Hysterese. Gier-Wackler frei
+0,6 % -> 0,1-0,3 %, im Kontakt ~0 %.
 
 ## Runde 53 (28.09.2026): Neuschwanstein zum Durchfahren, Pilz-Wiesn, Gothic-Geisterhaus mit Besen-Zauberer, Kart-Glanz, Minimal-HUD, Strecken-Ereignisse
 
@@ -22,10 +57,10 @@ Bierfass-Pyramiden, Biertische, ein zweites Festzelt "PILZBRAEU", blau-weisse **
 das Riesenrad der Kirmes. Alles nur an freien Stellen (keine Zone, Rollzone, Tunnel, Bruecke oder anderer Streckenteil).
 
 **Gothic-Geisterhaus und Besen-Zauberer** - `assets/gothic.glb` (`create_gothic.py`, eigene Entwuerfe in
-Castlevania-Stimmung, keine Original-Assets): gotisches **Uhrturm-Tor** zum Durchfahren (Spitzbogen, Rosettenfenster aus
+Gothic-Horror-Stimmung): gotisches **Uhrturm-Tor** zum Durchfahren (Spitzbogen, Rosettenfenster aus
 Buntglas, Turmuhr, Fialen, Wasserspeier), 18 eiserne **Kandelaber** mit flackernden Kerzen, **Ruinenmauern** mit
-Buntglasfenstern, Saerge, **Fledermaus-Schwaerme** (Fluegel schlagen). Dazu der **Besen-Zauberer** (Kamek-Hommage: blaue
-Kutte und Spitzhut, Brille, Schnabel, Sternstab, Reisigbesen): Im Abschnitt Zielgerade bis Gruft fliegt er vor dem
+Buntglasfenstern, Saerge, **Fledermaus-Schwaerme** (Fluegel schlagen). Dazu der **Besen-Zauberer** (seit R54 als Wiesn-Zauberer
+neu gestaltet, Reisigbesen): Im Abschnitt Zielgerade bis Gruft fliegt er vor dem
 Spieler her und wirft alle 2,6-3,8 s Zauber-Formen (Ring, Quadrat, Dreieck) auf die Strasse - Wurfbahn als Bogen, gelandet
 bleiben sie 3,2 s liegen; wer hineinfaehrt, dreht sich ("VERZAUBERT!", eine Spore weg), Schild schuetzt, Spruenge
 fliegen darueber. Nie in Tunnel, Looping, Rollzone, Achterbahn oder Luecke. Logik in `kamek.mjs` (6 Unit-Tests).
@@ -44,7 +79,7 @@ Tastenhilfe, Marke, Ton- und Vollbild-Knopf mit "Anzeige: VOLL" im Pausemenue (j
 Strecken, und ab Runde 2 bekommt eine Runde mit 80 % eines (nicht zweimal dasselbe hintereinander):
 Pilz-Promenade Ballonfestival, Alpengluehen, Regenbogen, Gluehwuermchen · Sonnen-Canyon UFO-Lift, Sonnenfinsternis ·
 Magnet-Kirmes Feuerwerk, Luftballons · Pilz-Wiesn Himmelslaternen, Polarlicht · Geisterhaus Blutmond (roter Himmel und
-Mond), Fledermaus-Schwarm, Irrlichter · Regenbogenpiste Sternschnuppen, Komet · Lava-Feste Vulkanausbruch (Lavabomben,
+Mond), Fledermaus-Schwarm, Irrlichter · Sternenbahn Sternschnuppen, Komet · Lava-Feste Vulkanausbruch (Lavabomben,
 Beben, glutroter Horizont). weather.mjs +4 Tests (Exklusivitaet, Haeufigkeit, Passung, Himmelsfarben).
 
 **Windschatten mit Ausscheren** (lokale R52-Arbeit, jetzt eingebunden): Hinter einem Kart laedt sich in 1,2 s der
@@ -89,14 +124,14 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
   sie beim Herunterfahren hinter der Wand. **KI:** je nach Koennen nimmt ein Fahrer eine Wand, fliegt, dreht einen
   Trick und wechselt die Seite (im Test hoben 5-6 von 7 KI-Fahrern ab).
 - **Platz:** eine Suche (hpFindSpot) nimmt die naechste gerade, freie Stelle - Tunnel, Bruecken, Loopings,
-  Achterbahn, Seen, Gefahren am Rand, Portale und P-Schalter bleiben draussen; normale Schanzen und Sprungpilze
+  Achterbahn, Seen, Gefahren am Rand, Portale und Glockenschalter bleiben draussen; normale Schanzen und Sprungpilze
   duerfen in der Pipe liegen. Platz fand sich auf der **Magnet-Kirmes** (Startgerade, mit der ersten Schanze in der
-  Pipe) und zweimal im **Pilzland**; die anderen Strecken sind lueckenlos belegt (laengstes freies Stueck ~70 m).
+  Pipe) und zweimal im **Wiesnland**; die anderen Strecken sind lueckenlos belegt (laengstes freies Stueck ~70 m).
 - Neuer Erfolg "Halfpipe-Held" (3 Halfpipe-Tricks in einem Rennen) - jetzt 33. Autopilot-Rennen Kirmes und
-  Pilzland ohne Sturz und ohne Fehler; 120/120 Tests.
+  Wiesnland ohne Sturz und ohne Fehler; 120/120 Tests.
 
-**Pilzland frei fahren (Nutzerhinweis "staendig falsche Richtung und zurueckgesetzt"):**
-- Keine "FALSCHE RICHTUNG"-Anzeige mehr im Pilzland - dort gibt es keine Fahrtrichtung.
+**Wiesnland frei fahren (Nutzerhinweis "staendig falsche Richtung und zurueckgesetzt"):**
+- Keine "FALSCHE RICHTUNG"-Anzeige mehr im Wiesnland - dort gibt es keine Fahrtrichtung.
 - Wer an Baum, Fels oder Wall haengen bleibt, wird nicht mehr per Rettungspilz auf die Strasse gesetzt: das Kart
   setzt 2,6 m zurueck und wendet ("↺ GEWENDET"), man faehrt dort weiter, wo man war.
 - Kurze Leitplanken-Stummel vor und hinter den Loopings (je 24 m, aus der Deko-Sperrzone) entfallen in der offenen
@@ -107,7 +142,7 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
 **Nachschliff (Teil 4):**
 - **Fehler behoben - Strecken-Cache:** vorgebaute Strecken werden aus einem Cache geladen; dabei fehlten die neuen
   Halfpipe-Zonen, die Randstreifen-Tabelle (wo die Auslaufzone als Fahrbahn zaehlt) und die Weltgroesse. Nach Kirmes
-  oder Pilzland hatte die Pilz-Promenade unsichtbare Halfpipe-Zonen (Kart fiel auf 17 km/h), nach dem Vorbauen im
+  oder Wiesnland hatte die Pilz-Promenade unsichtbare Halfpipe-Zonen (Kart fiel auf 17 km/h), nach dem Vorbauen im
   Menue galt der Randstreifen der zuletzt gebauten Strecke. Ein Test prueft jetzt, dass jede in buildWorld gesetzte
   Variable mit in den Cache geht.
 - **Halfpipe:** eine Reihe Sporen schwebt 2,4 m ueber jeder Lippe - wer abhebt, sammelt auf dem Weg hinauf und
@@ -116,7 +151,7 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
 - Bei den ersten drei Einfahrten ein Hinweis ("HALFPIPE! Schraeg hochfahren"), im Ergebnis eine Kachel
   "Halfpipe · Airs · Tricks" mit der hoechsten Flughoehe.
 - **Erdwall:** aussen liegt jetzt eine Grasboeschung bis 25,5 m neben der Mitte (statt senkrechter Rueckwand). Wer im
-  Pilzland ueber die Wiese seitlich heranfaehrt, wird als "draussen" eingestuft und vom Wall ferngehalten - vorher
+  Wiesnland ueber die Wiese seitlich heranfaehrt, wird als "draussen" eingestuft und vom Wall ferngehalten - vorher
   haette die Pipe seinen grossen Querversatz als Flughoehe gelesen und ihn ueber die Lippe gesetzt (geprueft:
   parallel und schraeg von beiden Seiten, niemand kommt naeher als 26 m, keiner hebt ab).
 - Bananen, die man auf der Halfpipe-Wand fallen laesst, liegen an der Wand (vorher im Gras hinter der Pipe).
@@ -128,7 +163,7 @@ gefahren: der Querversatz ist die Bogenlaenge ueber Boden und Wand, darueber geh
 **Minimal-HUD hochkant** (Handy, Nutzerwunsch "Anzeige im Rennen zu voll"): im Rennen stehen nur noch Platz (oben
 links, kompakt), Runde als kleine Pille (🏁 1/3), Pause-Knopf, Item-Blase darunter, Einblendungen und ein duenner
 Drift-Balken unten. Zeit, Wetterleiste, Rivalen-Schild, Sporen, Tempo, Minikarte sowie Ton-, Vollbild- und
-Marken-Knopf entfallen; das Zeitfahren behaelt Zeit und Geist, im Pilzland bleibt die Missionstafel (kleiner).
+Marken-Knopf entfallen; das Zeitfahren behaelt Zeit und Geist, im Wiesnland bleibt die Missionstafel (kleiner).
 Standard ist MINIMAL - wer alles sehen will, schaltet im Pausemenue "Anzeige hochkant: VOLL" (wird gespeichert).
 Quer und am Desktop bleibt die Anzeige wie bisher.
 
@@ -152,10 +187,10 @@ ist oder ein anderes ueberdeckt - vorher 30 Funde, jetzt keiner.
   volle Breite. Geist, Medaillenzeit und GP-Zaehler in derselben Display-Schrift wie Runde/Zeit.
 - **Touch quer:** "DRIFT · TRICK" und "BREMSE" passen in ihre runden Knoepfe, das Item-Symbol in seine Blase,
   die Tempoanzeige liegt auf kleinen Handys nicht mehr unter BREMSE. Item-Blase hochkant nicht mehr ueber Runde/Zeit.
-- **Kerbe/Kamera-Loch (iPhone quer):** Kopfleiste, Platz, Rivale, Pilzland-Tafel und Lenkknoepfe ruecken aus dem
+- **Kerbe/Kamera-Loch (iPhone quer):** Kopfleiste, Platz, Rivale, Wiesnland-Tafel und Lenkknoepfe ruecken aus dem
   sicheren Bereich nicht mehr heraus (geprueft mit simulierten Safe-Area-Raendern).
 
-## Runde 51 (26.09.2026): Tux als Fahrer, Drachen-Spirale, offeneres Pilzland, Handy-Leistung
+## Runde 51 (26.09.2026): Tux als Fahrer, Drachen-Spirale, offeneres Wiesnland, Handy-Leistung
 
 - **Tux, der Linux-Pinguin, faehrt mit** (fuenfte Figur, eigener Entwurf, art/r51/create_penguin.py ->
   assets/driver_penguin.glb): schwarzer Tropfenkoerper, weisser Bauch, gelber Schnabel und Plattfuesse, Flossen am
@@ -165,7 +200,7 @@ ist oder ein anderes ueberdeckt - vorher 30 Funde, jetzt keiner.
 - **Drachen-Spirale (Magnet-Kirmes):** die Kamera drehte in Achterbahn-Schrauben fest zu 40 % mit - nach einer vollen
   360-Grad-Schraube stand sie bei 144 Grad, also kopfueber unter der Bahn, bis die Zone endete. Jetzt laeuft sie
   verzoegert, aber ganz mit (in der Mitte weiter ~40 %) und steht am Ende jeder Schraube aufrecht ueber der Bahn.
-- **Pilzland offener:** keine Kurven- und Landeplanken mehr, die Lenkhilfe greift nur noch auf der Strasse (vorher
+- **Wiesnland offener:** keine Kurven- und Landeplanken mehr, die Lenkhilfe greift nur noch auf der Strasse (vorher
   zog sie das Kart aus 40 m Entfernung zurueck) - die Wiesen sind frei befahrbar. Portal-Schleier und Namensschilder
   blenden beim Heranfahren aus und verdecken die Strasse nicht mehr.
 - **Handy-Leistung:** Modell-Materialien, die sowohl fuer instanzierte als auch fuer normale Meshes (oder mit
@@ -174,7 +209,7 @@ ist oder ein anderes ueberdeckt - vorher 30 Funde, jetzt keiner.
 - 110/110 Tests; Autopilot-Rennen auf allen 7 Strecken ohne Fehler.
 - **Update-Video** media/r51_tux_wetter.mp4 (48 s, Hochformat, mit Ton; klein: _small, 8,6 MB): Tux in der
   Frontkamera, Gewitter bei Nacht, UFO in der Daemmerung, Schnee mit Polarlicht, Sonnen-Turbos, Drachen-Spirale,
-  offenes Pilzland (art/r51/capture_frames.mjs -> prune_events.py -> edit_video_blender.py; Post-Texte in
+  offenes Wiesnland (art/r51/capture_frames.mjs -> prune_events.py -> edit_video_blender.py; Post-Texte in
   media/social-texte-r51.md). Der Test-Hook `rallyTest.step` fuehrt die Kamera jetzt bei jedem Physikschritt nach -
   vorher hing sie in Aufnahmen doppelt so weit hinter dem Kart wie im echten Spiel.
 
@@ -186,7 +221,7 @@ dramatischste (z. B. ☀ → 🌇🌧🛸 → 🌙⛈). Der Wechsel blendet an d
 beim Rundenwechsel kommt eine Ansage ("🛸 DAEMMERUNG · REGEN · UFO!"), unter Runde/Zeit steht der Bericht als
 Symbolleiste mit der aktuellen Runde gross.
 - **Tageszeiten:** Tag, Daemmerung (Abendrot, warmes Licht, naeherer Dunst), Nacht (Sterne, Mond, Scheinwerfer),
-  Morgenrot. Die dunklen Strecken (Neon-Pilzwald, Geisterhaus, Regenbogenpiste, Lava-Feste) behalten ihre Stimmung
+  Morgenrot. Die dunklen Strecken (Neon-Pilzwald, Geisterhaus, Sternenbahn, Lava-Feste) behalten ihre Stimmung
   und wechseln nur Wetter und Ereignisse; der Sonnen-Canyon kann in eine Wuestennacht kippen.
 - **Wetter:** Wolken, Regen (Streifen im Shader, Gischt hinter den Karts, Rauschen), Gewitter (Blitze am Horizont
   mit Bildblitz und Donner mit Laufzeit, Windboeen, die alle Karts gleich seitlich schieben), Nebel, Schneegestoeber,
@@ -196,13 +231,13 @@ Symbolleiste mit der aktuellen Runde gross.
   Daemmerung, Sonnenfinsternis (Scheibe mit Korona, Scheinwerfer an).
 - Licht, Himmel und Nebel werden aus dem Thema gemischt (reine Funktion `weatherLook`), Teilchen folgen der Kamera
   im Shader (keine CPU-Arbeit je Tropfen), alles wird mit der Strecke vorkompiliert - keine Shader-Kompilierung im
-  Rennen. Tunnel und Unterwasser haben Vorrang. Zeitfahren und Pilzland bleiben ruhig (faire Bestzeiten), in der
+  Rennen. Tunnel und Unterwasser haben Vorrang. Zeitfahren und Wiesnland bleiben ruhig (faire Bestzeiten), in der
   Pause abschaltbar ("Wetter: WECHSELHAFT / AUS"). Neue Erfolge "Nahbegegnung" (UFO-Lift) und "Wetterfest" (Sieg
   bei Gewitter, Schnee oder Sandsturm) - jetzt 32.
 
 **Controller** (pad.mjs, 9 Unit-Tests; Gamepad-API mit Standard-Belegung, Xbox/PlayStation/Switch): Stick oder
 Steuerkreuz lenken stufenlos (Totzone, sanfte Kurve), A/RT Gas, B/LT Bremse, LB/RB Hops und Drift (in der Luft Trick),
-X/Y Item, START Pause, VIEW zuruecksetzen, im Pilzland Y fuer das Portal. Im Menue: links/rechts Strecke,
+X/Y Item, START Pause, VIEW zuruecksetzen, im Wiesnland Y fuer das Portal. Im Menue: links/rechts Strecke,
 hoch/runter Klasse, LB/RB Modus, A/START los, Y Erfolge. In Pause, Ergebnis und Siegerehrung waehlen hoch/runter
 den Knopf (gelber Rahmen), A bestaetigt (kurz nach dem Zieleinlauf gesperrt), B geht zurueck. Rumpeln bei Treffern,
 Turbos und harten Landungen. Die Hinweise (Tastenleiste, Item-Knopf, Drift-Anzeige) zeigen Controller-Tasten,
@@ -229,7 +264,7 @@ sobald er benutzt wird, und wechseln bei Tastatureingabe zurueck.
 ## Runde 48 (26.09.2026): Riesenpilz-Marsch, Neon-Tunnel im Takt, KI weicht aus, Update-Video
 
 - **Riesenpilz-Marsch:** solange das Kart gross ist, laeuft eine eigene Chiptune-Schleife (stampfender Marsch in
-  a-Moll, 140 bpm, Bass-Stampfer auf jedem Schlag; art/r44/make_chiptune.mjs) statt der Sternenschild-Melodie -
+  a-Moll, 140 bpm, Bass-Stampfer auf jedem Schlag; art/r44/make_chiptune.mjs) statt der Schild-Melodie -
   der Riesenpilz setzt intern das Schild, dadurch lief vorher die falsche Musik.
 - **Riesenpilz besser sichtbar:** die Kamera zieht kaum noch mit zurueck, das grosse Kart fuellt jetzt das Bild.
   KI-Fahrer weichen einem Riesenpilz dicht hinter ihnen zur Seite aus (je geschickter, desto frueher).
@@ -249,7 +284,7 @@ sobald er benutzt wird, und wechseln bei Tastatureingabe zurueck.
 - **Tintenpilz:** alle, die vorne liegen, bekommen Tinte. Ueber ihnen ploppt ein Tintling auf (Schopftintling mit
   Comic-Augen, Blender: art/r45/create_inkcap.py, assets/inkcap.glb), wackelt und zerlaeuft. Trifft es den
   Spieler, kleben Tintenkleckse auf dem Bild und rutschen langsam ab (mit Turbo schneller weg); KI-Fahrer mit
-  Tinte fahren eine flatternde Linie und gehen zwischendurch vom Gas. Das Sternenschild haelt die Tinte ab.
+  Tinte fahren eine flatternde Linie und gehen zwischendurch vom Gas. Das Herzschild haelt die Tinte ab.
 - Beide mit gerenderten 3D-Vorschaubildern, KI-Einsatz und neuen Chiptune-Effekten (wachsen, schrumpfen,
   plattmachen, Tintenklatscher).
 
@@ -274,7 +309,7 @@ und je naeher an der Kamera, desto durchsichtiger.
   die Felsbrocken, die innen durch die Wand stachen, liegen jetzt oben auf dem Huegel.
 
 **Spiegel-Modus (ab Fahrerstufe 3):** Knopf neben den Klassen; das Bild ist seitenverkehrt (wie im grossen
-Vorbild auch die Schilder), die Lenkung umgedreht - nicht im Zeitfahren und nicht im Pilzland.
+Vorbild auch die Schilder), die Lenkung umgedreht - nicht im Zeitfahren und nicht im Wiesnland.
 
 **Neue Erfolge:** Spiegelmeister, Riesenschritt (3 Karts plattgemacht), Tintenfisch (4 Fahrer mit einer Tinte) -
 jetzt 29. Zusammengefuehrt mit Runde 45/46 einer parallelen Sitzung (Gewitterwolke, Rivale, Tagesaufgabe bleiben).
@@ -283,7 +318,7 @@ jetzt 29. Zusammengefuehrt mit Runde 45/46 einer parallelen Sitzung (Gewitterwol
 
 **Neues Item Gewitterwolke:** Blitze aus dunklen Wolken treffen alle Karts vor dem Nutzer - kurzer Dreher,
 Item weg, 4 s klein und langsamer (72 % Hoechsttempo). Kleine Karts werden von grossen plattgefahren
-("PLATT GEFAHREN!" / "UEBERROLLT!"), der Sternenschild blockt. Nur fuer die hintere Haelfte des Feldes
+("PLATT GEFAHREN!" / "UEBERROLLT!"), der Herzschild blockt. Nur fuer die hintere Haelfte des Feldes
 (Gewicht 0 bis Platz 5, dann steigend), die KI setzt sie sofort ein. Optik: Wolke und Zickzack-Blitz ueber jedem
 getroffenen Kart in Sichtweite, Donner und Bildblitz; das Modell schrumpft sichtbar (Rennlogik in core.mjs,
 `SHRINK_T`, `flattenSmall`, 2 Unit-Tests). Neuer Erfolg "Wettermacher" (4 Karts mit einer Wolke).
@@ -293,11 +328,11 @@ getroffenen Kart in Sichtweite, Donner und Bildblitz; das Modell schrumpft sicht
 hinter dir), Ansage zum Start. Im Ergebnis "Rivale geschlagen" +25 XP und der Erfolg "Rivalen-Bezwinger".
 
 **Tages-Herausforderung:** Karte ueber dem Startknopf - aus dem Datum folgen Strecke, Klasse und Aufgabe (Treppchen,
-Sieg, 8 Mini-Turbos, ohne Treffer, 10 Muenzen, 4 Tricks, 8-mal ueberholen, Rivale schlagen), fuer alle gleich und
+Sieg, 8 Drift-Turbos, ohne Treffer, 10 Muenzen, 4 Tricks, 8-mal ueberholen, Rivale schlagen), fuer alle gleich und
 ohne Server. Antippen waehlt Modus, Strecke und Klasse. Geschafft: +60 XP einmal am Tag, Erfolg "Tagesheld",
 die Karte zeigt "GESCHAFFT". Reine Funktionen in progress.mjs (3 Unit-Tests).
 
-**Drift-Knistern:** waehrend des Drifts ein leises Chiptune-Trillern mit Funkenrauschen, das je Mini-Turbo-Stufe
+**Drift-Knistern:** waehrend des Drifts ein leises Chiptune-Trillern mit Funkenrauschen, das je Drift-Turbo-Stufe
 eine Quinte hoeher und schneller wird und beim Stufenwechsel klickt - man hoert, wann Loslassen lohnt (Test in
 audio.test.mjs). Dabei aufgefallen: Funkenfarbe und Anzeige nutzten andere Schwellen (0,7/1,4/2,3) als die echte
 Turbo-Logik (0,55/1,15/1,9) - jetzt beide aus `miniTurbo()`.
@@ -318,7 +353,7 @@ Leicht-Fassungen neu (art/r44/make_lod.py fuer kartkit, driver, driver_robot), S
 **Ein-Hand-Steuerung (Handy hochkant, Standard):** keine Fahrknoepfe mehr - das ganze Bild ist eine Wischflaeche.
 Ein Finger wischt links/rechts und lenkt stufenlos (der Nullpunkt wandert mit, wenn man ueber den vollen Ausschlag
 hinaus wischt - Gegenlenken wirkt sofort), eine Schiene mit Knopf zeigt den Ausschlag. Gas gibt das Spiel selbst,
-**Tippen = Bunny-Hop** (in der Luft = Trick), **weit wischen und kurz halten = Drift** (Loslassen gibt den Mini-Turbo,
+**Tippen = Bunny-Hop** (in der Luft = Trick), **weit wischen und kurz halten = Drift** (Loslassen gibt den Drift-Turbo,
 voll zur Gegenseite gewischt loest den Drift und driftet andersherum weiter), **nach oben wischen = Item**. Ein
 zweiter Finger kann ebenfalls tippen. Im Countdown zaehlt der aufgelegte Finger als Gas - bei der "1" auflegen gibt
 den Raketenstart (ein schon frueher aufgelegter Daumen wuergt den Motor nicht ab). Die Item-Blase sitzt oben rechts (antippbar), eine Kurzanleitung erscheint in den ersten fuenf
@@ -340,7 +375,7 @@ Gesteinsschichten, Kontaktschatten). Materialnamen bleiben (StonePaint/MossPaint
 Lavabasalt und Tunnelwaende faerben weiter ein. 929 Dreiecke, Leicht-Fassung 332. Gebaut mit dem bpy-Modul
 (`pip install bpy==5.0.1`, laeuft ohne Blender-Installation).
 
-**Stern-Melodie:** Solange der Sternenschild haelt, laeuft eine eigene Chiptune-Schleife (art/r44/make_chiptune.mjs,
+**Schild-Melodie:** Solange der Herzschild haelt, laeuft eine eigene Chiptune-Schleife (art/r44/make_chiptune.mjs,
 assets/audio/sfx/chip/star.wav, 4,8 s, 200 bpm): Akkorde C - As - B - C, Rechteck-Arpeggio mit NES-Echo, Gegenstimme,
 Dreieck-Bass im Oktavsprung, Rausch-Schlagzeug; jede Note endet bei null, die Naht knackt nicht. Die Streckenmusik
 tritt so lange auf 28 % zurueck, bei Ende oder abgewehrtem Treffer blendet die Schleife in 0,3 s aus. Test in
@@ -355,10 +390,10 @@ Startknopf (vorher lag der Startknopf unter dem Bildrand); kompakte Stufe bis 66
 verzerrt (`object-fit:cover`).
 
 **Nebenbei:** In style.css stand seit Runde 41 ein uebrig gebliebener Merge-Marker (`=======`), der die folgende
-Regel ungueltig machte - die Pilzland-Missionsanzeige war dadurch nicht fixiert, sondern lag unsichtbar hinter dem
+Regel ungueltig machte - die Wiesnland-Missionsanzeige war dadurch nicht fixiert, sondern lag unsichtbar hinter dem
 Spielbild. Entfernt.
 
-## Runde 44 (25.09.2026): Fluessig auf Handys, Bunny-Hop-Drift, Touch-Steuerung im Mario-Kart-Stil
+## Runde 44 (25.09.2026): Fluessig auf Handys, Bunny-Hop-Drift, Touch-Steuerung im Arcade-Stil
 
 **Ruckeln in Runde 1 - Ursache gefunden (Profil auf echter GPU, Kopflos-Chrome mit Intel UHD):**
 Die automatische Grafikanpassung startete mit Schatten und schaltete sie im Rennen ab, sobald die
@@ -385,26 +420,26 @@ schlimmster Frame in Runde 1 486 -> 100 ms, Frames ueber 50 ms in Runde 2 125 ->
 Aufloesung herunter. Neue Kartraeder auch im normalen Modus leichter (1352 -> 852 Dreiecke).
 Mit **?fps** in der Adresse zeigt das Spiel Bildrate, Modus, Aufloesung und Draw-Calls an.
 
-**Bunny-Hop-Drift wie in Mario Kart:** Die Drifttaste laesst das Kart hopsen (0,3 s, Chiptune-
+**Bunny-Hop-Drift:** Die Drifttaste laesst das Kart hopsen (0,3 s, Chiptune-
 Sprung). Waehrend des Hopsers bestimmt die Lenkung die Richtung (und dreht etwas williger), bei der
 Landung mit gehaltener Taste beginnt der Funkendrift - erst blau, dann rot (lila fuer sehr lange
 Drifts), Loslassen gibt den Turbo. Ohne Lenkung bleibt es ein Hopser. Die KI haelt die Taste ueber
 den Hopser und lenkt in die Kurve.
 
-**Touch-Steuerung neu im Mario-Kart-Tour/World-Stil:** runde Knoepfe mit weissem Rand und Verlauf,
+**Touch-Steuerung neu:** runde Knoepfe mit weissem Rand und Verlauf,
 GAS (gruen, gross) und HOPS (rot) jetzt getrennt - vorher gab der Drift-Knopf automatisch Gas mit,
 mit dem Hopser waere jeder Gasstoss ein Sprung geworden. Item-Blase gelb leuchtend, Bremse klein,
 Lenkung als zwei grosse Kapseln. Auto-Gas bleibt auf dem Handy standardmaessig aus.
 
-**Rechtwinklige Kurven wie im SNES-Mario-Kart:** Pilz-Promenade, Sonnen-Canyon und Neon-Pilzwald haben je
+**Rechtwinklige Kurven:** Pilz-Promenade, Sonnen-Canyon und Neon-Pilzwald haben je
 eine enge Ecke (Radius 11-15 m statt mindestens 24 m). Dafuer zieht der Streckenbau zwei Hilfspunkte eng um den
 Eckpunkt und schwaecht die Radius-Glaettung nur dort ab; alle Bauten bleiben an ihrem Platz. Mit Grip geht so
-eine Ecke nur mit etwa 19-23 m/s, im Drift mit 26-35 m/s plus Mini-Turbo - Driften lohnt sich. Dazu etwas mehr
+eine Ecke nur mit etwa 19-23 m/s, im Drift mit 26-35 m/s plus Drift-Turbo - Driften lohnt sich. Dazu etwas mehr
 Untersteuern bei Hoechsttempo (vorher war jede Kurve der Spiele mit Vollgas und Grip fahrbar).
 
 **Keine toedlichen Spruenge vor Kurven mehr:** Audit aller Schanzen und Luecken - 12 Landungen lagen in einer
 Kurve mit 24-35 m Radius (Neon allein 4). Neu ist eine Luftfuehrung: in der Luft folgt das Kart sanft dem
-Streckenverlauf und wird Richtung Mitte gezogen. Regenbogenpiste: 2 -> 0 Abstuerze in der Regression.
+Streckenverlauf und wird Richtung Mitte gezogen. Sternenbahn: 2 -> 0 Abstuerze in der Regression.
 
 **Regenbogen-Spirale entschaerft:** der kurvige Dreifach-Looping (Radius 22 m, 3 Umdrehungen) drehte die Kamera
 zu schnell - jetzt 28 m Radius mit 2 Umdrehungen.
@@ -412,13 +447,13 @@ zu schnell - jetzt 28 m Radius mit 2 Umdrehungen.
 **Muenzen und Chiptune-Sound:** Die Sporen sind jetzt echte Sporenmuenzen aus Blender (art/r44/create_coin.py:
 gepraegter Pilz, erhabener Rand, ein Material = ein Draw-Call fuer alle) und drehen sich aufrecht. Neue,
 selbst synthetisierte Chiptune-Effekte (art/r44/make_chiptune.mjs, NES-artig: Rechteck 12,5/25/50 %, Dreieck,
-LFSR-Rauschen): Muenze (H5 -> E6), Item-Box, Rundenfanfare, Mini-Turbo in drei Stufen, Turbo, Treffer,
+LFSR-Rauschen): Muenze (H5 -> E6), Item-Box, Rundenfanfare, Drift-Turbo in drei Stufen, Turbo, Treffer,
 Rempler, Banane, Trick, Ring, Raketenstart, Countdown - 15 WAVs, zusammen 270 KB.
 
 **Neue Hindernisse aus Blender (art/r44/create_hazards.py, assets/hazards.glb, eigene Entwuerfe):**
 - **Stampfer** - zorniger Stachel-Steinblock mit Gesicht. Wartet oben (Schatten auf der Bahn wird dunkler, kurzes
   Zittern), kracht herunter (Staub, Wackelkamera), liegt kurz als Hindernis und zieht sich hoch. Wer im Fall darunter
-  ist, wird plattgedrueckt. Regenbogenpiste (drei, wie auf der SNES-Regenbogenstrasse) und Lava-Feste (zwei vor dem Ziel),
+  ist, wird plattgedrueckt. Sternenbahn (drei) und Lava-Feste (zwei vor dem Ziel),
   abwechselnd links und rechts - Spurwahl und Timing entscheiden.
 - **Roehren mit Schnappblume** am Fahrbahnrand (Pilz-Promenade, Neon-Pilzwald): die Pflanze dreht sich zum naechsten
   Kart, lehnt sich heraus und schnappt zu - wer die Kurve zu weit aussen nimmt, wird erwischt. Dazu Roehrengruppen
@@ -471,7 +506,7 @@ thront: ihre Kugelblitze stuerzen von oben herab und fliegen in versetzten Spure
 Der Sprungpilz auf der Bruecke ist weg (haette von der Hochstrasse geschleudert). Ehrlich: die Kurve dort dreht nur
 etwa 60-70 Grad - eine Spirale ueber mehrere Umdrehungen braeuchte einen Umbau der ganzen Streckenfuehrung.
 
-**Pilzland wirklich frei befahrbar:** Abseits der Ringstrasse bremste das Gras auf 12,5 m/s, Querfeldein wurde
+**Wiesnland wirklich frei befahrbar:** Abseits der Ringstrasse bremste das Gras auf 12,5 m/s, Querfeldein wurde
 als Abkuerzung zurueckgesetzt und die Hoehe neben der Strasse aus der Querneigung hochgerechnet (auf 200 m bis zu
 24 m daneben). Jetzt faehrt man ueber die ganze Insel mit 95 % Tempo, der Boden ist flach, nichts setzt zurueck.
 **Sandwege** fuehren von jedem Portal quer ueber die Wiese zum Pilzberg und verbinden alle Gebiete. Neue Mission
@@ -479,13 +514,13 @@ als Abkuerzung zurueckgesetzt und die Hoehe neben der Strasse aus der Querneigun
 einmal und bleibt gespeichert. Test: 116 m Wiese in 5,6 s mit 29 m/s Richtung Pilzberg, Hoehe 0, kein Zuruecksetzen.
 
 **Mehr Erfolgserlebnis - Fahrerstufen, Erfolge, Lackierungen (progress.mjs, 4 Unit-Tests):**
-- Jedes Rennen bringt **XP**: Platzierung (100 bis 28) plus Mini-Turbos (blau 4, rot 8, lila 15), Tricks, Windschatten,
+- Jedes Rennen bringt **XP**: Platzierung (100 bis 28) plus Drift-Turbos (Funken 4, Glut 8, Blitz 15), Tricks, Windschatten,
   Ueberholen, Ringe, +30 ohne Treffer; mal 1 / 1,25 / 1,6 je Klasse. Der Ergebnisschirm zeigt die Aufschluesselung und
   einen XP-Balken, der sich fuellt (auch ueber einen Stufenaufstieg hinweg, mit Chiptune-Fanfare).
 - **Fahrerstufen** schalten neue Lackierungen frei: Blitz (Stufe 2), Lava (3), Wald (5), Bonbon (7), Diamant (10).
 - **23 Erfolge** mit Abzeichen: Erster Sieg, Treppchen, Turbo-Profi, Lila Funken, Combo-Koenig, Unberuehrbar,
-  Luftakrobat, Windschatten-Jaeger, Ueberholkuenstler, Muenzsammler, Raketenstart, 150cc-Champion, Grand-Prix-Sieger,
-  Weltenbummler, Pokalsammler, Achterbahn-Fan, Entdecker (Pilzland) - und je Strecke einer zur eigenen Idee:
+  Luftakrobat, Windschatten-Jaeger, Ueberholkuenstler, Muenzsammler, Raketenstart, Wild-Champion, Grand-Prix-Sieger,
+  Weltenbummler, Pokalsammler, Achterbahn-Fan, Entdecker (Wiesnland) - und je Strecke einer zur eigenen Idee:
   Kuhfluesterer, Wuestenfuchs, Taktgefuehl, Geisterjaeger, Stampfer-Taenzer, Sternenkind.
 - Im Menue zeigt **"ERFOLGE"** Stufe, XP-Balken, alle Erfolge und die Lackierungen mit ihrer Stufe.
 
@@ -497,7 +532,7 @@ einmal und bleibt gespeichert. Test: 116 m Wiese in 5,6 s mit 29 m/s Richtung Pi
   deutlich mehr Schub ("IM TAKT!").
 - **Geisterhaus "Spuk":** Geisterhaende schiessen im ersten Abschnitt aus dem Boden (dunkler Riss als Warnung) und
   packen zu; dazu Gewitter mit Blitz (weisses Aufleuchten) und Donner.
-- **Regenbogenpiste "Sternenstrasse":** Sternschnuppen schlagen mit Warnkreis auf der Bahn ein, dazu die Stampfer
+- **Sternenbahn "Sternenstrasse":** Sternschnuppen schlagen mit Warnkreis auf der Bahn ein, dazu die Stampfer
   und der Sprung ueber den Abgrund. (Eine Mondschwerkraft-Zone war im Test, aber mit dem Gleiter flogen die Karts
   seitlich weg - wieder entfernt.)
 - Die KI weicht Kuehen, Haenden, Einschlagkreisen aus und waehlt an den Schranken die offene Seite.
@@ -587,10 +622,10 @@ Kopflos-Chrome-Screenshots von Startaufstellung vorn/hinten, 71/71 Unit-Tests,
 Rennregression aller sieben Strecken. Blender-MCP war nicht erreichbar (Verbindungs-Timeout),
 deshalb Blender 5.2 ueber die Kommandozeile.
 
-## Runde 42 (24.09.2026): Open World "Pilzland" mit Missionen, lange Boots- und Flugparcours
+## Runde 42 (24.09.2026): Open World "Wiesnland" mit Missionen, lange Boots- und Flugparcours
 
-Neuer Modus **Pilzland** im Menue: eine grosse Insel (680 m Radius) mit einer 3,7 km langen
-Rundstrasse, die die Rennstrecken verbindet - wie in Mario Kart World. Kein Zieleinlauf, frei
+Neuer Modus **Wiesnland** im Menue: eine grosse Insel (680 m Radius) mit einer 3,7 km langen
+Rundstrasse, die die Rennstrecken verbindet. Kein Zieleinlauf, frei
 fahren, Missionen erledigen, Rennen ueber Portale starten.
 
 - **Portale zu allen 7 Rennstrecken:** Torbogen in der Farbe der Strecke mit Namensschild und
@@ -598,7 +633,7 @@ fahren, Missionen erledigen, Rennen ueber Portale starten.
   startet direkt das Rennen. Neben jedem Portal das Wahrzeichen der Strecke (Wurzelbaum,
   Felsen, Neon-Tor, Villa, Burg, Kristalle, Riesenrad), in der Inselmitte der Pilzberg.
 - **Missionen (7, Fortschritt gespeichert):**
-  - **P-Schalter (4x):** Ueberfahren -> 8 blaue Muenzen erscheinen als Schlangenlinie auf der
+  - **Glockenschalter (4x):** Ueberfahren -> 8 Muenzen erscheinen als Schlangenlinie auf der
     Strasse, alle in 22 s einsammeln. Zeit um: Schalter setzt sich nach 3 s zurueck.
   - **Bojen-Slalom (2x):** als Rennboot auf den Fluessen die Bojentore der Reihe nach
     durchfahren; ein verpasstes Tor startet den Slalom neu.
@@ -609,12 +644,12 @@ fahren, Missionen erledigen, Rennen ueber Portale starten.
   auf den Rennstrecken bei laengeren Fluegen).
 - Dazu See mit Tauch-Spirale, Looping, gekruemmte Dreifach-Helix, Wandfahrt und Rundgang.
 - Logik in `ow.mjs` (Tests `ow.test.mjs`), Modelle aus Blender (`art/r41/create_ow_assets.py`,
-  `assets/ow.glb`: P-Schalter mit eindrueckbarer Kappe, Muenze mit Pilz-Emblem).
+  `assets/ow.glb`: Glockenschalter mit eindrueckbarer Kappe, Muenze mit Pilz-Emblem).
 
 Technik: Inselgroesse, Meer, Streufelder, Kulisse und Kart-Inselgrenze haengen jetzt am
 Weltradius je Strecke (Rennstrecken unveraendert 210 m). Bojen als Instanzen (vorher bis 280
-Draw-Calls an langen Fluessen; Pilzland jetzt 150-230). Item-Boxen und Sporen lassen sich auch
-im Flug und auf dem See einsammeln. Autopilot 120 s durch Pilzland: 2,97 km, keine Stuerze, keine
+Draw-Calls an langen Fluessen; Wiesnland jetzt 150-230). Item-Boxen und Sporen lassen sich auch
+im Flug und auf dem See einsammeln. Autopilot 120 s durch Wiesnland: 2,97 km, keine Stuerze, keine
 Fehler; alle 7 Rennstrecken weiter im Ziel. Tests: 71.
 ## Runde 41 (24.09.2026): Fenster im Menuestil, Handy-Menue repariert
 
@@ -640,7 +675,7 @@ Fehler; alle 7 Rennstrecken weiter im Ziel. Tests: 71.
   bricht nicht mehr um; im Rennen zeigt die Kopfleiste nur das Icon, Ton/Pause/Vollbild sind
   einzeilige kleine Knoepfe statt gestreckter Ovale.
 
-## Runde 40 (24.09.2026): Menue im Mario-Kart-World-Stil, Drache durchsichtig, keine Ruckler in Runde 1
+## Runde 40 (24.09.2026): Menue im Arcade-Stil, Drache durchsichtig, keine Ruckler in Runde 1
 
 - **Menue und Schrift:** fette kursive Display-Schrift (Rubik 900) mit dicker dunkler Kontur und
   rotem Versatzschatten, helle Karte mit Zielflaggen-Streifen, schraege Knoepfe (Auswahl
@@ -673,7 +708,7 @@ Wasseroberflaeche spritzt es, jede Verwandlung hat ihren Klang. Teile und Deko a
 - **Geistersee** (Geisterhaus) mit Tauchgang, **Pilzbach** (Pilz-Promenade) als Bootsstrecke.
 - **Flug:** Startrampe mit Leuchtkante, dann traegt die Luft - die Fahrbahn verschwindet,
   Flugringe geben Turbo, Landung auf der Gegenrampe. **Feuerflug** (Lava-Feste) und
-  **Sternenflug** (Regenbogenpiste).
+  **Sternenflug** (Sternenbahn).
 
 **Loopings neu** (`loop.mjs`): Jede Windung ist zur Seite geneigt - Ein- und Ausfahrt laufen
 aneinander vorbei, statt sich zu schneiden (ein ebener Looping mit Ausfahrt vor der Einfahrt
@@ -683,7 +718,7 @@ an die Strasse an. Bis drei Windungen hintereinander ergeben Spiralen, auch in K
 Bahnteilen, im Spiel werden 3,65 bis 5,5 m gemessen. Kart und Kamera folgen der geneigten Bahn.
 Jede Strecke hat ihren eigenen Looping-Charakter: Doppel-Looping (Pilz-Promenade, Geisterhaus,
 Lava-Feste), Looping-Kette aus drei Einzel-Loopings (Sonnen-Canyon), gekruemmte
-Dreifach-Helix (Neon-Pilzwald), Sternenspirale (Regenbogenpiste).
+Dreifach-Helix (Neon-Pilzwald), Sternenspirale (Sternenbahn).
 
 **Laengere Wand- und Ueberkopffahrten:** Rollzonen sind jetzt Folgen aus Drehungen und
 Haltephasen - lange 90-Grad-Wandfahrt, lange Ueberkopffahrt, Wandwechsel ueber Kopf und der
@@ -740,10 +775,10 @@ drehendes **Riesenrad** im Innenfeld (zwoelf Gondeln mit Pilzhut, haengen immer 
 Medaillen 100 / 106 / 117 s.
 
 **Auch auf bestehenden Strecken:** Geisterhaus bekommt Geisterbahn-Wellen hinter der Villa
-(violette Boegen, giftgruenes Leuchten), die Regenbogenpiste eine Sternen-Achterbahn vor dem Ziel
+(violette Boegen, giftgruenes Leuchten), die Sternenbahn eine Sternen-Achterbahn vor dem Ziel
 (Glasbahn ohne Unterseite, keine Stuetzen im All). Rekorde und Geister werden seit dieser Runde
 **nur fuer geaenderte Strecken** verworfen (`TRACK_VER` je Strecke statt globalem `LAYOUT_VER`),
-hier also nur Geisterhaus und Regenbogenpiste.
+hier also nur Geisterhaus und Sternenbahn.
 
 **Blender (MCP, Blender 5.2):** `magnetarch.glb` (Hufeisenmagnet mit Stahl-Polschuhen, Feldringen,
 Blitz-Emblem; 1.332 Dreiecke, 62 KB), `coastertruss.glb` (4-m-Fachwerksegment, im Spiel gestapelt
@@ -780,7 +815,7 @@ als H.264/AAC. Post-Texte je Plattform: `media/social-texte-r38.md`.
 **Verifikation:** 46/46 Unit-Tests (9 neue fuer `coaster.mjs`). Autopilot-Regression auf allen
 sieben Strecken bei 100 ccm: alle im Ziel, 0 JS-Fehler, 0 fehlende Dateien, je Runde eine
 Achterbahn-Wertung auf den drei Achterbahn-Strecken; zusaetzlich 150 ccm auf Geisterhaus,
-Regenbogenpiste und Kirmes. Draw Calls im Rennen 118-183. Fahrt-Screenshots von Katapult, Kuppe
+Sternenbahn und Kirmes. Draw Calls im Rennen 118-183. Fahrt-Screenshots von Katapult, Kuppe
 (Airtime) und Abfahrt sowie des On-Ride-Fotos gesichtet.
 
 ## Runde 37 (23.09.2026): Keyart mit allen Facelift-Assets erneuert
@@ -920,9 +955,9 @@ des alten Modells in art/r29/.
 Augen mit Highlights von Startaufstellungs-Distanz lesbar, Krempe sitzt, keine Clipping- oder
 Renderfehler.
 
-## Runde 28 (22.09.2026): Regenbogenpiste als Glasbahn
+## Runde 28 (22.09.2026): Sternenbahn als Glasbahn
 
-Die Regenbogenpiste ist jetzt halbtransparent: Das Farbband bekommt `transparent:true` bei 80 %
+Die Sternenbahn ist jetzt halbtransparent: Das Farbband bekommt `transparent:true` bei 80 %
 Deckkraft, doppelte Seite und kein Tiefenschreiben - der Sternenhimmel (700 Punkte) scheint
 durch die Fahrbahn, besonders in Kurven, an Kuppen und im Looping (Nutzerwunsch R28). Die
 blickdichte dunkle Unterseite aus frueheren Runden entfiel dafuer; sie haette genau den Blick
@@ -966,7 +1001,7 @@ Autopilot-Runden Neon/Geisterhaus/Lava ohne Zuruecksetzungen.
 ## Runde 26 (21.09.2026): Fahrflow - Kanten-Gnade, offene Looping-Spirale, glatte Rampenflanken
 
 **Die Ursache fuer haengenbleibenden Fahrflow war messbar:** Der Autopilot stuerzte auf dem
-Sonnen-Canyon 429- und auf der Regenbogenpiste 372-mal je Rennen in einen Respawn-Zyklus -
+Sonnen-Canyon 429- und auf der Sternenbahn 372-mal je Rennen in einen Respawn-Zyklus -
 immer an derselben Stelle. Wer eine Schlucht knapp zu kurz sprang, kreuzte die Landekante UNTER
 Kantenniveau, und die Absturzpruefung (y < ground-1.5) lief VOR der Landung: Respawn am
 Rettungspilz, wieder anrollen, wieder zu kurz - Endlosschleife. Menschen merken dasselbe als
@@ -1168,7 +1203,7 @@ Markup, die Funktion war also tot. Jetzt ziehen die Striche wieder vom Bildrand 
 
 **Verifikation:** Alle sechs Strecken im Autopilot bei 100 ccm durchgefahren (89,8 / 144,9 / 83,3
 / 106,4 / 97,6 / 117,5 s), Plaetze 1-5, keine Zuruecksetzungen, 92-157 Draw Calls, 15/15
-Unit-Tests. Medaillenzeiten fuer Neon-Pilzwald, Lava-Feste und Regenbogenpiste neu kalibriert,
+Unit-Tests. Medaillenzeiten fuer Neon-Pilzwald, Lava-Feste und Sternenbahn neu kalibriert,
 `LAYOUT_VER` auf 18.
 
 ## Runde 17 (19.09.2026): Wurzeltor, einseitige Korkenzieher, freie Sicht, lauterer Sound
@@ -1217,7 +1252,7 @@ ElevenLabs: Zuschauerjubel, Turbo, Rundenglocke, Rempler und Driftquietschen.
 
 **Verifikation:** Alle sechs Strecken im Autopilot bei 100 ccm durchgefahren (99,4 / 127,1 /
 98,3 / 108,0 / 95,6 / 123,9 s), Platz 1-5 statt durchweg hinten, 89-158 Draw Calls, 15/15
-Unit-Tests. Medaillenzeiten fuer Sonnen-Canyon, Neon-Pilzwald und Regenbogenpiste neu kalibriert,
+Unit-Tests. Medaillenzeiten fuer Sonnen-Canyon, Neon-Pilzwald und Sternenbahn neu kalibriert,
 `LAYOUT_VER` auf 17.
 
 ## Runde 16 (19.09.2026): Looping neu gebaut, Anti-Grav ohne Ruckeln
@@ -1267,10 +1302,10 @@ und eine Funkenspur bei Ueberkopf-Fahrt.
 
 **Verifikation:** Alle sechs Strecken im Autopilot durchgefahren (99,4 / 122,4 / 100,2 / 93,4 /
 98,3 / 115,0 s bei 150 ccm), KI 0,5–9,3 % neben der Strecke, 49–141 Draw Calls, 15/15 Unit-Tests.
-Medaillenzeiten fuer Sonnen-Canyon und Regenbogenpiste neu kalibriert (die Rundenlaenge hat sich
+Medaillenzeiten fuer Sonnen-Canyon und Sternenbahn neu kalibriert (die Rundenlaenge hat sich
 geaendert, weil der Looping keine 224 m mehr in die Mittellinie einsetzt), `LAYOUT_VER` auf 16.
 
-## Runde 14/15 (19.09.2026): Looping, Regenbogenpiste, ruhigere Fuehrung
+## Runde 14/15 (19.09.2026): Looping, Sternenbahn, ruhigere Fuehrung
 
 **Looping (neu):** Der Sonnen-Canyon hat jetzt ein echtes Looping — 55 m hoch, oben faehrt man
 ueber Kopf. Technisch wird nach der Kurvenglaettung eine 360-Grad-Kehre in Tropfenform in die
@@ -1279,7 +1314,7 @@ diese Kehre senkrecht aufgestellt. Physik und Projektion arbeiten weiter flach, 
 Rest nichts geaendert werden. Punkte, die die Schleife ueberholt, werden aus der Mittellinie
 entfernt — sonst sprang die Linie am Ausgang 40 m zurueck.
 
-**Regenbogenpiste (neu, 6. Strecke):** schwebt frei im Weltall — kein Boden, keine Boeschung, wer
+**Sternenbahn (neu, 6. Strecke):** schwebt frei im Weltall — kein Boden, keine Boeschung, wer
 herunterfaellt, faellt ins Leere. Leuchtende Farbbahn, die langsam wandert, schwebende
 Kristallinseln, Sternenstaub. Mit Korkenzieher, Wandfahrt, Sprung und eigenem Looping.
 
@@ -1293,8 +1328,8 @@ vorher korrigierten zwei Systeme gegeneinander.
 Hochachse und Blickpunkt kommen aus demselben Rahmen und werden durchgehend geglaettet; vorher
 waren es drei Modi mit harten Umschaltern, genau dort ruckte das Bild.
 
-**Gemessen** (Autopilot, 150cc): alle sechs Strecken fahren durch — 94,3 / 140,6 / 88,4 / 101,6 /
-100,8 / 129,4 s, KI 0,1–6,4 % neben der Strecke. Medaillenzeiten fuer Canyon und Regenbogenpiste
+**Gemessen** (Autopilot, Klasse Wild): alle sechs Strecken fahren durch — 94,3 / 140,6 / 88,4 / 101,6 /
+100,8 / 129,4 s, KI 0,1–6,4 % neben der Strecke. Medaillenzeiten fuer Canyon und Sternenbahn
 neu gesetzt, alte Rekorde einmalig verworfen (`LAYOUT_VER=15`).
 
 ## Runde 13 (18.09.2026): Korkenzieher, kein Haengenbleiben, vier Karts
@@ -1315,7 +1350,7 @@ und wer mit Gas laenger als 1,6 Sekunden fast steht, wird automatisch zurueckges
 
 **Drift haelt die Linie:** Seitenhalt im Drift von 2,6 auf 4,4 erhoeht, der Driftwinkel ist bei
 etwa 27 Grad gedeckelt, der Schub nach aussen halbiert, Einstieg ab 9 statt 11 m/s und die
-Mini-Turbos laden schneller (0,55 / 1,15 / 1,9 s statt 0,7 / 1,4 / 2,3 s). Driften traegt jetzt
+Drift-Turbos laden schneller (0,55 / 1,15 / 1,9 s statt 0,7 / 1,4 / 2,3 s). Driften traegt jetzt
 nicht mehr von der Strecke, sondern zieht die Kurve enger.
 
 **Vier Karts statt einem:** Jede Figur faehrt ihr eigenes Kart mit eigenen Werten und eigenem
@@ -1327,7 +1362,7 @@ Ueberrollbuegel), Mochi "Kurvenkatze" (Lenkung +15 %, Diffusor und Seitenschwell
 Item-Box, Bombe) bzw. extrudierte Formen fuer Blitz und Stern — kein Emoji und kein flaches Icon
 mehr.
 
-**Gemessen** (Autopilot, 150cc): alle fuenf Strecken 93,1 / 104,5 / 95,1 / 102,2 / 102,5 s,
+**Gemessen** (Autopilot, Klasse Wild): alle fuenf Strecken 93,1 / 104,5 / 95,1 / 102,2 / 102,5 s,
 Medaillenzeiten neu gesetzt, alte Rekorde einmalig verworfen (`LAYOUT_VER=13`).
 
 ## Runde 12 (18.09.2026): Ruckler am Start behoben, Grafikschalter, Anti-Grav
@@ -1349,7 +1384,7 @@ der Drehung, darunter liegt ein dunkler Kiel. Die Projektion rechnet den verkuer
 Horizontalabstand wieder auf den echten Querabstand zurueck, damit Physik und Optik zusammenpassen.
 Abschnitte: Neon-Pilzwald (75 m, 58°) und Lava-Feste (ca. 48 m, 56°).
 
-**Gemessen** (Autopilot, 150cc, 3 Runden): alle fuenf Strecken fahren durch — 92,2 / 109,9 /
+**Gemessen** (Autopilot, Klasse Wild, 3 Runden): alle fuenf Strecken fahren durch — 92,2 / 109,9 /
 100,8 / 99,8 / 95,6 s, KI 0,3–5,6 % neben der Strecke. Medaillenzeiten fuer Neon-Pilzwald und
 Lava-Feste neu gemessen, alte Rekorde einmalig verworfen (`LAYOUT_VER=12`).
 
@@ -1418,7 +1453,7 @@ Canyon und Geisterhaus haben eine echte Haarnadel bzw. einen schaerferen Haken b
 Medaillenzeiten neu gemessen (85/93/99/92 s Gold), alte Rekorde einmalig verworfen
 (`LAYOUT_VER=10`).
 
-**Gemessen** (Autopilot, 150cc, 3 Runden): alle vier Strecken fahren durch, KI ist 0,1–4,4 % der
+**Gemessen** (Autopilot, Klasse Wild, 3 Runden): alle vier Strecken fahren durch, KI ist 0,1–4,4 % der
 Zeit neben der Strecke; 79–133 Zeichenaufrufe, 205k–370k Dreiecke. Die CPU-Zeit pro Bild war
 waehrend der Messung 48–62 ms — auf diesem Rechner liefen parallel Unreal Editor und Blender, die
 sich die GPU teilen; ohne sie lagen dieselben Szenen in Runde 9 bei 10–22 ms.
@@ -1490,7 +1525,7 @@ Kart- und KI-Farben sind jetzt kraeftiger.
 
 **Neu im Spiel:** **Pilzbombe 💣** (vor allem Mittelfeld-Item): fliegt im Bogen voraus, zischt
 nach der Landung und explodiert nach 1,1 s oder bei Kontakt. Die Druckwelle (6,5 m) schleudert
-Karts hoch und kostet Sporen, das Sternenschild blockt. **Drift-Combo:** Mini-Turbos im Abstand von
+Karts hoch und kostet Sporen, das Herzschild blockt. **Drift-Combo:** Drift-Turbos im Abstand von
 hoechstens 4,5 s zaehlen hoch (×2, ×3 …) und geben je eine Spore. Wiese, Wand oder Treffer setzen
 die Combo zurueck, die beste Combo steht im Ergebnis. Dazu Grasbueschel am Strassenrand je Welt
 und ein Druckwellen-Ring bei Explosionen. Tests: 15 (neu: Bombe, Combo).
@@ -1499,18 +1534,18 @@ und ein Druckwellen-Ring bei Explosionen. Tests: 15 (neu: Bombe, Combo).
 
 **Fahrphysik neu (`core.mjs`):** Das Kart faehrt nicht mehr auf der Strecke entlang, sondern frei
 (Position, Richtung, Geschwindigkeit). Die Strecke wird nur noch fuer Rundenfortschritt und Offroad
-projiziert. Wer nicht lenkt, faehrt geradeaus in die Wiese. Tempo nach Mario-Kart-Vorbild: 30 m/s
+projiziert. Wer nicht lenkt, faehrt geradeaus in die Wiese. Arcade-Tempo: 30 m/s
 Spitze (108 km/h), Turbo 40 m/s. Offroad bremst hart auf 12,5 m/s. Driften ist steuerbar: Gegenlenken
-ergibt einen weiten Bogen, Einlenken einen engen. Mini-Turbos laden in drei Stufen
+ergibt einen weiten Bogen, Einlenken einen engen. Drift-Turbos laden in drei Stufen
 (blau/orange/lila). Karts rempeln sich, Baeume/Felsen/Zaeune sind Hindernisse, grosse Abkuerzungen
 zaehlen nicht. Ein Rettungspilz setzt nach Schluchtstuerzen zurueck.
 
 **KI mit Koennen:** Ideallinie, Pure-Pursuit-Lenkung, Bremspunkte aus einer
-Kurvengeschwindigkeits-Tabelle und Drift-Einsatz je Klasse (50cc/100cc/150cc). Das Gummiband ist
+Kurvengeschwindigkeits-Tabelle und Drift-Einsatz je Klasse (Locker/Flott/Wild). Das Gummiband ist
 nur noch mild, der Spieler startet von Platz 6.
 
 **Erfolgserlebnis:** Klassenwahl, Grand-Prix-Pokale je Klasse, freischaltbares Goldpilz-Kart,
-Sterne (bei Sieg ohne Treffer: „Perfekt"), Ergebnis-Statistik (beste Runde, Mini-Turbos, Tricks,
+Sterne (bei Sieg ohne Treffer: „Perfekt"), Ergebnis-Statistik (beste Runde, Drift-Turbos, Tricks,
 Ringe, Windschatten, Ueberholmanoever, Treffer), Rundenzeiten-Einblendung. **Zeitfahren 👻**: Deine
 Bestfahrt wird aufgezeichnet und faehrt als Geist mit; im HUD steht der Abstand zum Geist, dazu
 Gold-/Silber-/Bronze-Medaillen je Strecke.
@@ -1562,7 +1597,7 @@ Rennmusik, eine Siegesfanfare (`sfx/jingle.mp3`) spielt, danach setzt die Menue-
 Die alten Loops (`race_own.wav`, `menu_own.wav`) liegen noch im Ordner, werden aber nicht geladen.
 
 **Sprecher (ElevenLabs TTS, Stimme "Leo", deutsch):** 14 Ansagen unter `assets/audio/voice/`
-(Start, Runde 2, letzte Runde, Turbo, Volltreffer, Autsch, Banane, Sternenschild, Fuehrung,
+(Start, Runde 2, letzte Runde, Turbo, Volltreffer, Autsch, Banane, Herzschild, Fuehrung,
 Sieg/Podium/Ziel, Bestzeit, Willkommen). Sie laufen als WebAudio-Puffer; die Musik wird waehrend
 einer Ansage abgesenkt (Zeitstempel statt `onended`). Wichtige Ansagen werden von Item-Rufen nicht
 unterbrochen, zwei wichtige laufen nacheinander. Web-Speech bleibt nur als Ersatz, falls eine Datei fehlt.
@@ -1571,10 +1606,10 @@ unterbrochen, zwei wichtige laufen nacheinander. Web-Speech bleibt nur als Ersat
 (Platz 1–3). Solange ein Puffer noch nicht dekodiert ist, greift die alte WebAudio-Synthese.
 
 **Neue Item-Modelle (Blender-MCP, Blender 5.2):** `assets/banana.glb` (Bananenschale, 3 Materialien)
-und `assets/shell.glb` (Such-Panzer mit Sechseck-Flecken). Der Such-Panzer fliegt jetzt sichtbar
+und `assets/shell.glb` (Such-Brezn mit Sechseck-Flecken). Der Such-Brezn fliegt jetzt sichtbar
 entlang der Strecke zum Ziel; der Treffer (Dreher) wirkt erst bei Ankunft. **Auch die KI legt jetzt
 Bananen und schiesst Panzer auf den Spieler** — Bananen treffen jeden ausser dem Leger (Spieler
-1,5 s Dreher, KI 2 s), das Sternenschild wehrt beides ab. Kamerawackler bei Treffern, Ansage
+1,5 s Dreher, KI 2 s), das Herzschild wehrt beides ab. Kamerawackler bei Treffern, Ansage
 "Du fuehrst!" beim Uebernehmen von Platz 1.
 
 **Mobile Hochformat:** Touch-Tasten in zwei Vollbreiten-Reihen; Runde/Zeit sitzen rechts oben, damit
@@ -1693,8 +1728,8 @@ Im Projektordner `npm start` ausfuehren und http://127.0.0.1:4218 oeffnen. Node.
 ## Steuerung
 
 - **Tastatur:** WASD / Pfeiltasten: Gas, Bremse, Lenken. Shift: Hops; beim Lenken halten = Drift, loslassen =
-  Mini-Turbo (blau → rot → lila); in der Luft Shift = Trick-Turbo. Leertaste oder Item-Feld: Item. P / Escape:
-  Pause. R: auf die Strecke zuruecksetzen. Enter: Start im Menue, Portal im Pilzland.
+  Drift-Turbo (Funken → Glut → Blitz); in der Luft Shift = Trick-Turbo. Leertaste oder Item-Feld: Item. P / Escape:
+  Pause. R: auf die Strecke zuruecksetzen. Enter: Start im Menue, Portal im Wiesnland.
 - **Controller:** Stick/Steuerkreuz lenken, A/RT Gas, B/LT Bremse, LB/RB Hops & Drift, X/Y Item, START Pause,
   VIEW zuruecksetzen; im Menue Steuerkreuz fuer Strecke und Klasse, LB/RB Modus, A los.
 - **Handy:** hochkant Ein-Hand-Wischsteuerung (wischen = lenken, tippen = Hops, weit wischen = Drift, nach oben =
@@ -1703,11 +1738,11 @@ Im Projektordner `npm start` ausfuehren und http://127.0.0.1:4218 oeffnen. Node.
 
 ## Umfang
 
-Sieben Rennstrecken (Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald, Geisterhaus, Lava-Feste, Regenbogenpiste,
-Magnet-Kirmes) mit je eigener Idee, dazu die Open World "Pilzland" mit Missionen. Modi: Rennen, Grand Prix,
-Zeitfahren (Geist und Medaillen) und Pilzland; Klassen 50/100/150cc und Spiegel-Modus. Vier Fahrerfiguren (Pilzi,
+Sieben Rennstrecken (Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald, Geisterhaus, Lava-Feste, Sternenbahn,
+Magnet-Kirmes) mit je eigener Idee, dazu die Open World "Wiesnland" mit Missionen. Modi: Rennen, Grand Prix,
+Zeitfahren (Geist und Medaillen) und Wiesnland; Klassen Locker/Flott/Wild und Spiegel-Modus. Vier Fahrerfiguren (Pilzi,
 Schildi, Volt, Mochi) mit eigenem Kart und eigenen Werten, acht Karts je Rennen, drei Runden. Neun Items: Turbo,
-Dreifach-Turbo, Such-Panzer, Banane, Sternenschild, Pilzbombe, Gewitterwolke, Riesenpilz, Tintenpilz. Loopings,
+Dreifach-Turbo, Such-Brezn, Banane, Herzschild, Pilzbombe, Gewitterwolke, Riesenwuchs, Tintenpilz. Loopings,
 Achterbahnen, Elemente-Parcours (Boot, Tauchboot, Flugzeug), Wetter und Tageszeit von Runde zu Runde, Rivale je
 Rennen, Tagesaufgabe, Fahrerstufen mit XP, 32 Erfolge und freischaltbare Lackierungen. Kein Multiplayer und keine
 native Store-App.
@@ -1718,6 +1753,6 @@ unter `vendor/`, keine Build-Installation und keine CDN-Abhaengigkeit fuer das S
 ## Verifikation
 
 `npm test` (Node) prueft Fahrphysik, Drift-Turbo, Items, Zieleinlauf, Achterbahn, Loopings, Elemente, Hindernisse,
-Pilzland-Missionen, Fortschritt/Erfolge, Controller-Belegung und Wetterplan (zusammen 110 Tests). Im Browser
+Wiesnland-Missionen, Fortschritt/Erfolge, Controller-Belegung und Wetterplan (zusammen 110 Tests). Im Browser
 liefert `?test=1` die Test-Schnittstelle `window.rallyTest` (Rennen starten, Zeit vorspulen, Wetter erzwingen,
 Standbilder); damit laufen die Autopilot-Rennen und Bildvergleiche. Das ersetzt keinen menschlichen Langzeit-Spieltest.

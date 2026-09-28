@@ -1,4 +1,4 @@
-// Mushroom Rally R50: Wetter und Tageszeit wechseln von Runde zu Runde.
+// Wiesn Kart R50: Wetter und Tageszeit wechseln von Runde zu Runde.
 // Reine Funktionen (im Spiel und in Tests genutzt): Wetterplan je Rennen, Ueberblendung am Rundenwechsel,
 // Lichtstimmung aus Thema + Mischung, Grip und Wind. Das Spiel setzt die Werte nur noch in Szene und Ton um.
 export const TOD_KEYS=['day','dusk','night','dawn'];
@@ -11,10 +11,10 @@ export const WX_ICON={day:'☀',dusk:'🌇',night:'🌙',dawn:'🌅',clear:'',cl
  bloodmoon:'🌕',batswarm:'🦇',wisps:'👻',comet:'💫',eruption:'💥'};
 // Je Thema: moegliche Tageszeit-Folgen, Wetter und Ereignisse. Dunkle Themen (Nacht, Gruft, All, Lava)
 // behalten ihre Tageszeit und wechseln nur Wetter und Ereignisse. Beim Canyon ist "day" der Sonnenuntergang.
-//  forest  Pilz-Promenade/Pilzland: Ballonfestival, Alpengluehen, Regenbogen, Gluehwuermchen
+//  forest  Pilz-Promenade/Wiesnland: Ballonfestival, Alpengluehen, Regenbogen, Gluehwuermchen
 //  canyon  Sonnen-Canyon: UFO und Sonnenfinsternis        fair  Magnet-Kirmes: Feuerwerk, Luftballons
 //  night   Pilz-Wiesn: Himmelslaternen, Polarlicht         haunted  Geisterhaus: Blutmond, Fledermaus-Schwarm, Irrlichter
-//  rainbow Regenbogenpiste: Sternschnuppen, Komet          lava  Lava-Feste: Vulkanausbruch
+//  rainbow Sternenbahn: Sternschnuppen, Komet          lava  Lava-Feste: Vulkanausbruch
 export const WX_THEMES={
  forest:{tods:[['day','day','dusk'],['day','dusk','night'],['dawn','day','day'],['day','day','day'],['dusk','night','night']],wx:['clear','clouds','rain','storm','fog','snow'],ev:['balloons','alpenglow','rainbow','fireflies']},
  canyon:{tods:[['day','day','night'],['day','night','night'],['day','day','day'],['dawn','day','day']],wx:['clear','clouds','sand','storm'],ev:['ufo','eclipse']},

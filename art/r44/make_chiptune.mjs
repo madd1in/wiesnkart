@@ -126,25 +126,27 @@ report.push(wav('unlock', render(.6, [{type: 'sq', duty: .125, steps: [[0, note(
 // Akkorde C - As - B - C (bVI-bVII-I, "heldenhaft"), Rechteck-Arpeggio mit NES-Echo eine Sechzehntel spaeter,
 // Gegenstimme in halben Takten, Dreieck-Bass im Oktavsprung, Rauschen als Hi-Hat und Snare. Jede Note endet
 // in ihrer Huellkurve bei null - die Schleife knackt nicht an der Nahtstelle.
+// R54 (Wiesn Kart): statt der "heldenhaften" Stern-Schleife eine eigene Wiesn-Polka fuer den Lebkuchen-Schild -
+// F-Dur, 2/4, Achtel bei 150 bpm (6 Takte, 4,8 s): eigene Melodie, Umpa-Bass (Grundton/Quinte auf den Schlaegen),
+// Nachschlag-Akkorde auf den Offbeats, Becken-Rauschen auf der Eins. Jede Note endet bei null, die Naht knackt nicht.
 {
-  const E = 60 / 200 / 2, voices = [];
+  const E = 60 / 150 / 2, voices = [];
   const seq = (list, mk) => { let t = 0; for (const [n, len] of list) { if (n) voices.push(mk(n, t, len * E)); t += len * E; } return t; };
-  const lead = [['E6', 1], ['G6', 1], ['C7', 1], ['G6', 1], ['E6', 1], ['G6', 1], ['C7', 2],
-    ['C7', 1], ['G#6', 1], ['D#6', 1], ['G#6', 1], ['C7', 1], ['D#7', 1], ['C7', 2],
-    ['D7', 1], ['A#6', 1], ['F6', 1], ['A#6', 1], ['D7', 1], ['F7', 1], ['D7', 1], ['C7', 1],
-    ['C7', 1], ['G6', 1], ['E6', 1], ['G6', 1], ['C7', 1], ['E7', 1], ['G7', 1], [null, 1]];
-  const loop = seq(lead, (n, at, len) => ({type: 'sq', duty: .25, f0: note(n), at, len, vol: .2, hold: .45, decay: 1.3}));
-  // Echo: gleiche Linie, 12,5 % Tastgrad, eine Sechzehntel spaeter und leiser (die letzte Note faellt weg)
-  seq(lead.slice(0, -2), (n, at, len) => ({type: 'sq', duty: .125, f0: note(n), at: at + E / 2, len, vol: .07, hold: .3, decay: 1.6}));
-  seq([['C6', 4], ['E6', 4], ['D#6', 4], ['C6', 4], ['F6', 4], ['D6', 4], ['E6', 4], ['G6', 4]],
-    (n, at, len) => ({type: 'sq', duty: .5, f0: note(n), at, len, vol: .075, attack: .01, hold: .75, decay: 1.2}));
-  const bass = []; for (const [lo, hi] of [['C3', 'C4'], ['G#2', 'G#3'], ['A#2', 'A#3'], ['C3', 'C4']]) for (let i = 0; i < 4; i++) bass.push([lo, 1], [hi, 1]);
-  bass.splice(-2, 2, ['G2', 1], ['G3', 1]);
-  seq(bass, (n, at, len) => ({type: 'tri', f0: note(n), at, len, vol: .34, hold: .6, decay: 1}));
-  for (let i = 0; i < 32; i++) {
-    voices.push({type: 'noise', f0: 11000, short: true, at: i * E, len: E * .45, vol: i % 2 ? .035 : .055, decay: 2.4});
-    if (i % 4 === 2) voices.push({type: 'noise', f0: 2600, at: i * E, len: E * .9, vol: .12, decay: 1.8});
-  }
+  const lead = [['A5', 1], ['C6', 1], ['A5', 1], ['F5', 1], ['G5', 1], ['A5', 1], ['A#5', 1], ['G5', 1],
+    ['E5', 1], ['G5', 1], ['C6', 1], ['A#5', 1], ['A5', 1], ['G5', 1], ['F5', 2],
+    ['F5', 1], ['A5', 1], ['C6', 1], ['F6', 1], ['E6', 1], ['C6', 1], ['F6', 2]];
+  const loop = seq(lead, (n, at, len) => ({type: 'sq', duty: .5, f0: note(n), at, len, vol: .18, hold: .5, decay: 1.2, vib: [6, .004]}));
+  // Umpa: Bass (Dreieck) auf 1 und 2, Akkord-Nachschlag (Rechteck 12,5 %) auf den Offbeats
+  const chords = [['F2', 'C3', ['A4', 'C5', 'F5']], ['C3', 'G2', ['G4', 'A#4', 'E5']], ['C3', 'G2', ['G4', 'A#4', 'E5']],
+    ['F2', 'C3', ['A4', 'C5', 'F5']], ['F2', 'C3', ['A4', 'C5', 'F5']], ['C3', 'F2', ['A4', 'C5', 'F5']]];
+  chords.forEach(([root, fifth, triad], bar) => {
+    const t0 = bar * 4 * E;
+    voices.push({type: 'tri', f0: note(root), at: t0, len: E * .9, vol: .36, hold: .5, decay: 1.1});
+    voices.push({type: 'tri', f0: note(fifth), at: t0 + 2 * E, len: E * .9, vol: .32, hold: .5, decay: 1.1});
+    for (const off of [1, 3]) for (const n of triad) voices.push({type: 'sq', duty: .125, f0: note(n), at: t0 + off * E, len: E * .55, vol: .045, hold: .3, decay: 1.6});
+    voices.push({type: 'noise', f0: 9000, short: true, at: t0, len: E * .6, vol: .05, decay: 2.2});
+    voices.push({type: 'noise', f0: 2400, at: t0 + 2 * E, len: E * .5, vol: .07, decay: 2});
+  });
   report.push(wav('star', render(loop, voices)));
 }
 // R45 Riesenpilz: wachsen - wippendes Aufwaerts-Arpeggio (Grundton/Quinte im Wechsel), Dreieck-Bass eine Oktave tiefer

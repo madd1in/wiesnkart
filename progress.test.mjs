@@ -38,7 +38,7 @@ test('achievement ids are unique and every entry has a name and a description', 
   for (const a of ACH) assert.ok(a.n && a.d && typeof a.t === 'function');
 });
 
-test('daily challenge: same task all day, valid track and class, win only in 50/100cc', () => {
+test('daily challenge: same task all day, valid track and class, win only in the two easier classes', () => {
   const a = dailyChallenge('2026-09-25'), b = dailyChallenge('2026-09-25');
   assert.deepEqual(a, b);
   const seen = new Set();
