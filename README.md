@@ -33,6 +33,9 @@ Anzeige im Ergebnis. Neue Erfolge **Freihändig** (Sieg ohne Lenkhilfe), **Blitz
 Messung mit `art/r55/difficulty.mjs` (Autopilot = guter Spieler ohne Lenkhilfe): Locker Sieg mit 100-370 m Vorsprung,
 Flott Platz 2-3 knapp hinter dem Rivalen (2-3 s), Wild Platz 7-8.
 
+**Wiesnland im Vordergrund** - der Modus-Knopf hat jetzt einen eigenen Look (gruen, Riesenrad), online ist
+Wiesnland die Voreinstellung. Beim Beitreten zeigt die Lobby, dass die Suche bis zu 20 s dauern kann.
+
 **Kleinigkeiten** - Lebkuchenherz-Muenze und Glocke leuchteten noch blau (altes Material-Leuchten aus R41 blieb beim
 Wiederverwenden in Blender erhalten; `blib.material` setzt das Leuchten jetzt zurueck, `ow.glb` neu exportiert).
 

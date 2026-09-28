@@ -3756,7 +3756,7 @@ Promise.race([protoAll,new Promise(r=>setTimeout(r,9000))]).finally(()=>{protoRe
 // Browser spielt ihn nach, getroffen wird aber nur, wer im eigenen Browser gefahren wird.
 const NET_APP='wiesnkart-r55',
  // feste Relay-Auswahl: grosse, stabile Nostr-Relays (in der Standard-Auswahl fuer diese App-ID waren zwei defekt)
- NET_RELAYS=['wss://nos.lol','wss://relay.damus.io','wss://relay.primal.net','wss://nostr.mom','wss://purplerelay.com','wss://nostr.data.haus'];
+ NET_RELAYS=['wss://relay.damus.io','wss://nos.lol','wss://relay.primal.net','wss://nostr.mom','wss://relay.snort.social','wss://offchain.pub','wss://nostr.oxtr.dev','wss://purplerelay.com','wss://nostr.data.haus'];
 const cleanName=s=>String(s??'').replace(/[^\p{L}\p{N} _.\-!?]/gu,'').replace(/\s+/g,' ').trim().slice(0,12);
 const clampInt=(v,a,b)=>Math.max(a,Math.min(b,Math.floor(Number(v)||0)));
 const myNetName=()=>cleanName(store.get('netName',''))||'Fahrer';
@@ -3774,14 +3774,14 @@ async function netOpen(code,host){netLeave(true);netMsg('Verbinde …');
   net.peers.set(peerId,{n:cleanName(d.n)||'Gast',d:clampInt(d.d,0,DRIVERS.length-1),c:clampInt(d.c,0,KART_COLORS.length-1)});if(net.host)netLobby();netRenderLobby();};
  A.lobby.onMessage=(d,{peerId})=>{if(!net||net.host||!d||!Array.isArray(d.p))return;net.hostId=peerId;
   net.lobby={p:d.p.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1)})),w:d.w==='race'?'race':'world',t:clampInt(d.t,0,courses.length-1),cc:[50,100,150].includes(d.cc)?d.cc:100};
-  const mine=net.lobby.p.find(q=>q.id===net.selfId);net.mySlot=mine?mine.s:-1;netMsg(mine?'':'Raum ist voll – du schaust zu.');netRenderLobby();};
+  const mine=net.lobby.p.find(q=>q.id===net.selfId);net.mySlot=mine?mine.s:-1;netMsg(mine?'Verbunden!':'Raum ist voll – du schaust zu.');netRenderLobby();};
  A.setup.onMessage=(d,{peerId})=>{if(!net||net.host||peerId!==net.hostId||!d||!Array.isArray(d.p))return;netStart(d);};
  A.ready.onMessage=(d,{peerId})=>{if(!net?.host)return;net.ready.add(peerId);netMaybeGo();};
  A.go.onMessage=(d,{peerId})=>{if(net&&peerId===net.hostId)net.go=true;};
  A.st.onMessage=(d,{peerId})=>netRecvState(d,peerId);
  A.item.onMessage=(d,{peerId})=>netRecvItem(d,peerId);
  if(host){net.what=store.get('netWhat','world');net.track=clampInt(selected===WORLD_IDX?lastRaceSel:selected,0,courses.length-1);netLobby();netMsg('Raum offen – schick den Link an deine Freunde.');}
- else netMsg('Verbunden – warte auf den Host …');
+ else{netMsg('Suche den Raum … das kann bis zu 20 Sekunden dauern.');const me0=net;setTimeout(()=>{if(net===me0&&!net.lobby)netMsg('Noch kein Host gefunden – Code prüfen oder den Host bitten, den Raum offen zu lassen.');},35000);}
  try{history.replaceState(null,'',netUrl(code));}catch{}netRenderLobby();}
 addEventListener('pagehide',()=>{try{net?.room.leave();}catch{}});
 function netLeave(silent){if(!net)return;try{net.room.leave();}catch{}for(const r of racers)r.net=false;net=null;
