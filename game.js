@@ -203,6 +203,15 @@ const flameMat=new T.MeshBasicMaterial({color:0xffa531,transparent:true,opacity:
 // Bremslichter am Heck - sichtbar auch an den KI-Karts
 const brakeMat=new T.MeshBasicMaterial({color:0xff2a18,transparent:true,opacity:.92,blending:T.AdditiveBlending,depthWrite:false});
 const brakeGeo=new T.BoxGeometry(.34,.16,.1);
+// R53 Ruecklichter (Nutzerwunsch): nachts, auf dunklen Strecken, im Gewitter und im Tunnel gluehen alle Karts hinten rot,
+// dazu ein weicher Lichtschein; beim Bremsen leuchtet das Bremslicht zusaetzlich hell darueber.
+const tailMat=new T.MeshBasicMaterial({color:0xff3322,transparent:true,opacity:.7,blending:T.AdditiveBlending,depthWrite:false});tailMat.visible=false;
+const tailGeo=new T.BoxGeometry(.3,.13,.08),tailHaloGeo=new T.PlaneGeometry(2.2,.8);
+const tailHaloMat=new T.MeshBasicMaterial({map:canvasTex(64,32,q=>{for(const x of [18,46]){const g=q.createRadialGradient(x,16,0,x,16,16);g.addColorStop(0,'rgba(255,90,70,1)');g.addColorStop(.4,'rgba(255,40,30,.45)');g.addColorStop(1,'rgba(255,0,0,0)');q.fillStyle=g;q.fillRect(0,0,64,32);}}),transparent:true,opacity:.5,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide});tailHaloMat.visible=false;
+function addTailLights(g){for(const x of [-.62,.62]){const t=new T.Mesh(tailGeo,tailMat);t.position.set(x,.84,-2.2);t.renderOrder=3;g.add(t);}const h=new T.Mesh(tailHaloGeo,tailHaloMat);h.position.set(0,.84,-2.34);h.rotation.y=Math.PI;h.renderOrder=3;g.add(h);}
+// Wie dunkel ist es gerade? Dunkle Themen immer, sonst Nacht/Daemmerung/Finsternis/Gewitter aus dem Wetter, dazu Tunnel
+function nightK(){if(theme&&(theme.stars||theme.lavaSea))return 1;const m=wxM;const w=m?(m.night||0)+(m.dusk||0)*.5+(m.eclipse||0)*.8+(m.storm||0)*.35:0;return Math.min(1,w+(tunnelMix||0));}
+function tailTick(){const k=nightK(),on=k>.04;tailMat.visible=tailHaloMat.visible=on;if(on){tailMat.opacity=.35+.5*k;tailHaloMat.opacity=.55*k;}}
 const shieldGeo=new T.SphereGeometry(1.75,24,16),flameGeo=new T.ConeGeometry(.28,1.3,8);flameGeo.rotateX(-Math.PI/2);flameGeo.translate(0,0,-.65);
 // R45: Schild der Rivalen - nur ein duenner Randschimmer statt gefuellter Blase, und je naeher an der Kamera, desto
 // durchsichtiger (vorher verdeckte eine Blase direkt vor dem Spieler die halbe Fahrbahn)
@@ -589,7 +598,7 @@ function kart(color,goldLook=false,dtype=0){let g;if(P.kart){g=new T.Group();con
  const shield=new T.Mesh(shieldGeo,shieldMat);shield.position.y=1;shield.visible=false;g.add(shield);
  const flames=[-.45,.45].map(x=>{const f=new T.Mesh(flameGeo,flameMat);f.position.set(x,.72,-1.72);f.visible=false;g.add(f);return f;});
  // Bremslichter: man sieht dem Vordermann an, wann er vom Gas geht
- const brakes=[-.62,.62].map(x=>{const b=new T.Mesh(brakeGeo,brakeMat);b.position.set(x,.62,-1.6);b.visible=false;g.add(b);return b;});
+ const brakes=[-.62,.62].map(x=>{const b=new T.Mesh(brakeGeo,brakeMat);b.position.set(x,.84,-2.19);b.visible=false;g.add(b);return b;});addTailLights(g);
  // Anti-Grav-Unterlicht: additive Glowflaeche unterm Kart, sichtbar nur in Rollzonen -
  // rollt als Kind des Mesh automatisch mit und zeigt das Magnetfeld, das das Kart traegt.
  if(!UG_MAT){UG_MAT=new T.MeshBasicMaterial({map:canvasTex(64,64,(q)=>{const r0=q.createRadialGradient(32,32,4,32,32,30);r0.addColorStop(0,'rgba(255,255,255,.95)');r0.addColorStop(.45,'rgba(140,245,255,.5)');r0.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=r0;q.fillRect(0,0,64,64);}),color:0x9feaff,transparent:true,opacity:.55,blending:T.AdditiveBlending,depthWrite:false});}
@@ -622,7 +631,9 @@ function buildKartInstances(types){kartInst=null;if(!types||!types.length||!P.ka
 function kartVirtual(color,slot){const g=new T.Group(),wheels=[];for(const [x,y,z,s,w] of WHEEL_SLOTS){const piv=new T.Group(),wh=new T.Object3D();piv.position.set(x,y,z);wh.rotation.order='YXZ';if(x>0)wh.rotation.y=Math.PI;wh.scale.set(w,s,s);piv.add(wh);g.add(piv);wheels.push({piv,wh,front:z>0,r:y,dir:x>0?-1:1});}
  const driver=new T.Object3D();driver.position.set(0,.95,-.35);g.add(driver);
  const shield=new T.Mesh(shieldGeo,shieldMat);shield.position.y=1;shield.visible=false;g.add(shield);const flames=[-.45,.45].map(x=>{const f=new T.Mesh(flameGeo,flameMat);f.position.set(x,.72,-1.72);f.visible=false;g.add(f);return f;});
- g.userData={parts:{wheels,driver},shield,flames,slot};attachGlider(g,color);attachTransform(g,color);
+ // R53: auch KI-Karts haben Brems- und Ruecklichter (vorher nur der Spieler)
+ const brakes=[-.62,.62].map(x=>{const b=new T.Mesh(brakeGeo,brakeMat);b.position.set(x,.84,-2.19);b.visible=false;g.add(b);return b;});addTailLights(g);
+ g.userData={parts:{wheels,driver},shield,flames,brakes,slot};attachGlider(g,color);attachTransform(g,color);
  const paint=(list,i)=>{for(const p of list)if(p.paint){p.im.setColorAt(i,_col.setHex(color));p.im.instanceColor.needsUpdate=true;}};
  const bm=kartInst.bmap[slot];if(bm)paint(bm.g.meshes,bm.i);const dm=kartInst.dmap[slot];if(dm)paint(dm.g.meshes,dm.i);return g;}
 function syncKartInstances(){if(!kartInst)return;for(const r of racers){const u=r.mesh.userData;if(u.slot===undefined)continue;r.mesh.updateMatrixWorld(true);const i=u.slot;
@@ -1369,7 +1380,12 @@ function buildDragon(c){const src=P.dragon;dragon=null;if(!src)return;
  for(const m of dm){m.transparent=true;m.opacity=1;}
  dragon={head,jaw,eye,d1,fireT:0,cd:0,roarT:0,t:0,mats:[...dm],meshes,alpha:1,zone:{s:c.s,span:c.span}};}
 // Feuer und Kiefer (animateWorld): der Drache speit, wenn der Spieler auf den Korkenzieher-Ausgang zufaehrt
-function updateDragon(dt){const g=dragon;if(!g)return;g.t+=dt;g.cd=Math.max(0,g.cd-dt);
+// R53: nachts leuchtet der Drache - Schuppen, Flossen und Hoerner gluehen in ihrer eigenen Farbe, die Augen heller
+const dragonEm0=new WeakMap();
+function dragonGlow(g){const k=nightK();if(Math.abs(k-(g.glowK??-1))<.01)return;g.glowK=k;
+ for(const m of g.mats){if(!m.emissive)continue;let b=dragonEm0.get(m);if(!b){b={c:m.emissive.clone(),i:m.emissiveIntensity};dragonEm0.set(m,b);}
+  const eye=m.name==='DragonEye',tooth=m.name==='DragonTooth'||m.name==='DragonMouth';m.emissive.copy(b.c).lerp(eye?b.c:m.color,eye?0:k);m.emissiveIntensity=b.i+k*(eye?2.2:tooth?.25:.7);}}
+function updateDragon(dt){const g=dragon;if(!g)return;g.t+=dt;g.cd=Math.max(0,g.cd-dt);dragonGlow(g);
  {const p=racers[0],race=state==='race'||state==='countdown'||state==='finished';let want=1;
   if(p&&race&&g.zone){const rel=lapDist(p.distance-g.zone.s);if(rel<g.zone.span+15||lapDist(g.zone.s-p.distance)<30)want=.12;}
   if(Math.abs(want-g.alpha)>.002){g.alpha+=(want-g.alpha)*Math.min(1,dt*4);if(Math.abs(want-g.alpha)<.004)g.alpha=want;
@@ -3193,6 +3209,7 @@ function animateWorld(dt,now){wxTick(dt,now);updateDizzy(now);updateRival();if(s
   if(g.mesh.instanceColor)g.mesh.instanceColor.needsUpdate=true;}
  if(ferris)updateFerris(dt,now);
  if(deco)updateDeco(dt,now);
+ tailTick();
  if(dragon)updateDragon(dt);
  if(elemFx)updateElems(dt,now);
  // Energie-Kristalle: langsame Eigendrehung und Schwebe-Bob
@@ -3529,7 +3546,11 @@ function wxTick(dt,now){const live=state==='race'||state==='countdown'||state===
  const uw=elemFx&&elemFx.uw>0,f=scene.fog;
  if(!uw){const key=L.skyTop+'|'+L.skyBottom;if(key!==wxSkyKey){wxSkyKey=key;wxSky(L.skyTop,L.skyBottom);}scene.background=wxSkyTex;if(f){f.color.setHex(L.fog);f.near=L.fogNear;f.far=L.fogFar;}}
  wxFlash=Math.max(0,wxFlash-dt*3.2);hemi.color.setHex(L.hemiSky);hemi.intensity=L.hemiInt*(1+wxFlash*1.8*calmK());sun.color.setHex(L.sunCol);sun.intensity=L.sunInt;
- wxExp=L.exposure;wxHead=L.head;if(tunnelMix<=.002){renderer.toneMappingExposure=wxExp;headlight.intensity=wxHead;}
+ wxExp=L.exposure;wxHead=L.head;
+ // R53 Kirmes bei Nacht (Nutzerhinweis "wirkt nachts so dunkel"): Lichterglanz von Buden, Riesenrad und Achterbahn -
+ // Umgebungslicht bleibt heller und warm-rosa, dazu ein bunter Fuelllicht-Schein und etwas mehr Belichtung
+ if(course.theme==='fair'){const n=Math.min(1,(m.night||0)+(m.dusk||0)*.4);if(n>.01){hemi.intensity*=1+n*1.25;hemi.color.lerp(_col.setHex(0xffc8ee),n*.4);fill.color.setHex(0xff7ad0);fill.intensity=theme.fillInt+n*1.5;wxExp+=n*.14;}else{fill.color.setHex(theme.fillCol);fill.intensity=theme.fillInt;}}
+ if(tunnelMix<=.002){renderer.toneMappingExposure=wxExp;headlight.intensity=wxHead;}
  stars.visible=L.stars>.02;stars.material.opacity=.95*L.stars;moon.visible=L.moon>.02;moon.material.opacity=L.moon;sunGlow.visible=L.sunGlow>.02;sunGlow.material.opacity=L.sunGlow;
  // Fahrphysik fuer alle gleich: nasse Fahrbahn, Windboeen
  wxGripMul=wxGrip(m);wxWindA=wxWind(m,elapsed);

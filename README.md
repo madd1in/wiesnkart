@@ -67,6 +67,11 @@ Viewport-Screenshot), Playwright-MCP (Fahrtests und Bilder). 147/147 Tests.
 - **Pilz-Promenade oefter mit Ereignis:** Regenbogen auch in einer Regenrunde am Tag (Sonne und Regen), Ereignis-Chance
   90 % - jetzt 78 % der Rennen mit Ereignis (vorher 58 %); der Regenbogen bleibt im Regen sichtbar.
 - Liegende Zauber des Besen-Zauberers verschwinden beim Neustart und im Menue.
+- **Ruecklichter:** Nachts, auf den dunklen Strecken, im Gewitter und im Tunnel gluehen alle Karts hinten rot (mit
+  weichem Lichtschein); Brems- und Ruecklichter sitzen jetzt an der echten Heckkante (vorher steckten die Bremslichter
+  im Blech) und auch die KI-Karts haben sie.
+- **Drache leuchtet nachts** (Magnet-Kirmes): Schuppen, Stacheln, Bauch und Hoerner gluehen in ihrer Farbe, die Augen hell.
+- **Kirmes bei Nacht heller:** warm-rosa Budenlicht im Umgebungslicht, bunter Fuelllicht-Schein, etwas mehr Belichtung.
 
 ## Runde 52 (27.09.2026): Halfpipes, Minimal-HUD hochkant und Layout-Feinschliff
 
