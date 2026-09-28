@@ -1162,7 +1162,8 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin .race-top small{display:none}
  body.hudmin .race-top strong{font-size:24px;line-height:1}
  body.hudmin .race-top em{font-size:15px}
- body.hudmin .race-top>div:nth-child(2),body.hudmin #wxStrip,body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
+ body.hudmin .race-top>div:nth-child(2),body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
+ body.hudmin #wxStrip{left:50%;transform:translateX(-50%);top:calc(100% + 4px);font-size:12px;padding:2px 9px;gap:4px;background:#15133a8c}
  body.hudmin #lap:before{content:'🏁 ';font-size:15px;-webkit-text-stroke:0;vertical-align:3px}
  /* Zeitfahren: Zeit und Geist bleiben (ohne Runde), Pilzland: Kopfkasten ganz weg */
  body.hudmin #hud.tt .race-top>div:nth-child(2){display:block!important}
@@ -1200,7 +1201,8 @@ body #ttDelta.ahead{color:#7dffa8}body #ttDelta.behind{color:#ff8a7a}
  body.hudmin .race-top small{display:none}
  body.hudmin .race-top strong{font-size:24px;line-height:1}
  body.hudmin .race-top em{font-size:15px}
- body.hudmin .race-top>div:nth-child(2),body.hudmin #wxStrip,body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
+ body.hudmin .race-top>div:nth-child(2),body.hudmin #gpBadge,body.hudmin #ttMedal{display:none!important}
+ body.hudmin #wxStrip{left:50%;transform:translateX(-50%);top:calc(100% + 4px);font-size:12px;padding:2px 9px;gap:4px;background:#15133a8c}
  body.hudmin #lap:before{content:'🏁 ';font-size:15px;-webkit-text-stroke:0;vertical-align:3px}
  body.hudmin #hud.tt .race-top>div:nth-child(2){display:block!important}
  body.hudmin #hud.tt .race-top>div:first-child{display:none!important}

@@ -37,7 +37,7 @@ test('dark themes keep their time of day, space has no rain', () => {
 test('events fit the sky: rainbows follow rain, eclipses happen in clear daylight, no ufo in a thunderstorm', () => {
   let rainbows = 0, ufos = 0;
   for (const th of THEMES) for (const p of plans(th)) p.forEach((s, i) => {
-    if (s.ev === 'rainbow') { rainbows++; assert.ok(['rain', 'storm'].includes(p[i - 1].wx) && s.tod !== 'night'); }
+    if (s.ev === 'rainbow') { rainbows++; assert.ok((['rain', 'storm'].includes(p[i - 1].wx) && s.tod !== 'night') || (s.wx === 'rain' && s.tod === 'day')); }
     if (s.ev === 'eclipse') assert.ok(s.tod === 'day' && s.wx === 'clear');
     if (s.ev === 'ufo') { ufos++; assert.notEqual(s.wx, 'storm'); }
     if (s.ev === 'fireflies') assert.ok(s.tod === 'dusk' || s.tod === 'night');

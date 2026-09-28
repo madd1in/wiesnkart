@@ -24,7 +24,7 @@ export const WX_THEMES={
  rainbow:{tods:[['day','day','day']],wx:['clear'],ev:['meteors','comet']},
  lava:{tods:[['day','day','day']],wx:['clear','ash','storm'],ev:['eruption']}};
 // Wie oft eine Runde ab Runde 2 ein Ereignis bekommt (passt keins, bleibt sie ohne)
-export const EV_CHANCE=.8;
+export const EV_CHANCE=.9;
 
 // Kleiner reproduzierbarer Zufall (mulberry32)
 export function rng(seed){let a=(seed>>>0)||1;return ()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
@@ -37,7 +37,7 @@ const NEXT={clear:{clear:2,clouds:3,rain:2,fog:1.2,snow:.6,sand:3,ash:3,storm:.6
 // Passt ein Ereignis zu Tageszeit und Wetter einer Runde? (prev = Vorrunde, fuer den Regenbogen nach dem Regen)
 export function evFits(themeKey,e,s,prev){const dark=s.tod==='night'||!['forest','canyon','fair'].includes(themeKey),calm=s.wx==='clear'||s.wx==='clouds';
  switch(e){
-  case 'rainbow':return calm&&(prev?.wx==='rain'||prev?.wx==='storm')&&s.tod!=='night';
+  case 'rainbow':return (calm&&(prev?.wx==='rain'||prev?.wx==='storm')&&s.tod!=='night')||(s.wx==='rain'&&s.tod==='day');
   case 'aurora':case 'meteors':case 'comet':return dark&&s.wx!=='storm'&&s.wx!=='rain'&&s.wx!=='fog'&&s.wx!=='ash';
   case 'fireflies':return (s.tod==='dusk'||s.tod==='night')&&calm;
   case 'eclipse':return s.tod==='day'&&s.wx==='clear'&&!dark;

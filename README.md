@@ -55,6 +55,19 @@ Dazu Windfahnen aus Blender (`windsock.glb`) am Rand der ersten drei Strecken.
 MCP-Einsatz: Blender-MCP (alle drei neuen Modellpakete in der offenen Blender-Sitzung, eigene Szenen, Vorschau per
 Viewport-Screenshot), Playwright-MCP (Fahrtests und Bilder). 147/147 Tests.
 
+**Nachschliff (Nutzerhinweise):**
+- **Kein Zittern mehr beim Verkeilen:** Sanfte Beruehrungen (unter 4 m/s Relativtempo, z. B. Auffahren im Pulk) sind
+  jetzt unelastisch - beide Karts fahren danach mit gleichem Normaltempo weiter, statt jedes Bild neu abzuprallen; nur
+  harte Stoesse prallen wie bisher. Die KI beachtet erstmals andere Karts: langsameres Kart dicht voraus -> auf der
+  freieren Seite vorbei, sonst dessen Tempo mitfahren; nebeneinander haelt sie 2,9 m Abstand. Messung mit festem
+  Zeitschritt (20 s Autopilot-Start, alt live gegen neu): Kontakt-Bilder -65 % (Pilz-Promenade) bzw. -52 % (Kirmes),
+  Ruck-Spitzen waehrend Kontakten -57 % bzw. -81 %. core.mjs +1 Test.
+- **Wetter-/Ereignis-Leiste wieder sichtbar** - im Minimal-HUD klein unter der Runden-Pille (sie war mit ausgeblendet,
+  dadurch wirkten die Runden-Ereignisse "weg").
+- **Pilz-Promenade oefter mit Ereignis:** Regenbogen auch in einer Regenrunde am Tag (Sonne und Regen), Ereignis-Chance
+  90 % - jetzt 78 % der Rennen mit Ereignis (vorher 58 %); der Regenbogen bleibt im Regen sichtbar.
+- Liegende Zauber des Besen-Zauberers verschwinden beim Neustart und im Menue.
+
 ## Runde 52 (27.09.2026): Halfpipes, Minimal-HUD hochkant und Layout-Feinschliff
 
 **Halfpipes** (halfpipe.mjs, 9 Unit-Tests): U-foermige Abschnitte mit flachem Boden und Viertelkreis-Waenden

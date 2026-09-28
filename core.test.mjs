@@ -15,6 +15,12 @@ test('hop without holding the button stays a hop; a new press is needed for the 
  run(k,.1,{gas:true,steer:1});driveKart(k,1/60,{gas:true,steer:1,drift:true});run(k,HOP_T+.05,{gas:true,steer:1,drift:true});assert.equal(k.driftDir,1);});
 test('corner speed table: tight corners need braking, drifting allows more',()=>{assert.equal(maxCornerSpeed(0),99);const tight=maxCornerSpeed(1/15),wide=maxCornerSpeed(1/60);assert.ok(tight<wide);assert.ok(maxCornerSpeed(1/15,true)>tight);assert.ok(wide>=PHYS.top-.5);});
 test('progress follows the track and ignores shortcuts',()=>{const k=racer(0,'A',0);k.distance=990;advanceProgress(k,5,1000);assert.equal(k.distance,1005);advanceProgress(k,300,1000);assert.equal(k.distance,1005);advanceProgress(k,1,1000);assert.equal(k.distance,1001);});
+test('R53: gentle bumps do not bounce - both karts leave with the same normal speed (no jitter in traffic)',()=>{
+ const a=racer(0,'A',0),b=racer(1,'B',0);a.vz=22;b.z=2.3;b.vz=20;assert.ok(collideKarts(a,b));
+ assert.ok(Math.abs(a.vz-b.vz)<1e-9,'same speed after a soft rear-end contact');assert.ok(Math.abs(a.vz+b.vz-42)<1e-9,'momentum kept');
+ assert.ok(b.z-a.z>=2.39,'pushed apart');
+ const c=racer(2,'C',0),d=racer(3,'D',0);c.vz=30;d.z=2;d.vz=5;collideKarts(c,d);assert.ok(d.vz>c.vz,'hard hits still bounce');
+});
 test('kart collision separates and trades momentum',()=>{const a=racer(0,'A',0),b=racer(1,'B',0);a.vz=20;b.z=2;b.vz=5;assert.ok(collideKarts(a,b));assert.ok(b.z-a.z>=2.39);assert.ok(b.vz>5&&a.vz<20);});
 test('items: shell targets next racer, shield protects, triple lasts three uses',()=>{const a=racer(0,'A',0),b=racer(1,'B',1);b.distance=100;a.item='shell';activate(a,[a,b]);assert.equal(a.item,null);assert.ok(b.stun>0);b.stun=0;b.shield=3;a.item='shell';activate(a,[a,b]);assert.equal(b.stun,0);const r=racer(2,'C',0);r.item='triple';r.charges=3;for(let i=0;i<3;i++){r.boost=0;assert.equal(activate(r,[r]).type,'triple');assert.ok(r.boost>0);}assert.equal(r.item,null);});
 test('leaders never get triple turbo, last place gets more boosts',()=>{assert.equal(itemWeights(1,8).triple,0);const lead=itemWeights(1,8),last=itemWeights(8,8);assert.ok(last.boost+last.triple>lead.boost*3);let seq=0;const rnd=()=>((seq=(seq*9301+49297)%233280)/233280);for(let i=0;i<500;i++)assert.notEqual(rollItem(1,8,rnd),'triple');});

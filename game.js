@@ -2000,6 +2000,8 @@ function updateDeco(dt,now){
   for(const im of B.parts)im.instanceMatrix.needsUpdate=true;}
  if(deco.kamek)updateKamek(dt);}
 function updateKamek(dt){const k=deco.kamek,p=racers[0];if(!p)return;const racing=state==='race';
+ // Menue, Countdown, Ziel: liegende Zauber raeumen (sonst schweben sie beim naechsten Start noch in der Luft)
+ if(!racing&&state!=='paused'&&k.spells.length){for(const s of k.spells)world.remove(s.m);k.spells.length=0;k.castT=KAMEK.warmup;}
  const want=racing&&!isTT()&&inSection(k.sec,p.distance,length);k.show=clamp(k.show+(want?dt*.8:-dt*.6),0,1);k.t+=dt;k.g.visible=k.show>.01;
  if(k.g.visible){const d=p.distance+KAMEK.lead,off=Math.sin(k.t*.7)*KAMEK.sway,s=sample(d,off),gy=groundAt(d,off).y;
   k.g.position.set(s.p.x,(Number.isFinite(gy)?Math.max(0,gy):0)+KAMEK.height+Math.sin(k.t*2.1)*.5+(1-k.show)*(1-k.show)*30,s.p.z);
@@ -2324,7 +2326,14 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
   for(const q of desert.pits){const ahead=wrapDiff(q.d,r.distance);if(ahead>-12&&ahead<45&&Math.sign(q.off)*line>2)line=Math.sign(q.off)*2;}}
  if(hz){for(const st of hz.stampers){const ahead=wrapDiff(st.d,r.distance);if(ahead>0&&ahead<40&&Math.abs(st.off-line)<4.6){const a=stamperState(elapsed+ahead/Math.max(sp,5),st.ph);if(a.y<3||a.phase==='fall')line=st.off>0?st.off-5.4:st.off+5.4;}}
   for(const m of hz.missiles){if(m.d===undefined)continue;const ahead=wrapDiff(m.d,r.distance);if(ahead>0&&ahead<45&&Math.abs(m.off-line)<2.6)line=m.off>line?m.off-3.4:m.off+3.4;}}
- if(onFork){const fa=forkAt(r.distance+look);if(fa)line=fa.off;}else line=clamp(line,-6,6);
+ // R53 Verkehr (Nutzerhinweis "Karts verkeilen sich fuzzy"): nicht mehr stur auffahren. Langsameres Kart dicht voraus:
+ // auf der freieren Seite vorbei; wer noch direkt dahinter klemmt, faehrt dessen Tempo mit. Nebeneinander: Abstand halten.
+ let follow=Infinity;
+ if(!onFork)for(const q of racers){if(q===r||q.finishTime!==null||q.air)continue;const ahead=wrapDiff(q.distance,r.distance),lat=q.offset-r.offset;
+  if(ahead>0&&ahead<10+sp*.2&&Math.abs(lat)<2.6&&q.speed<sp+.5){const side=Math.abs(q.offset)>1.5?-Math.sign(q.offset):(lat>=0?-1:1);
+   line=clamp(q.offset+side*3.4,-6.2,6.2);if(ahead<5.5&&Math.abs(lat)<2.2)follow=Math.min(follow,Math.max(0,q.speed)+.4);}
+  else if(Math.abs(ahead)<=3&&Math.abs(lat)<2.9)line=q.offset-(lat===0?(r.id%2?1:-1):Math.sign(lat))*2.9;}
+ if(onFork){const fa=forkAt(r.distance+look);if(fa)line=fa.off;}else line=clamp(line,-6.2,6.2);
  // Halfpipe (R52): je nach Koennen sucht sich ein KI-Fahrer eine Wand und zielt ueber die Lippe; nach dem Air
  // wechselt er die Seite oder bleibt unten (halfpipeStep). Ziel flach gerechnet - im Bild liegt die Wand woanders.
  const hzA=hpipes.length?hpAt(r.distance+look):null;
@@ -2342,6 +2351,7 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
 
  // Bahnuebergang (R44): ist der Zug bei Ankunft auf dem Uebergang, abbremsen und warten
  if(trainFx)for(const c of trainFx.crossings){const ahead=wrapDiff(c.d,r.distance);if(ahead>0&&ahead<55){const ta=ahead/Math.max(sp,4),fr=((trainFx.s+trainFx.speed*ta-c.s)%trainFx.len+trainFx.len)%trainFx.len;if(fr<34||fr>trainFx.len-8)target=Math.min(target,ahead<14?0:6);}}
+ if(!gapAhead)target=Math.min(target,follow);
  const gas=sp<target-.3,brake=sp>target+2.5&&!gapAhead;
  // Drift: nur bei langen Kurven; Radius per Gegenlenken regeln; Ladestufe je Koennen, Release wenn die Kurve oeffnet
  let drift=false;r.driftCd=Math.max(0,r.driftCd-dt);
@@ -3548,7 +3558,7 @@ function wxTick(dt,now){const live=state==='race'||state==='countdown'||state===
  // Himmelsereignisse
   // Himmelsbilder stehen in der Blickrichtung, in der sie auftauchen (sonst oft hinter der Kamera), und bleiben dort fest
  const skyDir=(o,on)=>{if(!on){o.userData.dir=undefined;return false;}if(o.userData.dir===undefined)o.userData.dir=camH;return true;};
- wxBow.visible=skyDir(wxBow,(m.rainbow||0)>.02);if(wxBow.visible){const a=wxBow.userData.dir,cy=(p.y||0)-10;wxBow.material.uniforms.uAmt.value=m.rainbow*(1-wxOc(m));wxBow.position.set(cam.x+Math.sin(a)*340,cy,cam.z+Math.cos(a)*340);wxBow.lookAt(cam.x,cy,cam.z);}
+ wxBow.visible=skyDir(wxBow,(m.rainbow||0)>.02);if(wxBow.visible){const a=wxBow.userData.dir,cy=(p.y||0)-10;wxBow.material.uniforms.uAmt.value=m.rainbow*(1-wxOc(m)*.45);wxBow.position.set(cam.x+Math.sin(a)*340,cy,cam.z+Math.cos(a)*340);wxBow.lookAt(cam.x,cy,cam.z);}
  const au=m.aurora||0;for(const a of wxAurora){a.visible=skyDir(a,au>.02);if(!a.visible)continue;const k=a.userData.k,ang=a.userData.dir+k*2.1;a.material.uniforms.uTime.value=t+k*7;a.material.uniforms.uAmt.value=au*(k?.75:1);a.position.set(cam.x+Math.sin(ang)*430,(p.y||0)+95+k*18,cam.z+Math.cos(ang)*430);a.lookAt(cam.x,(p.y||0)+120,cam.z);}
  const me=m.meteors||0;for(const s of wxMeteors){const u=s.userData;if(u.t<0){if(me>.3&&Math.random()<dt*.9){const a=Math.random()*TAU,r=380;u.p.set(cam.x+Math.sin(a)*r,190+Math.random()*90,cam.z+Math.cos(a)*r);u.v.set(-Math.sin(a)*.4+(Math.random()-.5),-.45,-Math.cos(a)*.4+(Math.random()-.5)).normalize().multiplyScalar(260);u.t=.9;}else{s.visible=false;continue;}}
   u.t-=dt;u.p.addScaledVector(u.v,dt);if(u.t<0){s.visible=false;continue;}s.visible=true;s.position.copy(u.p);_wv1.copy(u.p).project(camera);_wv2.copy(u.p).addScaledVector(u.v,-.2).project(camera);

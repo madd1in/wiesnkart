@@ -72,7 +72,10 @@ export function maxCornerSpeed(kappa,drift=false){if(kappa<1e-4)return 99;let lo
 export function advanceProgress(k,lapD,length){const prev=((k.distance%length)+length)%length;let d=lapD-prev;if(d>length/2)d-=length;if(d<-length/2)d+=length;if(Math.abs(d)<25)k.distance+=d;return d;}
 export function hitKart(k,stun,keep){k.stun=Math.max(k.stun,stun);k.vx*=keep;k.vz*=keep;k.driftDir=0;k.drift=0;k.combo=0;}
 // Zwei Karts als Kreise: auseinanderschieben und Impuls entlang der Normalen tauschen (leicht elastisch).
-export function collideKarts(a,b,rad=1.2){const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);if(d>=rad*2||d<1e-6)return false;const nx=dx/d,nz=dz/d,pen=rad*2-d;a.x-=nx*pen/2;a.z-=nz*pen/2;b.x+=nx*pen/2;b.z+=nz*pen/2;const rel=(b.vx-a.vx)*nx+(b.vz-a.vz)*nz;if(rel<0){const j=-rel*.65;a.vx-=nx*j;a.vz-=nz*j;b.vx+=nx*j;b.vz+=nz*j;}return true;}
+// R53 gegen das Zittern im Pulk: sanfte Beruehrungen (Auffahren, Nebeneinander) sind unelastisch - beide haben danach
+// dasselbe Normaltempo und kleben kurz aneinander, statt jedes Bild erneut abzuprallen; nur harte Stoesse prallen zurueck.
+export const BUMP=Object.freeze({soft:4,e:.3});
+export function collideKarts(a,b,rad=1.2){const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);if(d>=rad*2||d<1e-6)return false;const nx=dx/d,nz=dz/d,pen=rad*2-d;a.x-=nx*pen/2;a.z-=nz*pen/2;b.x+=nx*pen/2;b.z+=nz*pen/2;const rel=(b.vx-a.vx)*nx+(b.vz-a.vz)*nz;if(rel<0){const e=-rel<BUMP.soft?0:BUMP.e,j=-rel*(1+e)/2;a.vx-=nx*j;a.vz-=nz*j;b.vx+=nx*j;b.vz+=nz*j;}return true;}
 export function flattenSmall(a,b,rel){const sa=(a.shrink||0)>0,sb=(b.shrink||0)>0;if(sa===sb||rel<4)return null;const s=sa?a:b;if(s.shield>0||(s.flatCd||0)>0)return null;hitKart(s,1.2,.35);s.flatCd=1.5;return s;}
 export function lap(r,length){return clamp(Math.floor(Math.max(0,r.distance)/length)+1,1,LAPS);}
 export function finish(r,length,time){if(r.distance>=length*LAPS&&r.finishTime===null)r.finishTime=time;return r.finishTime!==null;}
