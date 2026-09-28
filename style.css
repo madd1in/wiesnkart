@@ -1312,3 +1312,14 @@ body #online .on-sub,body #online #onWait,body #online #onStatus,body #online .o
 body #menu #modes .mode[data-mode="world"]{background:linear-gradient(180deg,#6fdc8c,#2f9e57);color:#fff;border-color:#fff;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
 body #menu #modes .mode[data-mode="world"] b:before{content:'🎡 ';-webkit-text-stroke:0}
 body #menu #modes .mode[data-mode="world"].selected{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange))}
+/* R55 Titel "Suppa Oktoberfest Karts": laenger als "Wiesn Kart" - kleiner, darf umbrechen */
+body .menu-title{font-size:clamp(28px,3.3vw,46px);line-height:1;letter-spacing:-.5px}
+body .loader-card b{font-size:clamp(20px,4vw,30px);text-align:center}
+/* R55 Herzerl-Schlacht: Anzeige oben mittig (Herzen, Mitspieler, Zeit) */
+#battleHud{position:fixed;left:50%;top:max(64px,calc(env(safe-area-inset-top) + 58px));transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:10px;padding:6px 16px;border-radius:999px;background:#14264ad9;color:#fff;box-shadow:0 4px 0 #0005;pointer-events:none;font-family:var(--wk-font)}
+#battleHud[hidden]{display:none}
+#battleHud b{font-style:italic;font-weight:900;font-size:13px;letter-spacing:.5px;color:#ffc83a}
+#battleHud span{font-size:22px;color:#ff4a5a;text-shadow:0 2px 0 #5a1c10;letter-spacing:2px}
+#battleHud small{font-size:12px;font-weight:800;opacity:.9}
+body #online #onQuick{background:linear-gradient(180deg,#5fd88a,#1f9a4b);font-size:18px}
+body #online #onWhat{flex-wrap:wrap}

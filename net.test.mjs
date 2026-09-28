@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeCode, normCode, CODE_CHARS, toLocal, toGlobal, assignSlots, packKart, unpackKart, F, snapBuf, pushSnap, sampleSnap, MAX_PLAYERS, EXTRAP_MS} from './net.mjs';
+import {makeCode, normCode, CODE_CHARS, toLocal, toGlobal, assignSlots, packKart, unpackKart, F, snapBuf, pushSnap, sampleSnap, MAX_PLAYERS, EXTRAP_MS, HEARTS, HIT_GRACE, battleHit, battleResult} from './net.mjs';
 
 test('room codes: fixed length, only unambiguous characters, input is normalised', () => {
   let a = 0;
@@ -66,6 +66,29 @@ test('interpolation: linear between packets, heading takes the short way, short 
   assert.ok(late.distance <= 110 + 20 * EXTRAP_MS / 1000 + 1e-9, 'extrapolation is capped');
   assert.equal(late.stale, true);
   assert.equal(sampleSnap(snapBuf(), 0), null);
+});
+
+test('battle: heavy hits cost a heart once, light bumps do not, grace period protects', () => {
+  const r = {hearts: HEARTS, stun: 0};
+  r.stun = .45; assert.equal(battleHit(r, 0, 10), false, 'wall bump');
+  r.stun = 1.6; assert.equal(battleHit(r, .45, 10), true, 'shell');
+  assert.equal(r.hearts, HEARTS - 1);
+  assert.equal(battleHit(r, 1.6, 10.1), false, 'same hit, stun not rising');
+  r.stun = 2; assert.equal(battleHit(r, .2, 10.5), false, 'grace period');
+  r.stun = 1.3; assert.equal(battleHit(r, 0, 10 + HIT_GRACE + .1), true);
+  r.stun = 1.3; assert.equal(battleHit(r, 0, 20), true);
+  assert.equal(r.hearts, 0);
+  r.stun = 1.3; assert.equal(battleHit(r, 0, 30), false, 'no hearts left');
+  assert.equal(unpackKart(packKart({...r, x: 0, z: 0, h: 0, distance: 0, hearts: 2}, 3)).hearts, 2);
+  assert.equal(unpackKart(packKart({x: 0, z: 0, h: 0, distance: 0}, 3)).hearts, null, 'no battle');
+});
+
+test('battle: last kart with hearts wins, time-up picks the most hearts, ties are a draw', () => {
+  assert.deepEqual(battleResult([{id: 0, hearts: 2}, {id: 1, hearts: 0}, {id: 2, hearts: 0}], false), {done: true, winner: 0});
+  assert.deepEqual(battleResult([{id: 0, hearts: 2}, {id: 1, hearts: 1}], false), {done: false, winner: null});
+  assert.deepEqual(battleResult([{id: 0, hearts: 2}, {id: 1, hearts: 1}], true), {done: true, winner: 0});
+  assert.deepEqual(battleResult([{id: 0, hearts: 1}, {id: 1, hearts: 1}], true), {done: true, winner: null});
+  assert.deepEqual(battleResult([{id: 0, hearts: 0}, {id: 1, hearts: 0}], false), {done: true, winner: null});
 });
 
 test('buffer keeps order with equal arrival times and stays bounded', () => {

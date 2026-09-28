@@ -5,8 +5,28 @@
 //    Browser sieht sich selbst als Fahrer 0 - lokal werden der eigene Platz und Platz 0 einfach getauscht.
 //  - Zustandspakete: jedes Kart wird von genau einem Browser gefahren (Spieler selbst, Bots vom Host) und
 //    ~15-mal pro Sekunde als kurzes Zahlen-Array verschickt; Empfaenger zeigen es ~110 ms verzoegert interpoliert.
-export const NET_VER = 1, MAX_PLAYERS = 8, SEND_HZ = 15, INTERP_MS = 110, EXTRAP_MS = 180, WRAP_JUMP = 200;
+//  - Herzerl-Schlacht (Wiesnland): jedes Kart hat drei Lebkuchenherzen, ein Treffer (Item, Stampfer ...) kostet eins,
+//    wer keine mehr hat, schaut zu; es gewinnt, wer zuletzt noch Herzen hat (oder nach Ablauf die meisten).
+export const NET_VER = 2, MAX_PLAYERS = 8, SEND_HZ = 15, INTERP_MS = 110, EXTRAP_MS = 180, WRAP_JUMP = 200;
 export const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+// Treffer zaehlt ab dieser Betaeubung (Wand 0,45, Kuh 0,6 und Schranke 0,4 zaehlen nicht); danach kurz unverwundbar
+export const HEARTS = 3, HIT_STUN = .75, HIT_GRACE = 1.6, BATTLE_SECS = 180;
+
+/** Hat das Kart in diesem Schritt ein Herz verloren? stunBefore = Betaeubung im letzten Schritt, now = Spielzeit (s). */
+export function battleHit(r, stunBefore, now) {
+  const s = r.stun || 0;
+  if (!(r.hearts > 0) || s < HIT_STUN || s <= (stunBefore || 0) + .2 || (r.bInv || 0) > now) return false;
+  r.hearts--; r.bInv = now + HIT_GRACE;
+  return true;
+}
+/** Ende der Runde? list = [{id, hearts}]. Sieger: letzter mit Herzen, bei Zeitablauf die meisten (Gleichstand: keiner). */
+export function battleResult(list, timeUp) {
+  const alive = list.filter(q => q.hearts > 0);
+  if (list.length > 1 && alive.length <= 1) return {done: true, winner: alive.length ? alive[0].id : null};
+  if (!timeUp) return {done: false, winner: null};
+  const best = Math.max(...list.map(q => q.hearts || 0)), top = list.filter(q => (q.hearts || 0) === best);
+  return {done: true, winner: top.length === 1 ? top[0].id : null};
+}
 
 export function makeCode(rnd = Math.random, n = 5) {
   let s = '';
@@ -43,7 +63,8 @@ export function assignSlots(guests, prev = new Map()) {
 export const F = Object.freeze({drift: 1, driftR: 2, boost: 4, air: 8, stun: 16, shield: 32, mega: 64, shrink: 128, brake: 256, glide: 512, ink: 1024});
 const r2 = v => Math.round(v * 100) / 100, r3 = v => Math.round(v * 1000) / 1000;
 
-/** Kart -> [Platz, x, y, z, Blickrichtung, Tempo, Streckenmeter, Querversatz, Flags, Drift-Stufe 0-3, Zielzeit oder -1] */
+/** Kart -> [Platz, x, y, z, Blickrichtung, Tempo, Streckenmeter, Querversatz, Flags, Drift-Stufe 0-3, Zielzeit oder -1,
+ *  Herzen in der Herzerl-Schlacht oder -1] */
 export function packKart(r, slot, driftLvl = 0) {
   let f = 0;
   if (r.driftDir) f |= F.drift | (r.driftDir > 0 ? F.driftR : 0);
@@ -56,12 +77,13 @@ export function packKart(r, slot, driftLvl = 0) {
   if (r.braking) f |= F.brake;
   if (r.gliding) f |= F.glide;
   if (r.ink > 0) f |= F.ink;
-  return [slot, r2(r.x), r2(r.y || 0), r2(r.z), r3(r.h), Math.round((r.speed || 0) * 10) / 10, r2(r.distance), r2(r.offset || 0), f, driftLvl | 0, r.finishTime == null ? -1 : r2(r.finishTime)];
+  return [slot, r2(r.x), r2(r.y || 0), r2(r.z), r3(r.h), Math.round((r.speed || 0) * 10) / 10, r2(r.distance), r2(r.offset || 0), f, driftLvl | 0, r.finishTime == null ? -1 : r2(r.finishTime), Number.isFinite(r.hearts) ? r.hearts | 0 : -1];
 }
 export function unpackKart(a) {
   if (!Array.isArray(a) || a.length < 9 || !a.slice(0, 9).every(Number.isFinite)) return null;
-  const [slot, x, y, z, h, speed, distance, offset, flags, lvl = 0, fin = -1] = a;
-  return {slot, x, y, z, h, speed, distance, offset, flags, lvl: lvl | 0, fin: Number.isFinite(fin) && fin >= 0 ? fin : null};
+  const [slot, x, y, z, h, speed, distance, offset, flags, lvl = 0, fin = -1, hearts = -1] = a;
+  return {slot, x, y, z, h, speed, distance, offset, flags, lvl: lvl | 0, fin: Number.isFinite(fin) && fin >= 0 ? fin : null,
+    hearts: Number.isFinite(hearts) && hearts >= 0 ? Math.min(HEARTS, hearts | 0) : null};
 }
 
 const wrapA = a => Math.atan2(Math.sin(a), Math.cos(a));

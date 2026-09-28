@@ -87,7 +87,8 @@ export function weatherMix(plan,prog){const n=plan.length,p=Number.isFinite(prog
 export function lerpHex(a,b,t){t=Math.min(1,Math.max(0,t));const c=(s)=>[(s>>16)&255,(s>>8)&255,s&255],A=c(a),B=c(b);return A.map((x,k)=>Math.round(x+(B[k]-x)*t)).reduce((s,x)=>s*256+x,0);}
 export const scaleHex=(a,k)=>lerpHex(0,a,k);
 const TOD_LOOK={dusk:{skyTop:0x2a2f7a,skyBottom:0xff9a5c,fog:0xe0937a,sunCol:0xff9050,sunK:.6,hemiSky:0xffa888,hemiK:.64,exp:1.04,head:45,L:.62},
- night:{skyTop:0x03061c,skyBottom:0x1b2a5c,fog:0x18204a,sunCol:0x9fb6ff,sunK:.28,hemiSky:0x7d8cff,hemiK:.48,exp:1.3,head:95,L:.16},
+ // R55 (Nutzerhinweis "Wueste nachts zu schlecht beleuchtet"): heller Vollmond, mehr Umgebungslicht und Belichtung
+ night:{skyTop:0x03061c,skyBottom:0x1b2a5c,fog:0x1c2654,sunCol:0xaec2ff,sunK:.38,hemiSky:0x8a98ff,hemiK:.72,exp:1.42,head:110,L:.16},
  dawn:{skyTop:0x4d7ad8,skyBottom:0xffc4a4,fog:0xf0c8bc,sunCol:0xffcfa0,sunK:.82,hemiSky:0xffe0d0,hemiK:.9,exp:1.08,head:18,L:.85}};
 
 // Lichtstimmung: base = Themawerte (skyTop, skyBottom, fog, fogNear, fogFar, exposure, hemiSky, hemiInt, sunCol,
