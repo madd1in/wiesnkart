@@ -1312,3 +1312,98 @@ body #online .on-sub,body #online #onWait,body #online #onStatus,body #online .o
 body #menu #modes .mode[data-mode="world"]{background:linear-gradient(180deg,#6fdc8c,#2f9e57);color:#fff;border-color:#fff;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
 body #menu #modes .mode[data-mode="world"] b:before{content:'🎡 ';-webkit-text-stroke:0}
 body #menu #modes .mode[data-mode="world"].selected{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange))}
+/* R56: Die Kopfleiste ist ein unsichtbarer Streifen ueber die ganze Breite (z-index 5). Quer auf dem Handy lag er ueber
+   Online-Knopf, Modus-Knoepfen und der oberen Streckenreihe - Tippen dort landete im Leeren. Nur ihre Knoepfe fangen Klicks. */
+header{pointer-events:none}
+header a,header button{pointer-events:auto}
+body:not(.racing):not(.cer) header .brand{pointer-events:none}
+/* R56: Lobby-Tafel passt ohne Scrollen. Hochkant lief die 500-px-Karte rechts aus dem Bild (Link teilen und Rennen
+   abgeschnitten); im Raum ist sie ab 700 px Breite zweispaltig: links Name, Code und Spieler, rechts die Einstellungen.
+   Quer auf dem Handy steht der Titel mit in der linken Spalte, damit alles in ~350 px Hoehe passt. */
+body #online .online-card{width:min(500px,calc(100vw - 32px))}
+body #online .on-head .eyebrow{display:block}
+body #online #onPlayers{grid-template-columns:1fr 1fr;margin:10px 0 0}
+body #online #onPlayers li{font-size:14px;min-width:0;padding:6px 10px;display:flex}
+body #online #onPlayers li b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+body #online #onPlayers li.bot{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+body #online .on-side #onClose{width:100%}
+body #online .on-side #onLeave{width:100%}
+/* Code-Zeile schrumpft mit (die Rasterspalte war so breit wie Eingabefeld + Knopf und schob beide rechts hinaus);
+   Status bricht nur lange Links um, nicht jedes Wort ("dau-ern") */
+body #online #onStart{grid-template-columns:minmax(0,1fr)}
+body #online .on-join input{width:0;min-width:0}
+body #online #onStatus{word-break:normal;overflow-wrap:anywhere}
+@media (max-width:359px){body #online #onPlayers{grid-template-columns:1fr}}
+@media (min-width:700px){
+ body #online .online-card.in-room{width:min(860px,calc(100vw - 40px));display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"head head" "main side";column-gap:26px;align-items:start}
+ body #online .in-room .on-head{grid-area:head}
+ body #online .in-room .on-main{grid-area:main}
+ body #online .in-room .on-side{grid-area:side;padding-top:10px}
+ body #online .in-room #onWhat{margin-top:0}
+ body #online .in-room .on-code b{font-size:26px}
+}
+@media (min-width:560px) and (orientation:landscape) and (max-height:560px){
+ body #online.modal{padding:10px}
+ body #online .online-card{padding:20px 20px 14px;max-height:calc(100dvh - 20px)}
+ body #online .online-card.in-room{width:min(860px,calc(100vw - 24px));display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"head side" "main side";grid-template-rows:auto 1fr;column-gap:20px;align-items:start}
+ body #online .in-room .on-head{grid-area:head}
+ body #online .in-room .on-main{grid-area:main}
+ body #online .in-room .on-side{grid-area:side;padding-top:4px}
+ body #online .in-room .on-sub{display:none}
+ body #online h2{font-size:24px;margin:2px 0 8px;-webkit-text-stroke:5px var(--wk-ink);text-shadow:0 3px 0 var(--wk-red)}
+ body #online .on-sub{font-size:12px;margin:0 0 8px}
+ body #online input,body #online select{padding:6px 10px}
+ body #online .on-code{margin-top:6px}
+ body #online .in-room .on-code b{font-size:22px}
+ body #online .on-code .secondary{padding:7px 12px;margin-top:0}
+ body #online #onPlayers{gap:4px;margin-top:8px}
+ body #online #onPlayers li{padding:4px 9px;font-size:13px}
+ body #online #onPlayers li.bot{font-size:12px}
+ body #online.modal #onWhat button{padding:8px 10px;font-size:15px}
+ body #online .on-sel{margin-top:6px}
+ body #online #onGo,body #online #onCreate{padding:10px 18px;font-size:17px;margin-top:10px}
+ body #online .on-tip{font-size:11px;margin-top:6px;line-height:1.3}
+ body #online .on-side .secondary{padding:7px 14px;margin-top:8px;font-size:14px}
+ body #online #onStatus{margin-top:4px;font-size:12px}
+ body #online .eyebrow{font-size:11px;white-space:nowrap}
+ body #online .on-name{font-size:12px}
+ body #online #onStart{gap:8px;margin-top:8px}
+ body #online .on-join input{font-size:17px}
+ body #online .on-join button{padding:8px 18px;font-size:16px}
+}
+/* Auswahl Wiesnland/Rennen: gewaehlt war dunkle Schrift mit dunkler Kontur auf Gelb - nicht lesbar. Jetzt wie die
+   anderen gewaehlten Knoepfe weiss mit Kontur; Symbol und Wort bleiben in einer Zeile. */
+body #online #onWhat button{white-space:nowrap;font-size:17px;padding:11px 12px}
+body #online #onWhat button.selected{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange));color:#fff;-webkit-text-stroke:4px var(--wk-ink);paint-order:stroke fill}
+body #online #onWhat button:not(.selected){background:#fff;color:var(--wk-ink);-webkit-text-stroke:0;border-color:#15133a26;box-shadow:0 3px 0 #15133a33}
+body #online .on-code .secondary{white-space:nowrap}
+@media (max-width:560px){
+ body #online .in-room .on-sub{display:none}
+ body #online .on-code b{font-size:25px;letter-spacing:3px}
+ body #online .on-code .secondary{padding:8px 12px;font-size:14px}
+ body #online #onWhat button{font-size:15px;padding:10px 8px}
+ body #online #onGo{padding:13px 16px;font-size:18px}
+}
+/* R56: Ergebnis und Siegerehrung - die Knopfleiste (Nochmal / Naechstes Rennen / Strecke) klebt unten an der Karte.
+   Vorher lag sie hinter Statistik, XP und neuen Erfolgen und brauchte selbst auf 1920x1080 Scrollen. Die Siegerehrung
+   lief quer auf dem Handy und bei 960x540 unten aus dem Bild (Karte nicht scrollbar) - die Knoepfe waren unerreichbar. */
+body #result .actions,body #ceremony .actions{position:sticky;bottom:-22px;z-index:3;margin:4px -12px -22px;padding:2px 12px 18px;background:linear-gradient(180deg,#e7f3ff00,#e7f3fff4 30%,#e7f3fff8)}
+body #ceremony>div{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;max-height:calc(100dvh - 56px)}
+@media (max-width:620px){body #result .actions{bottom:-18px;margin-bottom:-18px;padding-bottom:14px}}
+@media (max-height:620px){
+ body #ceremony>div{padding-top:22px}
+ body #ceremony h2{font-size:24px;margin:4px 0 6px;-webkit-text-stroke:5px var(--wk-ink);text-shadow:0 3px 0 var(--wk-red)}
+ body #ceremony #cerUnlock{margin:2px 0 4px;font-size:13px}
+ body #ceremony ol{gap:2px;margin:6px 0}
+ body #ceremony li{padding:3px 12px;font-size:13px}
+ body #ceremony .actions button:not(.secondary){padding:10px 18px;font-size:17px}
+ body #ceremony .actions .secondary{padding:7px 14px;margin-top:8px}
+}
+@media (pointer:coarse) and (orientation:landscape){body #ceremony>div{max-height:calc(100dvh - 20px)}}
+/* Quer auf dem Handy stehen beide Ergebnis-Knoepfe nebeneinander, damit die Leiste nur eine Zeile Hoehe kostet */
+@media (orientation:landscape) and (max-height:500px){
+ body #result .actions{display:grid;grid-template-columns:1.35fr 1fr;gap:12px;align-items:center;padding-top:0}
+ body #result .actions button{margin-top:10px}
+ body #result .actions button:not(.secondary){padding:10px 16px;font-size:17px}
+ body #result .actions .secondary{padding:10px 12px}
+}

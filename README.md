@@ -1,10 +1,32 @@
 # Wiesn Kart
 
-Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser (bis Runde 53 "Mushroom Rally"), gebaut ab 13.09.2026.
+Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser (bis Runde 53 unter dem Arbeitstitel "Mushroom Rally"), gebaut ab 13.09.2026.
 Kleine Karts, grosse Gaudi: Rennen rund ums Volksfest, durch Pilzwald, Schloss, Festzelt und Geisterhaus.
 Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
+
+## Runde 56 (28.09.2026): Feinschliff - Menue quer bedienbar, Lobby ohne Scrollen, Ergebnis-Knoepfe immer sichtbar
+
+Durchgang mit Playwright auf 1280x720, 1920x1080, 960x540, 1024x600, Handy hochkant (390x844, 360x640) und quer
+(844x390, 667x375, 640x360): Treffertest auf jeden Knopf, Screenshots, Autopilot-Rennen auf allen sieben Strecken
+(ohne Fehler, ohne Haenger), ein kompletter Grand Prix bis zur Siegerehrung und Wiesnland frei gefahren.
+
+- **Menue quer auf dem Handy war oben taub** - die (unsichtbare) Kopfleiste lag als Streifen ueber die ganze Breite
+  und fing Taps auf den Online-Knopf, die Modus-Knoepfe (667x375) und die obere Streckenreihe ab. Jetzt fangen nur
+  noch ihre eigenen Knoepfe (Ton, Vollbild, Pause) Klicks.
+- **Online-Lobby passt** - hochkant lief die Tafel rechts aus dem Bild ("Link teilen", "Rennen" und "Beitreten"
+  abgeschnitten), auf 1280x720 und quer musste man scrollen. Im Raum ist sie ab 700 px Breite zweispaltig (links Name,
+  Code und Spieler, rechts Wiesnland/Rennen, Strecke, Start), quer auf dem Handy steht der Titel mit links: alles
+  passt in 390 px Hoehe. Die Code-Zeile schrumpft mit, der Status trennt keine Woerter mehr ("dau-ern").
+  Gewaehltes "Wiesnland" war dunkle Schrift mit dunkler Kontur auf Gelb - jetzt weiss mit Kontur wie ueberall.
+- **Ergebnis und Siegerehrung** - die Knopfleiste (Nochmal / Naechstes Rennen / Strecke) klebt unten an der Karte;
+  vorher lag sie hinter Statistik, XP und neuen Erfolgen und brauchte selbst auf 1920x1080 Scrollen. Die Siegerehrung
+  lief quer auf dem Handy und bei 960x540 unten aus dem Bild, ohne dass man scrollen konnte - "Neuer Grand Prix" und
+  "Zur Streckenauswahl" waren unerreichbar. Jetzt scrollbar, bei wenig Hoehe kompakter; quer stehen beide
+  Ergebnis-Knoepfe nebeneinander.
+- **Wiesnland ohne Platz-Einblendungen** - beim freien Fahren erschienen "▲ PLATZ 3" und die Fuehrungs-Ansage,
+  obwohl es dort keine Platzierung gibt.
 
 ## Runde 55 (28.09.2026): Online mit Freunden, Lenkhilfe in drei Stufen, saubere Runden
 
@@ -58,7 +80,7 @@ Die Open World heisst jetzt **Wiesnland**.
   **Herzschild** (Lebkuchenherz-Symbol) statt Stern, **Riesenwuchs** statt Riesenpilz.
 - **Wiesn-Zauberer** statt Brillen-Zauberer: moosgruene Kutte mit goldenen Sternen, Filzhut mit Feder, weisser Bart,
   Knollennase, Knorrenstab mit Irrlicht; er wirft **Sporenkugel, Funkenstern und Ahornblatt** (`create_gothic.py`).
-- **Sternenbahn** (frueher Sternenbahn): tiefblaues Sternenglas mit Milchstrassen-Band und funkelnden Sternen statt
+- **Sternenbahn**: tiefblaues Sternenglas mit Milchstrassen-Band und funkelnden Sternen statt
   Regenbogen-Farbband, Randsteine weiss-gold.
 - **Drift-Turbos in Funken, Glut und Blitz** (gold, orange, eisblau) statt Mini/Super/Ultra in blau-rot-lila.
 - **Klassen Locker, Flott, Wild** statt Hubraum-Angaben (intern weiter 50/100/150, Bestzeiten bleiben erhalten).
@@ -1773,12 +1795,13 @@ Im Projektordner `npm start` ausfuehren und http://127.0.0.1:4218 oeffnen. Node.
 
 Sieben Rennstrecken (Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald, Geisterhaus, Lava-Feste, Sternenbahn,
 Magnet-Kirmes) mit je eigener Idee, dazu die Open World "Wiesnland" mit Missionen. Modi: Rennen, Grand Prix,
-Zeitfahren (Geist und Medaillen) und Wiesnland; Klassen Locker/Flott/Wild und Spiegel-Modus. Vier Fahrerfiguren (Pilzi,
-Schildi, Volt, Mochi) mit eigenem Kart und eigenen Werten, acht Karts je Rennen, drei Runden. Neun Items: Turbo,
+Zeitfahren (Geist und Medaillen), Wiesnland und Online mit Freunden (Peer-to-Peer, bis zu acht Karts, freie Plaetze
+fahren Bots); Klassen Locker/Flott/Wild und Spiegel-Modus. Fuenf Fahrerfiguren (Pilzi, Schildi, Volt, Mochi, Tux)
+mit eigenem Kart und eigenen Werten, acht Karts je Rennen, drei Runden. Neun Items: Turbo,
 Dreifach-Turbo, Such-Brezn, Banane, Herzschild, Pilzbombe, Gewitterwolke, Riesenwuchs, Tintenpilz. Loopings,
 Achterbahnen, Elemente-Parcours (Boot, Tauchboot, Flugzeug), Wetter und Tageszeit von Runde zu Runde, Rivale je
-Rennen, Tagesaufgabe, Fahrerstufen mit XP, 32 Erfolge und freischaltbare Lackierungen. Kein Multiplayer und keine
-native Store-App.
+Rennen, Tagesaufgabe, Fahrerstufen mit XP, 36 Erfolge und freischaltbare Lackierungen, Lenkhilfe in drei Stufen.
+Keine native Store-App.
 
 Die Modelle entstehen in Blender (Skripte unter `art/`), Landschaft, Effekte und UI im Code; lokale Three.js-Runtime
 unter `vendor/`, keine Build-Installation und keine CDN-Abhaengigkeit fuer das Spiel selbst.
@@ -1786,6 +1809,7 @@ unter `vendor/`, keine Build-Installation und keine CDN-Abhaengigkeit fuer das S
 ## Verifikation
 
 `npm test` (Node) prueft Fahrphysik, Drift-Turbo, Items, Zieleinlauf, Achterbahn, Loopings, Elemente, Hindernisse,
-Wiesnland-Missionen, Fortschritt/Erfolge, Controller-Belegung und Wetterplan (zusammen 110 Tests). Im Browser
+Wiesnland-Missionen, Fortschritt/Erfolge, Controller-Belegung, Wetterplan, Halfpipes, Windschatten, Zauberer und
+Online-Protokoll (zusammen 155 Tests). Im Browser
 liefert `?test=1` die Test-Schnittstelle `window.rallyTest` (Rennen starten, Zeit vorspulen, Wetter erzwingen,
 Standbilder); damit laufen die Autopilot-Rennen und Bildvergleiche. Das ersetzt keinen menschlichen Langzeit-Spieltest.

@@ -2982,8 +2982,9 @@ function update(dt){
    else if((a.id===0||b.id===0)&&rel>6){SFX.bump(clamp(rel/25,.2,.8));shake=Math.max(shake,.15);}}}
  updateShots(dt);updateBombs(dt);updateInk(dt);
  const newOrder=ranking(racers),place=newOrder.indexOf(player)+1;
- if(place<lastPlace&&elapsed>2){stats.overtakes+=lastPlace-place;SFX.overtake();toast(`▲ PLATZ ${place}`,.9,'good');}
- if(place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
+ // R56: im Wiesnland gibt es keine Platzierung (HUD zeigt keine) - dort weder "PLATZ 3" noch "Du fuehrst"
+ if(!worldMode&&place<lastPlace&&elapsed>2){stats.overtakes+=lastPlace-place;SFX.overtake();toast(`▲ PLATZ ${place}`,.9,'good');}
+ if(!worldMode&&place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
  // Falsche Richtung
  // R52: im Wiesnland gibt es keine falsche Richtung - dort faehrt man, wohin man will (Nutzerhinweis: staendige Anzeige)
  const tan=tanAt(player.distance),fdot=Math.sin(player.h)*tan.x+Math.cos(player.h)*tan.z;wrongT=!worldMode&&fdot<-.35&&Math.abs(player.speed)>4?wrongT+dt:0;if(wrongT>1&&noticeTimer<=0){notice('FALSCHE RICHTUNG ↺',1);SFX.wrong();}
@@ -3846,7 +3847,7 @@ function netRecvItem(d,peerId){if(!net?.setup||!d||typeof d.k!=='string')return;
  else if(d.k==='ink'){const ids=(Array.isArray(d.i)?d.i:[]).slice(0,MAX_PLAYERS).map(L);for(const id of ids){const k=racers[id];if(!k)continue;spawnInkcap(k);if(own(k)&&!(k.shield>0))k.ink=INK_T;}
   if(ids.includes(0)&&racers[0].ink>0){inkSplash();SFX.ink();toast('TINTE! 🖋',1.1,'bad');}}}
 // Lobby-Tafel
-function netRenderLobby(){const box=$('online');if(!box)return;const inRoom=!!net;$('onStart').hidden=inRoom;$('onRoom').hidden=!inRoom;if(!inRoom){$('onlineBtn')?.classList.remove('live');return;}
+function netRenderLobby(){const box=$('online');if(!box)return;const inRoom=!!net;$('onStart').hidden=inRoom;$('onRoom').hidden=!inRoom;$('onRoomSide').hidden=!inRoom;box.firstElementChild.classList.toggle('in-room',inRoom);if(!inRoom){$('onlineBtn')?.classList.remove('live');return;}
  $('onlineBtn')?.classList.add('live');$('onCodeShow').textContent=net.code;const L=net.lobby,list=$('onPlayers');list.replaceChildren();
  const ps=L?L.p:[{id:net.selfId,s:0,n:myNetName(),d:driverIndex,c:colorIndex}];
  for(let s=0;s<MAX_PLAYERS;s++){const q=ps.find(x=>x.s===s),li=document.createElement('li');
