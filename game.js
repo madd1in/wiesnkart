@@ -2255,6 +2255,9 @@ function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin
  // Looping gibt posAt genau die physikalische Lage zurueck, flach aendert sich also nichts.
  r.czFloatS=(r.czFloatS||0)+((r.czFloat||0)-(r.czFloatS||0))*Math.min(1,dt*9);
  r.mesh.position.copy(posAt(r.distance,r.offset,(r.y??0)-roadRef(r.distance,r.offset)+lift+r.czFloatS,_agP));e.order='YXZ';
+ // R54 gegen das Ruckeln im Pulk: Kollisions-Korrekturen (Auseinanderschieben) springen nicht mehr ins Bild, sondern
+ // werden als Versatz aufgefangen und klingen in ~0,1 s ab - die Physik bleibt exakt, nur die Darstellung ist weich
+ if(r.vox||r.voz){const k=Math.exp(-dt*11);r.vox*=k;r.voz*=k;if(Math.abs(r.vox)+Math.abs(r.voz)<.002)r.vox=r.voz=0;if(!dbg.noSmooth){r.mesh.position.x+=r.vox;r.mesh.position.z+=r.voz;}}
  const spin=r.trick>0?Math.min(1,r.trick/.42)*TAU:0;
  // Der Looping ist reine Nickbewegung um die Querachse - Lenken bleibt davon unberuehrt
  e.y=r.h+r.driftVis+(r.stun>0?elapsed*14:0)+spin;
@@ -2348,7 +2351,10 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
  if(!onFork)for(const q of racers){if(q===r||q.finishTime!==null||q.air)continue;const ahead=wrapDiff(q.distance,r.distance),lat=q.offset-r.offset;
   if(ahead>0&&ahead<10+sp*.2&&Math.abs(lat)<2.6&&q.speed<sp+.5){const side=Math.abs(q.offset)>1.5?-Math.sign(q.offset):(lat>=0?-1:1);
    line=clamp(q.offset+side*3.4,-6.2,6.2);if(ahead<5.5&&Math.abs(lat)<2.2)follow=Math.min(follow,Math.max(0,q.speed)+.4);}
-  else if(Math.abs(ahead)<=3&&Math.abs(lat)<2.9)line=q.offset-(lat===0?(r.id%2?1:-1):Math.sign(lat))*2.9;}
+  else if(Math.abs(ahead)<=3&&Math.abs(lat)<2.9){r.sepQ=q;r.sepSide=lat===0?(r.id%2?-1:1):-Math.sign(lat);r.sepT=elapsed+.7;}}
+ // R54 Hysterese: die Abstands-Entscheidung haelt 0,7 s (und solange der Nachbar noch neben einem ist) - sonst pendelte
+ // die KI jedes Bild zwischen "ausweichen" und "zurueck auf die Linie", sichtbar als Zittern im Pulk
+ if(!onFork&&r.sepQ&&(r.sepT>elapsed||Math.abs(wrapDiff(r.sepQ.distance,r.distance))<3.5)&&Math.abs(wrapDiff(r.sepQ.distance,r.distance))<6)line=clamp(r.sepQ.offset+r.sepSide*3.1,-6.2,6.2);else r.sepQ=null;
  if(onFork){const fa=forkAt(r.distance+look);if(fa)line=fa.off;}else line=clamp(line,-6.2,6.2);
  // Halfpipe (R52): je nach Koennen sucht sich ein KI-Fahrer eine Wand und zielt ueber die Lippe; nach dem Air
  // wechselt er die Seite oder bleibt unten (halfpipeStep). Ziel flach gerechnet - im Bild liegt die Wand woanders.
@@ -2384,7 +2390,9 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
  // R45: mit Tinte flattert die Linie, zwischendurch geht die KI vom Gas
  // (nicht vor Luecken, nicht in der Luft, nicht am Rand und nicht in Rollzonen - dort waere ein Sturz die Folge)
  if(r.ink>0&&!gapAhead&&!agNear&&!r.air&&Math.abs(r.offset)<5.5){steer+=Math.sin(elapsed*4.2+r.id*1.7)*.24;return {gas:gas&&(sp<14||Math.sin(elapsed*2.3+r.id)<=.55),brake,steer:clamp(steer,-1,1),drift};}
- return {gas,brake,steer:clamp(steer,-1,1),drift};}
+ // R54: Lenkeinschlag leicht glaetten (Zeitkonstante ~70 ms) - im Pulk zuckte die KI sonst bei jedem Schubser
+ steer=clamp(steer,-1,1);if(!dbg.noSmooth){r.aiSt=r.aiSt===undefined?steer:r.aiSt+(steer-r.aiSt)*Math.min(1,dt*14);steer=r.aiSt;}
+ return {gas,brake,steer,drift};}
 function aiItems(r,order){if(r.cooldown>0||!r.item||r.itemPending)return;const pl=order.indexOf(r),ahead=order[pl-1],behind=order[pl+1],kap=Math.abs(trackAt(r.distance+20).kap);
  const use=r.item==='bomb'?ahead&&ahead.distance-r.distance>12&&ahead.distance-r.distance<45:r.item==='shell'?ahead&&ahead.distance-r.distance<70:r.item==='banana'?behind&&r.distance-behind.distance<35:r.item==='mega'?(ahead&&ahead.distance-r.distance<30)||kap<1/120:r.item==='ink'?!!ahead:r.item==='boost'||r.item==='triple'?kap<1/80&&!agrav.some(q=>{const a=wrapDiff(q.s,r.distance);return a>4&&a<55;}):true;
  if(use){useItem(r);r.cooldown=r.item==='triple'?1.2:2.5;}}
@@ -2937,7 +2945,9 @@ function update(dt){
   // R45: Riesenpilz walzt kleine Karts platt (einmal je Sekunde und Opfer), statt abzuprallen
   if((a.mega>0)!==(b.mega>0)){const big=a.mega>0?a:b,sm=big===a?b:a;if(Math.hypot(a.x-b.x,a.z-b.z)<3.3){if(!(sm.shield>0)&&!(sm.squashCd>elapsed)){sm.squashCd=elapsed+1;hitKart(sm,1.1,.3);sm.squash=.6;burst(sm,0xff4a3d,12);
     if(big.id===0){stats.megaSquash=(stats.megaSquash||0)+1;stats.hitsDealt++;SFX.squash();toast('PLATT GEMACHT!',.9,'good');}else if(sm.id===0){stats.hitsTaken++;SFX.squash();toast('PLATT! 🍄',1,'bad');shake=.4;}}continue;}}
-  const rel=Math.hypot(a.vx-b.vx,a.vz-b.vz);if(collideKarts(a,b)){
+  const rel=Math.hypot(a.vx-b.vx,a.vz-b.vz),ax0=a.x,az0=a.z,bx0=b.x,bz0=b.z;if(collideKarts(a,b)){
+   // Bild-Versatz gegen den Korrektursprung (syncKart laesst ihn weich abklingen), hoechstens 1,2 m
+   const cv=(r,x0,z0)=>{r.vox=clamp((r.vox||0)+x0-r.x,-1.2,1.2);r.voz=clamp((r.voz||0)+z0-r.z,-1.2,1.2);};cv(a,ax0,az0);cv(b,bx0,bz0);
    // Gewitterwolke: ein kleines Kart wird vom grossen plattgefahren
    const fl=flattenSmall(a,b,rel);if(fl){fl.squash=.6;burst(fl,0xfff27a,10);if(fl.id===0){stats.hitsTaken++;toast('ÜBERROLLT!',1,'bad');SFX.hit();shake=.4;}else if(a.id===0||b.id===0){stats.hitsDealt++;toast('PLATT GEFAHREN!',.9,'good');SFX.hit(.7);}}
    else if((a.id===0||b.id===0)&&rel>6){SFX.bump(clamp(rel/25,.2,.8));shake=Math.max(shake,.15);}}}
