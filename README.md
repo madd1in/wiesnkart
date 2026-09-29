@@ -14,6 +14,12 @@ Vorwarnung und als Finale ein kleiner leuchtender Abluftschacht - genau hindurch
 Turbo. Treffer bremsen (Spieler staerker als Bots), Waende und Tore schieben zur Luecke; die KI zielt auf die
 vorausberechnete Luecke und aufs Finale; Windringe liegen nicht mehr in Hindernissen. Zeitfahren (Autopilot) 90,9 s.
 
+**Kotzhügel-Arena belebter** - vier Tribuenen mit Publikum schraeg rund um den Strohballen-Ring (die Fans huepfen,
+solange gekaempft wird), drei Wiesn-Buden und ein Kranz weiss-blauer Fahnen auf dem Ring; die deko-freie Zone um die Arena
+ist groesser, damit keine Baeume in den Tribuenen stehen.
+QA: 12er-Autopilot-Rennen auf allen 8 Strecken ohne Fehler (die "haengenden" Canyon-Bots im Protokoll waren ein
+Messartefakt: nach dem Zieleinlauf des Spielers stoppt das Spiel die Bots mitten im 10-s-Messfenster).
+
 **Kuehe auf der Pilz-Promenade** - man blieb an ihnen haengen: Zusammenstoss stiess zurueck und betaeubte (Tempo 5 m/s),
 die Kuh lief weiter in einen hinein. Jetzt nur ein Streifer (Tempo -28 %), danach 1,2 s Durchfahrt, die Kuh flieht an den
 Rand; Kuehe grasen meist am Rand und queren selten und zuegig. Neues Modell (`art/r59/create_cow.py`): Fleckvieh mit

@@ -1752,7 +1752,7 @@ function owScenery(random){const offRoad=(x,z,m)=>{const d=projectGlobal(x,z),q=
    if(random()<.65){tree(x,z,1.4+random()*1.6,theme.caps[i%theme.caps.length]);}else mushroom(x,z,1.5+random()*2.5,theme.caps[i%theme.caps.length]);addObstacle(x,z,1.2);}}}
 // R57: groesser (Nutzerhinweis "wirkt zu klein") und etwas weiter suedlich, frei vom Pilzring um den Pilzberg
 const ARENA={x:0,z:-205,r:85};
-function buildScenery(random){if(course.openWorld)zones.push({d:NaN,half:0,x:ARENA.x,z:ARENA.z,r:ARENA.r+14});batch=new Map();buildSceneryInner(random);if(course.openWorld)owScenery(random);forkIslandDecor();for(const b of batch.values())scatterColored(b.proto,b.list,'CapPaint',b.tint,120,.028);batch=null;buildGrass(random);}
+function buildScenery(random){if(course.openWorld)zones.push({d:NaN,half:0,x:ARENA.x,z:ARENA.z,r:ARENA.r+26});batch=new Map();buildSceneryInner(random);if(course.openWorld)owScenery(random);forkIslandDecor();for(const b of batch.values())scatterColored(b.proto,b.list,'CapPaint',b.tint,120,.028);batch=null;buildGrass(random);}
 // Eine Instanz-Gruppe je Modell statt je Farbe: Lackfarbe pro Instanz (instanceColor), Leuchten wird per Shader mit eingefaerbt
 const tintEmissive=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n#ifdef USE_COLOR\ntotalEmissiveRadiance *= vColor.rgb;\n#endif');};
 let swayCache=new Map();
@@ -4238,7 +4238,24 @@ function buildArena(){const A={...ARENA,boxes:[],g:new T.Group()};course._arena=
  // Itemboxen: zwoelf im Ring (zwischen den Ballen-Waellen), drei nahe der Mitte
  const spots=[];for(let k=0;k<12;k++){const a=(k+.5)/12*TAU;spots.push([A.x+Math.sin(a)*A.r*.62,A.z+Math.cos(a)*A.r*.62]);}
  for(let k=0;k<3;k++){const a=k/3*TAU+.5;spots.push([A.x+Math.sin(a)*10,A.z+Math.cos(a)*10]);}
- for(const [x,z] of spots){const g=P.itembox?cloneProto(P.itembox):new T.Mesh(new T.BoxGeometry(1.4,1.4,1.4),mat(0xffc83a,{emissive:0xffa51f,emissiveIntensity:.4}));g.position.set(x,1.2,z);A.g.add(g);A.boxes.push({x,z,g,cool:0});}}
+ for(const [x,z] of spots){const g=P.itembox?cloneProto(P.itembox):new T.Mesh(new T.BoxGeometry(1.4,1.4,1.4),mat(0xffc83a,{emissive:0xffa51f,emissiveIntensity:.4}));g.position.set(x,1.2,z);A.g.add(g);A.boxes.push({x,z,g,cool:0});}
+ arenaDeco(A);}
+// R59 Arena-Kulisse: vier Tribuenen mit Publikum schraeg rund um den Strohballen-Ring (zur Mitte gedreht), dazwischen
+// Wiesn-Buden, auf dem Ring ein Kranz weiss-blauer Fahnen. Die Fans huepfen, solange gekaempft wird.
+function arenaDeco(A){const v=new T.Vector3(),fans=[];
+ if(P.grandstand)for(let k=0;k<4;k++){const a=k/4*TAU+Math.PI/4,cx=A.x+Math.sin(a)*(A.r+13.5),cz=A.z+Math.cos(a)*(A.r+13.5),ry=Math.atan2(A.x-cx,A.z-cz),rx=Math.cos(ry),rz=-Math.sin(ry);
+  for(const seg of [-STAND_SEG,0,STAND_SEG]){const g=cloneProto(P.grandstand);g.position.set(cx+rx*seg,0,cz+rz*seg);g.rotation.y=ry;A.g.add(g);g.updateMatrixWorld(true);
+   for(let kk=-8;kk<=8;kk+=4){v.set(kk,0,-1.5).applyMatrix4(g.matrixWorld);addObstacle(v.x,v.z,2.8);}
+   for(let row=0;row<4;row++)for(let i=0;i<18;i++){if((i*7+row*3+k)%5===0)continue;v.set(-8.1+i*.95,.45+row*.75+.16,-(row*1.1-.2)).applyMatrix4(g.matrixWorld);
+    fans.push({x:v.x,y:v.y,z:v.z,ry:ry+Math.sin(i*7.3+row)*.35,ph:(i*1.7+row*2.3+seg+k)%TAU,col:FAN_COLS[(row*7+i*3+k)%FAN_COLS.length]});}}}
+ if(P.spectator&&fans.length){const insts=[];P.spectator.traverse(o=>{if(!o.isMesh)return;const im=new T.InstancedMesh(o.geometry,o.material,fans.length);im.instanceMatrix.setUsage(T.DynamicDrawUsage);im.castShadow=false;im.frustumCulled=false;
+  if(o.material.name==='FanCap'){const c=new T.Color();fans.forEach((f,i)=>im.setColorAt(i,c.setHex(f.col)));}A.g.add(im);insts.push(im);});A.crowd={fans,insts};arenaCrowd(A,0);}
+ if(P.wiesn)for(const a of [Math.PI/2,Math.PI,Math.PI*1.5]){const st=r53Part('wiesn','WS_Stall');if(!st)break;const x=A.x+Math.sin(a)*(A.r+11),z=A.z+Math.cos(a)*(A.r+11);st.position.set(x,0,z);st.rotation.y=Math.atan2(A.x-x,A.z-z);A.g.add(st);addObstacle(x,z,4);}
+ {const n=24,pole=new T.InstancedMesh(new T.CylinderGeometry(.07,.09,4.6,6).translate(0,2.3,0),mat(0x5a3a22,{roughness:.8}),n),flags=[new T.InstancedMesh(new T.PlaneGeometry(1.3,.8).translate(.65,4.1,0),stdMat({color:0x1a73e8,side:T.DoubleSide,roughness:.7}),n/2),new T.InstancedMesh(new T.PlaneGeometry(1.3,.8).translate(.65,4.1,0),stdMat({color:0xffffff,side:T.DoubleSide,roughness:.7}),n/2)];
+  for(let i=0;i<n;i++){const a=(i+.5)/n*TAU,x=A.x+Math.sin(a)*(A.r+2.4),z=A.z+Math.cos(a)*(A.r+2.4);_m.compose(_v.set(x,0,z),_q.setFromEuler(_e.set(0,a,0)),_s.set(1,1,1));pole.setMatrixAt(i,_m);flags[i%2].setMatrixAt(i>>1,_m);}
+  pole.castShadow=true;A.g.add(pole,...flags);A.flags=flags;}}
+function arenaCrowd(A,t){const C=A.crowd;if(!C)return;const live=!!battle&&!battle.over;C.fans.forEach((f,i)=>{const y=f.y+(live?Math.abs(Math.sin(t*6.5+f.ph))*.42:Math.sin(t*1.8+f.ph)*.03);
+ _e.set(0,f.ry,live?Math.sin(t*9+f.ph)*.12:0);_q.setFromEuler(_e);_m.compose(_v.set(f.x,y,f.z),_q,_s.set(1.5,1.5,1.5));for(const im of C.insts)im.setMatrixAt(i,_m);});for(const im of C.insts)im.instanceMatrix.needsUpdate=true;}
 // R57: Start knapp an der Mitte vorbei ausgerichtet - sonst stand der Maibaum genau vor der Kamera
 function arenaPlace(){const A=arenaOn()&&course._arena;if(!A)return;let k=0;const n=racers.length;
  // online nach globalem Platz: das eigene Kart ist lokal immer Nr. 0 - sonst starteten alle Menschen am selben Punkt
@@ -4252,7 +4269,7 @@ function arenaRoll(){const pool=['shell','shell','shell','shell','bomb','bomb','
 function arenaPickup(r){const A=course._arena;for(const b of A.boxes){if(b.cool>0)continue;const dx=r.x-b.x,dz=r.z-b.z;if(dx*dx+dz*dz>5.8)continue;
   b.cool=5;b.g.visible=false;burst({mesh:b.g},0xffd452,12);if(r.item||r.itemPending)continue;
   if(r.id===0){r.itemPending=true;roulette={t:.8,tick:0,final:arenaRoll()};SFX.pickup();}else{r.item=arenaRoll();r.charges=r.item==='triple'?3:0;r.cooldown=.6+Math.random()*1.4;}}}
-function arenaTick(dt){const A=course._arena;for(const b of A.boxes){if(b.cool>0){b.cool-=dt;if(b.cool<=0){b.g.visible=true;b.g.scale.setScalar(.01);}}
+function arenaTick(dt){const A=course._arena;if(A.crowd&&(frame&1))arenaCrowd(A,elapsed);for(const b of A.boxes){if(b.cool>0){b.cool-=dt;if(b.cool<=0){b.g.visible=true;b.g.scale.setScalar(.01);}}
   else{b.g.rotation.y+=dt*1.6;const s=b.g.scale.x;if(s<1)b.g.scale.setScalar(Math.min(1,s+dt*3));b.g.position.y=1.2+Math.sin(elapsed*2.4+b.x)*.18;}}}
 // Naechster Gegner mit Herzen (front: bevorzugt, was vor dem Kart liegt)
 function arenaTarget(r,maxD=130,front=false){let best=null,bs=1e9;for(const q of racers){if(q===r||!(q.hearts>0))continue;const d=Math.hypot(q.x-r.x,q.z-r.z);if(d>maxD)continue;
