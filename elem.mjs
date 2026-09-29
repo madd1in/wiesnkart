@@ -34,6 +34,11 @@ const PIECE = {
   cruise: {len: 6, hide: true, form: 'plane'},
   descend: {len: 24, set: {fly: 'T'}, hide: true, form: 'plane'},
   land: {len: 14, set: {fly: 0}},
+  // R57 Hoehenflug (Graben-Flug): erst ueber der Stationsoberflaeche (HI), dann Sturzflug in den Graben auf die
+  // Reisehoehe; der Steigflug heisst weiter 'climb' (Ringe und Missionen suchen danach)
+  climbHi: {len: 40, set: {fly: 'HI'}, hide: true, form: 'plane', alias: 'climb'},
+  cruiseHi: {len: 6, hide: true, form: 'plane'},
+  dropIn: {len: 56, set: {fly: 'H'}, hide: true, form: 'plane'},
 };
 
 // Plaene: welches Stueck den Rest der Zone aufnimmt (flex)
@@ -42,13 +47,15 @@ export const PLANS = {
   // R44: Ueberlaenge eines Sees geht nicht nur in die Tiefe - je 20 % an die Bootsfahrt an der Oberflaeche davor und danach
   see: {pieces: ['shoreIn', 'boat', 'dive', 'deep', 'rise', 'boat', 'shoreOut'], flex: 'deep', share: {boat: .2}},
   flug: {pieces: ['takeoff', 'climb', 'cruise', 'descend', 'land'], flex: 'cruise'},
+  flugHoch: {pieces: ['takeoff', 'climbHi', 'cruiseHi', 'dropIn', 'cruise', 'descend', 'land'], flex: 'cruise'},
 };
 
 // Plan auf eine Zonenlaenge auslegen. loopSpan: Laenge einer Spirale am Seegrund (optional).
 // Liefert Stuecke mit x0/x1, die Lage der Spirale (loopX) und die Tiefe/Flughoehe.
-export function elemPlan(kind, span, {loopSpan = 0, depth = ELEM.depth, fly = ELEM.fly} = {}) {
-  const plan = PLANS[kind] || PLANS.bach;
-  const lens = plan.pieces.map(p => PIECE[p].len);
+// hi/hiLen (nur Flug): Hoehenabschnitt ueber der Oberflaeche mit Flughoehe hi und Laenge hiLen vor dem Sturzflug.
+export function elemPlan(kind, span, {loopSpan = 0, depth = ELEM.depth, fly = ELEM.fly, hi = 0, hiLen = 0} = {}) {
+  const plan = kind === 'flug' && hi > 0 ? PLANS.flugHoch : PLANS[kind] || PLANS.bach;
+  const lens = plan.pieces.map(p => p === 'cruiseHi' ? Math.max(PIECE.cruiseHi.len, hiLen) : PIECE[p].len);
   const fi = plan.pieces.indexOf(plan.flex);
   if (loopSpan > 0 && kind === 'see') lens[fi] = Math.max(lens[fi], loopSpan + 6);
   const fixed = lens.reduce((a, b) => a + b, 0) - lens[fi];
@@ -62,10 +69,10 @@ export function elemPlan(kind, span, {loopSpan = 0, depth = ELEM.depth, fly = EL
   }
   else {const k = span / (fixed + lens[fi]); for (let i = 0; i < lens.length; i++) lens[i] *= k;}
   let x = 0;
-  const pieces = plan.pieces.map((p, i) => {const q = {type: p, x0: x, x1: x + lens[i], ...PIECE[p]}; x += lens[i]; return q;});
+  const pieces = plan.pieces.map((p, i) => {const q = {x0: x, x1: x + lens[i], ...PIECE[p], type: PIECE[p].alias || p, key: p}; x += lens[i]; return q;});
   const deep = pieces.find(p => p.type === 'deep');
   const loopX = loopSpan > 0 && deep ? deep.x0 + (deep.x1 - deep.x0 - loopSpan) / 2 : null;
-  return {kind, span, pieces, ok, loopX, depth, fly};
+  return {kind, span, pieces, ok, loopX, depth, fly, hi};
 }
 
 const CH = ['wl', 'dep', 'fly'];
@@ -77,7 +84,7 @@ export function elemState(plan, x, out = {}) {
     const target = {};
     if (p.set) for (const c of CH) if (c in p.set) {
       const v = p.set[c];
-      target[c] = c === 'dep' ? v * plan.depth : v === 'T' ? ELEM.takeoff : v === 'H' ? plan.fly : v;
+      target[c] = c === 'dep' ? v * plan.depth : v === 'T' ? ELEM.takeoff : v === 'H' ? plan.fly : v === 'HI' ? plan.hi : v;
     }
     if (x >= p.x1) {Object.assign(val, target); continue;}
     if (x >= p.x0) {

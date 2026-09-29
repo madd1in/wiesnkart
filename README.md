@@ -6,6 +6,20 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 58 (29.09.2026): Jederzeit online einsteigen, Angriffs-Items in der Arena, Oberflaechenflug
+
+**Laufenden Online-Sitzungen jederzeit beitreten** - auch Rennen: der Neue uebernimmt das Kart eines Bots mitten im
+Rennen samt Lage, Runde und Rennzeit (kein eigener Countdown), Kotzhügel Fight und Freifahrt wie bisher. Ist der Bot
+schon im Ziel, faehrt der Neue das naechste Rennen. Die Raumliste zeigt "laeuft – sofort einsteigen".
+
+**Kotzhügel Fight nur mit Angriffs-Items** - Such-Brezn, Pilzbombe, Banane (Falle) und Riesenwuchs; kein Turbo, kein
+Mass Bier.
+
+**Graben-Flug: erst ueber die Oberflaeche** (`elem.mjs`, Flugplan mit Hoehenabschnitt) - nach dem Start steigt man auf
+42 m und fliegt rund 200 m ueber die gedeckelte Stationsoberflaeche zwischen Tuermen und Geschuetzen, dann oeffnet sich
+der Graben (Leuchtband an der Kante) und es geht im Sturzflug hinein. Der Graben liegt dafuer am normalen Flugprofil
+statt am Hoehenflug (vorher stieg er mit jeder Flughoehe mit). Zeitfahren (Autopilot) 81,9 s, keine Fehler.
+
 ## Runde 57 (29.09.2026): 12er-Starterfeld, Online-Bestenliste, Festungs-Abwehr im Graben-Flug, Quetschn-Maß
 
 **Sonnen-Canyon: geheime Forschungsanlage und Zeitsprung** (`art/r57/create_lab.py`, eigene Entwuerfe, nur Anklaenge an

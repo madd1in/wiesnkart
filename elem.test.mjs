@@ -5,7 +5,8 @@ import {ELEM, PLANS, elemPlan, elemState, elemHeight} from './elem.mjs';
 const forms = (plan, step = .5) => {const seq = [];for (let x = 0; x <= plan.span; x += step) {const f = elemState(plan, x).form; if (seq.at(-1) !== f) seq.push(f);} return seq;};
 
 test('plans fill the zone exactly, pieces are contiguous', () => {
-  for (const kind of Object.keys(PLANS)) for (const span of [90, 140, 200]) {
+  // flugHoch wird nur ueber 'flug' mit hi gewaehlt und braucht mind. 160 m (eigener Test unten)
+  for (const kind of Object.keys(PLANS).filter(k => k !== 'flugHoch')) for (const span of [90, 140, 200]) {
     const p = elemPlan(kind, span);
     assert.ok(p.ok, `${kind}/${span} fits`);
     assert.equal(p.pieces[0].x0, 0);
@@ -68,4 +69,15 @@ test('boat creek: road hidden on the water, kart again on the shore', () => {
   const p = elemPlan('bach', 80);
   assert.deepEqual(forms(p), ['kart', 'boat', 'kart']);
   assert.ok(elemHeight(elemState(p, 40), 0, ELEM.water) === ELEM.water);
+});
+test('R57: Hoehenflug - erst ueber der Oberflaeche (hi), dann Sturzflug auf die Reisehoehe', () => {
+  const p = elemPlan('flug', 800, {fly: 9, hi: 34, hiLen: 200});
+  assert.ok(p.ok);
+  assert.deepEqual(p.pieces.map(q => q.type), ['takeoff', 'climb', 'cruiseHi', 'dropIn', 'cruise', 'descend', 'land']);
+  const hi = p.pieces.find(q => q.type === 'cruiseHi'), cr = p.pieces.find(q => q.type === 'cruise'), st = {};
+  assert.ok(hi.x1 - hi.x0 >= 200 - 1e-6);
+  elemState(p, (hi.x0 + hi.x1) / 2, st); assert.ok(Math.abs(st.fly - 34) < 1e-6); assert.equal(st.form, 'plane');
+  elemState(p, (cr.x0 + cr.x1) / 2, st); assert.ok(Math.abs(st.fly - 9) < 1e-6);
+  const plain = elemPlan('flug', 800, {fly: 9});
+  assert.deepEqual(plain.pieces.map(q => q.type), ['takeoff', 'climb', 'cruise', 'descend', 'land']);
 });

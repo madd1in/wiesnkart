@@ -117,7 +117,7 @@ const courses=[
  // ist Flugschneise in 9 m Hoehe zwischen 24 m hohen Stahlwaenden; oben die Stationsoberflaeche mit Tuermen
  {name:'Graben-Flug',icon:'🛸',kind:'Weltraum-Festung \u00b7 Stahlgraben \u00b7 Ringflug',medals:[96,102,112],music:'night',bgmRate:1.08,theme:'fortress',seed:202,
   points:[[-70,-75],[-70,75],[-50,112],[0,128],[50,112],[70,75],[70,-75],[50,-112],[0,-128],[-50,-112]],
-  elem:[[.55,9.45,'flug',{fly:9}]],trench:[[0,9.98]],lasers:[[1.7],[2.9],[4.1],[5.6],[6.8],[8.1]],fighters:[[3.5],[7.5]],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
+  elem:[[.55,9.45,'flug',{fly:9,hi:42,hiLen:200}]],trench:[[0,9.98]],lasers:[[1.7],[2.9],[4.1],[5.6],[6.8],[8.1]],fighters:[[3.5],[7.5]],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
 // ---------- Wiesnland (R41): Open World, die die Rennstrecken verbindet. Eine grosse Rundstrasse durch
 // Wald, Flussaue, Canyon, Seen und Flugschneisen - an Portalen geht es in jede Rennstrecke, dazu
 // Missionen (Glockenschalter mit 8 Muenzen, Bojen-Slalom als Boot, Ringflug als Flugzeug). Steht nicht in
@@ -542,7 +542,12 @@ function posAt(d,off,h,out){const [i,j,k]=tIdx(d),x=TP.x[i]+(TP.x[j]-TP.x[i])*k,
   ax=tx*st.a+tz*st.lat;ay=st.b;az=tz*st.a-tx*st.lat;  // Mittellinie auf den geneigten Tropfen heben
   nx=tx*st.nf;ny=st.nu;nz=tz*st.nf;}                   // Normale kippt mit (oben kopfueber)
  return out.set(x+ax+qx*off+nx*h, hh+ay+qy*off+ny*h, z+az+qz*off+nz*h);}
-function samplePos(d,off,out,lift=0){return posAt(d,off,lift,out);}
+function samplePos(d,off,out,lift=0){return posAt(d,off,lift+(posFix?posFix(d):0),out);}
+// R58 Graben-Flug-Hoehenflug: der Graben (Waende, Boden, Oberflaeche, Tuerme) liegt am normalen Flugprofil, nicht am
+// Hoehenflug darueber - sonst stiege er mit und man flöge nie ueber die Oberflaeche. trenchLift = normal - hoch (<= 0).
+let posFix=null;const _tlS={},_tlT={};
+function trenchLift(d){for(const z of elems){if(!z.plain)continue;const x=lapDist(d-z.s);if(x<=0||x>=z.span)continue;
+ return elemState(z.plain,x,_tlS).fly-elemState(z.plan,x,_tlT).fly;}return 0;}
 // Weit neben der Fahrbahn wird flach gerechnet. In einer Rollzone steht die Bahn senkrecht, dort
 // zeigt die Querachse nach oben - ein Querversatz von 19 m landete damit senkrecht ueber der
 // Mittellinie statt daneben, und Tribuenen und Baeume standen mitten auf der Strecke.
@@ -756,9 +761,9 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
  // Elemente-Parcours: [cpVon, cpBis, Plan ('see' | 'bach' | 'flug'), {loop:[Windungen, Radius, Seite], depth, fly}]
  for(const [a,b,kind,o={}] of course.elem||[]){const s=cpDist(a),span=lapDist(cpDist(b)-s);
   const lp=o.loop?loopSpec(o.loop[1]*TRACK_SCALE,o.loop[0],o.loop[2]??1):null;
-  const plan=elemPlan(kind,span,{loopSpan:lp?lp.span:0,depth:o.depth,fly:o.fly});
+  const plan=elemPlan(kind,span,{loopSpan:lp?lp.span:0,depth:o.depth,fly:o.fly,hi:o.hi||0,hiLen:o.hiLen||0});
   if(!plan.ok)console.warn('Elemente-Zone gestaucht:',course.name,a,b);
-  const z={s,span,kind,plan,water:0,hidden:[],lake:kind!=='flug'};
+  const z={s,span,kind,plan,water:0,hidden:[],lake:kind!=='flug',plain:o.hi?elemPlan(kind,span,{fly:o.fly}):null};
   {let open=-1;const st={};for(let x=0;x<=span+.25;x+=.25){elemState(plan,x,st);if(st.hide&&open<0)open=x;if((!st.hide||x>span)&&open>=0){z.hidden.push([s+open,s+x]);open=-1;}}}
   elems.push(z);
   if(lp&&plan.loopX!==null)loops.push({...lp,s:lapDist(s+plan.loopX),style:'lake'});}
@@ -2005,7 +2010,7 @@ function updateHazards(dt,t=elapsed,live=true){if(!hz)return;const pl=racers[0];
 const FORT={warn:230,speed:36,pull:34};
 function fzClone(n){const o=P.fortress?.getObjectByName(n);if(!o)return null;const c=o.clone(true);c.traverse(q=>{if(q.isMesh){q.castShadow=true;q.receiveShadow=false;}});return c;}
 function fzTurret(c){const base=fzClone('FZ_TurretBase'),head=fzClone('FZ_TurretHead');if(!base||!head)return null;
- const g=new T.Group(),p=samplePos(c.d,c.side*(TRENCH_W+3.2),new T.Vector3(),TRENCH_H);g.position.copy(p);g.rotation.y=sample(c.d).angle;g.scale.setScalar(1.25);
+ const g=new T.Group(),p=samplePos(c.d,c.side*(TRENCH_W+3.2),new T.Vector3(),TRENCH_H+trenchLift(c.d));g.position.copy(p);g.rotation.y=sample(c.d).angle;g.scale.setScalar(1.25);
  const pivot=head.position.clone();head.rotation.order='YXZ';g.add(base,head);world.add(g);return {g,head,pivot,kick:0};}
 const _ta2=new T.Vector3(),_tb2=new T.Vector3();
 function turretAim(c,dt){const tu=c.tur,pl=racers[0];if(!pl?.mesh)return;tu.head.getWorldPosition(_ta2);pl.mesh.getWorldPosition(_tb2);
@@ -2051,7 +2056,7 @@ function laserFire(c,t,o){if(!o&&(t<c.next||state!=='race'))return;const pl=race
 function laserOff(m){const p=m.g.position;hzBoom(p.x,p.y,p.z,0xff5a4a,8);m.live=false;m.g.visible=false;m.d=undefined;}
 // Startpunkt einer Salve: Turm-Muendung am Grabenrand (side) oder die Hoehe des Jaegers (h0) ueber der Spur
 const _lzA=new T.Vector3(),_lzB=new T.Vector3();
-function laserStart(m,d,out){return m.side?samplePos(d,m.side*(TRENCH_W+1.6),out,TRENCH_H+2.8):posAt(d,m.lane,1.3+m.h0,out);}
+function laserStart(m,d,out){return m.side?samplePos(d,m.side*(TRENCH_W+1.6),out,TRENCH_H+2.8+trenchLift(d)):posAt(d,m.lane,1.3+m.h0,out);}
 function laserFly(m,t){const run=(t-m.t0)*m.spd,d=lapDist(m.d0-run),z=elemAt(d);
  if(run>LASER.range||!z||z.kind!=='flug'){laserOff(m);return false;}
  const k=Math.min(1,run/m.merge),e=k*k*(3-2*k),a=laserStart(m,d,_lzA),b=posAt(d,m.lane,1.3,_lzB);m.g.position.lerpVectors(a,b,e);
@@ -2940,6 +2945,7 @@ function update(dt){
   if(Math.ceil(countdown)!==prev)SFX.count(countdown<=0);setLights(countdown>2?1:countdown>1?2:countdown>0?3:4);setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');
   if(engine&&ctx){const t=ctx.currentTime;aset(engine.o1.frequency,gasHeld?170:60,t,.08);aset(engine.o2.frequency,gasHeld?85:30,t,.08);aset(engine.f.frequency,gasHeld?1500:500,t,.1);aset(engine.g.gain,soundOn?.008:0,t,.1);}
   if(countdown<=0){state='race';notice('O\'ZAPFT IS!',1.1);stats.lapStart=0;raceAssist=assistMode;player.lapDirty=false;if(isTT()){player.item='triple';player.charges=3;}
+   if(net?.setup?.take)netTakeOver();
    const fx=Math.sin(player.h),fz=Math.cos(player.h);
    if(gasHeld&&startPress>0&&startPress<=1.0){player.boost=Math.max(player.boost,1.5);player.vx=fx*16;player.vz=fz*16;SFX.rocket();say('rocket');toast('RAKETENSTART!',1.2,'good');stats.rocket++;burst(player,0xffa53d,20);}
    else if(gasHeld&&startPress>=2.2&&!ohGas){player.stall=1.1;say('early');toast('ZU FRÜH! Motor abgewürgt',1.4,'bad');}
@@ -3993,11 +3999,17 @@ function netHostGo(){if(!net?.host)return;netLobby();const L=net.lobby,world=L.w
  net.A.setup.send(setup).catch(()=>{});netStart(setup);}
 function netStart(s){if(!net)return;const p=s.p.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1)}));
  const mine=p.find(q=>q.id===net.selfId);if(!mine){netMsg('Raum ist voll – du schaust zu.');return;}
- net.setup={w:s.w?1:0,b:s.w&&s.b?1:0,n:s.w?8:clampInt(s.n||8,8,FIELD_MAX),late:s.late?1:0,t:clampInt(s.t,0,courses.length-1),cc:[50,100,150].includes(s.cc)?s.cc:100,wx:Number(s.wx)>>>0,p,k:Number(s.k)||0};
+ const tk=s.take&&!s.w&&[s.take.d,s.take.o,s.take.h,s.take.sp,s.take.el].every(Number.isFinite)?{d:+s.take.d,o:clamp(+s.take.o,-20,20),h:+s.take.h,sp:clamp(+s.take.sp,0,60),el:Math.max(0,+s.take.el),race:!!s.take.st,t:performance.now()}:null;
+ net.setup={take:tk,w:s.w?1:0,b:s.w&&s.b?1:0,n:s.w?8:clampInt(s.n||8,8,FIELD_MAX),late:s.late?1:0,t:clampInt(s.t,0,courses.length-1),cc:[50,100,150].includes(s.cc)?s.cc:100,wx:Number(s.wx)>>>0,p,k:Number(s.k)||0};
  net.mySlot=mine.s;net.humans=new Map(p.map(q=>[q.s,q]));net.go=false;net.readySent=false;net.ready=new Set();net.bufs=new Map();net.goT=performance.now()+15000;
  cc=net.setup.cc;mode=net.setup.w?'world':'single';gp={active:false,race:0,points:{}};if(!net.setup.w)selected=net.setup.t;
  document.querySelectorAll('#modes .mode').forEach(x=>{const on=x.dataset.mode===mode;x.classList.toggle('selected',on);x.setAttribute('aria-pressed',String(on));});
- $('online').hidden=true;start();if(net.setup.b)battleStart();else battleStop();}
+ $('online').hidden=true;start();if(net.setup.b)battleStart();else battleStop();
+ // laufendes Rennen: kein eigener Countdown, sofort ins Rennen und das Kart des Bots uebernehmen
+ if(net.setup.take&&net.setup.take.race){countdown=.01;toast('Du steigst ins laufende Rennen ein!',2,'good');}}
+function netTakeOver(){const T0=net?.setup?.take;if(!T0)return;net.setup.take=null;const p=racers[0];if(!p)return;
+ posAt(T0.d,T0.o,0,_agP);Object.assign(p,{distance:T0.d,offset:T0.o,x:_agP.x,z:_agP.z,h:T0.h,speed:T0.sp,vx:Math.sin(T0.h)*T0.sp,vz:Math.cos(T0.h)*T0.sp,y:undefined,vy:0,air:false,airT:0,stun:0,safeD:lapDist(T0.d),boost:0,driftDir:0,drift:0});
+ if(T0.race)elapsed=T0.el+(performance.now()-T0.t)/1000;stats.lapStart=elapsed;p.lapDirty=true;vertical(p,1/60);syncKart(p,0);updateCamera(1,true);}
 function netMaybeGo(){if(!net?.host||net.go||!net.setup||!net.readySent)return;
  const all=net.setup.p.every(q=>q.id===net.selfId||!net.peers.has(q.id)||net.ready.has(q.id));
  if(all||performance.now()>net.goT){net.go=true;net.A.go.send({}).catch(()=>{});}}
@@ -4045,11 +4057,15 @@ function netRecvItem(d,peerId){if(!net?.setup||!d||typeof d.k!=='string')return;
  else if(d.k==='ink'){const ids=(Array.isArray(d.i)?d.i:[]).slice(0,FIELD_MAX).map(L);for(const id of ids){const k=racers[id];if(!k)continue;spawnInkcap(k);if(own(k)&&!(k.shield>0))k.ink=INK_T;}
   if(ids.includes(0)&&racers[0].ink>0){inkSplash();SFX.ink();toast('TINTE! 🖋',1.1,'bad');}}}
 // Einsteigen in eine laufende Wiesnland-Runde (R55): der Host gibt dem Neuen den Platz eines Bots und schickt ihm das Setup
-function netDropIn(peerId){const S=net.setup;if(!S||!S.w||(state!=='race'&&state!=='countdown'))return;
+// R58: auch laufende Rennen - der Neue uebernimmt das Kart eines Bots samt Lage, Runde und Rennzeit
+function netDropIn(peerId){const S=net.setup;if(!S||(state!=='race'&&state!=='countdown'))return;
  // schon eingetragen (z. B. zweiter Hallo nach einem Host-Wechsel): Setup nur erneut schicken
  if(!S.p.some(q=>q.id===peerId)){const s=net.slots.get(peerId),q0=net.peers.get(peerId);if(s===undefined||!q0)return;const q={id:peerId,s,n:q0.n,d:q0.d,c:q0.c};
+  if(!S.w&&racers[toLocal(s,net.mySlot)]?.finishTime!==null)return;   // Bot schon im Ziel: der Neue faehrt das naechste Rennen
   S.p=[...S.p.filter(x=>x.s!==s),q];netHumans(S.p);net.A.humans.send(S.p).catch(()=>{});toast(`${q.n} steigt ein!`,1.6,'good');}
- net.A.setup.send({...S,late:1},{target:peerId}).catch(()=>{});}
+ let take=null;if(!S.w){const q=S.p.find(x=>x.id===peerId),r=q&&racers[toLocal(q.s,net.mySlot)];if(!r||r.finishTime!==null)return;
+  take={d:+r.distance.toFixed(2),o:+r.offset.toFixed(2),h:+r.h.toFixed(3),sp:+Math.max(0,r.speed).toFixed(2),el:+elapsed.toFixed(2),st:state==='race'?1:0};}
+ net.A.setup.send({...S,late:1,take},{target:peerId}).catch(()=>{});}
 // Wer faehrt welchen Platz (nach Ein- und Ausstiegen): Namensschilder und Besitz der Karts nachziehen
 function netHumans(list){const p=list.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1)}));
  net.setup.p=p;net.humans=new Map(p.map(q=>[q.s,q]));
@@ -4093,7 +4109,8 @@ function trenchTex(light){return canvasTex(256,256,(q,w,h)=>{let sd=light?91:77;
  q.strokeStyle='#161a22';q.lineWidth=2;for(let y=0;y<=h;y+=32){q.beginPath();q.moveTo(0,y);q.lineTo(w,y);q.stroke();}
  for(let i=0;i<12;i++){q.fillStyle='#1e222a';q.fillRect(rnd()*w,rnd()*h,18+rnd()*34,5+rnd()*12);}
  for(let i=0;i<16;i++){q.fillStyle=rnd()<.55?'#ff6a3a':'#9fd8ff';q.fillRect(rnd()*w,rnd()*h,7,3);}},true);}
-function buildTrench(){const TR=course.trench;if(!TR)return;const H=TRENCH_H,Wd=TRENCH_W;
+function buildTrench(){if(!course.trench)return;posFix=elems.some(z=>z.plain)?trenchLift:null;try{buildTrenchInner();}finally{posFix=null;}}
+function buildTrenchInner(){const TR=course.trench;const H=TRENCH_H,Wd=TRENCH_W;
  const wallMat=stdMat({map:trenchTex(false),roughness:.5,metalness:.55,emissive:0x1a1e28,side:T.DoubleSide}),topMat=stdMat({map:trenchTex(true),roughness:.6,metalness:.45});
  const floorMat=stdMat({map:trenchTex(false),color:0x8a93a6,roughness:.55,metalness:.5});
  const lights=[],towers=[],guns=[];let sd=202;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
@@ -4112,6 +4129,12 @@ function buildTrench(){const TR=course.trench;if(!TR)return;const H=TRENCH_H,Wd=
  towers.forEach(([x,y,z,sx,sy,sz,ry],i)=>{_m.compose(_v.set(x,y,z),_q.setFromEuler(_e.set(0,ry,0)),_s.set(sx,sy,sz));tw.setMatrixAt(i,_m);});tw.castShadow=tw.receiveShadow=true;world.add(tw);
  const gunMat=stdMat({color:0x2a2e38,roughness:.4,metalness:.7}),base=new T.InstancedMesh(new T.CylinderGeometry(1.6,2,2.2,12).translate(0,1.1,0),gunMat,guns.length),barrel=new T.InstancedMesh(new T.BoxGeometry(.5,.5,5).translate(0,2.6,1.6),gunMat,guns.length);
  guns.forEach(([x,y,z,ry],i)=>{_m.compose(_v.set(x,y,z),_q.setFromEuler(_e.set(0,ry,0)),_s.set(1,1,1));base.setMatrixAt(i,_m);barrel.setMatrixAt(i,_m);});world.add(base,barrel);
+ // R58 Oberflaechenphase: solange der Flug ueber der Station liegt (Hoehenflug), ist der Graben mit Stahlplatten gedeckelt -
+ // man fliegt ueber geschlossene Oberflaeche zwischen Tuermen und Geschuetzen, bis sich der Graben oeffnet und der Sturzflug beginnt
+ for(const z of elems){if(z.kind!=='flug'||!z.plan.hi)continue;const c=z.plan.pieces.find(q=>q.type==='climb'),dI=z.plan.pieces.find(q=>q.key==='dropIn');if(!c||!dI)continue;
+  const a=z.s+c.x1+4,b=z.s+dI.x0+6,n=Math.max(6,Math.ceil((b-a)/3));addStrip(strip(a,b,0,Wd*2+1,H-.35,24,n),topMat,false);
+  // Warnstreifen und Leuchtband an der Grabenoeffnung
+  const e=samplePos(b,0,new T.Vector3(),H),ang=sample(b).angle,bar=mesh(new T.BoxGeometry(Wd*2+1,.3,1.4),new T.MeshBasicMaterial({color:0xff5a3a}),world,e.x,e.y+.05,e.z);bar.rotation.y=ang;bar.castShadow=false;}
  const lm=new T.InstancedMesh(new T.BoxGeometry(.6,.35,.6),new T.MeshBasicMaterial({color:0xff5a3a}),lights.length);lights.forEach(([x,y,z],i)=>{_m.compose(_v.set(x,y,z),_q.identity(),_s.set(1,1,1));lm.setMatrixAt(i,_m);});world.add(lm);}
 // ---------------------------------------------------------------- R56 Kotzhuegel-Fight-Arena (Wiesnland)
 // Runder Festplatz auf der Wiese suedlich des Pilzbergs: Strohballen-Ring, Schild, Fass-Deckungen, zehn Itemboxen.
@@ -4146,7 +4169,8 @@ function arenaPlace(){const A=arenaOn()&&course._arena;if(!A)return;let k=0;cons
  if(racers[0]&&!racers[0].net){roulette=null;updateCamera(1,true);}}
 function arenaWall(r){const A=course._arena,dx=r.x-A.x,dz=r.z-A.z,d=Math.hypot(dx,dz),lim=A.r-.8;if(d<=lim)return;
  const nx=dx/d,nz=dz/d;r.x=A.x+nx*lim;r.z=A.z+nz*lim;const vn=r.vx*nx+r.vz*nz;if(vn>0){r.vx-=nx*vn*1.4;r.vz-=nz*vn*1.4;if(r.id===0&&vn>6)SFX.bump(clamp(vn/25,.2,.7));}}
-function arenaRoll(){const pool=['shell','shell','shell','banana','banana','bomb','bomb','boost','triple','shield','mega'];return pool[Math.floor(Math.random()*pool.length)];}
+// R58: in der Arena nur Angriffs-Items (Such-Brezn, Pilzbombe, Banane als Falle, Riesenwuchs) - kein Turbo, kein Mass Bier
+function arenaRoll(){const pool=['shell','shell','shell','shell','bomb','bomb','bomb','banana','banana','mega'];return pool[Math.floor(Math.random()*pool.length)];}
 function arenaPickup(r){const A=course._arena;for(const b of A.boxes){if(b.cool>0)continue;const dx=r.x-b.x,dz=r.z-b.z;if(dx*dx+dz*dz>5.8)continue;
   b.cool=5;b.g.visible=false;burst({mesh:b.g},0xffd452,12);if(r.item||r.itemPending)continue;
   if(r.id===0){r.itemPending=true;roulette={t:.8,tick:0,final:arenaRoll()};SFX.pickup();}else{r.item=arenaRoll();r.charges=r.item==='triple'?3:0;r.cooldown=.6+Math.random()*1.4;}}}
@@ -4193,7 +4217,7 @@ function lobbyTick(){if(!lobby||lobby.pending)return;const now=performance.now()
 function renderRooms(){const box=$('onRooms');if(!box)return;box.replaceChildren();
  for(const pr of PUB_ROOMS){const e=lobby?.rooms.get(pr.code),mine=net&&net.code===pr.code,row=document.createElement('div');row.className='on-room'+(mine?' mine':'');
   const n=document.createElement('b');n.textContent=pr.name;const inf=document.createElement('span');
-  inf.textContent=e?`${e.n}/${e.max} Spieler · ${mine&&net.host?'du bist Host':e.ping!=null?'Ping '+e.ping+' ms':'Ping …'}${e.st==='race'?' · läuft':''}`:'frei · startet mit Bots';
+  inf.textContent=e?`${e.n}/${e.max} Spieler · ${mine&&net.host?'du bist Host':e.ping!=null?'Ping '+e.ping+' ms':'Ping …'}${e.st==='race'?' · läuft – sofort einsteigen':''}`:'frei · startet mit Bots';
   const bt=document.createElement('button');bt.type='button';bt.textContent=mine?'Drin ✓':'Beitreten';bt.disabled=!!mine;
   bt.onclick=()=>{store.set('netName',cleanName($('onName').value));netOpen(pr.code,false,true,pr);};row.append(n,inf,bt);box.append(row);}}
 // Lobby-Tafel
