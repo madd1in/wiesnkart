@@ -1409,3 +1409,13 @@ body .modal .lb-list li.lb-note{background:none;font-style:italic;font-weight:60
  body:not(.onehand) #touch .t-item{width:17vw;height:17vw;max-width:78px;max-height:78px}
  body:not(.onehand) #touch .t-brake{width:13vw;height:13vw;max-width:60px;max-height:60px}
 }
+
+/* R60 schmales Hochformat (<=420 px): Online-Knopf ragte aus der Menuekarte und deckte "Lederhosn" ab -
+   jetzt kompakt (Globus ueber dem Wort); waagrechter Rollbalken des Menues weg */
+#menu{overflow-x:hidden}
+@media (max-width:420px){
+ body #menu .menu-brand{gap:8px}body #menu .menu-brand>div{min-width:0}
+ body #menu .online-btn{grid-template-columns:auto;justify-items:center;padding:4px 9px 5px;border-radius:14px}
+ body #menu .online-btn span{grid-row:auto;font-size:18px;line-height:1}
+ body #menu .online-btn b{font-size:13px;-webkit-text-stroke:2.5px var(--wk-ink);text-align:center}
+}

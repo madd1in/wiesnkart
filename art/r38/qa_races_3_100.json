@@ -1,0 +1,71 @@
+{
+  "startedAt": "2026-09-29T20:41:37.187Z",
+  "cc": 100,
+  "tracks": [
+    {
+      "track": 3,
+      "outcome": "finished",
+      "finishTime": 120.99999999999442,
+      "falls": 0,
+      "airtime": 6,
+      "coasters": 3,
+      "maxLaunch": 45.4662038097587,
+      "minVis": 0.8722142173022895,
+      "maxFloat": 0.5,
+      "launches": 0,
+      "name": "👻GeisterhausSpuk · Gewitter · Geisterhä",
+      "coaster": [
+        {
+          "s": 522,
+          "span": 110,
+          "kind": "hills",
+          "launch": [
+            2,
+            24
+          ],
+          "hills": [
+            {
+              "c": 49,
+              "w": 15,
+              "h": 8.9
+            },
+            {
+              "c": 80,
+              "w": 11,
+              "h": 6.4
+            }
+          ],
+          "arches": [
+            2,
+            7,
+            11,
+            15,
+            20,
+            24
+          ],
+          "assets": {
+            "arch": true,
+            "truss": true
+          },
+          "glow": true
+        }
+      ],
+      "state": "finished",
+      "fallAt": [],
+      "place": 7,
+      "simulated": 130,
+      "perf": {
+        "drawCalls": 247,
+        "triangles": 251682,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 188.8
+    }
+  ],
+  "errors": [],
+  "networkFailures": [],
+  "passed": true,
+  "completedAt": "2026-09-29T20:44:56.308Z"
+}
