@@ -84,7 +84,7 @@ WHEELS = [[-1, .42, 1, 1, 1], [1, .42, 1, 1, 1], [-1.05, .48, -.9, 1.14, 1.3], [
 
 
 def kart(kit, driver, paint, loc, rot=0.0):
-    parts = imp('kartkit', keep=['KX_%d' % kit])
+    parts = imp('kart') + imp('kartkit', keep=['KX_%d' % kit])     # wie im Spiel: Grundkarosserie + Fahrer-Bausatz
     for x, y, z, s, w in WHEELS:
         wr = imp('kartwheel')
         g = group(wr, (x, -z, y))
@@ -132,6 +132,41 @@ kart(2, 'driver_robot', 0xffc83a, (3.6, 12, 0), math.radians(-4))
 
 # ---------------------------------------------------------------- Festwiese im Hintergrund
 group(imp('wiesn', keep=['WS_Gate']), (0, 30, 0))
+# Schriftzug auf dem Tor-Schild (im Spiel setzt der Code die Beschriftung, das Modell hat ein leeres Schild)
+import os
+TX, TY, TZ, TS = [float(v) for v in os.environ.get('KA_TEXT', '0,28.98,12.15,.88').split(',')]
+bpy.ops.object.text_add(location=(TX, TY, TZ), rotation=(math.radians(90), 0, 0))
+tobj = bpy.context.active_object
+if tobj.users_collection and tobj.users_collection[0] != col:
+    for c in list(tobj.users_collection):
+        c.objects.unlink(tobj)
+    col.objects.link(tobj)
+tobj.data.body = 'SUPPA LEDERHOSN\nKARTS'
+tobj.data.align_x = 'CENTER'
+tobj.data.align_y = 'CENTER'
+tobj.data.size = TS
+tobj.data.extrude = .04
+tm = bpy.data.materials.new('SignText')
+tm.use_nodes = True
+tb = next(n for n in tm.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+tb.inputs['Base Color'].default_value = srgb(0x1a5fd0)
+tobj.data.materials.append(tm)
+# neue Schildplatte vor der alten Beschriftung des Modells
+bpy.ops.mesh.primitive_cube_add(size=1, location=(TX, TY + .06, TZ))
+plate = bpy.context.active_object
+if plate.users_collection and plate.users_collection[0] != col:
+    for c in list(plate.users_collection):
+        c.objects.unlink(plate)
+    col.objects.link(plate)
+plate.scale = (9.6, .06, 2.75)
+pm = bpy.data.materials.new('SignPlate')
+pm.use_nodes = True
+pb = next(n for n in pm.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+pb.inputs['Base Color'].default_value = srgb(0xfff8ea)
+pb.inputs['Emission Color'].default_value = srgb(0xfff4dc)
+pb.inputs['Emission Strength'].default_value = .35
+plate.data.materials.append(pm)
+tobj.location.y = TY - .04
 group(imp('landmarks', keep=['LM_Tent']), (-26, 58, 0), math.radians(20), 1.4)
 car = imp('wiesn', keep=['WS_CarouselBase', 'WS_CarouselTop'])
 for r in car:
@@ -163,21 +198,23 @@ sep = nt.nodes.new('ShaderNodeSeparateXYZ')
 ramp = nt.nodes.new('ShaderNodeValToRGB')
 bg = nt.nodes.new('ShaderNodeBackground')
 out = nt.nodes.new('ShaderNodeOutputWorld')
-nt.links.new(tc.outputs['Generated'], sep.inputs[0])
-nt.links.new(sep.outputs['Z'], ramp.inputs['Fac'])
-ramp.color_ramp.elements[0].position = .5
-ramp.color_ramp.elements[0].color = srgb(0xffb070)
-ramp.color_ramp.elements[1].position = .78
-ramp.color_ramp.elements[1].color = srgb(0x3a5fb0)
-mid = ramp.color_ramp.elements.new(.6)
-mid.color = srgb(0xff8fa0)
+nt.links.new(tc.outputs['Window'], sep.inputs[0])                  # Verlauf ueber die Bildhoehe
+nt.links.new(sep.outputs['Y'], ramp.inputs['Fac'])
+ramp.color_ramp.elements[0].position = .38
+ramp.color_ramp.elements[0].color = srgb(0xffd49a)
+ramp.color_ramp.elements[1].position = .95
+ramp.color_ramp.elements[1].color = srgb(0x2f64c8)
+mid = ramp.color_ramp.elements.new(.58)
+mid.color = srgb(0xff9fb8)
+mid2 = ramp.color_ramp.elements.new(.76)
+mid2.color = srgb(0x7fa6f0)
 nt.links.new(ramp.outputs['Color'], bg.inputs['Color'])
-bg.inputs['Strength'].default_value = 1.1
+bg.inputs['Strength'].default_value = .85
 nt.links.new(bg.outputs['Background'], out.inputs['Surface'])
 
 sun = bpy.data.lights.new('Sun', 'SUN')
-sun.energy = 3.2
-sun.color = (1, .78, .55)
+sun.energy = 3.6
+sun.color = (1, .88, .72)
 so = bpy.data.objects.new('Sun', sun)
 col.objects.link(so)
 so.rotation_euler = Euler((math.radians(68), 0, math.radians(-55)))
@@ -222,23 +259,33 @@ except TypeError:
     except TypeError:
         pass
 if hasattr(scn, 'eevee'):
-    scn.eevee.taa_render_samples = 48
+    scn.eevee.taa_render_samples = 24
     for k in ('use_gtao', 'use_bloom', 'use_raytracing'):
         if hasattr(scn.eevee, k):
             setattr(scn.eevee, k, True)
-try:
-    scn.view_settings.view_transform = 'AgX'
-    scn.view_settings.look = 'AgX - Punchy'
-except TypeError:
-    scn.view_settings.view_transform = 'Filmic'
+for vt in ('AgX', 'Filmic', 'Standard'):
+    try:
+        scn.view_settings.view_transform = vt
+        break
+    except TypeError:
+        pass
+for lk in ('AgX - Medium High Contrast', 'Medium High Contrast', 'None'):
+    try:
+        scn.view_settings.look = lk
+        break
+    except TypeError:
+        pass
 r.image_settings.file_format = 'JPEG'
 r.image_settings.quality = 88
 report = {}
+PREVIEW = os.environ.get('KA_PREVIEW')
+if PREVIEW and hasattr(scn, 'eevee'):
+    scn.eevee.taa_render_samples = 4
 for name, (w, h), loc, tgt, lens in [('keyart', (1920, 1080), (5.2, -9.5, 1.9), (0.2, 12, 3.4), 30),
                                     ('keyart_portrait', (1080, 1920), (3.6, -10.5, 2.3), (0.4, 10, 5.5), 26)]:
-    r.resolution_x, r.resolution_y, r.resolution_percentage = w, h, 100
+    r.resolution_x, r.resolution_y, r.resolution_percentage = w, h, (25 if PREVIEW else 100)
     aim(loc, tgt, lens)
-    r.filepath = str(A / (name + '.jpg'))
+    r.filepath = str((ROOT / '.scratch' / (name + '_preview.jpg')) if PREVIEW else (A / (name + '.jpg')))
     bpy.ops.render.render(write_still=True, scene=scn.name)
     report[name] = (A / (name + '.jpg')).stat().st_size
 print('REPORT', json.dumps(report))

@@ -1,10 +1,41 @@
-# Wiesn Kart
+# Suppa Lederhosn Karts (Wiesn Kart)
 
 Spielbarer 3D-Arcade-Kart-Prototyp fuer den Browser (bis Runde 53 "Mushroom Rally"), gebaut ab 13.09.2026.
 Kleine Karts, grosse Gaudi: Rennen rund ums Volksfest, durch Pilzwald, Schloss, Festzelt und Geisterhaus.
 Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
+
+## Runde 56 (29.09.2026): Kotzhügel Fight, offene Räume, Graben-Flug, Wiesn-Fahrer, Keilflitzer
+
+**Suppa Lederhosn Karts** - neuer Titel, Start-Ansage "O'ZAPFT IS!", neues Titelbild (Blender, `art/r56/create_keyart.py`:
+Festwiese mit Wiesn-Tor, Riesenrad, Buden, Karts im Abendlicht) fuer Ladebildschirm (quer und hochkant) und Vorschau.
+Ladebildschirm als helle Karte mit weiss-blauen Rauten und animiertem Rauten-Balken.
+
+**Kotzhügel Fight** (die Open World): Arena auf der Wiese suedlich des Pilzbergs - Festplatz, Strohballen-Ring, Schild,
+Fass-Deckungen, zehn Itemboxen. Jedes Kart hat drei Lebkuchenherzen, schwere Treffer kosten eins, wer keine mehr hat,
+schaut zu; Sieg fuer den Letzten mit Herzen (nach 3 Minuten: die meisten). Im Einzelspieler gegen sieben Bots mit
+Jagd-KI (steuert frei auf Gegner und Itemboxen, setzt Items gezielt), online genauso. In der Arena fliegen Brezn
+zielsuchend frei durch den Raum, Bomben im Bogen.
+
+**Online ohne Codes** - feste offene Raeume (Kotzhügel Fight 1/2, Rennen Flott/Wild) mit Belegung x/8 und Ping zum Host
+(Lobby-Kanal, Ping per WebRTC). Leerer Raum: nach 12 s geht es mit Bots los, Nachzuegler uebernehmen das Kart eines
+Bots; Renn-Raeume starten das naechste Rennen automatisch mit wechselnder Strecke. Eigene Raeume mit Code gibt es weiter.
+
+**Graben-Flug** (8. Strecke): reine Flugstrecke durch den Stahlgraben einer Weltraum-Festung - 24 m hohe Stahlwaende mit
+Lichtern, Stahlboden, oben die Stationsoberflaeche mit Tuermen und Geschuetzen, Ringe, Runden-Ereignis "Festungs-Alarm".
+
+**Neue Fahrer** (`art/r56/create_drivers.py`): Sepp in Lederhosn, Vroni im Dirndl, Lebi das Lebkuchenherz und
+Braumeister Finster (dunkle Tracht mit Umhang, gluehender Krug - eigene Figur, keine Anlehnung an Filmfiguren).
+**Karosserien** (`art/r56/create_kartbodies.py`): Keilflitzer (Standard, flacher Supersportwagen-Keil) und Tourenwagen
+(kantige 80er-Form, Doppel-Scheinwerfer, Lamellengrill) - eigene Entwuerfe ohne Marken-Merkmale; "Klassik" bleibt waehlbar.
+
+**Wiesn-Umbau** - Bierstraße (Fahrbahn aus Bier mit Blaeschen und Schaumrand) statt Sternenglas, Stampfer als Riesen-Masskrug
+mit Smiley, Item "Mass Bier" statt Schild, Wiesnland voller (Buden, Karussells, Festzelte, Maibaeume, Wimpelketten).
+
+**Fixes** - keine Ruecksetzer mehr weit neben der Strasse im Wiesnland (Luftfuehrung, Kuppen, Looping-, Rollzonen-,
+Element- und Magnetfuehrung wirken nur noch auf der Strasse), hellere Naechte (Wueste nachts zusaetzlich), Handy hochkant:
+groessere Lenkknoepfe, Item-Knopf in Daumennaehe.
 
 ## Runde 55 (28.09.2026): Online mit Freunden, Lenkhilfe in drei Stufen, saubere Runden
 

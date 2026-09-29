@@ -257,11 +257,11 @@ function mergeByMaterial(root){root.updateMatrixWorld(true);const groups=new Map
   const key=KEEP_MATS.has(m.name)?'n:'+m.name:m.uuid,e=groups.get(key)||{m,g:[]};e.g.push(g);groups.set(key,e);});
  if(baked.length)groups.set('baked',{m:stdMat({name:'Baked',vertexColors:true,roughness:rough/cnt,metalness:Math.min(.35,metal/cnt)}),g:baked});
  const out=new T.Group();for(const e of groups.values()){const mixed=new Set(e.g.map(g=>!!g.index)).size>1;const gs=e.g.map(g=>{g=mixed&&g.index?g.toNonIndexed():g;if(!g.attributes.normal)g.computeVertexNormals();for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal'&&!(k==='uv'&&e.m.map)&&!(k==='color'&&e.m.vertexColors))g.deleteAttribute(k);return g;});const geo=mergeGeometries(gs,false);if(geo)out.add(new T.Mesh(geo,e.m));else for(const g of gs)out.add(new T.Mesh(g,e.m));}return out;}
-let loaded=0;const PROTO_FILES=['kart','mushroom','gate','tree','rock','balloon','itembox','banana','shell','ramp','grandstand','spectator','bouncepad','podium','trophy','ghost','gravestone','pumpkin','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster','glider','crystal','windring','kartkit','coin','clouds','inkcap','tunnelkit','windsock'];
+let loaded=0;const PROTO_FILES=['kart','mushroom','gate','tree','rock','balloon','itembox','banana','shell','ramp','grandstand','spectator','bouncepad','podium','trophy','ghost','gravestone','pumpkin','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster','kartbodies','glider','crystal','windring','kartkit','coin','clouds','inkcap','tunnelkit','windsock'];
 // Villa und Burg sind gross und stehen nur auf je einer Strecke: erst nach dem Start nachladen
 const LATE_FILES=['mansion','castle','schloss','wiesn','gothic','roottree','neongate','magnetarch','coastertruss','ferriswheel','dragon','transform','elements','ow','hazards','landmarks','critters','tower'];
 // Ohne Materialverschmelzung laden: der Drache braucht seine Teile (Glied, Kopf, Kiefer, Schwanz) einzeln
-const NO_MERGE=new Set(['wiesn','gothic','dragon','transform','elements','ow','kartkit','hazards','landmarks','critters','tower','clouds','tunnelkit']);
+const NO_MERGE=new Set(['kartbodies','wiesn','gothic','dragon','transform','elements','ow','kartkit','hazards','landmarks','critters','tower','clouds','tunnelkit']);
 // R44: weiche Hoehenschattierung als Vertexfarbe (unten dunkler und kuehler, oben hell) - wirkt auch im Leicht-Modus
 // und in den Low-Poly-Fassungen, die Lackfarbe je Instanz (Baumkrone, Pilzhut) bleibt erhalten
 function shadeGeo(g,lo,hi,nw=.25){const p=g.attributes.position,n=g.attributes.normal,old=g.attributes.color;g.computeBoundingBox();const b=g.boundingBox,h=Math.max(1e-3,b.max.y-b.min.y),c=new Float32Array(p.count*3);
@@ -300,7 +300,7 @@ function lookMat(m){if(LITE||!m||!m.isMeshStandardMaterial||looked.has(m))return
 function kartLook(root){if(!LITE&&root)root.traverse(o=>{if(o.isMesh)o.material=Array.isArray(o.material)?o.material.map(lookMat):lookMat(o.material);});return root;}
 // Lack der Karosserie mit Klarlack (MeshPhysical): kraeftiger Glanz ueber der Farbe, auch bei Instanz-Farben
 function clearcoatRoot(root){if(LITE)return root;root.traverse(o=>{if(!o.isMesh||o.material?.name!=='BodyPaint'||o.material.isMeshPhysicalMaterial)return;const s=o.material,p=new T.MeshPhysicalMaterial();T.MeshStandardMaterial.prototype.copy.call(p,s);p.defines={STANDARD:'',PHYSICAL:''};p.clearcoat=1;p.clearcoatRoughness=.12;o.material=p;});return root;}
-for(const k of ['kart','kartkit','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster'])PREP[k]=r=>kartLook(k==='kart'||k==='kartkit'?clearcoatRoot(r):r);
+for(const k of ['kartbodies','kart','kartkit','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster'])PREP[k]=r=>kartLook(k==='kart'||k==='kartkit'||k==='kartbodies'?clearcoatRoot(r):r);
 // R54 Pilzi in Tracht: gruene Weste und rotes Halstuch statt blau-gelb (eigenstaendiger Look). Vor dem
 // Verschmelzen umfaerben - danach stecken die Farben in den Vertexfarben.
 const PRE_MERGE={driver:r=>{applyTint(r,'Suit',0x3f7a44);applyTint(r,'Scarf',0xd0342c);}};
@@ -619,7 +619,7 @@ function syncGlider(r,dt,spin){const g=r.mesh.userData.glider;if(!g)return;
  g.rotation.order='YXZ';g.rotation.set(-r.mesh.rotation.x*.75,-spin,-r.mesh.rotation.z*.65-(r.steerS||0)*.09+Math.sin(elapsed*3+r.id)*.025*open);
  g.scale.set(.09+.91*open,.17+.83*open,.28+.72*open);g.position.y=-1.1*(1-open)+Math.sin(elapsed*4+r.id)*.045*open;
  if(r.id===0&&r.gliding&&!r.gliderSeen&&state==='race'){r.gliderSeen=true;toast('PILZGLEITER!  DRIFT = TRICK',1.3,'good');}}
-function kart(color,goldLook=false,dtype=0){let g;if(P.kart){g=new T.Group();const body=cloneProto(kartProto(dtype));applyTint(body,'BodyPaint',color,goldLook?{metalness:.65,roughness:.28}:null);g.add(body);
+function kart(color,goldLook=false,dtype=0,style){let g;if(P.kart){g=new T.Group();const body=cloneProto(kartProto(dtype,style));applyTint(body,'BodyPaint',color,goldLook?{metalness:.65,roughness:.28}:null);g.add(body);
   const wheels=[];if(P.kartwheel)for(const [x,y,z,s,w] of [[-1,.42,1,1,1],[1,.42,1,1,1],[-1.05,.48,-.9,1.14,1.3],[1.05,.48,-.9,1.14,1.3]]){const piv=new T.Group(),wh=cloneProto(P.kartwheel);piv.position.set(x,y,z);wh.scale.set(w*(x>0?-1:1),s,s);piv.add(wh);g.add(piv);wheels.push({piv,wh,front:z>0,r:y,dir:1});}
   const dproto=P[(DRIVERS[dtype]||DRIVERS[0]).k]||P.driver;
   let driver=null;if(dproto){driver=cloneProto(dproto);applyTint(driver,'CapPaint',goldLook?0xffd23f:color);driver.position.set(0,.95,-.35);g.add(driver);}
@@ -644,7 +644,11 @@ const kartsG=new T.Group();actors.add(kartsG);
 // fest an der Karosserie (die alten Box-Anbauteile hingen am Fahrer und schwankten mit ihm mit, bei
 // instanzierten KI-Karts lagen sie sogar ohne Versatz im Fahrer) und kostet keinen eigenen Draw-Call.
 const kartProtos=new Map();
-function kartProto(t){if(!P.kart)return null;const k=DRIVERS[t]?t:0,kit=P.kartkit?.getObjectByName('KX_'+k);if(!kit)return P.kart;
+// R56 Karosserien (art/r56/create_kartbodies.py): Keilflitzer (Standard) und Tourenwagen - fuer das eigene Kart waehlbar
+let kartStyle=store.get('kartStyle','keil');const KSTYLES=[['keil','Keil'],['tourer','Tourer'],['klassik','Klassik']];
+function kartProto(t,style){if(!P.kart)return null;
+ if(style&&style!=='klassik'){const src=P.kartbodies?.getObjectByName(style==='tourer'?'KB_Tourer':'KB_Keil');if(src){let q=kartProtos.get('S'+style);if(!q){const root=new T.Group();root.add(src.clone(true));q=mergeByMaterial(root);markShared(q);kartProtos.set('S'+style,q);}return q;}}
+ const k=DRIVERS[t]?t:0,kit=P.kartkit?.getObjectByName('KX_'+k);if(!kit)return P.kart;
  let p=kartProtos.get(k);if(p)return p;const root=new T.Group();root.add(P.kart.clone(true),kit.clone(true));
  p=mergeByMaterial(root);markShared(p);kartProtos.set(k,p);return p;}
 function buildKartInstances(types){kartInst=null;if(!types||!types.length||!P.kart||!P.driver||!P.kartwheel)return;const n=types.length,inst={n,wheel:[],groups:[],bodies:[],dmap:[],bmap:[]};
@@ -1029,7 +1033,7 @@ function placeRacers(){const cls=CLASSES[cc];racers=[];
  const on=!!(net&&net.setup),order=isTT()?[0]:on?GRID_G.map(g=>toLocal(g,net.mySlot)):[1,2,3,4,5,0,6,7],ai=order.filter(id=>id!==0),info=id=>on?netSlot(id):{human:false,n:AI_NAMES[id],d:AI_DRIVERS[id],c:AI_COLORS[id-1]};
  // Karts bleiben zwischen Rennen stehen, solange Figur/Farbe/Feldgroesse gleich sind: spart Aufbau und Upload
  // Ladezustand mit in die Signatur: sonst bleiben notgebaute Karts im Zwischenspeicher haengen
- const sig=[order.length,colorIndex,driverIndex,KART_COLORS[colorIndex].gold?1:0,AI_DRIVERS.join(''),P.kart?1:0,P.driver?1:0,P.kartwheel?1:0,P.glider?1:0,P.transform?1:0,P.kartkit?1:0,on?ai.map(id=>{const q=info(id);return q.d+':'+q.c;}).join(','):''].join('|');
+ const sig=[order.length,colorIndex,driverIndex,kartStyle,P.kartbodies?1:0,KART_COLORS[colorIndex].gold?1:0,AI_DRIVERS.join(''),P.kart?1:0,P.driver?1:0,P.kartwheel?1:0,P.glider?1:0,P.transform?1:0,P.kartkit?1:0,on?ai.map(id=>{const q=info(id);return q.d+':'+q.c;}).join(','):''].join('|');
  const reuse=!!kartPool&&kartPool.sig===sig&&kartPool.meshes.length===order.length;
  if(!reuse){clearGroup(kartsG);kartInst=null;kartPool=null;buildKartInstances(isTT()?null:ai.map(id=>info(id).d));}// Startplatz 6 fuer den Spieler: der Sieg muss erfahren werden
  for(let s=0;s<order.length;s++){const id=order[s],q=id===0?null:info(id),r=racer(id,id===0?AI_NAMES[0]:q.n,id===0?KART_COLORS[colorIndex].c:q.c);r.net=on&&id!==0&&(q.human||!net.host);const d=-(9+Math.floor(s/2)*7.5+(s%2)*3),off=s%2?-3.3:3.3,p=sample(d,off);r.x=p.p.x;r.z=p.p.z;r.h=p.angle;r.distance=d;r.offset=off;r.safeD=d;
@@ -1037,7 +1041,7 @@ function placeRacers(){const cls=CLASSES[cc];racers=[];
   r.mAcc=dv.acc;r.mTop=dv.top;r.mGrip=dv.grip;r.mTurn=dv.turn;r.kartScale=dv.sc;
   r.skill=clamp(cls.skill+(7-id)*.012+(id%3-1)*.02,.3,.98);r.laneBias=((id*37)%11-5)*.3;r.driftCd=0;r.aiDrift=0;
   if(reuse){r.mesh=kartPool.meshes[s];const u=r.mesh.userData;if(u.shield)u.shield.visible=false;if(u.glider)u.glider.visible=false;resetTransform(u);if(u.flames)for(const f of u.flames)f.visible=false;r.mesh.visible=true;r.mesh.scale.setScalar(1);}
-  else{r.mesh=id===0||!kartInst?kart(r.color,id===0&&KART_COLORS[colorIndex].gold,id===0?driverIndex:q.d):kartVirtual(r.color,ai.indexOf(id));kartsG.add(r.mesh);}
+  else{r.mesh=id===0||!kartInst?kart(r.color,id===0&&KART_COLORS[colorIndex].gold,id===0?driverIndex:q.d,id===0?kartStyle:undefined):kartVirtual(r.color,ai.indexOf(id));kartsG.add(r.mesh);}
   if(r.mesh.userData.netTag||on)netTag(r,on&&q&&q.human?q.n:'');
   {const u=r.mesh.userData;if(u.shield)u.shield.material=id===0?shieldMat:shieldRivalMat;}
   racers[id]=r;}
@@ -3437,6 +3441,8 @@ courses.forEach((c,i)=>{const b=document.createElement('button'),th=THEMES[c.the
  $('tracks').append(b);try{trackThumb(b.querySelector('canvas'),c);}catch(e){}});
 {const pb=$('owPortal');if(pb)pb.onclick=()=>{if(owPortalAt)owEnterTrack(owPortalAt.ti);};}
 {const ab=$('achBtn');if(ab)ab.onclick=()=>{SFX.pickup();openAchievements();};const ac=$('achClose');if(ac)ac.onclick=()=>{$('achPanel').hidden=true;};}
+{const box=$('kstyle');if(box)KSTYLES.forEach(([v,n])=>{const b=document.createElement('button');b.type='button';b.textContent=n;b.className=v===kartStyle?'selected':'';b.setAttribute('aria-pressed',String(v===kartStyle));
+ b.onclick=()=>{kartStyle=v;store.set('kartStyle',v);box.querySelectorAll('button').forEach(x=>{const on=x===b;x.classList.toggle('selected',on);x.setAttribute('aria-pressed',String(on));});kartPool=null;if(state==='menu'&&racers.length)placeRacers();toast('Karosserie: '+n,1.1);};box.append(b);});}
 {const box=$('assist');if(box)[['aus','Aus'],['leicht','Leicht'],['voll','Voll']].forEach(([v,n])=>{const b=document.createElement('button');b.textContent=n;b.className=v===assistMode?'selected':'';b.setAttribute('aria-pressed',String(v===assistMode));b.title={aus:'Du lenkst und bremst selbst - +25 % XP',leicht:'Hilft nur am Fahrbahnrand - +10 % XP',voll:'Lenkt Kurven mit und bremst vor Ecken'}[v];
  b.onclick=()=>{assistMode=v;store.set('assist2',v);box.querySelectorAll('button').forEach((x,j)=>{const on=j===['aus','leicht','voll'].indexOf(v);x.classList.toggle('selected',on);x.setAttribute('aria-pressed',String(on));});toast('Lenkhilfe: '+n+({aus:' · +25 % XP',leicht:' · +10 % XP',voll:''}[v]),1.4);};box.append(b);});}
 {const box=$('gfx');if(box)Object.keys(GFX).forEach(k=>{const b=document.createElement('button');b.textContent=GFX[k].n;b.className=k===gfxMode?'selected':'';
