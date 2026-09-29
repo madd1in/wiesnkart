@@ -6,7 +6,15 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
-## Runde 57 (29.09.2026): 12er-Starterfeld, Quetschn-Maß
+## Runde 57 (29.09.2026): 12er-Starterfeld, Online-Bestenliste, Quetschn-Maß
+
+**Online-Bestenliste ohne eigenen Server** (`lb.mjs`) - Weltrangliste je Strecke fuers Zeitfahren und "Online-Siege"
+(nur Siege gegen mindestens einen anderen Menschen). Eintraege sind signierte Nostr-App-Daten (NIP-78, Kind 30078)
+auf sechs oeffentlichen Relays; signiert wird mit dem noble-secp256k1 aus dem schon eingebundenen Trystero, der
+Schluessel bleibt im Browser, je Spieler und Liste zaehlt ein ersetzbarer Eintrag. Eingetragen wird nur auf Knopfdruck
+(Name und Wert sind danach oeffentlich), Zeiten unter 70 % der Gold-Medaille werden verworfen, fremde Namen nur als
+Text angezeigt. Zu sehen im Zeitfahr-Ergebnis (mit Namensfeld) und im Online-Fenster (Auswahl der Liste).
+Fix: Tippen in Eingabefeldern steuert nicht mehr das Kart (Leerzeichen im Namen, P pausierte, Enter startete).
 
 **12 Karts pro Rennen** - Einzelrennen, Grand Prix und Online-Rennen starten mit 12 Karts in Dreierreihen (gleiche
 Tiefe wie vorher 8 in Zweierreihen, der Spieler auf Startplatz 8). Vier neue Bots: Hias, Kathi, Wastl und Zenzi.

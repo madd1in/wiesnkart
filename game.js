@@ -15,6 +15,7 @@ import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannon
 import {OW,pswitchMission,pswitchPress,pswitchCollect,pswitchTick,timeLeft,slalomMission,slalomPass,ringsMission,ringsHit,ringsLand,progressAdd} from './ow.mjs';
 import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRings} from './loop.mjs';
 import {NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,battleHit,battleResult,makeCode,normCode,toLocal,toGlobal,assignSlots,packKart,unpackKart,F as NF,snapBuf,pushSnap,sampleSnap} from './net.mjs';
+import {LB_TOP,ttBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {SHRINK_T,MEGA_T,INK_T,HOP_T,miniTurbo,flattenSmall,blastHit,comboStep,racer,driveKart,turnCurve,advanceProgress,hitKart,collideKarts,maxCornerSpeed,angleDiff,lap,finish,ranking,activate,clamp,LAPS,rollItem,loseSpores,addGpPoints,gpStandings,raceStars,gpPoints,MAX_SPORES,PHYS,CLASSES} from './core.mjs';
 
 const $=id=>document.getElementById(id),TAU=Math.PI*2,TEST=new URLSearchParams(location.search).has('test');
@@ -3075,7 +3076,7 @@ function showProgress(res){store.set('prog',res.prog);const el=$('resultProg');i
  const fill=$('xpFill');setTimeout(()=>{if(res.levelUp){fill.style.width='100%';setTimeout(()=>{setText('xpLvl',String(lv1.level));fill.style.transition='none';fill.style.width='0%';void fill.offsetWidth;fill.style.transition='';fill.style.width=Math.round(lv1.into/lv1.need*100)+'%';playClip('s_c_levelup',sfxGain,.9);},700);}else fill.style.width=Math.round(lv1.into/lv1.need*100)+'%';},450);
  if(res.fresh.length)setTimeout(()=>playClip('s_c_unlock',sfxGain,.8),res.levelUp?1600:900);}
 function end(){document.body.classList.remove('mirror');elapsed=racers[0].finishTime??elapsed;qualityRaceEnd();if(isTT())return endTT();state='finished';keys.clear();roulette=null;SFX.hum(false);burst(racers[0],0xffd452,26);burst(racers[0],0xed6350,16);burst(racers[0],0x55bdb2,16);
- $('result').hidden=false;$('touch').hidden=true;showRidePhoto();const order=ranking(racers),place=order.indexOf(racers[0])+1,board=$('leaderboard'),rs=raceStars(place,stats.hitsTaken);
+ $('result').hidden=false;$('lbBox').hidden=true;$('touch').hidden=true;showRidePhoto();const order=ranking(racers),place=order.indexOf(racers[0])+1,board=$('leaderboard'),rs=raceStars(place,stats.hitsTaken);
  $('resultTitle').textContent=place===1?(rs.perfect?'Perfektes Rennen!':'Der Pokal gehört dir!'):place<=3?`Platz ${place} – aufs Treppchen!`:`Platz ${place}. Da geht noch was!`;
  $('resultTime').textContent=`${course.name} · ${ccName(cc)} · ${format(elapsed)}`;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<rs.stars?'on':''}">★</i>`).join('')+(rs.perfect?'<b>PERFEKT</b>':'');
@@ -3091,7 +3092,7 @@ function end(){document.body.classList.remove('mirror');elapsed=racers[0].finish
  if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=gpPoints(i,order.length));addGpPoints(gp.points,order);$('resultEyebrow').textContent=`GRAND PRIX ${ccName(cc).toUpperCase()} · RENNEN ${gp.race+1} / ${courses.length}`;
   gpStandings(gp.points,racers.map(r=>r.id)).forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${racers[id].name}</span><span class="gain">+${gained[id]}</span><span>${gp.points[id]} P</span>`;board.append(li);});
   $('again').textContent=gp.race<courses.length-1?'Nächstes Rennen →':'Zur Siegerehrung 🏆';if(gp.race<courses.length-1)say('gpnext');}
- else{$('resultEyebrow').textContent=net&&net.setup?'ONLINE · ZIEL ERREICHT':'ZIEL ERREICHT';$('again').textContent=net&&net.setup?'Zurück zur Lobby 🌐':'Nochmal – schneller! ↻';order.forEach((r,i)=>{const li=document.createElement('li');if(r.id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${r.name}</span><span>${r.finishTime!==null?format(r.finishTime):'noch im Rennen'}</span>`;board.append(li);});}
+ else{if(net&&net.setup&&place===1)lbWin();$('resultEyebrow').textContent=net&&net.setup?'ONLINE · ZIEL ERREICHT':'ZIEL ERREICHT';$('again').textContent=net&&net.setup?'Zurück zur Lobby 🌐':'Nochmal – schneller! ↻';order.forEach((r,i)=>{const li=document.createElement('li');if(r.id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${r.name}</span><span>${r.finishTime!==null?format(r.finishTime):'noch im Rennen'}</span>`;board.append(li);});}
  if(engine)engine.g.gain.value=0;let wasBest=false;const key=`best-${selected}-${cc}`,old=store.get(key,Infinity);if(elapsed<old&&place<=3){store.set(key,elapsed);wasBest=true;}
  const starKey=`stars-${selected}-${cc}`;if(rs.stars>store.get(starKey,0))store.set(starKey,rs.stars);refreshBest();
  if(wasBest&&!TEST){say('best');burst(racers[0],0xffe16a,36);notice('NEUE BESTZEIT!',2.6);}
@@ -3108,7 +3109,7 @@ function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$
  const st=[['Beste Runde',format(stats.bestLap)],['Drift-Turbos',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra}`],['Tricks / Ringe',`${stats.tricks} / ${stats.rings}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`]]:[]),['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  const board=$('leaderboard');board.replaceChildren();board.classList.remove('many');course.medals.forEach((t,i)=>{const li=document.createElement('li');if(i===m)li.className='me';li.innerHTML=`<span>${MEDALS[i]}</span><span>${elapsed<=t?'✓ geschafft':'noch '+(elapsed-t).toFixed(1)+' s'}</span><span>${format(t)}</span>`;board.append(li);});
- $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();
+ $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();{const b=$('lbBox');b.hidden=false;lbPanel(b,ttBoard(selected));}
  stopVoice();say(record?'best':'finish');if(m<3)SFX.cheer();if(engine)engine.g.gain.value=0;stopBgm();if(!playClip(m<3?'s_jingle':'s_goodtry',sfxGain,.8))SFX.fanfare();finishMusicAt=performance.now()+(m<3?6800:4800);setText('message','');}
 function nextAfterResult(){if(net&&net.setup){if(net.host&&net.pub)net.autoT=Math.min(net.autoT||0,performance.now()+4000);home();openOnline();return;}if(gp.active){if(gp.race<courses.length-1){gp.race++;start();}else ceremony();}else start();}
 
@@ -3466,7 +3467,8 @@ $('start').onclick=()=>{gp=mode==='gp'?{active:true,race:0,points:{}}:{active:fa
 $('again').onclick=nextAfterResult;$('home').onclick=home;$('quit').onclick=home;$('pause').onclick=pause;$('resume').onclick=pause;$('sound').onclick=setSound;
 $('cerAgain').onclick=()=>{gp={active:true,race:0,points:{}};start();};$('cerHome').onclick=home;
 $('item').onclick=use;$('titem').onpointerdown=e=>{e.preventDefault();use();};
-addEventListener('keydown',e=>{if(padHints)padUi(false);if(e.code==='Enter'&&worldMode&&owPortalAt&&state==='race'){owEnterTrack(owPortalAt.ti);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space')use();if(e.code==='Escape'||e.code==='KeyP')pause();if(e.code==='KeyR'&&state==='race'){racers[0].safeD=lapDist(racers[0].distance);respawn(racers[0]);}if(e.code==='Enter'&&state==='menu')$('start').click();}});
+// R57: Tippen in Eingabefeldern (Name, Raumcode) steuert nicht das Kart - sonst fehlten Leerzeichen, P pausierte
+addEventListener('keydown',e=>{if(e.target?.closest?.('input,select,textarea'))return;if(padHints)padUi(false);if(e.code==='Enter'&&worldMode&&owPortalAt&&state==='race'){owEnterTrack(owPortalAt.ti);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space')use();if(e.code==='Escape'||e.code==='KeyP')pause();if(e.code==='KeyR'&&state==='race'){racers[0].safeD=lapDist(racers[0].distance);respawn(racers[0]);}if(e.code==='Enter'&&state==='menu')$('start').click();}});
 addEventListener('keyup',e=>keys.delete(e.code));addEventListener('blur',()=>{keys.clear();touchPtr.clear();touchRefresh();if(state==='race'||state==='countdown')pause();});
 // ---------- Wetter & Tageszeit (R50): wechseln von Runde zu Runde (weather.mjs). Plan je Rennen, Ueberblendung an der
 // Ziellinie, Licht, Himmel und Nebel aus dem Thema gemischt. Regen, Schnee, Sand, Asche und Gluehwuermchen sind
@@ -3951,7 +3953,7 @@ function battleUpdate(){if(!battle||state!=='race')return;if(frame%15===0)battle
  battle.over=true;battle.next=elapsed+6;if(net)net.A.bt.send({k:'win',s:res.winner===null?-1:toGlobal(res.winner,net.mySlot)}).catch(()=>{});battleShowWin(res.winner);}
 function battleShowWin(id){if(!battle)return;battle.over=true;const r=id===null||id===undefined?null:racers[id];
  const txt=!r?'Unentschieden!':r.id===0?'🏆 DU GEWINNST DEN KOTZHÜGEL FIGHT!':`🏆 ${r.name} gewinnt!`;toast(txt+' Nächste Runde gleich …',3.2,r&&r.id===0?'good':'');
- if(r){burst(r,0xffd452,30);if(r.id===0){SFX.cheer();stats&&(stats.battleWins=(stats.battleWins||0)+1);}}}
+ if(r){burst(r,0xffd452,30);if(r.id===0){SFX.cheer();stats&&(stats.battleWins=(stats.battleWins||0)+1);lbWin();}}}
 // ---------------------------------------------------------------- R56 Graben-Flug: Stahlgraben einer Weltraum-Festung
 // course.trench=[[cpVon,cpBis]]: senkrechte Waende links und rechts der Bahn (Paneele mit Lichtern), oben die
 // Stationsoberflaeche mit Tuermen, Geschuetzen und Positionslichtern entlang der Kante. Reine Kulisse.
@@ -4068,7 +4070,7 @@ function netRenderLobby(){const box=$('online');if(!box)return;const inRoom=!!ne
  $('onHost').hidden=!net.host;$('onWait').hidden=net.host;
  if(net.host){document.querySelectorAll('#onWhat button').forEach(b=>b.classList.toggle('selected',b.dataset.w===net.what));const tr=$('onTrack');if(!tr.options.length)courses.forEach((c,i)=>tr.add(new Option(c.name,String(i))));tr.value=String(net.track);tr.disabled=net.what!=='race';$('onClass').value=String(cc);$('onClass').disabled=net.what!=='race';}
  else $('onWait').textContent=L?`Warte auf den Host … (${L.w==='battle'?'Kotzhügel Fight':L.w==='world'?'Wiesnland – frei fahren':courses[L.t]?.name+' · '+ccName(L.cc)})`:'Warte auf den Host …';}
-function openOnline(){const box=$('online');if(!box)return;box.hidden=false;$('onName').value=store.get('netName','');netRenderLobby();lobbyOpen();renderRooms();}
+function openOnline(){const box=$('online');if(!box)return;box.hidden=false;$('onName').value=store.get('netName','');netRenderLobby();lobbyOpen();renderRooms();lbOnline();}
 {const box=$('online');if(box){
  $('onlineBtn').onclick=openOnline;$('onClose').onclick=()=>{box.hidden=true;};$('onLeave').onclick=()=>{netLeave();netMsg('Raum verlassen.');};
  const saveName=()=>{const n=cleanName($('onName').value);store.set('netName',n);$('onName').value=n;return n;};
@@ -4083,6 +4085,49 @@ function openOnline(){const box=$('online');if(!box)return;box.hidden=false;$('o
  $('onClass').onchange=e=>{if(!net?.host)return;cc=Number(e.target.value)||100;store.set('class',cc);refreshMenu();netLobby();};
  $('onGo').onclick=netHostGo;
  const code=normCode(new URLSearchParams(location.search).get('room'));if(code.length>=4){openOnline();$('onCode').value=code;if(!TEST)setTimeout(()=>netOpen(code,false),300);}}}
+// ---------------------------------------------------------------- R57 Online-Bestenliste (lb.mjs)
+// Ohne eigenen Server: signierte Nostr-App-Daten (NIP-78) auf oeffentlichen Relays, signiert mit derselben Bibliothek wie
+// das Online-Spiel. Eingetragen wird nur auf Knopfdruck; der Schluessel liegt nur in diesem Browser.
+const LB_RELAYS=['wss://nos.lol','wss://relay.damus.io','wss://relay.primal.net','wss://nostr.mom','wss://offchain.pub','wss://relay.snort.social'];
+const hexOf=b=>Array.from(b,x=>x.toString(16).padStart(2,'0')).join(''),bytesOf=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
+let lbModP=null;
+async function lbKeys(){const S=(await (lbModP??=import(NET_MODS.nostr))).schnorr;let sk=store.get('lbKey','');if(!/^[0-9a-f]{64}$/.test(sk)){sk=hexOf(S.keygen().secretKey);store.set('lbKey',sk);}
+ const sec=bytesOf(sk),pub=hexOf(S.getPublicKey(sec));store.set('lbPub',pub);return {S,sec,pub};}
+// Eine Anfrage an ein Relay: oeffnen, senden, Antworten lesen, bis onMsg true meldet oder die Zeit um ist
+function lbTalk(url,msg,onMsg,ms=6000){return new Promise(res=>{let ws=null,done=false,t=0;const end=()=>{if(done)return;done=true;clearTimeout(t);try{ws&&ws.close();}catch(e){}res();};t=setTimeout(end,ms);
+ try{ws=new WebSocket(url);}catch(e){end();return;}ws.onopen=()=>{try{ws.send(JSON.stringify(msg));}catch(e){end();}};ws.onerror=end;ws.onclose=end;
+ ws.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}if(Array.isArray(m)&&onMsg(m))end();};});}
+// Zeiten unter 70 % der Gold-Medaille gelten als unmoeglich (Schutz gegen offensichtlich gefaelschte Eintraege)
+const lbOpts=board=>{const m=/^tt:(\d+)$/.exec(board),c=m&&courses[+m[1]];return {minTime:c?c.medals[0]*.7:0,maxTime:900,drivers:DRIVERS.length};};
+async function lbFetch(board){const sub='wk'+Math.random().toString(36).slice(2,9),evs=[];let answered=0;
+ await Promise.all(LB_RELAYS.map(u=>lbTalk(u,['REQ',sub,lbFilter(board)],m=>{if(m[0]==='EVENT'&&m[1]===sub&&evs.length<3000)evs.push(m[2]);if(m[0]==='EOSE'&&m[1]===sub){answered++;return true;}return m[0]==='CLOSED';})));
+ return answered?lbParse(evs,board,lbOpts(board)):null;}
+async function lbPublish(board,data){const {S,sec,pub}=await lbKeys(),ev=lbDraft(board,data,pub),id=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(lbSerial(ev))));
+ ev.id=hexOf(id);ev.sig=hexOf(await S.signAsync(id,sec));let ok=0;
+ await Promise.all(LB_RELAYS.map(u=>lbTalk(u,['EVENT',ev],m=>{if(m[0]==='OK'&&m[1]===ev.id){if(m[2]===true)ok++;return true;}return false;})));return ok;}
+// Online-Siege zaehlen nur mit mindestens einem anderen Menschen im Raum (gegen reine Bots zaehlt es nicht)
+function lbWin(){if(!net?.setup||net.humans.size<2)return;store.set('onWins',store.get('onWins',0)+1);}
+const lbMine=board=>{if(board==='wins'){const w=store.get('onWins',0);return w>0?w:null;}const t=store.get('tt-'+board.slice(3),Infinity);return isFinite(t)?+t.toFixed(3):null;};
+const lbFmt=(board,e)=>board==='wins'?`${e.w} ${e.w===1?'Sieg':'Siege'}`:format(e.t);
+// Namen anderer Spieler nur als Text einsetzen, nie als HTML
+function lbRender(ol,board,list){ol.replaceChildren();const me=store.get('lbPub',''),note=t=>{const li=document.createElement('li');li.className='lb-note';li.textContent=t;ol.append(li);};
+ if(!list)return note('Bestenliste gerade nicht erreichbar – später nochmal.');if(!list.length)return note('Noch keine Einträge – trag dich als Erste(r) ein!');
+ const rank=me?lbRank(list,me):0,rows=list.slice(0,LB_TOP).map((e,i)=>[i,e]);if(rank>LB_TOP)rows.push([rank-1,list[rank-1]]);
+ for(const [i,e] of rows){const li=document.createElement('li');if(e.pubkey===me)li.className='me';const a=document.createElement('span'),b=document.createElement('span'),c=document.createElement('span');
+  a.textContent=(i+1)+'.';b.textContent=`${DRIVERS[e.d]?.i||''} ${e.n}`;c.textContent=lbFmt(board,e);li.append(a,b,c);ol.append(li);}}
+// Liste, Eintragen-Knopf und Hinweis in einem Kasten (.lb-list, .lb-post, .lb-hint, optional .lb-name)
+async function lbPanel(root,board){const ol=root.querySelector('.lb-list'),btn=root.querySelector('.lb-post'),hint=root.querySelector('.lb-hint'),nm=root.querySelector('.lb-name');root.dataset.board=board;
+ const v=lbMine(board),sent=store.get('lbSent-'+board,null),bad=board!=='wins'&&v!==null&&v<lbOpts(board).minTime,fresh=lbBetter(board,v,sent);
+ const say=()=>{hint.textContent=v===null?(board==='wins'?'Gewinne online gegen Freunde (Rennen oder Kotzhügel Fight), dann kannst du dich eintragen.':'Fahr hier ein Zeitfahren, dann kannst du dich eintragen.'):`Eintragen speichert „${myNetName()}“ und ${board==='wins'?'deine Siege':'deine Zeit'} öffentlich (Nostr-Relays, ohne Anmeldung).`;};
+ if(nm){nm.value=store.get('netName','');nm.oninput=()=>{store.set('netName',cleanName(nm.value));say();};}
+ btn.hidden=v===null||bad;btn.disabled=!fresh;btn.textContent=!fresh?'✓ Dein Eintrag ist aktuell':board==='wins'?`🌍 Meine ${v} ${v===1?'Sieg':'Siege'} eintragen`:`🌍 Meine Bestzeit ${format(v)} eintragen`;say();
+ btn.onclick=async()=>{btn.disabled=true;btn.textContent='trägt ein …';let ok=0;try{ok=await lbPublish(board,board==='wins'?{n:myNetName(),w:v,d:driverIndex}:{n:myNetName(),t:v,d:driverIndex});}catch(e){ok=0;}
+  if(ok){store.set('lbSent-'+board,v);toast('🌍 Eingetragen!',1.4,'good');lbPanel(root,board);}else{btn.disabled=false;btn.textContent='Hat nicht geklappt – nochmal?';}};
+ ol.replaceChildren();{const li=document.createElement('li');li.className='lb-note';li.textContent=TEST?'(Testmodus: keine Abfrage)':'lädt …';ol.append(li);}if(TEST)return;
+ const list=await lbFetch(board);if(root.dataset.board===board)lbRender(ol,board,list);}
+function lbOnline(){const sel=$('lbSel'),root=$('onLb');if(!sel||!root)return;
+ if(!sel.options.length){sel.append(new Option('🏆 Online-Siege','wins'));courses.forEach((c,i)=>sel.append(new Option(`⏱ ${c.name}`,ttBoard(i))));sel.value=store.get('lbSel','wins');if(!sel.value)sel.value='wins';sel.onchange=()=>{store.set('lbSel',sel.value);lbPanel(root,sel.value);};}
+ lbPanel(root,sel.value);}
 // Testschnittstelle nur mit ?test=1
 if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,classes:()=>CLASSES,net:()=>net?{code:net.code,host:net.host,slot:net.mySlot,peers:[...net.peers.values()].map(q=>q.n),go:net.go,setup:!!net.setup,bufs:[...net.bufs.keys()],netRacers:racers.filter(r=>r.net).map(r=>r.id),lobby:net.lobby}:null,netOpen:(c,h,q)=>netOpen(c,h,q),battle:()=>battle&&{over:battle.over,hearts:racers.map(r=>r.hearts),out:racers.map(r=>!!r.out)},battleStart:()=>battleStart(),netGo:()=>netHostGo(),wizard:()=>{const k=deco?.wizard;if(!k)return null;const p=k.g.getWorldPosition(new T.Vector3());return {vis:k.g.visible,show:+k.show.toFixed(2),casts:k.casts,spells:k.spells.length,sec:k.sec,pos:p.toArray().map(v=>+v.toFixed(1)),kids:k.g.children.length};},oh:()=>({...oh,taps:oh.taps.size}),dizzy:()=>{const m=new T.Matrix4(),out=[];for(let i=0;i<6;i++){dizzyMesh.getMatrixAt(i,m);out.push(new T.Vector3().setFromMatrixPosition(m).toArray().map(v=>+v.toFixed(1)));}return {out,cam:camera.position.toArray().map(v=>+v.toFixed(1)),p:racers[0].mesh.position.toArray().map(v=>+v.toFixed(1))};},star:()=>({playing:!!starSrc,loaded:!!clipBuf.s_c_star,dur:clipBuf.s_c_star?.duration,duck:+duckLevel.toFixed(2)}),
  windsocks:()=>world.userData.windsocks||[],
@@ -4112,6 +4157,7 @@ if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,classes:()=>CLA
  coasterH:d=>coasterH(d),ridePhoto:()=>ridePhoto?ridePhoto.length:0,ridePhotoURL:()=>ridePhoto,coasterRun:()=>racers.map(r=>({id:r.id,run:r.czRun?{arch:r.czRun.arch,air:r.czRun.airHills,maxOff:+r.czRun.maxOff.toFixed(2),launched:r.czRun.launched}:null,g:r.czG,float:r.czFloat,vis:r.czVis,speed:r.speed})),
  // Standbild an beliebiger Stelle: Spieler auf Streckenmeter d setzen, Kamera einrasten, rendern
  field:n=>{fieldForce=n|0;kartPool=null;return fieldSize();},
+ lbView:(board,events,me)=>{if(me)store.set('lbPub',me);const root=$('onLb');$('online').hidden=false;lbRender(root.querySelector('.lb-list'),board,lbParse(events,board,lbOpts(board)));return root.innerText;},
  pose:(d,off=0,speed=30,frames=40)=>{if(!racers.length)return null;const r=racers[0],s=sample(d,off),gy=groundAt(d,off).y;r.distance=d;r.offset=off;r.x=s.p.x;r.z=s.p.z;r.h=s.angle;r.speed=speed;r.vx=Math.sin(r.h)*speed;r.vz=Math.cos(r.h)*speed;r.y=gy;r.vy=0;r.air=false;r.airT=0;r.stun=0;r.trick=0;r.finishTime=null;r.lastGround=gy;
   const cz=coasterAt(d);if(cz){r.czRun=null;coasterRide(r,cz,false);}else{r.czFloat=0;r.czVis=1;}
   state='inspect';for(let i=0;i<frames;i++){syncKart(r,1/60);updateCamera(1/60,i===0);animateWorld(1/60,performance.now());}syncKartInstances();hud();renderer.render(scene,camera);return {d,y:r.mesh.position.y,g:r.czG,float:r.czFloat};},
