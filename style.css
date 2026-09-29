@@ -1391,3 +1391,21 @@ body .modal .lb-list li.lb-note{background:none;font-style:italic;font-weight:60
  body #menu #assist,body #menu #gfx{width:100%;box-sizing:border-box}
  body #menu #assist button,body #menu #gfx button{flex:1 1 0;min-width:0}
 }
+
+/* R59 Handy hochkant, Zwei-Tasten-Lenkung (Nutzerhinweis "Links-Taste zu klein, erwische sie staendig nicht"):
+   Lenktasten hoeher, die linke breiter und mit unsichtbarer Trefferzone bis an den Rand und nach oben; die Aktionstasten
+   so klein, dass alles in 100vw passt (vorher ragten Gas und Bremse rechts aus dem Bild) */
+@media (pointer:coarse) and (orientation:portrait){
+ body:not(.onehand) #touch{padding:0 8px calc(10px + env(safe-area-inset-bottom,0px))}
+ body:not(.onehand) #touch .steer{gap:8px;padding:6px}
+ body:not(.onehand) #touch .steer button{height:clamp(140px,22vh,196px);border-radius:30px;font-size:42px;position:relative}
+ body:not(.onehand) #touch .steer button:first-child{width:27vw}
+ body:not(.onehand) #touch .steer button:last-child{width:23vw}
+ body:not(.onehand) #touch .steer button::before{content:'';position:absolute;top:-28px;bottom:-12px;left:-4px;right:-4px}
+ body:not(.onehand) #touch .steer button:first-child::before{left:-24px}
+ body:not(.onehand) #touch .act{gap:8px 8px}
+ body:not(.onehand) #touch .t-gas{width:21vw;height:21vw;max-width:96px;max-height:96px}
+ body:not(.onehand) #touch .t-drift{width:19vw;height:19vw;max-width:86px;max-height:86px;margin-bottom:14px}
+ body:not(.onehand) #touch .t-item{width:17vw;height:17vw;max-width:78px;max-height:78px}
+ body:not(.onehand) #touch .t-brake{width:13vw;height:13vw;max-width:60px;max-height:60px}
+}

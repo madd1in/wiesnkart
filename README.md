@@ -6,6 +6,22 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 59 (29.09.2026): Kuehe ohne Haengenbleiben, huebschere Almkuh, Zeitklo & Tentakel, groessere Lenktasten
+
+**Kuehe auf der Pilz-Promenade** - man blieb an ihnen haengen: Zusammenstoss stiess zurueck und betaeubte (Tempo 5 m/s),
+die Kuh lief weiter in einen hinein. Jetzt nur ein Streifer (Tempo -28 %), danach 1,2 s Durchfahrt, die Kuh flieht an den
+Rand; Kuehe grasen meist am Rand und queren selten und zuegig. Neues Modell (`art/r59/create_cow.py`): Fleckvieh mit
+Kulleraugen und Wimpern, Almabtrieb-Blumenkranz, geschwungene Hoerner, grosse Messingglocke am bestickten Halsband
+(bimmelt beim Vorbeifahren), Euter, wedelnder Schwanz.
+
+**Easter Eggs** (Anklang an klassische Zeitreise-Adventures, eigene Entwuerfe ohne Figuren oder Namen): blaue Zeitklos mit
+Mondsichel-Tuer (`art/r59/create_eggs.py`) - wer vorbeifaehrt, dem springt die Tuer auf, gruener Blitz, kleiner
+Zeitsprung-Turbo; lila und gruene Tentakel aus Gullydeckeln, die hochschnellen, wenn ein Kart kommt; Warnschilder
+"ACHTUNG TENTAKEL!". Auf der Pilz-Promenade und im Geisterhaus.
+
+**Handy hochkant, Zwei-Tasten-Lenkung** - Lenktasten hoeher (22 % der Bildhoehe), die linke breiter mit unsichtbarer
+Trefferzone bis zum Rand und nach oben; Gas und Bremse ragten rechts aus dem Bild (jetzt passt alles in die Breite).
+
 ## Runde 58 (29.09.2026): Jederzeit online einsteigen, Angriffs-Items in der Arena, Oberflaechenflug
 
 **Laufenden Online-Sitzungen jederzeit beitreten** - auch Rennen: der Neue uebernimmt das Kart eines Bots mitten im
