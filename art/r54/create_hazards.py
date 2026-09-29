@@ -44,6 +44,12 @@ use_materials({
     'SignRed': material('SignRed', (.9, .12, .1, 1), .5),
     'SignOrange': material('SignOrange', (1, .45, .05, 1), .5, 0, (1, .35, .02, 1), .8),
     'BavBlue': material('BavBlue', (.1, .45, .9, 1), .5),
+    # R56 Masskrug-Stampfer
+    'Beer': material('Beer', (1, .62, .08, 1), .2, 0, (1, .5, .05, 1), .35),
+    'Glass': material('Glass', (.86, .93, .95, 1), .08, .1),
+    'Foam': material('Foam', (1, .99, .94, 1), .75),
+    'Smile': material('Smile', (.12, .06, .03, 1), .5),
+    'Blush': material('Blush', (1, .45, .5, 1), .6),
 })
 
 def cone(base, tip, r, seg=4):
@@ -79,22 +85,36 @@ def barrel(part, key, r0, r1, y0, y1, seg=28, hoops=(), hoop_key='Iron'):
         r = r0 + (r1 - r0) * math.sin(math.pi * u)
         part.add(hoop_key, torus((0, y, 0), r * 1.01, .07, (0, 1, 0), seg, 5))
 
-# ---------------------------------------------------------------- Hau-den-Lukas-Hammer (Stampfer)
+# ---------------------------------------------------------------- Riesen-Masskrug mit Smiley (Stampfer, R56)
+# Nutzerwunsch "statt Stampfer riesen Bierkrug Mass mit Smiley-Gesicht": gleiche Grundflaeche wie der alte Block
+# (4,2 x 3,2 m, Hoehe 4,4 m bis zur Schaumkrone), Gesicht auf beiden Seiten zur Fahrbahn
 st = Part('HZ_Stamper')
-st.add('StonePaint', rbox((0, 2.2, 0), (4.2, 4.4, 3.2), .42, 3))
-for x in (-1.45, 0, 1.45):                                   # Eisenbaender quer ueber den Klotz
-    st.add('Iron', rbox((x, 2.2, 0), (.28, 4.52, 3.32), .1, 1))
-for sx in (-1, 1):                                           # Nietenreihe an den Stirnseiten
-    for y in (.8, 2.2, 3.6):
-        for z in (-1.1, 1.1):
-            st.add('Gold', sphere((sx * 2.13, y, z), .1, (1, 1, 1), 8, 5))
-for zf in (-1.61, 1.61):                                     # Messingplakette mit blau-weisser Raute
-    s = 1 if zf > 0 else -1
-    st.add('Gold', rbox((-.7, 2.2, zf), (1.3, 1.3, .06), .08, 1))
-    st.add('BavBlue', rbox((-.7, 2.2, zf + s * .04), (.62, .62, .04), 0, 1, rot=(0, 0, math.pi / 4)))
-st.add('WoodDark', cyl((0, 4.3, 0), (0, 10.5, 0), .42, .36, 16))  # Stiel
-st.add('Iron', cyl((0, 4.3, 0), (0, 4.9, 0), .55, .55, 16))
-st.add('Iron', torus((0, 10.2, 0), .4, .07, (0, 1, 0), 16, 4))
+st.add('Glass', cyl((0, 0, 0), (0, .45, 0), 1.72, 1.72, 32))                 # dicker Glasboden
+st.add('Beer', cyl((0, .45, 0), (0, 3.9, 0), 1.64, 1.64, 32))               # Bier
+st.add('Glass', torus((0, 3.92, 0), 1.64, .1, (0, 1, 0), 32, 6))            # Glasrand
+for k in range(12):                                                         # Glas-Noppen (Masskrug-Dellen)
+    a = k * math.pi / 6
+    for y in (1.3, 2.3, 3.2):
+        if abs(math.sin(a)) > .82 and y > 1:                                # Gesichtsseiten frei lassen
+            continue
+        st.add('Glass', sphere((math.cos(a) * 1.63, y, math.sin(a) * 1.63), .26, (.35, 1, 1), 8, 6))
+st.add('Glass', tube([(1.62, 3.2, 0), (2.55, 3.1, 0), (2.7, 2.2, 0), (2.5, 1.2, 0), (1.62, 1.1, 0)], .26, 10))  # Henkel
+rnd = __import__('random').Random(56)
+for k in range(22):                                                         # ueberquellende Schaumkrone
+    a = k * 2 * math.pi / 22
+    rr = 1.45 + rnd.uniform(-.1, .25)
+    st.add('Foam', sphere((math.cos(a) * rr, 4.0 + rnd.uniform(0, .25), math.sin(a) * rr), .5 + rnd.uniform(0, .18), (1, .8, 1), 10, 7))
+st.add('Foam', sphere((0, 4.1, 0), 1.35, (1, .45, 1), 18, 10))
+for k in range(4):                                                          # Schaumtropfen laufen am Glas herab
+    a = .6 + k * 1.55
+    st.add('Foam', tube([(math.cos(a) * 1.66, 3.95, math.sin(a) * 1.66), (math.cos(a) * 1.7, 3.4 - k * .15, math.sin(a) * 1.7)], .16, 6))
+for zf in (-1, 1):                                                          # Smiley vorn und hinten
+    z = zf * 1.62
+    for sx in (-1, 1):
+        st.add('Smile', sphere((sx * .5, 2.75, z), .26, (1, 1.35, .45), 12, 8))
+        st.add('Foam', sphere((sx * .44, 2.88, z + zf * .1), .08, (1, 1, .5), 6, 4))
+        st.add('Blush', sphere((sx * .95, 2.2, z * .97), .2, (1, .6, .35), 8, 6))
+    st.add('Smile', tube([(-.75, 2.05, z), (-.4, 1.62, z * 1.02), (0, 1.5, z * 1.03), (.4, 1.62, z * 1.02), (.75, 2.05, z)], .1, 6))
 st.finish()
 
 # ---------------------------------------------------------------- Bierfass (statt Roehre), Oberkante bei y = 3.2

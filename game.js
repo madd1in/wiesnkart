@@ -142,8 +142,13 @@ const DRIVERS=[
  {k:'driver_robot',n:'Volt',i:'🤖',kart:'Voltstoss',acc:1.18,top:.95,grip:1.03,turn:1.03,sc:[.97,1.07,.98],tip:'spurtstark'},
  {k:'driver_cat',n:'Mochi',i:'🐱',kart:'Kurvenkatze',acc:1.05,top:.97,grip:1.02,turn:1.15,sc:[.94,.96,.96],tip:'wendig'},
  // R51 Tux, der Linux-Pinguin: rutscht wie auf Eis (weniger Grip), dafuer schnell und driftfreudig
- {k:'driver_penguin',n:'Tux',i:'🐧',kart:'Kernel-Kufe',acc:.95,top:1.05,grip:.95,turn:1.06,sc:[.98,1,1.02],tip:'rutschig, schnell'}];
-const AI_DRIVERS=[0,1,2,3,1,2,3,4];
+ {k:'driver_penguin',n:'Tux',i:'🐧',kart:'Kernel-Kufe',acc:.95,top:1.05,grip:.95,turn:1.06,sc:[.98,1,1.02],tip:'rutschig, schnell'},
+ // R56 Wiesn-Fahrer (art/r56/create_drivers.py): Bursch in Lederhosn, Madl im Dirndl, Lebkuchenherz, dunkler Braumeister
+ {k:'driver_sepp',n:'Sepp',i:'🥨',kart:'Wadlbeißer',acc:1.02,top:1.02,grip:1,turn:.98,sc:[1.02,1,1.02],tip:'kräftig'},
+ {k:'driver_vroni',n:'Vroni',i:'👗',kart:'Dirndlflitzer',acc:1.08,top:.98,grip:1.02,turn:1.08,sc:[.97,1,.98],tip:'flink'},
+ {k:'driver_lebi',n:'Lebi',i:'💝',kart:'Zuckerguss',acc:1.12,top:.96,grip:1.05,turn:1.04,sc:[.95,.98,.96],tip:'süß & spritzig'},
+ {k:'driver_finster',n:'Finster',i:'🎩',kart:'Schwarzbier',acc:.9,top:1.08,grip:1.02,turn:.95,sc:[1.05,.97,1.05],tip:'dunkel & schnell'}];
+const AI_DRIVERS=[0,6,1,5,3,7,2,8];
 // R55 Online: Zustand der Verbindung (siehe Online-Block unten) und Startaufstellung nach globalem Platz
 let net=null,trysteroP=null,battle=null;const GRID_G=[1,2,3,4,5,0,6,7];
 // R54 Klassen heissen nach Tempo statt Hubraum (intern bleiben 50/100/150)
@@ -242,7 +247,7 @@ function mergeByMaterial(root){root.updateMatrixWorld(true);const groups=new Map
   const key=KEEP_MATS.has(m.name)?'n:'+m.name:m.uuid,e=groups.get(key)||{m,g:[]};e.g.push(g);groups.set(key,e);});
  if(baked.length)groups.set('baked',{m:stdMat({name:'Baked',vertexColors:true,roughness:rough/cnt,metalness:Math.min(.35,metal/cnt)}),g:baked});
  const out=new T.Group();for(const e of groups.values()){const mixed=new Set(e.g.map(g=>!!g.index)).size>1;const gs=e.g.map(g=>{g=mixed&&g.index?g.toNonIndexed():g;if(!g.attributes.normal)g.computeVertexNormals();for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal'&&!(k==='uv'&&e.m.map)&&!(k==='color'&&e.m.vertexColors))g.deleteAttribute(k);return g;});const geo=mergeGeometries(gs,false);if(geo)out.add(new T.Mesh(geo,e.m));else for(const g of gs)out.add(new T.Mesh(g,e.m));}return out;}
-let loaded=0;const PROTO_FILES=['kart','mushroom','gate','tree','rock','balloon','itembox','banana','shell','ramp','grandstand','spectator','bouncepad','podium','trophy','ghost','gravestone','pumpkin','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','glider','crystal','windring','kartkit','coin','clouds','inkcap','tunnelkit','windsock'];
+let loaded=0;const PROTO_FILES=['kart','mushroom','gate','tree','rock','balloon','itembox','banana','shell','ramp','grandstand','spectator','bouncepad','podium','trophy','ghost','gravestone','pumpkin','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster','glider','crystal','windring','kartkit','coin','clouds','inkcap','tunnelkit','windsock'];
 // Villa und Burg sind gross und stehen nur auf je einer Strecke: erst nach dem Start nachladen
 const LATE_FILES=['mansion','castle','schloss','wiesn','gothic','roottree','neongate','magnetarch','coastertruss','ferriswheel','dragon','transform','elements','ow','hazards','landmarks','critters','tower'];
 // Ohne Materialverschmelzung laden: der Drache braucht seine Teile (Glied, Kopf, Kiefer, Schwanz) einzeln
@@ -285,7 +290,7 @@ function lookMat(m){if(LITE||!m||!m.isMeshStandardMaterial||looked.has(m))return
 function kartLook(root){if(!LITE&&root)root.traverse(o=>{if(o.isMesh)o.material=Array.isArray(o.material)?o.material.map(lookMat):lookMat(o.material);});return root;}
 // Lack der Karosserie mit Klarlack (MeshPhysical): kraeftiger Glanz ueber der Farbe, auch bei Instanz-Farben
 function clearcoatRoot(root){if(LITE)return root;root.traverse(o=>{if(!o.isMesh||o.material?.name!=='BodyPaint'||o.material.isMeshPhysicalMaterial)return;const s=o.material,p=new T.MeshPhysicalMaterial();T.MeshStandardMaterial.prototype.copy.call(p,s);p.defines={STANDARD:'',PHYSICAL:''};p.clearcoat=1;p.clearcoatRoughness=.12;o.material=p;});return root;}
-for(const k of ['kart','kartkit','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin'])PREP[k]=r=>kartLook(k==='kart'||k==='kartkit'?clearcoatRoot(r):r);
+for(const k of ['kart','kartkit','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster'])PREP[k]=r=>kartLook(k==='kart'||k==='kartkit'?clearcoatRoot(r):r);
 // R54 Pilzi in Tracht: gruene Weste und rotes Halstuch statt blau-gelb (eigenstaendiger Look). Vor dem
 // Verschmelzen umfaerben - danach stecken die Farben in den Vertexfarben.
 const PRE_MERGE={driver:r=>{applyTint(r,'Suit',0x3f7a44);applyTint(r,'Scarf',0xd0342c);}};

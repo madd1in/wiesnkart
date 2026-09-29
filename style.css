@@ -1335,3 +1335,5 @@ body #online #onWhat{flex-wrap:wrap}
 }
 /* R56 Kotzhuegel Fight: Platz-Anzeige und Wiesnland-Missionstafel passen nicht zum Arena-Kampf */
 body.battle .position,body.battle #owPanel,body.battle #rivalTag{display:none!important}
+/* R56: neun Fahrer - die Auswahl darf zweizeilig werden */
+body #menu #drivers{flex-wrap:wrap;max-width:260px}
