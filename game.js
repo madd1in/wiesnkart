@@ -3092,7 +3092,7 @@ function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$
  const board=$('leaderboard');board.replaceChildren();course.medals.forEach((t,i)=>{const li=document.createElement('li');if(i===m)li.className='me';li.innerHTML=`<span>${MEDALS[i]}</span><span>${elapsed<=t?'✓ geschafft':'noch '+(elapsed-t).toFixed(1)+' s'}</span><span>${format(t)}</span>`;board.append(li);});
  $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();
  stopVoice();say(record?'best':'finish');if(m<3)SFX.cheer();if(engine)engine.g.gain.value=0;stopBgm();if(!playClip(m<3?'s_jingle':'s_goodtry',sfxGain,.8))SFX.fanfare();finishMusicAt=performance.now()+(m<3?6800:4800);setText('message','');}
-function nextAfterResult(){if(net&&net.setup){home();openOnline();return;}if(gp.active){if(gp.race<courses.length-1){gp.race++;start();}else ceremony();}else start();}
+function nextAfterResult(){if(net&&net.setup){if(net.host&&net.pub)net.autoT=Math.min(net.autoT||0,performance.now()+4000);home();openOnline();return;}if(gp.active){if(gp.race<courses.length-1){gp.race++;start();}else ceremony();}else start();}
 
 // ---------------------------------------------------------------- Grand-Prix-Siegerehrung, Pokale & Freischaltung
 function ceremony(){state='ceremony';worldDirty=true;clearGroup(actors);kartInst=null;kartPool=null;bombs=[];stormFx=[];hazards=[];shots=[];puffs=[];
@@ -3798,11 +3798,11 @@ const clampInt=(v,a,b)=>Math.max(a,Math.min(b,Math.floor(Number(v)||0)));
 const myNetName=()=>cleanName(store.get('netName',''))||'Fahrer';
 function netMsg(t){setText('onStatus',t||'');}
 function netUrl(code){const st=netStrat(),u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('room',code);if(st!=='nostr')u.searchParams.set('net',st);return u.toString();}
-async function netOpen(code,host,quick){netLeave(true);netMsg('Verbinde …');
+async function netOpen(code,host,quick,pub){netLeave(true);netMsg('Verbinde …');if(pub)lobbyOpen();
  let TR;const strat=netStrat();try{TR=await (trysteroP??=import(NET_MODS[strat]));}catch(e){trysteroP=null;netMsg('Online-Modul konnte nicht geladen werden – Internetverbindung prüfen.');return;}
  let room;try{room=TR.joinRoom(strat==='nostr'?{appId:NET_APP,relayConfig:{urls:NET_RELAYS,warnOnRelayFailure:false}}:{appId:NET_APP},'wk-'+code);}catch(e){netMsg('Verbindung fehlgeschlagen.');return;}
  const A={};for(const k of ['hello','lobby','setup','ready','go','st','item','bt','humans'])A[k]=room.makeAction(k);
- net={room,A,code,host,selfId:TR.selfId,mySlot:host?0:-1,peers:new Map(),slots:new Map(),hostId:host?TR.selfId:null,lobby:null,setup:null,humans:new Map(),go:false,readySent:false,ready:new Set(),bufs:new Map(),sendT:0,goT:0,what:'world',track:0};
+ net={room,A,code,host,pub:pub||null,selfId:TR.selfId,mySlot:host?0:-1,peers:new Map(),slots:new Map(),hostId:host?TR.selfId:null,lobby:null,setup:null,humans:new Map(),go:false,readySent:false,ready:new Set(),bufs:new Map(),sendT:0,goT:0,what:'world',track:0};
  const hello=()=>({n:myNetName(),d:driverIndex,c:colorIndex,v:NET_VER});
  room.onPeerJoin=id=>{if(!net)return;A.hello.send(hello(),{target:id}).catch(()=>{});if(net.host)netLobby();};
  room.onPeerLeave=id=>netPeerLeft(id);
@@ -3825,8 +3825,9 @@ async function netOpen(code,host,quick){netLeave(true);netMsg('Verbinde …');
  A.humans.onMessage=(d,{peerId})=>{if(!net?.setup||peerId!==net.hostId||!Array.isArray(d))return;netHumans(d);};
  if(host){net.what=store.get('netWhat','battle');net.track=clampInt(selected===WORLD_IDX?lastRaceSel:selected,0,courses.length-1);netLobby();netMsg('Raum offen – schick den Link an deine Freunde.');}
  else if(quick){net.quick=true;netMsg('Suche Mitspieler … wenn niemand da ist, geht es gleich mit Bots los.');
-  const me0=net;net.quickT=setTimeout(()=>{if(net!==me0||net.lobby||net.host)return;net.quickT=0;net.host=true;net.hostId=net.selfId;net.mySlot=0;net.what='battle';netLobby();
-   netMsg('Niemand online – los geht es mit Bots. Wer dazukommt, steigt direkt ein.');netHostGo();},12000);}
+  const me0=net;net.quickT=setTimeout(()=>{if(net!==me0||net.lobby||net.host)return;net.quickT=0;net.host=true;net.hostId=net.selfId;net.mySlot=0;
+   if(net.pub&&net.pub.mode==='race'){net.what='race';cc=net.pub.cc||100;net.autoT=performance.now()+15000;netLobby();netMsg('Niemand da – das Rennen startet gleich mit Bots. Wer dazukommt, faehrt mit.');return;}
+   net.what='battle';netLobby();netMsg('Niemand online – los geht es mit Bots. Wer dazukommt, steigt direkt ein.');netHostGo();},12000);}
  else{netMsg('Suche den Raum … das kann bis zu 20 Sekunden dauern.');const me0=net;setTimeout(()=>{if(net===me0&&!net.lobby)netMsg('Noch kein Host gefunden – Code prüfen oder den Host bitten, den Raum offen zu lassen.');},35000);}
  try{history.replaceState(null,'',netUrl(code));}catch{}netRenderLobby();}
 addEventListener('pagehide',()=>{try{net?.room.leave();}catch{}});
@@ -3979,6 +3980,34 @@ function arenaItems(r){if(!r.item||r.cooldown>0||r.itemPending||r.out)return;con
  const d=Math.hypot(q.x-r.x,q.z-r.z),a=Math.abs(angleDiff(Math.atan2(q.x-r.x,q.z-r.z),r.h));
  const go=(it==='shell'&&d<50&&a<1)||(it==='bomb'&&d<28&&a<.55)||(it==='banana'&&((d<16&&a>2.2)||Math.random()<.004))||(it==='shield'&&d<16)||(it==='mega'&&d<24&&a<.8)||((it==='boost'||it==='triple')&&d<36&&a<.35);
  if(go){useItem(r);r.cooldown=.8+Math.random()*1.2;}}
+// ---------------------------------------------------------------- R56 Offene Raeume (ohne Codes)
+// Feste oeffentliche Raeume; wer die Online-Tafel offen hat, sitzt zusaetzlich im Lobby-Kanal "wk-lobby". Die Hosts
+// offener Raeume melden dort alle 3 s ihre Belegung, der Ping wird direkt zum Host gemessen (WebRTC, Trystero ping).
+// Leerer Raum: wer beitritt, startet nach 12 s selbst mit Bots; Renn-Raeume starten das naechste Rennen automatisch.
+const PUB_ROOMS=[{code:'WKFEST1',name:'🎡 Kotzhügel Fight 1',mode:'battle'},{code:'WKFEST2',name:'🎡 Kotzhügel Fight 2',mode:'battle'},
+ {code:'WKRACE1',name:'🏁 Rennen · Flott',mode:'race',cc:100},{code:'WKRACE2',name:'🏁 Rennen · Wild',mode:'race',cc:150}];
+let lobby=null;
+async function lobbyOpen(){if(lobby)return;lobby={pending:true,rooms:new Map()};let TR;const strat=netStrat();
+ try{TR=await (trysteroP??=import(NET_MODS[strat]));}catch(e){trysteroP=null;lobby=null;return;}
+ let room;try{room=TR.joinRoom(strat==='nostr'?{appId:NET_APP,relayConfig:{urls:NET_RELAYS,warnOnRelayFailure:false}}:{appId:NET_APP},'wk-lobby');}catch(e){lobby=null;return;}
+ const ann=room.makeAction('ann');Object.assign(lobby,{pending:false,room,ann,timer:setInterval(lobbyTick,1000)});
+ ann.onMessage=(d,{peerId})=>{if(!lobby||!d||typeof d.c!=='string'||!PUB_ROOMS.some(q=>q.code===d.c))return;const old=lobby.rooms.get(d.c)||{};
+  const e={...old,n:clampInt(d.n,0,MAX_PLAYERS),max:MAX_PLAYERS,peer:peerId,t:performance.now(),st:d.s==='race'?'race':'lobby'};lobby.rooms.set(d.c,e);
+  if(!e.pingT||performance.now()-e.pingT>4000){e.pingT=performance.now();room.ping(peerId).then(ms=>{const x=lobby?.rooms.get(d.c);if(x)x.ping=Math.round(ms);}).catch(()=>{});}};}
+function lobbyTick(){if(!lobby||lobby.pending)return;const now=performance.now();
+ if(net&&net.host&&net.pub&&now-(lobby.lastAnn||0)>3000){lobby.lastAnn=now;lobby.ann.send({c:net.code,n:1+net.peers.size,s:state==='race'||state==='countdown'?'race':'lobby'}).catch(()=>{});
+  lobby.rooms.set(net.code,{...(lobby.rooms.get(net.code)||{}),n:1+net.peers.size,max:MAX_PLAYERS,t:now,ping:0,st:state==='race'?'race':'lobby'});}
+ for(const [c,e] of lobby.rooms)if(now-e.t>10000)lobby.rooms.delete(c);
+ // Renn-Raeume: der Host startet das naechste Rennen selbst (wechselnde Strecke), 25 s nach dem letzten Start
+ if(net&&net.host&&net.pub&&net.pub.mode==='race'&&(state==='menu'||state==='finished')&&now>(net.autoT||0)){net.autoT=now+25000;
+  net.pubTrack=((net.pubTrack??-1)+1)%courses.length;net.what='race';net.track=net.pubTrack;cc=net.pub.cc||100;netHostGo();}
+ if(!$('online').hidden)renderRooms();}
+function renderRooms(){const box=$('onRooms');if(!box)return;box.replaceChildren();
+ for(const pr of PUB_ROOMS){const e=lobby?.rooms.get(pr.code),mine=net&&net.code===pr.code,row=document.createElement('div');row.className='on-room'+(mine?' mine':'');
+  const n=document.createElement('b');n.textContent=pr.name;const inf=document.createElement('span');
+  inf.textContent=e?`${e.n}/${e.max} Spieler · ${mine&&net.host?'du bist Host':e.ping!=null?'Ping '+e.ping+' ms':'Ping …'}${e.st==='race'?' · läuft':''}`:'frei · startet mit Bots';
+  const bt=document.createElement('button');bt.type='button';bt.textContent=mine?'Drin ✓':'Beitreten';bt.disabled=!!mine;
+  bt.onclick=()=>{store.set('netName',cleanName($('onName').value));netOpen(pr.code,false,true,pr);};row.append(n,inf,bt);box.append(row);}}
 // Lobby-Tafel
 function netRenderLobby(){const box=$('online');if(!box)return;const inRoom=!!net;$('onStart').hidden=inRoom;$('onRoom').hidden=!inRoom;if(!inRoom){$('onlineBtn')?.classList.remove('live');return;}
  $('onlineBtn')?.classList.add('live');$('onCodeShow').textContent=net.code;const L=net.lobby,list=$('onPlayers');list.replaceChildren();
@@ -3989,13 +4018,13 @@ function netRenderLobby(){const box=$('online');if(!box)return;const inRoom=!!ne
  $('onHost').hidden=!net.host;$('onWait').hidden=net.host;
  if(net.host){document.querySelectorAll('#onWhat button').forEach(b=>b.classList.toggle('selected',b.dataset.w===net.what));const tr=$('onTrack');if(!tr.options.length)courses.forEach((c,i)=>tr.add(new Option(c.name,String(i))));tr.value=String(net.track);tr.disabled=net.what!=='race';$('onClass').value=String(cc);$('onClass').disabled=net.what!=='race';}
  else $('onWait').textContent=L?`Warte auf den Host … (${L.w==='battle'?'Kotzhügel Fight':L.w==='world'?'Wiesnland – frei fahren':courses[L.t]?.name+' · '+ccName(L.cc)})`:'Warte auf den Host …';}
-function openOnline(){const box=$('online');if(!box)return;box.hidden=false;$('onName').value=store.get('netName','');netRenderLobby();}
+function openOnline(){const box=$('online');if(!box)return;box.hidden=false;$('onName').value=store.get('netName','');netRenderLobby();lobbyOpen();renderRooms();}
 {const box=$('online');if(box){
  $('onlineBtn').onclick=openOnline;$('onClose').onclick=()=>{box.hidden=true;};$('onLeave').onclick=()=>{netLeave();netMsg('Raum verlassen.');};
  const saveName=()=>{const n=cleanName($('onName').value);store.set('netName',n);$('onName').value=n;return n;};
  $('onName').onchange=()=>{saveName();if(net?.host)netLobby();};
  $('onCreate').onclick=()=>{saveName();netOpen(makeCode(),true);};
- $('onQuick').onclick=()=>{saveName();netOpen('WKFEST',false,true);};
+ $('onQuick').onclick=()=>{saveName();const best=PUB_ROOMS.filter(q=>q.mode==='battle').map(q=>({q,n:lobby?.rooms.get(q.code)?.n||0})).sort((a,b)=>b.n-a.n).find(x=>x.n<MAX_PLAYERS)||{q:PUB_ROOMS[0]};netOpen(best.q.code,false,true,best.q);};
  $('onJoin').onclick=()=>{const c=normCode($('onCode').value);if(c.length<4){netMsg('Bitte den Raumcode eingeben.');return;}saveName();netOpen(c,false);};
  $('onCode').onkeydown=e=>{if(e.key==='Enter')$('onJoin').click();};
  $('onCopy').onclick=async()=>{if(!net)return;const url=netUrl(net.code);try{if(navigator.share&&coarseInput)await navigator.share({title:'Wiesn Kart',text:'Fahr mit mir Wiesn Kart!',url});else{await navigator.clipboard.writeText(url);toast('Link kopiert',1.2,'good');}}catch{netMsg(url);}};

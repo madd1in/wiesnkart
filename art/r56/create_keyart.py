@@ -12,13 +12,18 @@ A = ROOT / 'assets'
 SCN = 'R56_KeyArt'
 
 # ---------------------------------------------------------------- Szene frisch anlegen (fremde Szenen bleiben unberuehrt)
-old = bpy.data.scenes.get(SCN)
-if old:
-    for o in list(old.objects):
+if bpy.context.window:
+    old = bpy.data.scenes.get(SCN)
+    if old:
+        for o in list(old.objects):
+            bpy.data.objects.remove(o, do_unlink=True)
+        bpy.data.scenes.remove(old)
+    scn = bpy.data.scenes.new(SCN)
+    bpy.context.window.scene = scn
+else:                                   # blender -b --factory-startup: die leere Startszene nutzen
+    scn = bpy.context.scene
+    for o in list(scn.objects):
         bpy.data.objects.remove(o, do_unlink=True)
-    bpy.data.scenes.remove(old)
-scn = bpy.data.scenes.new(SCN)
-bpy.context.window.scene = scn
 col = scn.collection
 
 
