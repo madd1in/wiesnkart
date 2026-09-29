@@ -68,6 +68,20 @@ Fahrbahn (mind. 4,8 m Abstand), keine Fehler, Rechenzeit je Schritt rund 20 % ue
 **Maß-Bier-Musik** - die Wiesn-Polka des Maß-Items klingt jetzt nach Quetschn: zweite Melodiestimme 9 Cent hoeher
 (Akkordeon-Schwebung) und eine leise Tuba-Stimme eine Oktave tiefer (`art/r44/make_chiptune.mjs`).
 
+**Nachschliff** (Rundgang mit Playwright: Menue und Ergebnisse bei 390 px bis 1920 px, Autopilot-Rennen auf allen 8
+Strecken ohne Fehler):
+- **Online-Knopf auf Laptops wieder klickbar** - die unsichtbare, 88 px hohe Kopfleiste lag bei 1280x720 und 1366x768
+  ganz ueber dem Knopf und verschluckte jeden Klick. Die Leiste laesst Klicks jetzt durch, nur ihre Knoepfe nehmen sie
+  an. Bei 761-960 px Breite lagen Ton- und Vollbild-Knopf auf dem Online-Knopf; der rueckt dort nach links.
+- **Geisterhaus hat wieder einen Looping** - der Doppel-Looping (81 m) fand seit den laengeren Tunneln aus Runde 47
+  keinen Platz mehr zwischen Tunnelausfahrt und Schanzen-Anlauf (50 m frei) und fiel stillschweigend weg. Jetzt ein
+  einfacher Looping (Radius 13, 46 m) an derselben Stelle; Autopilot-Rennen ohne Sturz.
+- **Zeitfahr-Ergebnis** zeigte noch XP, Stufenaufstieg und Erfolge des vorigen Rennens (Zeitfahren bringt keine XP).
+- Esc schliesst Online-Fenster und Erfolge-Tafel im Menue; Enter startete hinter dem Online-Fenster ein Rennen.
+- Handy hochkant: Medaillen-Zeilen im Zeitfahr-Ergebnis brachen in drei Zeilen um, "Rivale GESCHLAGEN ✓" in zwei.
+- Kopfleisten-Symbol Brezn statt der Blume aus Mushroom-Rally-Zeiten; doppelter CSS-Block (R44-Fortschritt) entfernt;
+  `lb.test.mjs` laeuft in `npm test` mit (161 Tests).
+
 ## Runde 56 (29.09.2026): Kotzhügel Fight, offene Räume, Graben-Flug, Wiesn-Fahrer, Keilflitzer
 
 **Suppa Lederhosn Karts** - neuer Titel, Start-Ansage "O'ZAPFT IS!", neues Titelbild (Blender, `art/r56/create_keyart.py`:
