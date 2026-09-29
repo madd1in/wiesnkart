@@ -1333,3 +1333,5 @@ body #online #onWhat{flex-wrap:wrap}
  body.onehand #touch .t-item{width:84px!important;height:84px!important}
  body.onehand #titem #titemIcon{width:56px;height:56px}
 }
+/* R56 Kotzhuegel Fight: Platz-Anzeige und Wiesnland-Missionstafel passen nicht zum Arena-Kampf */
+body.battle .position,body.battle #owPanel,body.battle #rivalTag{display:none!important}
