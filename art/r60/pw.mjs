@@ -13,7 +13,7 @@ export async function open({width = 1280, height = 720, query = 'test=1', seedRa
   const port = await freePort();
   const server = spawn(process.execPath, ['server.cjs', String(port)], {cwd: root, stdio: ['ignore', 'ignore', 'pipe']});
   for (let i = 0; i < 120; i++) {try {if ((await fetch('http://127.0.0.1:' + port)).ok) break;} catch {} await sleep(250);}
-  const browser = await pw.chromium.launch({executablePath: process.env.CHROME || '/opt/pw-browsers/chromium', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--autoplay-policy=no-user-gesture-required']});
+  const browser = await pw.chromium.launch({executablePath: process.env.CHROME || '/opt/pw-browsers/chromium', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--autoplay-policy=no-user-gesture-required', '--disable-features=WebRtcHideLocalIpsWithMdns']});
   const errors = [], pages = [];
   for (let b = 0; b < browsers; b++) {
     const ctx = await browser.newContext({viewport: {width, height}});
@@ -22,7 +22,7 @@ export async function open({width = 1280, height = 720, query = 'test=1', seedRa
     page.on('console', m => {if (m.type() === 'error') errors.push({b, kind: 'console.error', text: m.text()});});
     page.on('response', r => {if (r.status() >= 400 && !r.url().endsWith('favicon.ico')) errors.push({b, kind: 'http', text: r.status() + ' ' + r.url()});});
     if (seedRandom) await page.addInitScript(`{let a=0x38c0ffee+${b};Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}`);
-    await page.goto(`http://127.0.0.1:${port}/?${query}`);
+    await page.goto(`http://127.0.0.1:${port}/?${query}`, {waitUntil: "domcontentloaded", timeout: 180000});
     await page.waitForFunction(() => !!window.rallyTest, null, {timeout: 180000});
     await page.evaluate(() => rallyTest.ready());
     pages.push(page);
