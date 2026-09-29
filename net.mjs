@@ -7,7 +7,11 @@
 //    ~15-mal pro Sekunde als kurzes Zahlen-Array verschickt; Empfaenger zeigen es ~110 ms verzoegert interpoliert.
 //  - Herzerl-Schlacht (Wiesnland): jedes Kart hat drei Lebkuchenherzen, ein Treffer (Item, Stampfer ...) kostet eins,
 //    wer keine mehr hat, schaut zu; es gewinnt, wer zuletzt noch Herzen hat (oder nach Ablauf die meisten).
-export const NET_VER = 3, MAX_PLAYERS = 8, SEND_HZ = 15, INTERP_MS = 110, EXTRAP_MS = 180, WRAP_JUMP = 200;
+// R60: Version 4 - Lobby-Welt (Wiesnland zwischen den Rennen, Portal-Abstimmung), offene Arena, Chat
+export const NET_VER = 4, MAX_PLAYERS = 8, SEND_HZ = 15, INTERP_MS = 110, EXTRAP_MS = 180, WRAP_JUMP = 200;
+// Lobby-Welt: so lange wird zwischen den Rennen im Wiesnland gefahren (allein kuerzer); nach dem Rennen geht es BACK_SECS
+// nach dem letzten Menschen im Ziel zurueck in die Lobby, spaetestens BACK_MAX nach dem ersten
+export const LOBBY_SECS = 50, LOBBY_SOLO_SECS = 30, LOBBY_GO_SECS = 6, BACK_SECS = 7, BACK_MAX = 28;
 export const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 // Treffer zaehlt ab dieser Betaeubung (Wand 0,45, Kuh 0,6 und Schranke 0,4 zaehlen nicht); danach kurz unverwundbar
 export const HEARTS = 3, HIT_STUN = .75, HIT_GRACE = 1.6, BATTLE_SECS = 180;
@@ -26,6 +30,24 @@ export function battleResult(list, timeUp) {
   if (!timeUp) return {done: false, winner: null};
   const best = Math.max(...list.map(q => q.hearts || 0)), top = list.filter(q => (q.hearts || 0) === best);
   return {done: true, winner: top.length === 1 ? top[0].id : null};
+}
+
+/** Portal-Abstimmung: votes = {peerId: Streckenindex}. Meiste Stimmen gewinnen; Gleichstand zufaellig (die Vorwahl
+ *  gewinnt, wenn sie dabei ist); ohne gueltige Stimme bleibt es bei der Vorwahl. */
+export function voteTally(votes, n, fallback = 0, rnd = Math.random) {
+  const counts = new Array(Math.max(0, n | 0)).fill(0);
+  for (const v of Object.values(votes || {})) if (Number.isInteger(v) && v >= 0 && v < counts.length) counts[v]++;
+  const max = counts.length ? Math.max(...counts) : 0;
+  if (max === 0) return {track: fallback, counts, votes: 0};
+  const top = counts.map((c, i) => c === max ? i : -1).filter(i => i >= 0);
+  return {track: top.includes(fallback) ? fallback : top[Math.floor(rnd() * top.length) % top.length], counts, votes: counts.reduce((a, b) => a + b, 0)};
+}
+/** Wann geht es nach dem Rennen zurueck in die Lobby-Welt? first = Zeit (s) des ersten Menschen im Ziel, lastDone = alle
+ *  Menschen im Ziel (Zeit des letzten) oder null. Rueckgabe: Zeitpunkt (s) oder null, solange noch niemand im Ziel ist. */
+export function lobbyReturnAt(first, lastDone) {
+  if (first === null || first === undefined) return null;
+  const cap = first + BACK_MAX;
+  return lastDone === null || lastDone === undefined ? cap : Math.min(cap, lastDone + BACK_SECS);
 }
 
 export function makeCode(rnd = Math.random, n = 5) {
