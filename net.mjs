@@ -7,7 +7,7 @@
 //    ~15-mal pro Sekunde als kurzes Zahlen-Array verschickt; Empfaenger zeigen es ~110 ms verzoegert interpoliert.
 //  - Herzerl-Schlacht (Wiesnland): jedes Kart hat drei Lebkuchenherzen, ein Treffer (Item, Stampfer ...) kostet eins,
 //    wer keine mehr hat, schaut zu; es gewinnt, wer zuletzt noch Herzen hat (oder nach Ablauf die meisten).
-export const NET_VER = 2, MAX_PLAYERS = 8, SEND_HZ = 15, INTERP_MS = 110, EXTRAP_MS = 180, WRAP_JUMP = 200;
+export const NET_VER = 3, MAX_PLAYERS = 8, SEND_HZ = 15, INTERP_MS = 110, EXTRAP_MS = 180, WRAP_JUMP = 200;
 export const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 // Treffer zaehlt ab dieser Betaeubung (Wand 0,45, Kuh 0,6 und Schranke 0,4 zaehlen nicht); danach kurz unverwundbar
 export const HEARTS = 3, HIT_STUN = .75, HIT_GRACE = 1.6, BATTLE_SECS = 180;

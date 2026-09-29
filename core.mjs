@@ -1,5 +1,7 @@
 export const LAPS=3;
-export const GP_POINTS=[10,8,6,5,4,3,2,1];
+export const GP_POINTS=[10,8,6,5,4,3,2,1],GP_POINTS_12=[15,12,10,9,8,7,6,5,4,3,2,1];
+// R57: Punkte je Platz passend zur Feldgroesse (8 oder 12 Karts)
+export const gpPoints=(i,n=8)=>(n>8?GP_POINTS_12:GP_POINTS)[i]||0;
 export const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 // Freie Fahrphysik (Meter, Sekunden). Tempo bewusst arcade-typisch: ~30 m/s Spitze, Boost 40 m/s.
@@ -105,7 +107,7 @@ export const COMBO_WINDOW=4.5;
 export function comboStep(k,time){k.combo=(k.combo>0&&time-(k.comboT??-99)<=COMBO_WINDOW)?k.combo+1:1;k.comboT=time;return k.combo;}
 export function rollItem(place,count,rnd=Math.random){const w=itemWeights(place,count);let x=rnd()*Object.values(w).reduce((a,b)=>a+b,0);for(const [k,v] of Object.entries(w)){if((x-=v)<0)return k;}return 'boost';}
 export function loseSpores(r,n=3){const lost=Math.min(r.spores||0,n);r.spores=(r.spores||0)-lost;return lost;}
-export function addGpPoints(table,order){order.forEach((r,i)=>{table[r.id]=(table[r.id]||0)+GP_POINTS[i];});return table;}
+export function addGpPoints(table,order){order.forEach((r,i)=>{table[r.id]=(table[r.id]||0)+gpPoints(i,order.length);});return table;}
 export function gpStandings(table,ids){return [...ids].sort((a,b)=>(table[b]||0)-(table[a]||0)||a-b);}
 // Sterne fuers Rennergebnis: Platz zaehlt, "perfekt" = Sieg ohne einen einzigen erlittenen Treffer.
 export function raceStars(place,hitsTaken){const s=place===1?3:place<=3?2:place<=6?1:0;return {stars:s,perfect:place===1&&hitsTaken===0};}

@@ -6,6 +6,19 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 57 (29.09.2026): 12er-Starterfeld, Quetschn-Maß
+
+**12 Karts pro Rennen** - Einzelrennen, Grand Prix und Online-Rennen starten mit 12 Karts in Dreierreihen (gleiche
+Tiefe wie vorher 8 in Zweierreihen, der Spieler auf Startplatz 8). Vier neue Bots: Hias, Kathi, Wastl und Zenzi.
+Grand-Prix-Punkte fuer 12 (15-12-10-9-...-1), fuer 8 wie bisher. Kotzhügel Fight bleibt bei 8, ebenso Grafik "Niedrig"
+(Handys automatisch). Online traegt das Setup die Feldgroesse, Bots auf den Plaetzen 8-11 faehrt der Host
+(Protokoll-Version 3). Positionsanzeige "x / 12", Ranglisten bei 12 Zeilen enger.
+Pruefung (`art/r57/field12.mjs`): Autopilot-Rennen auf allen 8 Strecken mit 12 und 8 Karts - alle Startplaetze auf der
+Fahrbahn (mind. 4,8 m Abstand), keine Fehler, Rechenzeit je Schritt rund 20 % ueber dem 8er-Feld.
+
+**Maß-Bier-Musik** - die Wiesn-Polka des Maß-Items klingt jetzt nach Quetschn: zweite Melodiestimme 9 Cent hoeher
+(Akkordeon-Schwebung) und eine leise Tuba-Stimme eine Oktave tiefer (`art/r44/make_chiptune.mjs`).
+
 ## Runde 56 (29.09.2026): Kotzhügel Fight, offene Räume, Graben-Flug, Wiesn-Fahrer, Keilflitzer
 
 **Suppa Lederhosn Karts** - neuer Titel, Start-Ansage "O'ZAPFT IS!", neues Titelbild (Blender, `art/r56/create_keyart.py`:

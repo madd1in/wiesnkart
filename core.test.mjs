@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {MEGA_T,INK_T,SHRINK_T,SHRINK_TOP,flattenSmall,HOP_T,racer,driveKart,finish,lap,ranking,activate,rollItem,itemWeights,loseSpores,addGpPoints,gpStandings,maxCornerSpeed,miniTurbo,advanceProgress,collideKarts,hitKart,raceStars,blastHit,comboStep,COMBO_WINDOW,PHYS,SPORE_BONUS} from './core.mjs';
+import {MEGA_T,INK_T,SHRINK_T,SHRINK_TOP,flattenSmall,HOP_T,racer,driveKart,finish,lap,ranking,activate,rollItem,itemWeights,loseSpores,addGpPoints,gpPoints,gpStandings,maxCornerSpeed,miniTurbo,advanceProgress,collideKarts,hitKart,raceStars,blastHit,comboStep,COMBO_WINDOW,PHYS,SPORE_BONUS} from './core.mjs';
 const run=(k,sec,input,surf)=>{for(let i=0;i<sec*60;i++)driveKart(k,1/60,input,surf);};
 test('three complete forward laps required; finish recorded once',()=>{const r=racer(0,'A',0);r.distance=1999;assert.equal(lap(r,1000),2);assert.equal(finish(r,1000,20),false);r.distance=3000;assert.equal(finish(r,1000,30),true);finish(r,1000,40);assert.equal(r.finishTime,30);});
 test('acceleration reaches top speed in a few seconds, not instantly',()=>{const k=racer(0,'A',0);run(k,1,{gas:true});assert.ok(k.speed>10&&k.speed<22,`1s: ${k.speed}`);run(k,4,{gas:true});assert.ok(Math.abs(k.speed-PHYS.top)<.5,`5s: ${k.speed}`);});
@@ -55,4 +55,10 @@ test('R47 items: mega makes big and untouchable, ink hits only racers ahead, lea
  const me=racer(1,'B',0),front=racer(2,'C',0),back=racer(3,'D',0),safe=racer(4,'E',0);me.distance=100;front.distance=150;back.distance=50;safe.distance=200;safe.shield=3;
  me.item='ink';const res=activate(me,[me,front,back,safe]);assert.deepEqual(res.targets,[2]);assert.equal(front.ink,INK_T);assert.ok(!(back.ink>0)&&!(safe.ink>0));
  const lead=itemWeights(1,8),last=itemWeights(8,8);assert.equal(lead.mega,0);assert.equal(lead.ink,0);assert.ok(last.mega>10&&last.ink>10);
+});
+test('R57: GP points follow the field size (8 or 12 karts)',()=>{
+ assert.equal(gpPoints(0,8),10);assert.equal(gpPoints(7,8),1);assert.equal(gpPoints(0,12),15);assert.equal(gpPoints(11,12),1);assert.equal(gpPoints(12,12),0);
+ const order=Array.from({length:12},(_,i)=>({id:i})),t=addGpPoints({},order);assert.equal(t[0],15);assert.equal(t[11],1);assert.ok(Object.values(t).every(Number.isFinite));
+ const t8=addGpPoints({},order.slice(0,8));assert.equal(t8[0],10);assert.equal(t8[7],1);
+ const w=itemWeights(12,12);assert.ok(w.mega>10,'last of 12 still gets catch-up items');
 });

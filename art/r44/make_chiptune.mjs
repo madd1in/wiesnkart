@@ -135,7 +135,11 @@ report.push(wav('unlock', render(.6, [{type: 'sq', duty: .125, steps: [[0, note(
   const lead = [['A5', 1], ['C6', 1], ['A5', 1], ['F5', 1], ['G5', 1], ['A5', 1], ['A#5', 1], ['G5', 1],
     ['E5', 1], ['G5', 1], ['C6', 1], ['A#5', 1], ['A5', 1], ['G5', 1], ['F5', 2],
     ['F5', 1], ['A5', 1], ['C6', 1], ['F6', 1], ['E6', 1], ['C6', 1], ['F6', 2]];
-  const loop = seq(lead, (n, at, len) => ({type: 'sq', duty: .5, f0: note(n), at, len, vol: .18, hold: .5, decay: 1.2, vib: [6, .004]}));
+  const loop = seq(lead, (n, at, len) => ({type: 'sq', duty: .5, f0: note(n), at, len, vol: .13, hold: .5, decay: 1.2, vib: [6, .004]}));
+  // R57 Maß-Bier-Schleife: Akkordeon-Musette - zweite Lead-Stimme 9 Cent hoeher, schmaler Tastgrad (Schwebung wie ein
+  // Quetschn-Register), dazu eine Oktave tiefer eine leise Tuba-Stimme (Dreieck) auf der Melodie
+  seq(lead, (n, at, len) => ({type: 'sq', duty: .25, f0: note(n) * Math.pow(2, 9 / 1200), at, len, vol: .09, hold: .5, decay: 1.2, vib: [5.2, .003]}));
+  seq(lead, (n, at, len) => ({type: 'sq', duty: .125, f0: note(n) / 2 * Math.pow(2, -7 / 1200), at, len, vol: .035, hold: .45, decay: 1.3}));
   // Umpa: Bass (Dreieck) auf 1 und 2, Akkord-Nachschlag (Rechteck 12,5 %) auf den Offbeats
   const chords = [['F2', 'C3', ['A4', 'C5', 'F5']], ['C3', 'G2', ['G4', 'A#4', 'E5']], ['C3', 'G2', ['G4', 'A#4', 'E5']],
     ['F2', 'C3', ['A4', 'C5', 'F5']], ['F2', 'C3', ['A4', 'C5', 'F5']], ['C3', 'F2', ['A4', 'C5', 'F5']]];

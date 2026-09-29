@@ -598,6 +598,9 @@ body .modal li,body #ceremony li{border:0;border-radius:10px;padding:6px 12px;ba
 body .modal li span:first-child,body #ceremony li span:first-child{font-family:var(--wk-font);font-style:italic;font-weight:900;min-width:26px}
 body .modal li.me,body #ceremony li.me{background:linear-gradient(90deg,var(--wk-yellow),#ffe98a);color:var(--wk-ink);box-shadow:0 0 0 2px var(--wk-ink)}
 body .modal li .gain{color:#1f9a4b}
+/* R57: 12er-Feld - Ranglisten-Zeilen etwas enger, damit das Ergebnis ohne Scrollen passt */
+body .modal ol.many,body #ceremony ol.many{gap:2px}
+body .modal ol.many li,body #ceremony ol.many li{padding:3px 12px;font-size:14px}
 body #ceremony>div{background:linear-gradient(180deg,#fffffff2,#e7f3ffe8);backdrop-filter:blur(6px)}
 /* Fehler- und Ladeanzeige */
 body #error{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));border-radius:22px;background:#fff;color:var(--wk-ink);box-shadow:0 0 0 3px var(--wk-ink),0 8px 0 3px var(--wk-ink);padding:28px;font-weight:700}
