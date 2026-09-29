@@ -4004,8 +4004,9 @@ function buildArena(){const A={...ARENA,boxes:[],g:new T.Group()};course._arena=
  // Itemboxen: acht im Ring, zwei nahe der Mitte
  const spots=[];for(let k=0;k<8;k++){const a=k/8*TAU;spots.push([A.x+Math.sin(a)*A.r*.68,A.z+Math.cos(a)*A.r*.68]);}spots.push([A.x+9,A.z],[A.x-9,A.z]);
  for(const [x,z] of spots){const g=P.itembox?cloneProto(P.itembox):new T.Mesh(new T.BoxGeometry(1.4,1.4,1.4),mat(0xffc83a,{emissive:0xffa51f,emissiveIntensity:.4}));g.position.set(x,1.2,z);A.g.add(g);A.boxes.push({x,z,g,cool:0});}}
+// R57: Start knapp an der Mitte vorbei ausgerichtet - sonst stand der Maibaum genau vor der Kamera
 function arenaPlace(){const A=arenaOn()&&course._arena;if(!A)return;let k=0;const n=racers.length;
- for(const r of racers){const i=k++;if(r.net)continue;const a=i/n*TAU,x=A.x+Math.sin(a)*A.r*.8,z=A.z+Math.cos(a)*A.r*.8,h=Math.atan2(A.x-x,A.z-z),d0=projectGlobal(x,z,0),pr=project(x,z,d0);
+ for(const r of racers){const i=k++;if(r.net)continue;const a=i/n*TAU,x=A.x+Math.sin(a)*A.r*.8,z=A.z+Math.cos(a)*A.r*.8,h=Math.atan2(A.x-x,A.z-z)+.42,d0=projectGlobal(x,z,0),pr=project(x,z,d0);
   Object.assign(r,{x,z,h,vx:0,vz:0,speed:0,y:0,vy:0,air:false,airT:0,stun:0,distance:pr.d,offset:pr.off,safeD:pr.d,lastGround:0,boost:0,driftDir:0,drift:0,item:null,charges:0,itemPending:false});}
  if(racers[0]&&!racers[0].net){roulette=null;updateCamera(1,true);}}
 function arenaWall(r){const A=course._arena,dx=r.x-A.x,dz=r.z-A.z,d=Math.hypot(dx,dz),lim=A.r-.8;if(d<=lim)return;
