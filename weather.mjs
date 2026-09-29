@@ -5,16 +5,21 @@ export const TOD_KEYS=['day','dusk','night','dawn'];
 export const WX_KEYS=['clear','clouds','rain','storm','fog','snow','sand','ash'];
 // R53: Ereignisse je Strecke (Nutzerhinweis "Runden-Events ueber die Strecken hinweg zu aehnlich"): jede Strecke hat
 // eigene Signatur-Ereignisse, kein Ereignis gibt es auf mehr als einer Strecke.
-export const EV_KEYS=['ufo','meteors','rainbow','aurora','fireflies','eclipse','balloons','alpenglow','fireworks','partyballoons','lanterns','bloodmoon','batswarm','wisps','comet','eruption','alarm'];
+export const EV_KEYS=['ufo','meteors','rainbow','aurora','fireflies','eclipse','balloons','alpenglow','fireworks','partyballoons','lanterns','bloodmoon','batswarm','wisps','comet','eruption','alarm',
+ // R60: Schildkroeten-Bucht (Delfine, Meeresleuchten), Eisstock-See (Diamantstaub, Lawine), Riesendom (Goetterstrahlen, Tauben)
+ 'dolphins','seaglow','diamonddust','avalanche','godrays','doves'];
 export const WX_ICON={day:'☀',dusk:'🌇',night:'🌙',dawn:'🌅',clear:'',clouds:'☁',rain:'🌧',storm:'⛈',fog:'🌫',snow:'❄',sand:'🌪',ash:'🌋',
  ufo:'🛸',meteors:'☄',rainbow:'🌈',aurora:'🌌',fireflies:'✨',eclipse:'🌑',balloons:'🎈',alpenglow:'🏔',fireworks:'🎆',partyballoons:'🎊',lanterns:'🏮',
- bloodmoon:'🌕',batswarm:'🦇',wisps:'👻',comet:'💫',eruption:'💥',alarm:'🚨'};
+ bloodmoon:'🌕',batswarm:'🦇',wisps:'👻',comet:'💫',eruption:'💥',alarm:'🚨',
+ dolphins:'🐬',seaglow:'🌊',diamonddust:'💎',avalanche:'🏔',godrays:'🌅',doves:'🕊'};
 // Je Thema: moegliche Tageszeit-Folgen, Wetter und Ereignisse. Dunkle Themen (Nacht, Gruft, All, Lava)
 // behalten ihre Tageszeit und wechseln nur Wetter und Ereignisse. Beim Canyon ist "day" der Sonnenuntergang.
 //  forest  Pilz-Promenade/Wiesnland: Ballonfestival, Alpengluehen, Regenbogen, Gluehwuermchen
 //  canyon  Sonnen-Canyon: UFO und Sonnenfinsternis        fair  Magnet-Kirmes: Feuerwerk, Luftballons
 //  night   Pilz-Wiesn: Himmelslaternen, Polarlicht         haunted  Geisterhaus: Blutmond, Fledermaus-Schwarm, Irrlichter
 //  rainbow Sternenbahn: Sternschnuppen, Komet          lava  Lava-Feste: Vulkanausbruch
+//  beach   Schildkroeten-Bucht: Delfine, Meeresleuchten  ice   Eisstock-See: Diamantstaub, Lawine
+//  dome    Riesendom (ewige Abendsonne): Goetterstrahlen, Taubenschwarm
 export const WX_THEMES={
  forest:{tods:[['day','day','dusk'],['day','dusk','night'],['dawn','day','day'],['day','day','day'],['dusk','night','night']],wx:['clear','clouds','rain','storm','fog','snow'],ev:['balloons','alpenglow','rainbow','fireflies']},
  canyon:{tods:[['day','day','night'],['day','night','night'],['day','day','day'],['dawn','day','day']],wx:['clear','clouds','sand','storm'],ev:['ufo','eclipse']},
@@ -23,7 +28,10 @@ export const WX_THEMES={
  haunted:{tods:[['day','day','day']],wx:['clear','fog','rain','storm'],ev:['bloodmoon','batswarm','wisps']},
  rainbow:{tods:[['day','day','day']],wx:['clear'],ev:['meteors','comet']},
  lava:{tods:[['day','day','day']],wx:['clear','ash','storm'],ev:['eruption']},
- fortress:{tods:[['day','day','day']],wx:['clear'],ev:['alarm']}};
+ fortress:{tods:[['day','day','day']],wx:['clear'],ev:['alarm']},
+ beach:{tods:[['day','day','dusk'],['day','dusk','night'],['dawn','day','day'],['day','day','day']],wx:['clear','clouds','rain','storm'],ev:['dolphins','seaglow']},
+ ice:{tods:[['day','day','dusk'],['dawn','day','day'],['day','day','day'],['day','dusk','night']],wx:['clear','clouds','snow','fog'],ev:['diamonddust','avalanche']},
+ dome:{tods:[['day','day','day'],['day','day','night']],wx:['clear','clouds','fog'],ev:['godrays','doves']}};
 // Wie oft eine Runde ab Runde 2 ein Ereignis bekommt (passt keins, bleibt sie ohne)
 export const EV_CHANCE=.9;
 
@@ -36,7 +44,7 @@ const NEXT={clear:{clear:2,clouds:3,rain:2,fog:1.2,snow:.6,sand:3,ash:3,storm:.6
  sand:{sand:2,storm:1.2,clear:1},ash:{ash:2,storm:1,clear:.8}};
 
 // Passt ein Ereignis zu Tageszeit und Wetter einer Runde? (prev = Vorrunde, fuer den Regenbogen nach dem Regen)
-export function evFits(themeKey,e,s,prev){const dark=s.tod==='night'||!['forest','canyon','fair'].includes(themeKey),calm=s.wx==='clear'||s.wx==='clouds';
+export function evFits(themeKey,e,s,prev){const dark=s.tod==='night'||!['forest','canyon','fair','beach','ice'].includes(themeKey),calm=s.wx==='clear'||s.wx==='clouds';
  switch(e){
   case 'rainbow':return (calm&&(prev?.wx==='rain'||prev?.wx==='storm')&&s.tod!=='night')||(s.wx==='rain'&&s.tod==='day');
   case 'aurora':case 'meteors':case 'comet':return dark&&s.wx!=='storm'&&s.wx!=='rain'&&s.wx!=='fog'&&s.wx!=='ash';
@@ -51,6 +59,12 @@ export function evFits(themeKey,e,s,prev){const dark=s.tod==='night'||!['forest'
   case 'batswarm':case 'wisps':return s.wx!=='storm';
   case 'eruption':return true;
   case 'alarm':return true;
+  case 'dolphins':return s.tod!=='night'&&s.wx!=='storm';
+  case 'seaglow':return (s.tod==='night'||s.tod==='dusk')&&s.wx!=='storm';
+  case 'diamonddust':return (s.tod==='day'||s.tod==='dawn')&&s.wx==='clear';
+  case 'avalanche':return s.wx!=='fog';
+  case 'godrays':return s.tod!=='night'&&s.wx!=='fog';
+  case 'doves':return s.wx!=='fog';
   default:return false;}}
 // Wetterplan eines Rennens: je Runde Tageszeit, Wetter und hoechstens ein Ereignis. Runde 1 bleibt ruhig
 // (Strecke kennenlernen), danach wird es wechselhaft; mindestens eine Aenderung gibt es immer.
@@ -119,6 +133,8 @@ export function weatherLook(base,m){const w=TOD_KEYS.map(k=>m[k]||0),sum=w.reduc
  const bm=m.bloodmoon||0;if(bm){skyTop=lerpHex(skyTop,0x2a0308,bm*.8);skyBottom=lerpHex(skyBottom,0x7a1018,bm*.85);fog=lerpHex(fog,0x40101a,bm*.6);hemiSky=lerpHex(hemiSky,0xff7a7a,bm*.55);}
  const al=m.alarm||0;if(al){skyBottom=lerpHex(skyBottom,0x5a0a10,al*.55);fog=lerpHex(fog,0x3a0a10,al*.45);hemiSky=lerpHex(hemiSky,0xff6a5a,al*.35);}
  const er=m.eruption||0;if(er){skyBottom=lerpHex(skyBottom,0xff4a12,er*.6);fog=lerpHex(fog,0x6a2012,er*.5);hemiSky=lerpHex(hemiSky,0xffa060,er*.45);sunCol=lerpHex(sunCol,0xff7030,er*.5);}
+ const gr=m.godrays||0;if(gr){skyBottom=lerpHex(skyBottom,0xffc870,gr*.35);hemiSky=lerpHex(hemiSky,0xffe0a0,gr*.4);sunInt*=1+.18*gr;}
+ const sg=m.seaglow||0;if(sg)fog=lerpHex(fog,0x103a5a,sg*.3);
  const moonCol=lerpHex(0xffffff,0xff3a2a,bm);
  // Dunkle Themen behalten ihren eigenen Himmel (Lava-Feste: Glutsonne, keine Sterne); base.stars/base.sunGlow = Thema
  const sky=base.dark?(base.stars?1:0):wn*1.1+wu*.25,glow=base.dark?(base.sunGlow?1:0):1-(wn+wu*.25);
@@ -140,7 +156,8 @@ export function forecast(plan,themeKey){const b=BASE_ICON[themeKey];
 export const WX_SHORT={day:'TAG',dusk:'DÄMMERUNG',night:'NACHT',dawn:'MORGENROT',clear:'AUFGEKLART',clouds:'WOLKEN',rain:'REGEN',storm:'GEWITTER',fog:'NEBEL',snow:'SCHNEE',
  sand:'SANDSTURM',ash:'ASCHEREGEN',ufo:'UFO!',meteors:'STERNSCHNUPPEN',rainbow:'REGENBOGEN',aurora:'POLARLICHT',fireflies:'GLÜHWÜRMCHEN',eclipse:'FINSTERNIS',
  balloons:'BALLONFEST',alpenglow:'ALPENGLÜHEN',fireworks:'FEUERWERK',partyballoons:'LUFTBALLONS',lanterns:'HIMMELSLATERNEN',bloodmoon:'BLUTMOND',
- batswarm:'FLEDERMÄUSE',wisps:'IRRLICHTER',comet:'KOMET',eruption:'VULKANAUSBRUCH',alarm:'FESTUNGS-ALARM'};
+ batswarm:'FLEDERMÄUSE',wisps:'IRRLICHTER',comet:'KOMET',eruption:'VULKANAUSBRUCH',alarm:'FESTUNGS-ALARM',
+ dolphins:'DELFINE',seaglow:'LEUCHTALGEN',diamonddust:'DIAMANTSTAUB',avalanche:'LAWINE',godrays:'GÖTTERSTRAHLEN',doves:'TAUBENSCHWARM'};
 export function lapNews(plan,i){if(i<=0||i>=plan.length)return null;const a=plan[i-1],b=plan[i],keys=[];
  if(b.tod!==a.tod)keys.push(b.tod);if(b.wx!==a.wx)keys.push(b.wx);if(b.ev)keys.push(b.ev);if(!keys.length)return null;
  const lead=b.ev||(b.wx!==a.wx&&b.wx!=='clear'?b.wx:null)||keys[0];return (WX_ICON[lead]||'☀')+' '+keys.map(k=>WX_SHORT[k]).join(' · ');}

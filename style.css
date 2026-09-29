@@ -1317,6 +1317,15 @@ body #online .on-sub,body #online #onWait,body #online #onStatus,body #online .o
 body #menu #modes .mode[data-mode="world"]{background:linear-gradient(180deg,#6fdc8c,#2f9e57);color:#fff;border-color:#fff;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
 body #menu #modes .mode[data-mode="world"] b:before{content:'🎡 ';-webkit-text-stroke:0}
 body #menu #modes .mode[data-mode="world"].selected{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange))}
+/* R60: Wiesnland frei fahren (Challenges, Portale) bekommt den Riesenrad-Look, der Kotzhügel Fight den roten Kampf-Look */
+body #menu #modes .mode[data-mode="roam"]{background:linear-gradient(180deg,#6fdc8c,#2f9e57);color:#fff;border-color:#fff;-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
+body #menu #modes .mode[data-mode="roam"] b:before{content:'🎡 ';-webkit-text-stroke:0}
+body #menu #modes .mode[data-mode="roam"].selected{background:linear-gradient(180deg,var(--wk-yellow),var(--wk-orange))}
+body #menu #modes .mode[data-mode="world"]{background:linear-gradient(180deg,#ff7a6a,#c8323a)}
+body #menu #modes .mode[data-mode="world"] b:before{content:'⚔ '}
+/* fuenf Modi in einer Zeile neben den Klassen: Modus-Spalte breiter, "Fight" nur hochkant (dort zwei Spalten) */
+@media (min-width:761px){body #menu .menu-panel{grid-template-columns:minmax(0,1.8fr) minmax(0,1fr)}body #menu #modes{gap:5px}body #menu #modes button b{font-size:13px;letter-spacing:-.2px}}
+@media (min-width:761px),(orientation:landscape){body #menu #modes .m-long{display:none}}
 /* R55 Titel "Suppa Oktoberfest Karts": laenger als "Wiesn Kart" - kleiner, darf umbrechen */
 body .menu-title{font-size:clamp(28px,3.3vw,46px);line-height:1;letter-spacing:-.5px}
 body .loader-card b{font-size:clamp(20px,4vw,30px);text-align:center}
@@ -1410,7 +1419,7 @@ body .modal .lb-list li.lb-note{background:none;font-style:italic;font-weight:60
  body:not(.onehand) #touch .t-brake{width:13vw;height:13vw;max-width:60px;max-height:60px}
 }
 
-/* R60 schmales Hochformat (<=420 px): Online-Knopf ragte aus der Menuekarte und deckte "Lederhosn" ab -
+/* R61 schmales Hochformat (<=420 px): Online-Knopf ragte aus der Menuekarte und deckte "Lederhosn" ab -
    jetzt kompakt (Globus ueber dem Wort); waagrechter Rollbalken des Menues weg */
 #menu{overflow-x:hidden}
 @media (max-width:420px){
@@ -1419,3 +1428,77 @@ body .modal .lb-list li.lb-note{background:none;font-style:italic;font-weight:60
  body #menu .online-btn span{grid-row:auto;font-size:18px;line-height:1}
  body #menu .online-btn b{font-size:13px;-webkit-text-stroke:2.5px var(--wk-ink);text-align:center}
 }
+
+/* R60: elf Strecken (#tracks.many) - breit und Handy quer sechs Karten je Reihe (zwei Reihen wie vorher mit acht), die
+   elfte fuellt die Reihe; Handy hochkant drei je Reihe; kleines Handy quer vier je Reihe */
+body #menu #tracks.many .track b{white-space:normal;line-height:1.05}
+@media (min-width:761px){
+ body #menu #tracks.many .track{grid-column:span 2}
+ body #menu #tracks.many .track:nth-child(11):last-child{grid-column:span 4}
+ body #menu #tracks.many .track b{font-size:12px;left:6px;right:4px;bottom:13px;-webkit-text-stroke:3px #0b0a22}
+ body #menu #tracks.many .track u{display:none}
+ body #menu #tracks.many .track .best{font-size:9.5px;left:6px;bottom:2px}
+ body #menu #tracks.many .track i{width:22px;height:22px;font-size:12px;left:5px;top:5px;border-radius:7px}
+}
+@media (max-width:620px){body #menu #tracks.many .track:nth-child(11):last-child{grid-column:span 4}}
+@media (pointer:coarse) and (orientation:landscape){
+ body #menu #tracks.many .track{grid-column:span 2}
+ body #menu #tracks.many .track:nth-child(11):last-child{grid-column:span 4}
+ body #menu #tracks.many .track b{font-size:10px}
+}
+@media (pointer:coarse) and (orientation:landscape) and (max-width:760px){
+ body #menu #tracks.many .track{grid-column:span 3}
+ body #menu #tracks.many .track:nth-child(11):last-child{grid-column:span 6}
+}
+
+/* R60 Online: Lobby-Leiste, Chat-Verlauf, Chat-Leiste, Knoepfe */
+#lobbyBar{position:fixed;left:50%;top:max(12px,calc(env(safe-area-inset-top) + 8px));transform:translateX(-50%) skewX(-6deg);z-index:6;display:flex;align-items:center;gap:10px;padding:7px 14px 7px 16px;border-radius:16px;
+ background:linear-gradient(180deg,#ffffffee,#e7f3ffe6);box-shadow:0 0 0 3px var(--wk-ink,#14264a),0 5px 0 3px var(--wk-ink,#14264a);color:var(--wk-ink,#14264a);max-width:calc(100vw - 24px);white-space:nowrap;font-family:var(--wk-font)}
+#lobbyBar[hidden]{display:none}
+#lobbyBar b{font-style:italic;font-weight:900;font-size:12px;letter-spacing:.8px;color:var(--wk-red,#e8202a)}
+#lobbyBar strong{font-style:italic;font-weight:900;font-size:26px;line-height:1;color:var(--wk-yellow,#ffd21f);-webkit-text-stroke:5px var(--wk-ink,#14264a);paint-order:stroke fill;font-variant-numeric:tabular-nums}
+#lobbyBar span{font-weight:900;font-size:14px}
+#lobbyBar small{font-weight:700;font-size:11.5px;opacity:.8;overflow:hidden;text-overflow:ellipsis}
+#lobbyBar button{pointer-events:auto;padding:6px 12px;border-radius:12px;border:2.5px solid #fff;background:linear-gradient(180deg,#4ad06a,#1f9a4b);color:#fff;font-weight:900;font-style:italic;box-shadow:0 0 0 2.5px var(--wk-ink,#14264a);cursor:pointer}
+body.battle #lobbyBar,body:not(.racing) #lobbyBar{display:none}
+#chatFeed{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:calc(210px + env(safe-area-inset-bottom,0px));z-index:6;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;max-width:min(420px,60vw);pointer-events:none}
+#chatFeed[hidden]{display:none}
+#chatFeed li,#onChatLog li{padding:4px 10px;border-radius:12px;background:#14264ad0;color:#fff;font-size:14px;font-weight:700;line-height:1.25;word-break:break-word;animation:chatIn .25s ease-out}
+#chatFeed li b,#onChatLog li b{color:#ffd21f;font-weight:900}
+#chatFeed li.me b,#onChatLog li.me b{color:#7ff0c0}
+#chatFeed li.sys,#onChatLog li.sys{background:#2f6bffcc;font-weight:800;font-size:13px}
+#chatFeed li .emo,#onChatLog li .emo{font-size:22px;line-height:1}
+@keyframes chatIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+#chatBar{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:12;width:min(620px,calc(100vw - 20px));padding:10px;border-radius:18px;background:#ffffffee;
+ box-shadow:0 0 0 3px var(--wk-ink,#14264a),0 6px 0 3px var(--wk-ink,#14264a);display:flex;flex-direction:column;gap:8px}
+#chatBar[hidden]{display:none}
+#chatBar .ch-emo,.on-chat-emo{display:flex;flex-wrap:wrap;gap:5px}
+#chatBar .ch-emo button,.on-chat-emo button{font-size:22px;line-height:1;width:40px;height:40px;border-radius:12px;border:2px solid #14264a22;background:#f2f6ff;cursor:pointer;padding:0}
+#chatBar .ch-quick{display:flex;flex-wrap:wrap;gap:5px}
+#chatBar .ch-quick button{padding:6px 10px;border-radius:999px;border:2px solid #14264a;background:#ffd21f;color:#14264a;font-weight:900;font-size:12.5px;cursor:pointer}
+#chatForm,#onChatForm{display:flex;gap:6px}
+#chatForm input,#onChatForm input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:2.5px solid #14264a;font-size:16px;font-weight:700;color:#14264a;background:#fff}
+#chatForm button,#onChatForm button{padding:0 16px;border-radius:12px;border:2.5px solid #14264a;background:linear-gradient(180deg,#4ad06a,#1f9a4b);color:#fff;font-weight:900;cursor:pointer}
+header .top-actions #netBtn,header .top-actions #chatBtn{font-size:18px}
+header .top-actions #netBtn[hidden],header .top-actions #chatBtn[hidden]{display:none}
+.on-chat{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+#onChatLog{list-style:none;margin:0;padding:6px;max-height:150px;min-height:44px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;border-radius:12px;background:#0a142833}
+.on-chat-emo button{width:34px;height:34px;font-size:18px}
+#onlineBtn small.live{color:#7fff9a}
+@media (max-width:620px){#lobbyBar{top:calc(112px + env(safe-area-inset-top,0px));gap:7px;padding:5px 10px}#lobbyBar b{display:none}#lobbyBar strong{font-size:20px}#lobbyBar small{display:none}
+ #chatFeed{bottom:calc(250px + env(safe-area-inset-bottom,0px));max-width:70vw}#chatFeed li{font-size:12.5px}}
+@media (pointer:coarse) and (orientation:landscape){#lobbyBar{top:calc(8px + env(safe-area-inset-top,0px))}#lobbyBar small{display:none}#chatFeed{bottom:auto;top:calc(120px + env(safe-area-inset-top,0px))}}
+#onlineBtn.pulse{animation:wkPulse 1.6s ease-in-out infinite}
+
+/* R60 Wiesnland-Herausforderungen */
+#owCh{display:block;font-weight:900;font-size:12.5px;margin-top:3px;color:var(--wk-blue,#1f5cc8)}
+#chPop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:190px;z-index:6;display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:16px;background:linear-gradient(180deg,#ffffffee,#e7f3ffe6);
+ box-shadow:0 0 0 3px var(--wk-ink,#14264a),0 5px 0 3px var(--wk-ink,#14264a);color:var(--wk-ink,#14264a);pointer-events:none;transform:skewX(-6deg);font-family:var(--wk-font);min-width:220px;animation:chIn .2s ease-out}
+#chPop[hidden]{display:none}
+#chPop i{font-style:normal;font-size:30px}
+#chPop small{display:block;font-weight:900;font-size:11.5px;letter-spacing:.6px;color:var(--wk-red,#e8202a);text-transform:uppercase}
+#chPop b{display:block;font-style:italic;font-weight:900;font-size:26px;line-height:1.05;color:var(--wk-yellow,#ffd21f);-webkit-text-stroke:5px var(--wk-ink,#14264a);paint-order:stroke fill;font-variant-numeric:tabular-nums}
+#chPop em{display:block;font-style:normal;font-weight:800;font-size:11.5px}
+#chPop span{font-size:22px;color:#ffb800;letter-spacing:1px;text-shadow:0 2px 0 #14264a}
+@keyframes chIn{from{opacity:0;transform:skewX(-6deg) translateX(20px)}to{opacity:1;transform:skewX(-6deg)}}
+@media (max-width:620px){#chPop{top:calc(200px + env(safe-area-inset-top,0px));min-width:0;padding:6px 10px}#chPop b{font-size:20px}#chPop i{font-size:24px}}

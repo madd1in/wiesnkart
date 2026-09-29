@@ -1,9 +1,9 @@
 // Wiesn Kart R44: Fortschritt - Erfahrungspunkte je Rennen, Fahrerstufen mit Freischaltungen, Erfolge.
 // Reine Funktionen (Spiel und Tests). Strecken-Index: 0 Promenade, 1 Canyon, 2 Neon, 3 Geisterhaus, 4 Lava,
-// 5 Bierstraße, 6 Magnet-Kirmes, 7 Graben-Flug.
+// 5 Bierstraße, 6 Magnet-Kirmes, 7 Graben-Flug, 8 Schildkröten-Bucht, 9 Eisstock-See, 10 Riesendom.
 export const PLACE_XP = [100, 80, 66, 56, 47, 40, 34, 28];
 export const CLASS_MUL = {50: 1, 100: 1.25, 150: 1.6};
-export const TRACKS = 8;
+export const TRACKS = 11;
 // R46: Bonus fuer den geschlagenen Rivalen und die geschaffte Tages-Herausforderung
 export const RIVAL_XP = 25, DAILY_XP = 60;
 // R55: Wer ohne (oder mit leichter) Lenkhilfe faehrt, bekommt einen Aufschlag auf die Rennpunkte; jede saubere Runde
@@ -82,6 +82,10 @@ export const ACH = [
   {id: 'free', n: 'Freihändig', d: 'Gewinne ein Rennen ohne Lenkhilfe', t: r => r.place === 1 && r.assist === 'aus'},
   {id: 'spotless', n: 'Blitzsauber', d: 'Fahre alle drei Runden sauber (kein Gras, keine Wand)', t: r => cnt(r.stats, 'cleanLaps') >= 3},
   {id: 'wildfree', n: 'Wiesn-Legende', d: 'Gewinne in der Klasse Wild ohne Lenkhilfe', t: r => r.place === 1 && r.cc === 150 && r.assist === 'aus'},
+  // R60: je neue Strecke einer zur eigenen Idee
+  {id: 'tide', n: 'Gezeitenkenner', d: 'Schildkröten-Bucht: nimm die Sandbank dreimal trocken', t: r => r.track === 8 && cnt(r.stats, 'tideDry') >= 3},
+  {id: 'iceking', n: 'Eisstock-König', d: 'Eisstock-See ohne Eisblock und Eisstock', t: r => r.track === 9 && r.finished && !cnt(r.stats, 'iceHits')},
+  {id: 'halberd', n: 'Hellebarden-Tänzer', d: 'Riesendom, ohne vom Riesenwächter getroffen zu werden', t: r => r.track === 10 && r.finished && !cnt(r.stats, 'halberdHits')},
 ];
 export const achById = id => ACH.find(a => a.id === id);
 
