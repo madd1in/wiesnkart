@@ -110,7 +110,7 @@ const courses=[
  // ist Flugschneise in 9 m Hoehe zwischen 24 m hohen Stahlwaenden; oben die Stationsoberflaeche mit Tuermen
  {name:'Graben-Flug',icon:'🛸',kind:'Weltraum-Festung \u00b7 Stahlgraben \u00b7 Ringflug',medals:[96,102,112],music:'night',bgmRate:1.08,theme:'fortress',seed:202,
   points:[[-70,-75],[-70,75],[-50,112],[0,128],[50,112],[70,75],[70,-75],[50,-112],[0,-128],[-50,-112]],
-  elem:[[.55,9.45,'flug',{fly:9}]],trench:[[0,9.98]],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
+  elem:[[.55,9.45,'flug',{fly:9}]],trench:[[0,9.98]],lasers:[[1.7],[2.9],[4.1],[5.6],[6.8],[8.1]],fighters:[[3.5],[7.5]],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
 // ---------- Wiesnland (R41): Open World, die die Rennstrecken verbindet. Eine grosse Rundstrasse durch
 // Wald, Flussaue, Canyon, Seen und Flugschneisen - an Portalen geht es in jede Rennstrecke, dazu
 // Missionen (Glockenschalter mit 8 Muenzen, Bojen-Slalom als Boot, Ringflug als Flugzeug). Steht nicht in
@@ -264,9 +264,9 @@ function mergeByMaterial(root){root.updateMatrixWorld(true);const groups=new Map
  const out=new T.Group();for(const e of groups.values()){const mixed=new Set(e.g.map(g=>!!g.index)).size>1;const gs=e.g.map(g=>{g=mixed&&g.index?g.toNonIndexed():g;if(!g.attributes.normal)g.computeVertexNormals();for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal'&&!(k==='uv'&&e.m.map)&&!(k==='color'&&e.m.vertexColors))g.deleteAttribute(k);return g;});const geo=mergeGeometries(gs,false);if(geo)out.add(new T.Mesh(geo,e.m));else for(const g of gs)out.add(new T.Mesh(g,e.m));}return out;}
 let loaded=0;const PROTO_FILES=['kart','mushroom','gate','tree','rock','balloon','itembox','banana','shell','ramp','grandstand','spectator','bouncepad','podium','trophy','ghost','gravestone','pumpkin','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster','kartbodies','glider','crystal','windring','kartkit','coin','clouds','inkcap','tunnelkit','windsock'];
 // Villa und Burg sind gross und stehen nur auf je einer Strecke: erst nach dem Start nachladen
-const LATE_FILES=['mansion','castle','schloss','wiesn','gothic','roottree','neongate','magnetarch','coastertruss','ferriswheel','dragon','transform','elements','ow','hazards','landmarks','critters','tower'];
+const LATE_FILES=['fortress','mansion','castle','schloss','wiesn','gothic','roottree','neongate','magnetarch','coastertruss','ferriswheel','dragon','transform','elements','ow','hazards','landmarks','critters','tower'];
 // Ohne Materialverschmelzung laden: der Drache braucht seine Teile (Glied, Kopf, Kiefer, Schwanz) einzeln
-const NO_MERGE=new Set(['kartbodies','wiesn','gothic','dragon','transform','elements','ow','kartkit','hazards','landmarks','critters','tower','clouds','tunnelkit']);
+const NO_MERGE=new Set(['fortress','kartbodies','wiesn','gothic','dragon','transform','elements','ow','kartkit','hazards','landmarks','critters','tower','clouds','tunnelkit']);
 // R44: weiche Hoehenschattierung als Vertexfarbe (unten dunkler und kuehler, oben hell) - wirkt auch im Leicht-Modus
 // und in den Low-Poly-Fassungen, die Lackfarbe je Instanz (Baumkrone, Pilzhut) bleibt erhalten
 function shadeGeo(g,lo,hi,nw=.25){const p=g.attributes.position,n=g.attributes.normal,old=g.attributes.color;g.computeBoundingBox();const b=g.boundingBox,h=Math.max(1e-3,b.max.y-b.min.y),c=new Float32Array(p.count*3);
@@ -1941,7 +1941,12 @@ function updateSpores(dt,now){if(!sporeMesh)return;spores.forEach((s,i)=>{if(s.c
 // Die Feuerkoenig-Statuen entstehen in buildSwingers (je Feuerball eine Statue, von der er ausgespuckt wird).
 function hzPart(n){const o=P.hazards?.getObjectByName(n);if(!o)return null;const c=o.clone(true);c.traverse(q=>{if(q.isMesh){q.castShadow=true;q.receiveShadow=true;}});return c;}
 let HZ_SHADOW=null;
-function buildHazards(){hz={stampers:[],plants:[],cannons:[],missiles:[]};if(!P.hazards)return;
+function buildHazards(){hz={stampers:[],plants:[],cannons:[],missiles:[]};
+ // R57 Graben-Flug: Festungs-Laser - Geschuetze weiter vorn feuern leuchtende Salven auf festen Spuren entgegen
+ // (Ausweichen durch Lenken, in der Luft ohne Hoehenpruefung wie die Flugringe); im Festungs-Alarm schneller
+ (course.lasers||[]).forEach(([v],i)=>{const c={d:cpDist(v),off:0,g:null,next:0,k:i*2,pool:[],laser:true,side:i%2?1:-1};c.tur=fzTurret(c);hz.cannons.push(c);});
+ hz.waves=(course.fighters||[]).map(([v])=>({d:cpDist(v),on:false,cd:0,ships:[0,1,2].map(i=>({g:fzShip(),lane:[-4.5,0,4.5][i]}))}));
+ if(!P.hazards)return;
  if(!HZ_SHADOW)HZ_SHADOW={geo:new T.PlaneGeometry(4.6,3.6).rotateX(-Math.PI/2),mat:new T.MeshBasicMaterial({color:0x05030a,transparent:true,opacity:.3,depthWrite:false})};
  // R54 Wiesn Kart: Stampfer ist ein Hau-den-Lukas-Holzhammer, die Roehre ein Bierfass, die Pflanze eine Fliegenfalle
  const stoneCol=course.theme==='lava'?0x6a3a24:theme.space?0x7a5ab0:0x8a5a32;
@@ -1977,10 +1982,71 @@ function updateHazards(dt,t=elapsed,live=true){if(!hz)return;const pl=racers[0];
   const open=f.lunge>0?.55*Math.sin(Math.min(1,f.lunge)*Math.PI):.12+.1*Math.sin(t*3+f.ph);f.lean.rotation.x=f.lunge*.95+Math.sin(t*1.3+f.ph)*.05;f.top.rotation.x=-open;f.bot.rotation.x=open*.5;
   f.head.set(0,2.3,.1).applyMatrix4(f.lean.matrixWorld);}
  if(!live)return;
- for(const c of hz.cannons){const near=racers.some(r=>{const ahead=wrapDiff(c.d,r.distance);return ahead>0&&ahead<170;});if(near&&t>=c.next){c.next=t+CANNON.gap;const m=hzMissile(c);if(m&&pl&&Math.hypot(pl.x-c.g.position.x,pl.z-c.g.position.z)<90)SFX.shell();}}
- for(let i=hz.missiles.length-1;i>=0;i--){const m=hz.missiles[i],c=m.c,mp=missileAt(t-m.t0,c.off,m.lane),d=c.d-mp.back;
+ for(const w of hz.waves||[])waveTick(w,t);
+ for(const c of hz.cannons){if(c.laser){if(!c.tur&&P.fortress)c.tur=fzTurret(c);if(c.tur)turretAim(c,dt);laserFire(c,t);continue;}const near=racers.some(r=>{const ahead=wrapDiff(c.d,r.distance);return ahead>0&&ahead<170;});if(near&&t>=c.next){c.next=t+CANNON.gap;const m=hzMissile(c);if(m&&pl&&Math.hypot(pl.x-c.g.position.x,pl.z-c.g.position.z)<90)SFX.shell();}}
+ for(let i=hz.missiles.length-1;i>=0;i--){const m=hz.missiles[i],c=m.c;if(m.laser){if(!laserFly(m,t))hz.missiles.splice(i,1);continue;}const mp=missileAt(t-m.t0,c.off,m.lane),d=c.d-mp.back;
   if(!mp.alive){const p=m.g.position;hzBoom(p.x,p.y,p.z,0x9aa0ad,8);m.live=false;m.g.visible=false;hz.missiles.splice(i,1);continue;}
   const p=samplePos(d,mp.off,_hzv),k=c.over?Math.min(1,mp.back/30):1,hy=c.over?(1-k*k*(3-2*k))*14.8:0;m.g.position.set(p.x,p.y+1.35+hy,p.z);m.g.rotation.set(c.over?-(1-k)*.45:0,sample(d).angle+Math.PI,Math.sin((t-m.t0)*9)*.12);m.d=d;m.off=mp.off;m.hy=hy;}}
+// R57 Graben-Flug-Gegner (art/r57/create_fortress.py): Geschuetztuerme am Grabenrand zielen auf den Spieler und feuern
+// die Festungs-Laser; Brezn-Jaeger-Staffeln stuerzen sich vorn in den Graben, feuern entgegen und ziehen ueber den
+// Spieler hinweg hoch (eigene Entwuerfe, keine Filmvorlagen)
+const FORT={warn:230,speed:36,pull:34};
+function fzClone(n){const o=P.fortress?.getObjectByName(n);if(!o)return null;const c=o.clone(true);c.traverse(q=>{if(q.isMesh){q.castShadow=true;q.receiveShadow=false;}});return c;}
+function fzTurret(c){const base=fzClone('FZ_TurretBase'),head=fzClone('FZ_TurretHead');if(!base||!head)return null;
+ const g=new T.Group(),p=samplePos(c.d,c.side*(TRENCH_W+3.2),new T.Vector3(),TRENCH_H);g.position.copy(p);g.rotation.y=sample(c.d).angle;g.scale.setScalar(1.25);
+ const pivot=head.position.clone();head.rotation.order='YXZ';g.add(base,head);world.add(g);return {g,head,pivot,kick:0};}
+const _ta2=new T.Vector3(),_tb2=new T.Vector3();
+function turretAim(c,dt){const tu=c.tur,pl=racers[0];if(!pl?.mesh)return;tu.head.getWorldPosition(_ta2);pl.mesh.getWorldPosition(_tb2);
+ tu.g.worldToLocal(_tb2);tu.g.worldToLocal(_ta2);const dx=_tb2.x-_ta2.x,dy=_tb2.y-_ta2.y,dz=_tb2.z-_ta2.z;
+ const yaw=Math.atan2(dx,dz),pitch=Math.atan2(-dy,Math.hypot(dx,dz));tu.head.rotation.y+=angleDiff(yaw,tu.head.rotation.y)*Math.min(1,dt*4);tu.head.rotation.x+=(clamp(pitch,-.2,1.1)-tu.head.rotation.x)*Math.min(1,dt*4);
+ tu.kick=Math.max(0,tu.kick-dt*5);tu.head.position.copy(tu.pivot).addScaledVector(_ta2.set(Math.sin(tu.head.rotation.y),0,Math.cos(tu.head.rotation.y)),-tu.kick*.35);}
+let fzFallback=null;
+// kommt fortress.glb erst waehrend des Rennens an, werden Tuerme und Jaeger nachgeruestet (kein Neuaufbau im Rennen)
+function fzShip(){let g=fzClone('FZ_Jaeger');if(!g){fzFallback??=new T.Mesh(new T.SphereGeometry(1,12,8),stdMat({color:0x2a2e38,metalness:.6,roughness:.4}));g=fzFallback.clone();g.userData.fb=true;}
+ g.visible=false;g.scale.setScalar(1.55);g.rotation.order='YXZ';world.add(g);return g;}
+function waveTick(w,t){const pl=racers[0];if(!pl)return;const ahead=wrapDiff(w.d,pl.distance);
+ if(!w.on){if(state==='race'&&t>w.cd&&ahead>FORT.warn-40&&ahead<FORT.warn&&elemAt(pl.distance)?.kind==='flug'){w.on=true;w.t0=t;w.cd=t+9;for(const q of w.ships){if(q.g.userData.fb&&P.fortress){world.remove(q.g);q.g=fzShip();}q.g.visible=true;q.fired=0;q.pullT=undefined;}
+   sfxNoise(1.1,300,2600,.07,1.2);sfxTone(240,90,1,'sawtooth',.018);}return;}
+ const s=t-w.t0;let alive=false;
+ w.ships.forEach((q,i)=>{const d=lapDist(w.d-FORT.speed*s+i*7),rel=wrapDiff(d,pl.distance);if(q.pullT===undefined&&rel<FORT.pull){q.pullT=s;if(nearPlayer(pl,60)){sfxNoise(.7,500,3400,.06,1.5);}}
+  const dv=Math.min(1,s/1.4),e=dv*dv*(3-2*dv),pu=q.pullT===undefined?0:Math.min(1,(s-q.pullT)/1.2),weave=Math.sin(s*2.1+i*2)*1.3;
+  const h=3.2+(1-e)*30+pu*pu*42,off=q.lane*(.4+.6*e)+weave;posAt(d,off,h,q.g.position);q.d=d;q.h=h;
+  q.g.rotation.set((1-e)*.55-pu*.9,sample(d).angle+Math.PI,-weave*.25+Math.sin(s*3+i)*.1);
+  if(q.pullT===undefined&&e>.9&&q.fired<1&&s>1.5+i*.25){q.fired++;fzShot(q,d,off,t);}
+  if(pu<1&&s<8)alive=true;else q.g.visible=false;});
+ if(!alive){w.on=false;for(const q of w.ships)q.g.visible=false;}}
+// Salve eines Jaegers: fliegt mit Jaeger-Tempo plus Schuss nach vorn, faengt auf Hoehe des Jaegers an
+function fzShot(q,d,off,t){const c=hz.cannons.find(x=>x.laser);if(c)laserFire(c,t,{d0:d,lane:clamp(off,-5.5,5.5),spd:FORT.speed+40,merge:14,side:0,h0:1.9});}
+// R57 Festungs-Laser (Graben-Flug): Salve = heller Kern + additiver Schein, fliegt die Spur entlang den Karts entgegen
+// Streifschuss statt Vollbremsung: im engen Graben staute sich sonst das ganze Feld hinter einem getroffenen Kart
+const LASER={speed:46,range:150,gap:2.8,gapAlarm:1.8,lanes:[-4.5,0,4.5,-2.2,2.2,-5.5,5.5]};
+let laserGeo=null,laserBall=null,laserMat=null,laserGlow=null;
+// o: vorgegebene Salve (Jaeger), sonst feuert der Turm c nach Takt
+function laserFire(c,t,o){if(!o&&(t<c.next||state!=='race'))return;const pl=racers[0];
+ // nur wenn der Spieler anfliegt - die Salven sind fuer ihn da, weit entfernte Bots bleiben unbehelligt
+ if(!o){const pa=pl?wrapDiff(c.d,pl.distance):-1;if(!(pa>35&&pa<230))return;
+  c.next=t+((wxM?.alarm||0)>.3?LASER.gapAlarm:LASER.gap)*(.85+Math.random()*.3);}
+ // frontal anfliegend liest sich eine leuchtende Kugel besser als ein Stab; der Schweif zeigt nach hinten (+z = Fahrtrichtung)
+ if(!laserGeo){laserGeo=new T.CylinderGeometry(.05,.22,7.5,8).rotateX(Math.PI/2).translate(0,0,3.2);laserBall=new T.SphereGeometry(1,14,10);laserMat=new T.MeshBasicMaterial({color:0xffb3a0,toneMapped:false});
+  laserGlow=new T.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:.5,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false});}
+ let m=c.pool.find(q=>!q.live);if(!m){const g=new T.Group(),core=new T.Mesh(laserBall,laserMat),halo=new T.Mesh(laserBall,laserGlow),tail=new T.Mesh(laserGeo,laserGlow);core.scale.setScalar(.5);halo.scale.setScalar(1.25);tail.scale.set(3,3,1);g.add(core,halo,tail);g.traverse(o=>{o.castShadow=false;o.frustumCulled=false;});world.add(g);m={g,live:false,laser:true};c.pool.push(m);}
+ // jede dritte Salve zielt auf die aktuelle Spur des naechsten Karts, sonst feste Spuren (lesbar, ausweichbar)
+ if(o)Object.assign(m,{live:true,t0:t,c,d:undefined},o);else{
+ const k=c.k++,tgt=racers.filter(r=>{const a=wrapDiff(c.d,r.distance);return a>35&&a<230;}).sort((a,b)=>wrapDiff(c.d,a.distance)-wrapDiff(c.d,b.distance))[0];
+ m.lane=k%3===2&&tgt?clamp(tgt.offset,-5.5,5.5):LASER.lanes[k%LASER.lanes.length];Object.assign(m,{live:true,t0:t,c,d:undefined,d0:c.d,spd:LASER.speed,merge:34,side:c.side,h0:0});}m.g.visible=true;hz.missiles.push(m);
+ const p=laserStart(m,m.d0,_hzv);if(!o&&c.tur)c.tur.kick=1;for(let i=0;i<6;i++){const a=Math.random()*TAU;emit(p.x,p.y,p.z,0xff6a4a,Math.sin(a)*3,Math.random()*2,Math.cos(a)*3,.3);}
+ if(pl&&Math.abs(wrapDiff(m.d0,pl.distance))<160){const v=clamp(1-Math.abs(wrapDiff(m.d0,pl.distance))/160,.25,1);sfxTone(1900,260,.16,'square',.022*v);sfxTone(2600,420,.1,'sawtooth',.01*v,.015);}}
+function laserOff(m){const p=m.g.position;hzBoom(p.x,p.y,p.z,0xff5a4a,8);m.live=false;m.g.visible=false;m.d=undefined;}
+// Startpunkt einer Salve: Turm-Muendung am Grabenrand (side) oder die Hoehe des Jaegers (h0) ueber der Spur
+const _lzA=new T.Vector3(),_lzB=new T.Vector3();
+function laserStart(m,d,out){return m.side?samplePos(d,m.side*(TRENCH_W+1.6),out,TRENCH_H+2.8):posAt(d,m.lane,1.3+m.h0,out);}
+function laserFly(m,t){const run=(t-m.t0)*m.spd,d=lapDist(m.d0-run),z=elemAt(d);
+ if(run>LASER.range||!z||z.kind!=='flug'){laserOff(m);return false;}
+ const k=Math.min(1,run/m.merge),e=k*k*(3-2*k),a=laserStart(m,d,_lzA),b=posAt(d,m.lane,1.3,_lzB);m.g.position.lerpVectors(a,b,e);
+ // Flugrichtung inkl. Sinkflug aus dem Turm: Blick auf den naechsten Punkt der Bahn
+ const d2=lapDist(d-2),k2=Math.min(1,(run+2)/m.merge),e2=k2*k2*(3-2*k2);laserStart(m,d2,_lzA);posAt(d2,m.lane,1.3,_lzB);_lzA.lerp(_lzB,e2);m.g.lookAt(_lzA);m.g.rotateY(Math.PI);
+ // treffen und ausweichen erst, wenn die Salve in der Flugspur angekommen ist
+ if(e>.8){m.d=d;m.off=m.lane;}else m.d=undefined;return true;}
 // Treffer und Kollision je Kart (Stampfer quetscht/sperrt, Schnappblume beisst, Kugelblitz explodiert)
 function hazardHits(r,me){if(!hz)return;
  for(const s of hz.stampers){const st=s.st;if(!st||!stamperBlocks(st))continue;const dd=wrapDiff(r.distance,s.d),doff=r.offset-s.off;if(Math.abs(dd)>STAMP.half+1.2||Math.abs(doff)>STAMP.half+1.3)continue;
@@ -1988,7 +2054,12 @@ function hazardHits(r,me){if(!hz)return;
   else{const p=s.g.position,dx=r.x-p.x,dz=r.z-p.z,dl=Math.hypot(dx,dz)||1,rr=3.3;if(dl<rr){r.x=p.x+dx/dl*rr;r.z=p.z+dz/dl*rr;bounce(r,dx/dl,dz/dl,true);}}}
  for(const f of hz.plants){if(f.lunge<.55)continue;const dx=r.x-f.head.x,dz=r.z-f.head.z;if(dx*dx+dz*dz>4.4||Math.abs((r.y||0)+.9-f.head.y)>2.6||(r.biteCd||0)>elapsed)continue;r.biteCd=elapsed+1.8;
   if(r.shield>0){r.shield=0;burst(r,0xffe263,10);continue;}hitKart(r,.95,.45);loseSpores(r,1);if(me){SFX.hit(.8);toast('GESCHNAPPT!',.9,'bad');}}
- for(let i=hz.missiles.length-1;i>=0;i--){const m=hz.missiles[i];if(m.d===undefined||(m.hy||0)>2.4)continue;if(Math.abs(wrapDiff(r.distance,m.d))>1.9||Math.abs(r.offset-m.off)>1.7||r.air&&r.y>3)continue;
+ for(let i=hz.missiles.length-1;i>=0;i--){const m=hz.missiles[i];if(m.laser){if(m.d===undefined||Math.abs(wrapDiff(r.distance,m.d))>2.4||Math.abs(r.offset-m.off)>1.6)continue;
+   laserOff(m);hz.missiles.splice(i,1);if(r.shield>0){r.shield=0;burst(r,0xffe263,10);continue;}
+   // ohne Betaeubung (die deckelt das Tempo auf 5 m/s und kostete im Flug Sekunden): nur Tempoverlust; Bots noch weniger,
+   // sonst staut sich das 12er-Feld im engen Graben hinter jedem getroffenen Kart
+   hitKart(r,0,me?.7:.85);burst(r,0xff5a4a,10);loseSpores(r,1);if(me){SFX.hit(.8);shake=.35;toast('LASERTREFFER!',.9,'bad');}continue;}
+  if(m.d===undefined||(m.hy||0)>2.4)continue;if(Math.abs(wrapDiff(r.distance,m.d))>1.9||Math.abs(r.offset-m.off)>1.7||r.air&&r.y>3)continue;
   const p=m.g.position;hzBoom(p.x,p.y,p.z);m.live=false;m.g.visible=false;hz.missiles.splice(i,1);if(r.shield>0){r.shield=0;continue;}hitKart(r,1.15,.25);loseSpores(r,2);if(me){SFX.hit();shake=.5;toast('KUGELBLITZ!',.9,'bad');}}}
 // ---------------------------------------------------------------- R44: Themen-Wahrzeichen (art/r44/create_landmarks.py)
 // Pilz-Promenade: Maerchenschloss (Neuschwanstein-Stil) am Inselrand, Maibaeume, blau-weisse Wimpel.
@@ -3799,7 +3870,7 @@ protoAll.then(()=>{protoRecovery.settle();
 Promise.race([protoAll,new Promise(r=>setTimeout(r,9000))]).finally(()=>{protoRecovery.snapshot();try{applyGfx();}catch(e){}buildCourse();resize();refreshMenu();try{driverThumbs();}catch(e){}try{buildItemThumbs();}catch(e){console.error('itemThumbs0',e);}readyPromise.then(()=>{updateCamera(1/60,true);try{renderer.render(scene,camera);}catch(e){}
  requestAnimationFrame(()=>{playBgm('menu');const l=$('loader');l.classList.add('done');setTimeout(()=>l.hidden=true,600);requestAnimationFrame(loop);setInterval(prebuildTick,900);
   // Grossbauten nachladen und die betroffenen Strecken neu bauen lassen
-  Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].landmarks||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}
+  Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].lasers||courses[i].landmarks||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}
    // R54: auch das Wiesnland (Index 99) neu bauen - sonst blieben nach einem Erststart dort Platzhalter (blaue Scheibe statt Glockenschalter)
    if(builtSel===WORLD_IDX){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(WORLD_IDX);});});});});
 
@@ -4148,7 +4219,7 @@ if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,classes:()=>CLA
  wxInfo:()=>({active:wxActive,plan:wxPlan,m:wxM&&Object.fromEntries(Object.entries(wxM).map(([k,v])=>[k,+(+v).toFixed(2)])),grip:+wxGripMul.toFixed(3),wind:+wxWindA.toFixed(2),exp:+renderer.toneMappingExposure.toFixed(2),rain:wxRain.visible,flakes:wxFlakes.visible,bugs:wxBugs.visible,bow:wxBow.visible,aurora:wxAurora[0].visible,moon:wxMoonDisc.visible,meteors:wxMeteors.filter(s=>s.visible).length,ufo:{vis:wxUfo.visible,d:Math.round(wxUfo.userData.d),show:+wxUfo.userData.show.toFixed(2),fly:+wxUfo.userData.fly.toFixed(2),beam:wxUfo.userData.beam.visible},strip:$('wxStrip')?.textContent,lifts:stats.ufoLifts||0}),
  perf:()=>({drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,dpr:renderer.getPixelRatio(),qualityLevel:quality.level}),
  bgm:()=>({ready:bgm.ready,failed:bgm.failed,playing:bgm.current,rate:bgm.rate}),
- chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g.position.toArray().map(v=>+v.toFixed(1))]),missiles:hz.missiles.length,statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),
+ chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g?q.g.position.toArray().map(v=>+v.toFixed(1)):'laser']),missiles:hz.missiles.length,lasers:hz.missiles.filter(m=>m.laser).length,waves:(hz.waves||[]).map(w=>w.on?1:0),ships:(hz.waves||[]).flatMap(w=>w.on?w.ships.filter(q=>q.g.visible&&q.d!==undefined).map(q=>[Math.round(wrapDiff(q.d,racers[0].distance)),Math.round(q.h)]):[]),turrets:hz.cannons.filter(c=>c.tur).length,fz:P.fortress===undefined?'pending':P.fortress?'ok':'failed',laserAhead:hz.missiles.filter(m=>m.laser&&m.d!==undefined&&racers[0]).map(m=>Math.round(wrapDiff(m.d,racers[0].distance))),statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),
  saveGhost:()=>{try{localStorage.setItem('mr-ghost-'+selected,JSON.stringify({...rec,next:undefined,color:0xffffff}));}catch{}return rec&&rec.x.length;},ghost:()=>ghost&&{n:ghost.data.x.length,dist:ghost.dist,visible:ghost.mesh.visible},medalOf:t=>medalOf(t),aiUse:(id,item)=>{racers[id].item=item;return useItem(racers[id]);},racers:()=>racers,world:()=>({ramps,pads,rings,spores,gaps,swingers}),keys,
  loops:()=>loops.map(q=>({...q,s:Math.round(q.s),span:Math.round(q.span),R:Math.round(q.R)})),
  coasters:()=>coasters.map(c=>({s:Math.round(c.s),span:Math.round(c.span),kind:c.spec.kind,launch:c.spec.launch.map(Math.round),hills:c.spec.hills.map(q=>({c:Math.round(q.c),w:Math.round(q.w),h:+q.h.toFixed(1)})),arches:c.archX.map(Math.round),assets:{arch:!!P.magnetarch,truss:!!P.coastertruss},glow:!!coasterGlow})),

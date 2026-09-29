@@ -6,7 +6,16 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
-## Runde 57 (29.09.2026): 12er-Starterfeld, Online-Bestenliste, Quetschn-Maß
+## Runde 57 (29.09.2026): 12er-Starterfeld, Online-Bestenliste, Festungs-Abwehr im Graben-Flug, Quetschn-Maß
+
+**Graben-Flug mit Gegnern** (`art/r57/create_fortress.py`, eigene Entwuerfe): sechs Geschuetztuerme am Grabenrand
+(Sockel mit weiss-blauem Rautenband, Drehkopf mit Doppelrohr) zielen auf den Spieler und feuern Festungs-Laser -
+leuchtende Kugeln mit Schweif, die aus dem Turm in eine Flugspur einschwenken; ausweichen durch Lenken, im
+Festungs-Alarm schneller. Zwei Staffeln Brezn-Jaeger (Stahlkapsel mit rotem Auge, Fluegel in Brezenform mit Salz)
+stuerzen sich vorn in den Graben, feuern entgegen und ziehen ueber den Spieler hinweg hoch. Treffer kosten Tempo, aber
+keine Betaeubung (die deckelte im Flug auf 5 m/s); Bots werden nur leicht gebremst und weichen aus, damit sich das
+12er-Feld im engen Graben nicht staut. Kommt das Modell erst waehrend des Rennens an, werden Tuerme und Jaeger
+nachgeruestet. Pruefung: Zeitfahren (Autopilot) 89 s statt 84 s ohne Gegner, Rennen ohne Fehler.
 
 **Online-Bestenliste ohne eigenen Server** (`lb.mjs`) - Weltrangliste je Strecke fuers Zeitfahren und "Online-Siege"
 (nur Siege gegen mindestens einen anderen Menschen). Eintraege sind signierte Nostr-App-Daten (NIP-78, Kind 30078)
