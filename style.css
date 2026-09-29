@@ -1323,3 +1323,13 @@ body .loader-card b{font-size:clamp(20px,4vw,30px);text-align:center}
 #battleHud small{font-size:12px;font-weight:800;opacity:.9}
 body #online #onQuick{background:linear-gradient(180deg,#5fd88a,#1f9a4b);font-size:18px}
 body #online #onWhat{flex-wrap:wrap}
+/* R56 Handy hochkant (Nutzerhinweis): Lenkknoepfe als hohe Kapseln (leichter zu treffen), Item-Knopf rechts auf halber
+   Hoehe in Daumennaehe statt oben am HUD - stoert die Wischlenkung und die Lenkknoepfe nicht */
+@media (pointer:coarse) and (orientation:portrait){
+ body #touch .steer{gap:12px;padding:8px}
+ body #touch .steer button{width:clamp(86px,25vw,118px);height:clamp(118px,18vh,168px);border-radius:32px;font-size:40px}
+ body #touch .t-item{width:clamp(76px,21vw,92px);height:clamp(76px,21vw,92px)}
+ body.onehand #touch .act{top:auto;bottom:calc(38vh + env(safe-area-inset-bottom,0px));right:14px}
+ body.onehand #touch .t-item{width:84px!important;height:84px!important}
+ body.onehand #titem #titemIcon{width:56px;height:56px}
+}

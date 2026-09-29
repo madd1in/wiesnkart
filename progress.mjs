@@ -1,6 +1,6 @@
 // Wiesn Kart R44: Fortschritt - Erfahrungspunkte je Rennen, Fahrerstufen mit Freischaltungen, Erfolge.
 // Reine Funktionen (Spiel und Tests). Strecken-Index: 0 Promenade, 1 Canyon, 2 Neon, 3 Geisterhaus, 4 Lava,
-// 5 Sternenbahn, 6 Magnet-Kirmes.
+// 5 Bierstraße, 6 Magnet-Kirmes.
 export const PLACE_XP = [100, 80, 66, 56, 47, 40, 34, 28];
 export const CLASS_MUL = {50: 1, 100: 1.25, 150: 1.6};
 export const TRACKS = 7;
@@ -62,7 +62,7 @@ export const ACH = [
   {id: 'beat', n: 'Taktgefühl', d: '3 Turbos im Takt (Neon-Pilzwald)', t: r => cnt(r.stats, 'beatBoosts') >= 3},
   {id: 'ghost', n: 'Geisterjäger', d: 'Geisterhaus, ohne gepackt zu werden', t: r => r.track === 3 && r.finished && !cnt(r.stats, 'grabs')},
   {id: 'stomp', n: 'Stampfer-Tänzer', d: 'Lava-Feste, ohne plattgedrückt zu werden', t: r => r.track === 4 && r.finished && !cnt(r.stats, 'squashed')},
-  {id: 'star', n: 'Sternenkind', d: 'Sternenbahn ohne Sternschnuppen-Treffer', t: r => r.track === 5 && r.finished && !cnt(r.stats, 'meteorHits')},
+  {id: 'star', n: 'Sternenkind', d: 'Bierstraße ohne Sternschnuppen-Treffer', t: r => r.track === 5 && r.finished && !cnt(r.stats, 'meteorHits')},
   {id: 'coaster', n: 'Achterbahn-Fan', d: 'Fahre in einem Rennen drei Achterbahnen', t: r => cnt(r.stats, 'coasters') >= 3},
   {id: 'ow', n: 'Entdecker', d: 'Erledige 3 Missionen im Wiesnland', t: r => (r.owDone || 0) >= 3},
   {id: 'rival', n: 'Rivalen-Bezwinger', d: 'Lass deinen Rivalen hinter dir', t: r => !!r.stats.rivalBeaten},
