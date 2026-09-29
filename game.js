@@ -117,7 +117,11 @@ const courses=[
  // ist Flugschneise in 9 m Hoehe zwischen 24 m hohen Stahlwaenden; oben die Stationsoberflaeche mit Tuermen
  {name:'Graben-Flug',icon:'🛸',kind:'Weltraum-Festung \u00b7 Stahlgraben \u00b7 Ringflug',medals:[96,102,112],music:'night',bgmRate:1.08,theme:'fortress',seed:202,
   points:[[-70,-75],[-70,75],[-50,112],[0,128],[50,112],[70,75],[70,-75],[50,-112],[0,-128],[-50,-112]],
-  elem:[[.55,9.45,'flug',{fly:9,hi:42,hiLen:200}]],trench:[[0,9.98]],lasers:[[1.7],[2.9],[4.1],[5.6],[6.8],[8.1]],fighters:[[3.5],[7.5]],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
+  elem:[[.55,9.45,'flug',{fly:9,hi:42,hiLen:200}]],trench:[[0,9.98]],lasers:[[1.7],[2.9],[4.1],[5.6],[6.8],[8.1]],fighters:[[3.5],[7.5]],
+  // R59 ("spielerisch zu monoton"): Sperrwaende mit Luecke (Slalom), wandernde Schleusentore, Laservorhaenge im Takt und
+  // als Finale der Abluftschacht - [cp,'wall',Lueckenmitte,Lueckenbreite] [cp,'gate',Amplitude,Periode] [cp,'laser',Periode,An-Anteil,Phase] [cp,'port']
+  trenchObs:[[4.35,'wall',-5.5,6.2],[4.75,'wall',5.5,6.2],[5.25,'laser',2.6,.42,0],[5.95,'gate',6.2,3.4],[6.45,'wall',0,5.6],
+   [7.05,'laser',2.3,.45,.2],[7.22,'laser',2.3,.45,1.35],[7.95,'gate',6.8,2.8],[8.35,'wall',-6,6.2],[8.85,'port']],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
 // ---------- Wiesnland (R41): Open World, die die Rennstrecken verbindet. Eine grosse Rundstrasse durch
 // Wald, Flussaue, Canyon, Seen und Flugschneisen - an Portalen geht es in jede Rennstrecke, dazu
 // Missionen (Glockenschalter mit 8 Muenzen, Bojen-Slalom als Boot, Ringflug als Flugzeug). Steht nicht in
@@ -1521,7 +1525,7 @@ function buildElems(){const pal=WATER[course.theme]||WATER.forest,glow=!!theme.g
    for(const x of [take.x1-.6,land.x0+.6]){const d=lapDist(z.s+x),p=posAt(d,0,.25,new T.Vector3()),b=mesh(new T.BoxGeometry(17.4,.3,.9),barMat,world,p.x,p.y,p.z);b.rotation.y=sample(d,0).angle;b.castShadow=false;}
    const cl=z.plan.pieces.find(q=>q.type==='climb'),de=z.plan.pieces.find(q=>q.type==='descend'),cr=z.plan.pieces.find(q=>q.type==='cruise');
    const ringXs=[];{const a=cl.x0+(cl.x1-cl.x0)*.75,b=de.x0+(de.x1-de.x0)*.3,n=Math.max(3,Math.round((b-a)/34)+1);for(let k=0;k<n;k++)ringXs.push([a+(b-a)*k/(n-1),[-3.5,3.5,-1.5,4,-4,2][k%6]]);}
-   const zi=elems.indexOf(z);ringXs.forEach(([x,off],ri)=>{const d=lapDist(z.s+x),p=posAt(d,off,1.3,new T.Vector3());
+   const zi=elems.indexOf(z);ringXs.forEach(([x,off],ri)=>{const d=lapDist(z.s+x);if((course.trenchObs||[]).some(o=>Math.abs(wrapDiff(cpDist(o[0]),d))<10))return;const p=posAt(d,off,1.3,new T.Vector3());
     const rg=new T.Mesh(new T.TorusGeometry(4.3,.36,10,32),stdMat({color:ringCol,emissive:ringCol,emissiveIntensity:1.1,roughness:.35}));
     rg.position.copy(p);rg.rotation.order='YXZ';rg.rotation.y=sample(d,0).angle;rg.castShadow=false;world.add(rg);rings.push({d,off,y:p.y,mesh:rg,flash:0,fly:1,zone:zi,ri,rn:ringXs.length});});}}
  elemFx=fx;}
@@ -1963,6 +1967,7 @@ function buildHazards(){hz={stampers:[],plants:[],cannons:[],missiles:[]};
  // (Ausweichen durch Lenken, in der Luft ohne Hoehenpruefung wie die Flugringe); im Festungs-Alarm schneller
  (course.lasers||[]).forEach(([v],i)=>{const c={d:cpDist(v),off:0,g:null,next:0,k:i*2,pool:[],laser:true,side:i%2?1:-1};c.tur=fzTurret(c);hz.cannons.push(c);});
  hz.waves=(course.fighters||[]).map(([v])=>({d:cpDist(v),on:false,cd:0,ships:[0,1,2].map(i=>({g:fzShip(),lane:[-4.5,0,4.5][i]}))}));
+ hz.obs=buildTrenchObs();
  if(!P.hazards)return;
  if(!HZ_SHADOW)HZ_SHADOW={geo:new T.PlaneGeometry(4.6,3.6).rotateX(-Math.PI/2),mat:new T.MeshBasicMaterial({color:0x05030a,transparent:true,opacity:.3,depthWrite:false})};
  // R54 Wiesn Kart: Stampfer ist ein Hau-den-Lukas-Holzhammer, die Roehre ein Bierfass, die Pflanze eine Fliegenfalle
@@ -2000,10 +2005,47 @@ function updateHazards(dt,t=elapsed,live=true){if(!hz)return;const pl=racers[0];
   f.head.set(0,2.3,.1).applyMatrix4(f.lean.matrixWorld);}
  if(!live)return;
  for(const w of hz.waves||[])waveTick(w,t);
+ trenchObsTick(t);
  for(const c of hz.cannons){if(c.laser){if(!c.tur&&P.fortress)c.tur=fzTurret(c);if(c.tur)turretAim(c,dt);laserFire(c,t);continue;}const near=racers.some(r=>{const ahead=wrapDiff(c.d,r.distance);return ahead>0&&ahead<170;});if(near&&t>=c.next){c.next=t+CANNON.gap;const m=hzMissile(c);if(m&&pl&&Math.hypot(pl.x-c.g.position.x,pl.z-c.g.position.z)<90)SFX.shell();}}
  for(let i=hz.missiles.length-1;i>=0;i--){const m=hz.missiles[i],c=m.c;if(m.laser){if(!laserFly(m,t))hz.missiles.splice(i,1);continue;}const mp=missileAt(t-m.t0,c.off,m.lane),d=c.d-mp.back;
   if(!mp.alive){const p=m.g.position;hzBoom(p.x,p.y,p.z,0x9aa0ad,8);m.live=false;m.g.visible=false;hz.missiles.splice(i,1);continue;}
   const p=samplePos(d,mp.off,_hzv),k=c.over?Math.min(1,mp.back/30):1,hy=c.over?(1-k*k*(3-2*k))*14.8:0;m.g.position.set(p.x,p.y+1.35+hy,p.z);m.g.rotation.set(c.over?-(1-k)*.45:0,sample(d).angle+Math.PI,Math.sin((t-m.t0)*9)*.12);m.d=d;m.off=mp.off;m.hy=hy;}}
+// ---------------------------------------------------------------- R59 Graben-Hindernisse (Graben-Flug)
+// Sperrwand: Stahlplatten ueber die ganze Grabenbreite mit einer Luecke (Warnstreifen, rote Lampen). Schleusentor: die
+// Luecke wandert hin und her. Laservorhang: waagrechte Strahlen im Takt, vorher blinken die Sender orange.
+// Abluftschacht (Finale): kleiner leuchtender Ring - genau hindurch gibt es einen grossen Turbo und Feuerwerk.
+const obsGap=(o,t)=>o.k==='gate'?Math.sin(t*TAU/o.per+o.ph)*o.amp:o.g;
+function buildTrenchObs(){const L=course.trenchObs;if(!L)return [];const Wd=TRENCH_W,out=[];
+ const steel=stdMat({color:0x3a404c,metalness:.6,roughness:.42}),red=new T.MeshBasicMaterial({color:0xff3a2a,toneMapped:false});
+ const stripe=new T.MeshStandardMaterial({map:canvasTex(64,256,(q,w,h)=>{q.fillStyle='#ffc21a';q.fillRect(0,0,w,h);q.fillStyle='#161616';for(let y=-w;y<h;y+=48){q.beginPath();q.moveTo(0,y);q.lineTo(w,y+w);q.lineTo(w,y+w+22);q.lineTo(0,y+22);q.fill();}}),roughness:.6});
+ const beamMat=new T.MeshBasicMaterial({color:0xff2a2a,transparent:true,opacity:.85,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false});
+ const warnMat=new T.MeshBasicMaterial({color:0xff9a1a,toneMapped:false}),portMat=new T.MeshBasicMaterial({color:0xffa53d,toneMapped:false});
+ L.forEach(([v,k,a,b,c],i)=>{const d=cpDist(v),g=new T.Group(),P=posAt(d,0,1.3,new T.Vector3());g.position.copy(P);g.rotation.y=sample(d).angle;world.add(g);
+  const o={i,k,d,g,hit:0};
+  const panel=(x0,x1,parent)=>{const w=Math.max(.1,x1-x0),m=mesh(new T.BoxGeometry(w,13,.7),steel,parent,(x0+x1)/2,3.2,0);m.castShadow=false;return m;};
+  const edge=(x,parent)=>{mesh(new T.BoxGeometry(.55,13,.8),stripe,parent,x,3.2,0);mesh(new T.SphereGeometry(.28,10,8),red,parent,x,9.9,.3);};
+  if(k==='wall'){o.g=a;o.w=b;panel(-Wd,a-b/2,g);panel(a+b/2,Wd,g);edge(a-b/2,g);edge(a+b/2,g);}
+  else if(k==='gate'){o.amp=a;o.per=b;o.w=6;o.ph=i*1.3;o.L=new T.Group();o.R=new T.Group();g.add(o.L,o.R);panel(-2*Wd,0,o.L);edge(0,o.L);panel(0,2*Wd,o.R);edge(0,o.R);}
+  else if(k==='laser'){o.per=a;o.on=b;o.ph=c||0;o.beams=[];o.em=[];
+   for(const sx of [-1,1])o.em.push(mesh(new T.BoxGeometry(.6,8,.9),steel,g,sx*(Wd-.3),2.6,0));
+   o.warn=[-1,1].map(sx=>mesh(new T.BoxGeometry(.25,7.4,.95),warnMat,g,sx*(Wd-.62),2.6,0));
+   for(const y of [-1.1,.9,2.9,4.9])o.beams.push(mesh(new T.CylinderGeometry(.09,.09,Wd*2-.8,6).rotateZ(Math.PI/2),beamMat,g,0,y,0));}
+  else if(k==='port'){const ring=mesh(new T.TorusGeometry(2.4,.32,10,32),portMat,g,0,0,0);ring.castShadow=false;const back=mesh(new T.CircleGeometry(2.2,28),new T.MeshBasicMaterial({color:0x100808}),g,0,0,-3);back.rotation.y=Math.PI;
+   const sign=mesh(new T.PlaneGeometry(6.4,1.1),label('ABLUFTSCHACHT · MITTEN REIN!','#ff9a1a','#1a1010',768,130),g,0,6.6,.4);sign.castShadow=false;o.ring=ring;}
+  out.push(o);});
+ return out;}
+function trenchObsTick(t){for(const o of hz.obs||[]){
+ if(o.k==='gate'){const gc=obsGap(o,t);o.L.position.x=gc-o.w/2;o.R.position.x=gc+o.w/2;}
+ else if(o.k==='laser'){const ph=((t+o.ph)%o.per)/o.per,on=ph<o.on,warn=!on&&ph>.82;o.live=on;for(const b of o.beams)b.visible=on;for(const w of o.warn)w.visible=on||(warn&&Math.sin(t*40)>0);}
+ else if(o.k==='port'&&o.ring){o.ring.rotation.z=t*1.5;o.ring.scale.setScalar(1+Math.sin(t*6)*.05);}}}
+function trenchObsHit(r,me){for(const o of hz.obs){if(Math.abs(wrapDiff(r.distance,o.d))>1.5)continue;r.obsCd??={};if((r.obsCd[o.i]||0)>elapsed)continue;
+ if(o.k==='port'){r.obsCd[o.i]=elapsed+2;if(Math.abs(r.offset)<2.4){r.boost=Math.max(r.boost,me?2.8:1.4);burst(r,0xffa53d,34);if(me){toast('VOLLTREFFER! 🎯 SCHACHT-TURBO',1.8,'good');flashScreen(.45);SFX.boom?.();SFX.cheer?.();shake=Math.max(shake,.5);}}continue;}
+ let hit=false,dir=0;
+ if(o.k==='laser'){hit=!!o.live;}
+ else{const gc=obsGap(o,elapsed),half=o.w/2-.9;if(Math.abs(r.offset-gc)>half){hit=true;dir=Math.sign(gc-r.offset);}}
+ if(!hit)continue;r.obsCd[o.i]=elapsed+1.2;hitKart(r,0,me?.55:.8);
+ if(dir){const a=sample(r.distance).angle,qx=Math.cos(a),qz=-Math.sin(a);r.vx+=qx*dir*9;r.vz+=qz*dir*9;}
+ burst(r,o.k==='laser'?0xff3a2a:0xffc21a,14);if(me){SFX.bump(.8);shake=Math.max(shake,.4);toast(o.k==='laser'?'LASERVORHANG!':o.k==='gate'?'SCHLEUSENTOR!':'SPERRWAND!',.9,'bad');}}}
 // R57 Graben-Flug-Gegner (art/r57/create_fortress.py): Geschuetztuerme am Grabenrand zielen auf den Spieler und feuern
 // die Festungs-Laser; Brezn-Jaeger-Staffeln stuerzen sich vorn in den Graben, feuern entgegen und ziehen ueber den
 // Spieler hinweg hoch (eigene Entwuerfe, keine Filmvorlagen)
@@ -2066,6 +2108,7 @@ function laserFly(m,t){const run=(t-m.t0)*m.spd,d=lapDist(m.d0-run),z=elemAt(d);
  if(e>.8){m.d=d;m.off=m.lane;}else m.d=undefined;return true;}
 // Treffer und Kollision je Kart (Stampfer quetscht/sperrt, Schnappblume beisst, Kugelblitz explodiert)
 function hazardHits(r,me){if(!hz)return;
+ if(hz.obs?.length)trenchObsHit(r,me);
  for(const s of hz.stampers){const st=s.st;if(!st||!stamperBlocks(st))continue;const dd=wrapDiff(r.distance,s.d),doff=r.offset-s.off;if(Math.abs(dd)>STAMP.half+1.2||Math.abs(doff)>STAMP.half+1.3)continue;
   if(stamperCrushes(st)&&!((r.crushCd||0)>elapsed)){r.crushCd=elapsed+1.6;if(r.shield>0){r.shield=0;burst(r,0xffe263,12);continue;}hitKart(r,1.35,.12);r.squash=.6;loseSpores(r,2);if(me){stats.squashed++;SFX.hit();shake=.6;toast('PLATT!',.9,'bad');}}
   else{const p=s.g.position,dx=r.x-p.x,dz=r.z-p.z,dl=Math.hypot(dx,dz)||1,rr=3.3;if(dl<rr){r.x=p.x+dx/dl*rr;r.z=p.z+dz/dl*rr;bounce(r,dx/dl,dz/dl,true);}}}
@@ -2559,7 +2602,10 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
  if(desert){for(const s of desert.twisters){const ahead=wrapDiff(s.d,r.distance);if(ahead>0&&ahead<40){const ta=elapsed+ahead/Math.max(sp,5),off=Math.sin(ta*s.spd+s.ph)*s.amp;if(Math.abs(off-line)<4.2)line=off>line?off-4.6:off+4.6;}}
   for(const q of desert.pits){const ahead=wrapDiff(q.d,r.distance);if(ahead>-12&&ahead<45&&Math.sign(q.off)*line>2)line=Math.sign(q.off)*2;}}
  if(hz){for(const st of hz.stampers){const ahead=wrapDiff(st.d,r.distance);if(ahead>0&&ahead<40&&Math.abs(st.off-line)<4.6){const a=stamperState(elapsed+ahead/Math.max(sp,5),st.ph);if(a.y<3||a.phase==='fall')line=st.off>0?st.off-5.4:st.off+5.4;}}
-  for(const m of hz.missiles){if(m.d===undefined)continue;const ahead=wrapDiff(m.d,r.distance);if(ahead>0&&ahead<45&&Math.abs(m.off-line)<2.6)line=m.off>line?m.off-3.4:m.off+3.4;}}
+  for(const m of hz.missiles){if(m.d===undefined)continue;const ahead=wrapDiff(m.d,r.distance);if(ahead>0&&ahead<45&&Math.abs(m.off-line)<2.6)line=m.off>line?m.off-3.4:m.off+3.4;}
+  // Graben-Hindernisse haben Vorrang: Wand und Tor durch die (vorausberechnete) Luecke, Finale mittig
+  for(const o of hz.obs||[]){const ahead=wrapDiff(o.d,r.distance);if(ahead<=0||ahead>75)continue;if(o.k==='port'){if(ahead<60)line=0;continue;}if(o.k==='laser')continue;
+   line=o.k==='gate'?obsGap(o,elapsed+ahead/Math.max(sp,8)):o.g;break;}}
  // R53 Verkehr (Nutzerhinweis "Karts verkeilen sich fuzzy"): nicht mehr stur auffahren. Langsameres Kart dicht voraus:
  // auf der freieren Seite vorbei; wer noch direkt dahinter klemmt, faehrt dessen Tempo mit. Nebeneinander: Abstand halten.
  let follow=Infinity;

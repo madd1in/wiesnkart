@@ -6,7 +6,13 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
-## Runde 59 (29.09.2026): Kuehe ohne Haengenbleiben, huebschere Almkuh, Zeitklo & Tentakel, groessere Lenktasten
+## Runde 59 (29.09.2026): Graben-Hindernisse, Kuehe ohne Haengenbleiben, huebschere Almkuh, Zeitklo & Tentakel, groessere Lenktasten
+
+**Graben-Flug spielerisch abwechslungsreicher** - im Graben nach dem Sturzflug jetzt eine Hindernisfolge: Sperrwaende
+mit Luecke (Slalom links/rechts/mitte), wandernde Schleusentore (Timing), Laservorhaenge im Takt mit orange blinkender
+Vorwarnung und als Finale ein kleiner leuchtender Abluftschacht - genau hindurch gibt es "VOLLTREFFER!" mit grossem
+Turbo. Treffer bremsen (Spieler staerker als Bots), Waende und Tore schieben zur Luecke; die KI zielt auf die
+vorausberechnete Luecke und aufs Finale; Windringe liegen nicht mehr in Hindernissen. Zeitfahren (Autopilot) 90,9 s.
 
 **Kuehe auf der Pilz-Promenade** - man blieb an ihnen haengen: Zusammenstoss stiess zurueck und betaeubte (Tempo 5 m/s),
 die Kuh lief weiter in einen hinein. Jetzt nur ein Streifer (Tempo -28 %), danach 1,2 s Durchfahrt, die Kuh flieht an den
