@@ -36,6 +36,11 @@ const THEMES={
   grass:0x241a44,grassSpot:0x2e2358,skirt:0x1a1234,road:0x2a2050,roadSpot:0x3a2c6e,edge:0xfff6dc,curbA:'#fffdf4',curbB:'#f5a623',line:'#fffdf4',glow:1,sea:0x0a0620,foam:0x9d8cff,
   caps:[0xff4fa3,0x4fd8ff,0xffe45c,0x8affc8],leaves:[0x3a2d6a,0x2a2050],hills:[0x1a1240,0x241a50],pennants:[0xff4fa3,0x4fd8ff],chev:'#ffffff',
   space:true,rainbowRoad:true,clouds:false,balloons:0,stars:true,magnetCol:0xd23a8a},
+ // R56 Graben-Flug: dunkle Weltraum-Festung aus Stahl mit orangen Warnlichtern
+ fortress:{skyTop:0x020208,skyBottom:0x0e1428,fog:0x0a0e1a,fogNear:170,fogFar:620,exposure:1.42,hemiSky:0xb8c4ff,hemiGround:0x20242e,hemiInt:1.7,sunCol:0xffe8d0,sunInt:2.3,sunPos:[-80,160,40],fillCol:0xff6a3a,fillInt:.7,head:75,
+  grass:0x2a2e38,grassSpot:0x343a46,skirt:0x1c2028,road:0x3c424e,roadSpot:0x4a5260,edge:0xff5a3a,curbA:'#ff5a3a',curbB:'#2a2e38',line:'#ffb03a',glow:1,sea:0x05070c,foam:0x3a4658,
+  caps:[0xff5a3a,0x4fd8ff],leaves:[0x2a2e38],hills:[0x1c2028,0x2a2e38],pennants:[0xff5a3a,0xffb03a],chev:'#ffb03a',
+  space:true,clouds:false,balloons:0,stars:true,magnetCol:0xff5a3a},
  lava:{skyTop:0x150409,skyBottom:0x8a2410,fog:0x40120c,fogNear:110,fogFar:430,exposure:1.3,hemiSky:0xffc59a,hemiGround:0x241010,hemiInt:1.05,sunCol:0xffd0a0,sunInt:2.6,sunPos:[-90,110,-70],fillCol:0x6a7dff,fillInt:.5,head:80,
   grass:0x2e2226,grassSpot:0x46302e,skirt:0x1d1517,road:0x2a2328,roadSpot:0x3b3038,edge:0xff7a2f,curbA:'#ff5a1f',curbB:'#1a1012',line:'#ffb347',glow:1,sea:0xff4a12,foam:0xffd08a,lavaSea:true,ember:true,
   chasm:{c:0xff4a12,e:0xff3a08,i:1.5,label:'LAVA! VOLLGAS'},
@@ -99,7 +104,12 @@ const courses=[
   coaster:[[5.45,9.2,'dragon']],loopc:[[12.3,16,1,-1]],halfpipe:[[.95,110]],elem:[[1.82,4.75,'see',{loop:[2,15,1]}]],agrav:[[9.3,11.3,'roll',1]],
   hills:[[11.9,4,.03]],
   ramps:[[1.4,0,9]],pads:[[12.5,3]],
-  boost:[.55,4.7,11.3],boxes:[.8,2.7,4.7,9.0,11.7,13.2],stands:[[.3,18],[4.4,-19]]}];
+  boost:[.55,4.7,11.3],boxes:[.8,2.7,4.7,9.0,11.7,13.2],stands:[[.3,18],[4.4,-19]]},
+ // R56 Graben-Flug (Nutzerwunsch: reine Flugstrecke durch einen Graben einer Weltraum-Festung): fast die ganze Runde
+ // ist Flugschneise in 9 m Hoehe zwischen 24 m hohen Stahlwaenden; oben die Stationsoberflaeche mit Tuermen
+ {name:'Graben-Flug',icon:'🛸',kind:'Weltraum-Festung \u00b7 Stahlgraben \u00b7 Ringflug',medals:[96,102,112],music:'night',bgmRate:1.08,theme:'fortress',seed:202,
+  points:[[-70,-75],[-70,75],[-50,112],[0,128],[50,112],[70,75],[70,-75],[50,-112],[0,-128],[-50,-112]],
+  elem:[[.55,9.45,'flug',{fly:9}]],trench:[[0,9.98]],ramps:[],pads:[],stands:[],boost:[.45,5.45],boxes:[.3]}];
 // ---------- Wiesnland (R41): Open World, die die Rennstrecken verbindet. Eine grosse Rundstrasse durch
 // Wald, Flussaue, Canyon, Seen und Flugschneisen - an Portalen geht es in jede Rennstrecke, dazu
 // Missionen (Glockenschalter mit 8 Muenzen, Bojen-Slalom als Boot, Ringflug als Flugzeug). Steht nicht in
@@ -812,7 +822,7 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
  // Boden, Meer, Kuestenschaum
  const grassMat=stdMat({map:speckleTexture(hex(theme.grass),hex(theme.grassSpot),2600),roughness:1});
  if(!theme.space&&elems.some(z=>z.lake))buildLakeGround(grassMat);else if(!theme.space)mesh(new T.CylinderGeometry(210*WK,210*WK-15,12,Math.round(96*Math.sqrt(WK))),grassMat,world,0,-6.3,0).castShadow=false;
- lakeMask=lakeMask&&elems.some(z=>z.lake)?lakeMask:null;buildHazards();buildLandmarks();buildDeco();buildDesert();buildCharacter();if(elems.length)buildElems();if(course.openWorld){buildOW();buildArena();}if(elemFx)buildBuoyInst();
+ lakeMask=lakeMask&&elems.some(z=>z.lake)?lakeMask:null;buildHazards();buildLandmarks();buildDeco();buildTrench();buildDesert();buildCharacter();if(elems.length)buildElems();if(course.openWorld){buildOW();buildArena();}if(elemFx)buildBuoyInst();
  const seaMat=mat(theme.sea,theme.lavaSea?{roughness:.65,emissive:0xff3a08,emissiveIntensity:.95}:{roughness:.3});seaMat.onBeforeCompile=sh=>{sh.uniforms.uTime=shaderTime;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime;varying float vWave;').replace('#include <begin_vertex>','#include <begin_vertex>\nfloat w=sin(position.x*.035+uTime*1.3)*.8+sin(position.y*.05-uTime*1.1)*.6+sin((position.x+position.y)*.02+uTime*.7)*.9;transformed.z+=w;vWave=w;');sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying float vWave;').replace('#include <dithering_fragment>','#include <dithering_fragment>\ngl_FragColor.rgb+=vec3(.10,.15,.15)*smoothstep(.7,2.1,vWave);');};
  const sea=mesh(new T.PlaneGeometry(1800*WK,1800*WK,90,90),seaMat,world,0,-12,0);sea.rotation.x=-Math.PI/2;sea.castShadow=false;sea.visible=!theme.space;
  foamRing=mesh(new T.RingGeometry(204*WK,217*WK,Math.round(72*Math.sqrt(WK))),new T.MeshBasicMaterial({color:theme.foam,transparent:true,opacity:.22,depthWrite:false}),world,0,-11.35,0);foamRing.rotation.x=-Math.PI/2;foamRing.castShadow=false;foamRing.visible=!theme.space;
@@ -1732,7 +1742,7 @@ function scatterColored(proto,list,paint,glow,chunk,sway=0){if(!proto||!list.len
   const im=new T.InstancedMesh(src.geometry,material,cell.length);im.castShadow=true;im.receiveShadow=true;
   cell.forEach((t,i)=>{_e.set(0,t.ry||0,0);_q.setFromEuler(_e);_m.compose(_v.set(t.x,t.y||0,t.z),_q,_s.set(t.s,t.s,t.s));im.setMatrixAt(i,_m);if(isPaint)im.setColorAt(i,_col.setHex(t.col));});world.add(im);}}
 const GRASS={forest:[0x2f8a2a,0x9be25a],fair:[0x2f8a3a,0xb6f06a],canyon:[0x9a6a2a,0xf0c878],night:[0x14505a,0x44d6c8],haunted:[0x2e3c26,0x7f8f58],lava:[0x3a2a26,0x8a4424]};
-function buildGrass(random){const [c0,c1]=GRASS[course.theme]||GRASS.forest,a=new T.Color(c0),b=new T.Color(c1),pos=[],col=[];
+function buildGrass(random){if(course.theme==='fortress')return;const [c0,c1]=GRASS[course.theme]||GRASS.forest,a=new T.Color(c0),b=new T.Color(c1),pos=[],col=[];
  for(let k=0;k<4;k++){const ang=k/4*Math.PI+.3,cx=Math.cos(ang)*.28,cz=Math.sin(ang)*.28,h=.55+(k%2)*.25;pos.push(-cx,0,-cz,cx,0,cz,cx*.15,h,cz*.15);col.push(a.r,a.g,a.b,a.r,a.g,a.b,b.r,b.g,b.b);}
  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('color',new T.Float32BufferAttribute(col,3));geo.computeVertexNormals();
  const matG=stdMat({vertexColors:true,side:T.DoubleSide,roughness:1}),cells=new Map();
@@ -3932,6 +3942,36 @@ function battleUpdate(){if(!battle||state!=='race')return;if(frame%15===0)battle
 function battleShowWin(id){if(!battle)return;battle.over=true;const r=id===null||id===undefined?null:racers[id];
  const txt=!r?'Unentschieden!':r.id===0?'🏆 DU GEWINNST DEN KOTZHÜGEL FIGHT!':`🏆 ${r.name} gewinnt!`;toast(txt+' Nächste Runde gleich …',3.2,r&&r.id===0?'good':'');
  if(r){burst(r,0xffd452,30);if(r.id===0){SFX.cheer();stats&&(stats.battleWins=(stats.battleWins||0)+1);}}}
+// ---------------------------------------------------------------- R56 Graben-Flug: Stahlgraben einer Weltraum-Festung
+// course.trench=[[cpVon,cpBis]]: senkrechte Waende links und rechts der Bahn (Paneele mit Lichtern), oben die
+// Stationsoberflaeche mit Tuermen, Geschuetzen und Positionslichtern entlang der Kante. Reine Kulisse.
+const TRENCH_H=24,TRENCH_W=12.5;
+function trenchTex(light){return canvasTex(256,256,(q,w,h)=>{let sd=light?91:77;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+ q.fillStyle='#343a46';q.fillRect(0,0,w,h);
+ for(let y=0;y<h;y+=32)for(let x=0;x<w;x+=64){const c=44+rnd()*34|0;q.fillStyle=`rgb(${c+6},${c+10},${c+20})`;q.fillRect(x+2,y+2,60,28);}
+ q.strokeStyle='#161a22';q.lineWidth=2;for(let y=0;y<=h;y+=32){q.beginPath();q.moveTo(0,y);q.lineTo(w,y);q.stroke();}
+ for(let i=0;i<12;i++){q.fillStyle='#1e222a';q.fillRect(rnd()*w,rnd()*h,18+rnd()*34,5+rnd()*12);}
+ for(let i=0;i<16;i++){q.fillStyle=rnd()<.55?'#ff6a3a':'#9fd8ff';q.fillRect(rnd()*w,rnd()*h,7,3);}},true);}
+function buildTrench(){const TR=course.trench;if(!TR)return;const H=TRENCH_H,Wd=TRENCH_W;
+ const wallMat=stdMat({map:trenchTex(false),roughness:.5,metalness:.55,emissive:0x1a1e28,side:T.DoubleSide}),topMat=stdMat({map:trenchTex(true),roughness:.6,metalness:.45});
+ const floorMat=stdMat({map:trenchTex(false),color:0x8a93a6,roughness:.55,metalness:.5});
+ const lights=[],towers=[],guns=[];let sd=202;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+ for(const [a,b] of TR){const d0=cpDist(a),d1=d0+lapDist(cpDist(b)-d0),steps=Math.max(8,Math.ceil((d1-d0)/3));
+  for(const side of [-1,1]){const n=steps+1,v=new Float32Array(n*6),uv=new Float32Array(n*4),idx=[];
+   for(let i=0;i<n;i++){const d=d0+(d1-d0)*i/steps,p=samplePos(d,side*Wd,_sp,-1.5);v.set([p.x,p.y,p.z,p.x,p.y+H+1.5,p.z],i*6);const u=(d-d0)/16;uv.set([u,0,u,(H+1.5)/16],i*4);
+    if(i<steps){const k=i*2;idx.push(k,k+2,k+1,k+1,k+2,k+3);}
+    if(i%3===0)lights.push([p.x,p.y+H+1.7,p.z]);}
+   const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(v,3));g.setAttribute('uv',new T.BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
+   const m=new T.Mesh(g,wallMat);m.receiveShadow=true;world.add(m);
+   addStrip(strip(d0,d1,side*(Wd+40),80,H+.05,24,steps),topMat,false);
+   if(side<0)addStrip(strip(d0,d1,0,Wd*2+1,-1.45,20,steps),floorMat,false);   // Stahlboden unter der Flugbahn
+   for(let d=d0+6;d<d1-6;d+=9+rnd()*10){const off=side*(Wd+5+rnd()*62),p=samplePos(d,off,_sp,H);const hh=2+rnd()*rnd()*16;
+    if(rnd()<.14)guns.push([p.x,p.y,p.z,rnd()*TAU]);else towers.push([p.x,p.y+hh/2,p.z,3+rnd()*8,hh,3+rnd()*8,rnd()*TAU]);}}}
+ const tw=new T.InstancedMesh(new T.BoxGeometry(1,1,1),stdMat({map:trenchTex(true),roughness:.55,metalness:.5}),towers.length);
+ towers.forEach(([x,y,z,sx,sy,sz,ry],i)=>{_m.compose(_v.set(x,y,z),_q.setFromEuler(_e.set(0,ry,0)),_s.set(sx,sy,sz));tw.setMatrixAt(i,_m);});tw.castShadow=tw.receiveShadow=true;world.add(tw);
+ const gunMat=stdMat({color:0x2a2e38,roughness:.4,metalness:.7}),base=new T.InstancedMesh(new T.CylinderGeometry(1.6,2,2.2,12).translate(0,1.1,0),gunMat,guns.length),barrel=new T.InstancedMesh(new T.BoxGeometry(.5,.5,5).translate(0,2.6,1.6),gunMat,guns.length);
+ guns.forEach(([x,y,z,ry],i)=>{_m.compose(_v.set(x,y,z),_q.setFromEuler(_e.set(0,ry,0)),_s.set(1,1,1));base.setMatrixAt(i,_m);barrel.setMatrixAt(i,_m);});world.add(base,barrel);
+ const lm=new T.InstancedMesh(new T.BoxGeometry(.6,.35,.6),new T.MeshBasicMaterial({color:0xff5a3a}),lights.length);lights.forEach(([x,y,z],i)=>{_m.compose(_v.set(x,y,z),_q.identity(),_s.set(1,1,1));lm.setMatrixAt(i,_m);});world.add(lm);}
 // ---------------------------------------------------------------- R56 Kotzhuegel-Fight-Arena (Wiesnland)
 // Runder Festplatz auf der Wiese suedlich des Pilzbergs: Strohballen-Ring, Schild, Fass-Deckungen, zehn Itemboxen.
 // Im Kampf bleiben alle Karts in der Arena (weiche Wand); Bots jagen frei statt der Strasse zu folgen.

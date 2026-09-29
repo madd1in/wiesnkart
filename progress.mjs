@@ -1,9 +1,9 @@
 // Wiesn Kart R44: Fortschritt - Erfahrungspunkte je Rennen, Fahrerstufen mit Freischaltungen, Erfolge.
 // Reine Funktionen (Spiel und Tests). Strecken-Index: 0 Promenade, 1 Canyon, 2 Neon, 3 Geisterhaus, 4 Lava,
-// 5 Bierstraße, 6 Magnet-Kirmes.
+// 5 Bierstraße, 6 Magnet-Kirmes, 7 Graben-Flug.
 export const PLACE_XP = [100, 80, 66, 56, 47, 40, 34, 28];
 export const CLASS_MUL = {50: 1, 100: 1.25, 150: 1.6};
-export const TRACKS = 7;
+export const TRACKS = 8;
 // R46: Bonus fuer den geschlagenen Rivalen und die geschaffte Tages-Herausforderung
 export const RIVAL_XP = 25, DAILY_XP = 60;
 // R55: Wer ohne (oder mit leichter) Lenkhilfe faehrt, bekommt einen Aufschlag auf die Rennpunkte; jede saubere Runde
