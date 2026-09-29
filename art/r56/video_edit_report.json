@@ -1,0 +1,37 @@
+{
+  "container": "MPEG4",
+  "codec": "H264",
+  "audio": "AAC",
+  "frames": 1104,
+  "events": 11,
+  "placed": [
+    [
+      14.8,
+      "ring.wav"
+    ],
+    [
+      16.8,
+      "ring.wav"
+    ],
+    [
+      18.1,
+      "ring.wav"
+    ],
+    [
+      19.567,
+      "beep.wav"
+    ],
+    [
+      24.9,
+      "sun.wav"
+    ],
+    [
+      28.933,
+      "beep.wav"
+    ]
+  ],
+  "seconds": 36.8,
+  "small_kbps": 1878,
+  "big_bytes": 31954436,
+  "small_bytes": 9388453
+}

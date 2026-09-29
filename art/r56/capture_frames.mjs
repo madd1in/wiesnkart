@@ -17,7 +17,8 @@ const SCENES = [
   {k: 'still', s: 3.6, what: 'menu', t: '', u: ''},
   {k: 'still', s: 3.2, what: 'rooms', t: 'ONLINE OHNE CODES', u: 'Offene Räume · Belegung · Ping'},
   {k: 'play', s: 8, t: 'KOTZHÜGEL FIGHT', u: 'Arena-Kampf · 3 Herzen · Bots', trk: 99, d0: 0, check: LOADED + '&&!!rallyTest.battle()', opt: {pre: WORLD, post: CALM, keep: true}},
-  {k: 'play', s: 5.5, t: 'NEUE FAHRER', u: 'Sepp · Vroni · Lebi · Finster', trk: 0, d0: 18, check: LOADED, opt: {pre: SINGLE + "document.querySelectorAll('#drivers button')[7].click();", post: WX('dusk', 'clear', 'alpenglow'), front: true, behind: true}},
+  {k: 'play', s: 6, t: 'GRABEN-FLUG', u: 'Flugstrecke im Stahlgraben', trk: 7, d0: 300, check: LOADED, opt: {pre: SINGLE, post: CALM}},
+  {k: 'play', s: 5.5, t: 'NEUE FAHRER', u: 'Lebi im Keilflitzer · Sepp · Vroni · Finster', trk: 0, d0: 18, check: LOADED, opt: {pre: SINGLE + "document.querySelectorAll('#drivers button')[7].click();", post: WX('dusk', 'clear', 'alpenglow'), front: true, behind: true}},
   {k: 'play', s: 6, t: 'BIERSTRASSE', u: 'Riesen-Maßkrug stampft', trk: 5, d0: '(rallyTest.hz().stampers[0]?.[0]??400)-44', check: LOADED, opt: {pre: SINGLE + "document.querySelectorAll('#drivers button')[5].click();", post: CALM, off: 3.2}},
 ];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -82,7 +83,7 @@ const PAGE = String.raw`
   endCard(){g.drawImage(game,0,0,W,H);g.fillStyle='#14264ae8';g.fillRect(0,0,W,H);
    outlined('NEU',W/2,330,84,'#ffc83a',12);
    g.font=font('800',48);g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff5d9';
-   ['Kotzhügel Fight: Arena mit 3 Herzen','Online ohne Codes: offene Räume','Neue Fahrer: Sepp, Vroni, Lebi, Finster','Bierstraße & Riesen-Maßkrug','Maß Bier statt Schild · O'zapft is!','Mehr Können: Lenkhilfe aus = +25 % XP'].forEach((l,k)=>g.fillText(l,W/2,470+k*78));
+   ['Kotzhügel Fight: Arena mit 3 Herzen','Online ohne Codes: offene Räume','Graben-Flug: Flugstrecke im Stahlgraben','Neue Fahrer & Keilflitzer-Karts','Bierstraße & Riesen-Maßkrug','Maß Bier · O’zapft is!'].forEach((l,k)=>g.fillText(l,W/2,470+k*78));
    outlined('SUPPA LEDERHOSN KARTS',W/2,1080,84,'#ffc83a',15);
    g.font=font('800',54);g.fillStyle='#fff5d9';g.fillText('madd1in.github.io/wiesnkart',W/2,1205);
    g.font=font('700',40);g.fillStyle='#7cf3ff';g.fillText('Kein Download \u00b7 l\u00e4uft im Browser',W/2,1280);
