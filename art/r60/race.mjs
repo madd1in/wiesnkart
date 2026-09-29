@@ -4,6 +4,7 @@ import {open} from './pw.mjs';
 import {writeFileSync} from 'node:fs';
 const tracks = (process.argv[2] || '8,9,10').split(',').map(Number), nF = +(process.argv[3] || 12), mode = process.argv[4] || 'single';
 const q = await open(), P = q.page, out = [];
+if (process.env.KNIGHT) await P.evaluate(() => {document.querySelectorAll('#drivers button')[9].click(); [...document.querySelectorAll('#kstyle button')].find(b => /Drache/.test(b.textContent)).click();});
 for (const i of tracks) {
   const e0 = q.errors.length, res = {track: i, field: nF, mode};
   try {

@@ -7,15 +7,16 @@
 export const CH = Object.freeze({
   trap: {name: 'Blitzer', icon: '📸', unit: 'km/h', stars: [100, 120, 138]},
   zone: {name: 'Tempo-Zone', icon: '⏱', unit: 'km/h', stars: [86, 100, 113]},
-  drift: {name: 'Drift-Zone', icon: '💨', unit: 'Punkte', stars: [900, 1800, 2800]},
+  drift: {name: 'Drift-Zone', icon: '💨', unit: 'Punkte', stars: [600, 1200, 1800]},
   jump: {name: 'Sprung', icon: '🪂', unit: 'm', stars: [20, 32, 44]},
 });
 export const KMH = 3.6, CHAIN_MAX = 4, CHAIN_STEP = .25;
 // XP fuer jeden neu erreichten Stern (1., 2., 3.)
 export const STAR_XP = [10, 15, 25];
 
-export function starsFor(kind, v) {
-  const s = CH[kind]?.stars;
+/** Sterne fuer einen Wert; own = eigene Schwellen einer einzelnen Challenge (z. B. kurze und lange Schanze). */
+export function starsFor(kind, v, own) {
+  const s = Array.isArray(own) && own.length === 3 ? own : CH[kind]?.stars;
   if (!s || !Number.isFinite(v)) return 0;
   return s.filter(x => v >= x).length;
 }

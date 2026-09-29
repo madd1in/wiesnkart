@@ -15,6 +15,8 @@ test('stars: thresholds rise and fit the kart (top ~108 km/h, turbo ~144 km/h)',
   assert.ok(CH.zone.stars[2] < 32 * KMH, 'zone gold is reachable without a turbo chain');
   assert.equal(starsFor('nope', 999), 0);
   assert.equal(starsFor('trap', NaN), 0);
+  assert.equal(starsFor('jump', 23, [15, 22, 29]), 2, 'own thresholds per challenge');
+  assert.equal(starsFor('jump', 23, [1, 2]), 1, 'broken own thresholds fall back');
 });
 test('xp only for newly reached stars', () => {
   assert.equal(challengeXP(0, 3), STAR_XP[0] + STAR_XP[1] + STAR_XP[2]);

@@ -6,6 +6,46 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 60 (29.09.2026): Drei neue Strecken, Online-Lobby-Welt, Chat & Emojis, Wiesnland-Challenges, Ritter auf dem Drachen
+
+**Drei neue Strecken** (Wunsch: eine Strandstrecke, ein zugefrorener See und eine gotische Goetterstadt im Abendlicht -
+wie seit Runde 54 mit eigenen Namen und Entwuerfen; wer die Originalnamen will, aendert je Strecke nur `name:` in `courses`):
+- **Schildkroeten-Bucht** - Brandungswellen rollen quer ueber die Strandpromenade und schieben Karts, die Sandbank-Abkuerzung
+  laeuft mit der Flut voll (Ebbe/Flut-Schild, bei Flut langsam), Bootsfahrt durch die Lagune, Krabben, Palmen, Strandkoerbe,
+  Leuchtturm, Meeresschildkroeten. Wetter: Delfine, Leuchtalgen.
+- **Eisstock-See** - Glatteis (weniger Seitenhalt, Drift laedt schneller), riesige Eisstoecke gleiten quer, Eisbloecke
+  zerspringen und wachsen nach, Eishoehle, Gletscherspalte, Halfpipe, Looping. Wetter: Diamantstaub, Lawine.
+- **Riesendom** - durchs Kirchenschiff einer Kathedrale (Buntglas, Sonnen-Turbos), Riesenwaechter schlagen mit der
+  Hellebarde quer ueber die Strasse (roter Warnstreifen, die ferne Spur bleibt frei), Strebebogen-Bruecke, Abgrund-Sprung ueber
+  dem Wolkenmeer, Looping. Wetter: Lichtstrahlen, Tauben.
+- Medaillenzeiten, je ein Erfolg (Gezeitenkenner, Eisstock-Koenig, Hellebarden-Taenzer), Menue mit elf Karten in zwei Reihen.
+  Mechanik als reine Funktionen in `surface.mjs` (Tests). QA: 12er-Autopilot-Rennen 129,7 / 130 / 118,8 s ohne Fehler.
+
+**Online: die Open World ist die Lobby** - Renn-Raeume und eigene Raeume starten in der **Lobby-Welt** (Wiesnland): alle fahren
+zusammen, oben laeuft ein Zeitgeber, jedes Portal ist eine Stimme fuer die naechste Strecke. Danach faehrt der Raum gemeinsam
+das Rennen und kehrt automatisch zurueck (nach dem letzten Menschen im Ziel, spaetestens 28 s nach dem ersten). In der
+Lobby-Welt steht die **offene Kotzhuegel-Arena**: hineinfahren = drei Herzen, K.O.s zaehlen fuer den letzten Treffer.
+Wer einem laufenden Rennen nicht mehr beitreten kann, kaempft bis zum naechsten Start im **Warte-Kampf** gegen Bots.
+Der Online-Knopf zeigt, wie viele gerade online sind. Protokoll NET_VER 4.
+
+**Chat und Emojis** (`chat.mjs`) - Text (gesaeubert, grobe Woerter maskiert, gedrosselt), 12 Emojis und 8 Schnellsprueche,
+Sprechblasen ueber dem Kart, Verlauf im Spiel und im Online-Fenster. Taste **T** oeffnet den Chat, **1-6** schicken Emojis.
+
+**Wiesnland-Challenges** (`challenge.mjs`, Anklang an die kleinen Aufgaben grosser Open-World-Rennspiele) - drei **Blitzer**
+(Tempo am Punkt), zwei **Tempo-Zonen** (Schnitt ueber einen Abschnitt), zwei **Drift-Zonen** (Driftpunkte, jede Drift mit
+Turbo-Ende erhoeht den Faktor bis x2) und zwei **Sprungschanzen** (Weite). Je bis zu drei Sterne, Bestwerte bleiben, neue
+Sterne bringen XP, online meldet sich ein neuer Rekord im Chat. Das Wiesnland ist dafuer wieder als eigener Modus im Menue
+(**🎡 Wiesnland** frei fahren, daneben **⚔ Kotzhügel Fight**); vier weitere Portale fuehren zum Graben-Flug und zu den neuen
+Strecken.
+
+**Ritter Kunz auf dem Drachen** - neuer Fahrer: gepanzerter Ritter mit Topfhelm, Waffenrock in Kartfarbe, zerfranstem Umhang
+und Schwert auf dem Ruecken (eigener Entwurf). Neues Gefaehrt **Drache** (Kart-Stil): Reittier aus Dino und Drache mit
+Knubbelnase, Kulleraugen, Stiefeln, Sattel, Hoernern, Rueckenzacken, Fledermausfluegeln und Pfeilschwanz - die Beine laufen
+mit dem Tempo, die Fluegel schlagen in der Luft und beim Turbo, der Schwanz pendelt.
+
+QA: 183 Tests; Autopilot-Rennen mit Ritter und Drache (Eisstock-See, Pilz-Promenade) ohne Fehler; Zwei-Browser-Online-Test
+mit lokalem Test-Relay (Lobby, Chat, Abstimmung, Rennen, Rueckkehr, Arena-Herzen); Challenge-Probe (alle neun ausloesbar).
+
 ## Runde 59 (29.09.2026): Graben-Hindernisse, Kuehe ohne Haengenbleiben, huebschere Almkuh, Zeitklo & Tentakel, groessere Lenktasten
 
 **Graben-Flug spielerisch abwechslungsreicher** - im Graben nach dem Sturzflug jetzt eine Hindernisfolge: Sperrwaende
