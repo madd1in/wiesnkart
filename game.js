@@ -68,7 +68,10 @@ const courses=[
   loopc:[[9.12,13,1,-1]],dunes:[[.55,2.25,1.7,18]],twisters:[[5.95,6,.35,0],[12.1,6,.3,1.7],[12.7,6,.33,3.1]],sand:[[4,0,8.5]],hills:[[1.5,4,.03],[4.5,6,.04]],plateau:[9.45,11.7,7,34],gaps:[[10.5,14]],fork:[[6.25,8.75,.36]],
   raise:[[2.3,3.3,7,30,1]],tunnel:[[4.6,5.85,'rock']],
   ramps:[[3.3,0,9],[6.5,3,7]],pads:[[2.4,-4],[8.4,4]],
-  train:[3.4,0],boost:[.5,5.2,12.2],boxes:[1.0,4.0,7.0,9.1,12.6],stands:[[.3,-18],[4.12,19]]},
+  train:[3.4,0],boost:[.5,5.2,12.2],boxes:[1.0,4.0,7.0,9.1,12.6],stands:[[.3,-18],[4.12,19]],
+  // R57: geheime Forschungsanlage (Bunker, Radar, Silo, Kisten, Hochbahn) und Kleinstadt-Uhrturm; Zeitsprung ab 142 km/h
+  lab:{bunker:[[1.6,-1,42],[8.1,1,44],[11.4,-1,44]],dishes:[[2.0,1,30],[7.3,-1,34],[12.0,1,32],[5.2,1,40]],silos:[[1.2,1,38],[12.4,-1,36],[8.6,-1,40]],
+   crates:[[1.45,-1,17],[1.95,1,16],[8.25,1,17],[12.05,-1,17],[7.9,-1,18]],clock:[[.55,-1,30],[.4,1,32]],tram:[.6,2.2,1,27]},timewarp:1},
  {name:'Neon-Pilzwald',icon:'✦',kind:'Beat · Taktschranken · Oktoberfest',medals:[115,121,132],music:'night',theme:'night',seed:41,
   points:[[0,70],[50,75],[80,50],[55,25],[85,0],[95,-45],[55,-60],[30,-35],[0,-60],[-30,-95],[-80,-80],[-70,-40],[-105,-10],[-95,40],[-60,35],[-40,65]],
   hills:[[10.5,5,.035]],raise:[[1.1,2.1,7,28,1]],tunnel:[[8.9,10.3,'neon']],gaps:[[12.55,12]],agrav:[[8.6,10.75,'roll',1]],elem:[[2.36,5.6,'see',{loop:[3,11,1]}]],
@@ -85,6 +88,10 @@ const courses=[
   builds:[[1.0,'gothgate']],wizard:[13.45,1.9],
   gothic:{candles:[[.3,1],[.55,-1],[.85,1],[1.3,-1],[1.65,1],[2.0,-1],[3.85,1],[4.9,-1],[5.35,1],[8.0,-1],[9.95,1],[11.2,-1],[13.55,1],[13.9,-1],[14.25,1],[14.6,-1],[14.95,1],[15.3,-1]],
    ruins:[[1.2,-1,27],[5.1,1,27],[9.2,-1,30],[14.3,1,27],[12.2,1,32]],coffins:[[.7,-1],[3.95,-1],[14.7,1],[10.1,-1]],bats:[[1.0,1,0],[7.8,-1,0],[14.0,-1,18]]},
+  // R57: mehr Gothic-Schloss - Ruestungen, Wasserspeier, Buntglas-Ruinen, Eisenzaeune, Schlosstuerme im Hintergrund
+  gothic2:{armor:[[.45,1],[.95,-1],[1.45,1],[13.7,-1],[14.1,1],[14.8,-1],[15.1,1],[4.7,1]],gargoyles:[[.2,-1],[1.85,1],[5.0,-1],[9.8,-1],[13.3,1],[15.45,-1]],
+   windows:[[1.1,1,24],[3.9,1,22],[9.4,1,24],[14.45,-1,24],[12.0,-1,26]],fences:[[.35,-1],[.65,-1],[1.25,1],[1.55,1],[13.85,-1],[14.35,1],[14.9,1],[15.25,-1]],
+   spires:[[.9,-1,70],[4.4,1,80],[8.4,-1,75],[12.6,1,85],[15.0,-1,72]]},
   hands:[[.7,2.1,6]],boost:[.5,6,12.5],ghosts:[[1.6,5.5,.9,0],[5.3,5.5,1.1,2],[7.5,4.2,1,.5],[10.4,5.5,.8,4],[12.9,5.5,1.2,1]],boxes:[1.2,4.1,9.6,13.9],stands:[[.3,-19],[13.2,19]]},
  {name:'Lava-Feste',icon:'\u2668',kind:'Burg \u00b7 Magma \u00b7 Feuerb\u00e4lle',medals:[111,117,128],music:'sunset',bgmRate:1.06,theme:'lava',seed:88,
   points:[[-80,86],[0,90],[80,84],[118,56],[126,12],[112,-34],[92,-74],[44,-98],[-14,-94],[-62,-86],[-92,-56],[-72,-26],[-96,6],[-118,44],[-108,74]],
@@ -266,9 +273,9 @@ function mergeByMaterial(root){root.updateMatrixWorld(true);const groups=new Map
  const out=new T.Group();for(const e of groups.values()){const mixed=new Set(e.g.map(g=>!!g.index)).size>1;const gs=e.g.map(g=>{g=mixed&&g.index?g.toNonIndexed():g;if(!g.attributes.normal)g.computeVertexNormals();for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal'&&!(k==='uv'&&e.m.map)&&!(k==='color'&&e.m.vertexColors))g.deleteAttribute(k);return g;});const geo=mergeGeometries(gs,false);if(geo)out.add(new T.Mesh(geo,e.m));else for(const g of gs)out.add(new T.Mesh(g,e.m));}return out;}
 let loaded=0;const PROTO_FILES=['kart','mushroom','gate','tree','rock','balloon','itembox','banana','shell','ramp','grandstand','spectator','bouncepad','podium','trophy','ghost','gravestone','pumpkin','kartwheel','driver','driver_turtle','driver_robot','driver_cat','driver_penguin','driver_sepp','driver_vroni','driver_lebi','driver_finster','kartbodies','glider','crystal','windring','kartkit','coin','clouds','inkcap','tunnelkit','windsock'];
 // Villa und Burg sind gross und stehen nur auf je einer Strecke: erst nach dem Start nachladen
-const LATE_FILES=['fortress','mansion','castle','schloss','wiesn','gothic','roottree','neongate','magnetarch','coastertruss','ferriswheel','dragon','transform','elements','ow','hazards','landmarks','critters','tower'];
+const LATE_FILES=['lab','gothic2','fortress','mansion','castle','schloss','wiesn','gothic','roottree','neongate','magnetarch','coastertruss','ferriswheel','dragon','transform','elements','ow','hazards','landmarks','critters','tower'];
 // Ohne Materialverschmelzung laden: der Drache braucht seine Teile (Glied, Kopf, Kiefer, Schwanz) einzeln
-const NO_MERGE=new Set(['fortress','kartbodies','wiesn','gothic','dragon','transform','elements','ow','kartkit','hazards','landmarks','critters','tower','clouds','tunnelkit']);
+const NO_MERGE=new Set(['lab','gothic2','fortress','kartbodies','wiesn','gothic','dragon','transform','elements','ow','kartkit','hazards','landmarks','critters','tower','clouds','tunnelkit']);
 // R44: weiche Hoehenschattierung als Vertexfarbe (unten dunkler und kuehler, oben hell) - wirkt auch im Leicht-Modus
 // und in den Low-Poly-Fassungen, die Lackfarbe je Instanz (Baumkrone, Pilzhut) bleibt erhalten
 function shadeGeo(g,lo,hi,nw=.25){const p=g.attributes.position,n=g.attributes.normal,old=g.attributes.color;g.computeBoundingBox();const b=g.boundingBox,h=Math.max(1e-3,b.max.y-b.min.y),c=new Float32Array(p.count*3);
@@ -2095,9 +2102,10 @@ function decoSpot(d,off,rad){if(inZone(d,rad*.5)||nearLoop(d)||forkBlocks(d,off)
  const s=sample(d,off);if(!Number.isFinite(groundAt(d,off).y)||nearTrack(s.p.x,s.p.z,Math.min(Math.abs(off)-1.5,rad+9.5)))return null;
  for(const cell of obsGrid.values())for(const o of cell)if(Math.hypot(s.p.x-o.x,s.p.z-o.z)<(o.r||0)+rad)return null;return s;}
 
-function buildDeco(){deco=null;const W=course.wiesn,Gt=course.gothic;if(!W&&!Gt&&!course.wizard)return;
- deco={spin:[],flameMat:null,bats:null,wizard:null};
- if(W&&P.wiesn)buildWiesn(W);if(Gt&&P.gothic)buildGothic(Gt);if(course.wizard&&P.gothic)buildWizard(course.wizard);}
+function buildDeco(){deco=null;const W=course.wiesn,Gt=course.gothic;if(!W&&!Gt&&!course.wizard&&!course.lab&&!course.gothic2)return;
+ deco={spin:[],flameMat:null,bats:null,wizard:null,tram:null};
+ if(W&&P.wiesn)buildWiesn(W);if(Gt&&P.gothic)buildGothic(Gt);if(course.wizard&&P.gothic)buildWizard(course.wizard);
+ if(course.lab&&P.lab)buildLab(course.lab);if(course.gothic2&&P.gothic2)buildGothic2(course.gothic2);}
 function decoPut(file,name,list,off,rad,sc=1,after){let n=0;for(const [v,side,o2] of list||[]){const d=cpDist(v),of=side*(o2||off);if(!decoSpot(d,of,rad))continue;
   const g=r53Part(file,name);if(!g)continue;const p=lmAt(g,d,of,sc);addObstacle(p.x,p.z,rad*.8);after?.(g,p,d);n++;}return n;}
 function buildWiesn(W){
@@ -2128,11 +2136,41 @@ function buildGothic(Gt){
 function buildWizard([a,b]){const src=P.gothic.getObjectByName('GT_Wizard');if(!src)return;const g=r53Part('gothic','GT_Wizard');g.visible=false;g.scale.setScalar(1.7);world.add(g);
  const shapes=['GT_SpellRing','GT_SpellSquare','GT_SpellTri'].map(n=>P.gothic.getObjectByName(n)).filter(Boolean);
  deco.wizard={g,sec:[cpDist(a),cpDist(b)],shapes,spells:[],castT:WIZARD.warmup,t:0,show:0,casts:0};}
+// ---------------------------------------------------------------- R57: Canyon-Forschungsanlage und Gothic-Schloss
+// Modelle: art/r57/create_lab.py (lab.glb) und art/r57/create_gothic2.py (gothic2.glb) - eigene Entwuerfe, nur Anklaenge
+function buildLab(L){
+ decoPut('lab','LB_Bunker',L.bunker,42,10,1,g=>{const s=mesh(new T.PlaneGeometry(5.9,.8),label('TESTLABOR 7 · SPERRZONE','#1a2a3a','#f4f4ee',768,104),g,0,7.55,.8);s.castShadow=false;});
+ decoPut('lab','LB_Dish',L.dishes,30,3,1,g=>{deco.spin.push({o:g.children[0]||g,w:.18,dish:true});});
+ decoPut('lab','LB_Silo',L.silos,36,5);decoPut('lab','LB_Crates',L.crates,16,2.2);decoPut('lab','LB_Clock',L.clock,30,3.5);
+ if(L.tram)buildTram(L.tram);}
+// Hochbahn: Pfeiler und Traeger neben der Strecke, ein Wagen pendelt hin und her
+function buildTram([a,b,side,off]){const src=r53Part('lab','LB_Tram');if(!src)return;const d0=cpDist(a),d1=d0+lapDist(cpDist(b)-d0),H=7.5,pts=[];
+ for(let d=d0;d<=d1;d+=4){const q=sample(d,side*off).p,gy=Math.max(0,groundAt(d,side*off).y);if(!Number.isFinite(gy)||nearTrack(q.x,q.z,off-4))return;pts.push([q.x,gy,q.z]);}
+ if(pts.length<6)return;const conc=stdMat({color:0x8a8a86,roughness:.9}),beam=new T.InstancedMesh(new T.BoxGeometry(1.2,.9,4.3),conc,pts.length-1),pyl=new T.InstancedMesh(new T.BoxGeometry(1,1,1),conc,Math.ceil(pts.length/3));
+ let k=0;for(let i=0;i<pts.length-1;i++){const [x0,y0,z0]=pts[i],[x1,y1,z1]=pts[i+1];_m.compose(_v.set((x0+x1)/2,Math.max(y0,y1)+H,(z0+z1)/2),_q.setFromEuler(_e.set(0,Math.atan2(x1-x0,z1-z0),0)),_s.set(1,1,1));beam.setMatrixAt(i,_m);
+  if(i%3===0){_m.compose(_v.set(x0,y0+H/2,z0),_q.identity(),_s.set(1.1,H,1.1));pyl.setMatrixAt(k++,_m);addObstacle(x0,z0,1);}}
+ pyl.count=k;beam.castShadow=pyl.castShadow=true;beam.receiveShadow=true;world.add(beam,pyl);world.add(src);deco.tram={g:src,d0,d1,side,off,H,t:0};}
+function buildGothic2(G2){
+ decoPut('gothic2','G2_Armor',G2.armor,12,1.2,1.05);decoPut('gothic2','G2_Gargoyle',G2.gargoyles,13,1.1);
+ decoPut('gothic2','G2_Window',G2.windows,24,4.5,1.1);decoPut('gothic2','G2_Fence',G2.fences,12.2,3.4);
+ decoPut('gothic2','G2_Spire',G2.spires,75,6,1.15);}
+function updateTram(dt){const T0=deco.tram;if(!T0)return;T0.t+=dt;const span=T0.d1-T0.d0,per=span/9,ph=(T0.t%(2*per))/per,k=ph<1?ph:2-ph,e=k*k*(3-2*k),d=T0.d0+span*e,dir=ph<1?1:-1;
+ const q=sample(d,T0.side*T0.off),gy=Math.max(0,groundAt(d,T0.side*T0.off).y);T0.g.position.set(q.p.x,gy+T0.H+.45,q.p.z);T0.g.rotation.y=q.angle+(dir<0?Math.PI:0);}
+// Zeitsprung (R57, Sonnen-Canyon): ab 142 km/h Blitz, Donner und zwei brennende Reifenspuren auf dem Boden
+let warp=null;
+function timeWarpTick(p,dt){if(!course.timewarp||state!=='race'||!p)return;warp??={cd:0,trail:[],t:0,geo:null,mat:null};const W0=warp;W0.cd=Math.max(0,W0.cd-dt);
+ const kmh=Math.abs(p.speed)*3.6;
+ if(kmh>=142&&!p.air&&W0.cd<=0){W0.cd=9;W0.t=1.6;flashScreen(.6);SFX.thunder();burst(p,0xbfe8ff,26);toast('142 KM/H – ZEITSPRUNG! ⚡',1.8,'good');shake=Math.max(shake,.35);}
+ if(W0.t>0){W0.t-=dt;if(!W0.geo){W0.geo=new T.PlaneGeometry(.55,2.4).rotateX(-Math.PI/2);W0.mat=new T.MeshBasicMaterial({color:0xff7a1a,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false});}
+  for(const sx of [-.95,.95]){const c=Math.cos(p.h),sn=Math.sin(p.h),x=p.x+c*sx-sn*1.4,z=p.z-sn*sx-c*1.4,m=new T.Mesh(W0.geo,W0.mat.clone());m.position.set(x,(p.y||0)+.12,z);m.rotation.y=p.h;world.add(m);W0.trail.push({m,t:2.4});
+   emit(x,(p.y||0)+.4,z,0xffa53d,(Math.random()-.5)*2,2+Math.random()*2,(Math.random()-.5)*2,.4);}}
+ for(let i=W0.trail.length-1;i>=0;i--){const f=W0.trail[i];f.t-=dt;f.m.material.opacity=Math.max(0,f.t/2.4)*.9;if(f.t<=0){world.remove(f.m);f.m.material.dispose();W0.trail.splice(i,1);}}}
 // Zauber nur auf ebene, freie Strasse (nicht in Tunneln, Rollzonen, Loopings, Elementen, Luecken, Achterbahn)
 function spellOk(d){return !(inTunnel(d)||hasRoll(d)||nearLoop(d)||inGap(d)||elemAt(d)||raiseH(d)>.5||(hpipes.length&&hpAt(d))||coasters.some(c=>lapDist(d-c.s)<c.span));}
 const _kv=new T.Vector3(),_kw=new T.Vector3(),_kq=new T.Quaternion(),_ke=new T.Euler(),_ks=new T.Vector3();
 function updateDeco(dt,now){
  for(const s of deco.spin)s.o.rotation.y+=dt*s.w;
+ updateTram(dt);
  if(deco.flameMat)deco.flameMat.emissiveIntensity=4.2+Math.sin(now*.023)*.9+Math.sin(now*.061+1.3)*.6;
  const B=deco.bats;if(B){for(let i=0;i<B.n;i++){const c=B.centers[Math.floor(i/B.PER)],a=now*.0008*(1+(i%3)*.22)+i*1.9,rr=6+(i%4)*2.4;
    _kv.set(c[0]+Math.cos(a)*rr,c[1]+Math.sin(now*.0017+i)*1.6+(i%3),c[2]+Math.sin(a)*rr);_ke.set(0,-a,0);_kq.setFromEuler(_ke);
@@ -2896,6 +2934,7 @@ function update(dt){
  if(state!=='race'&&state!=='countdown')return;
  if(net&&net.setup)netSend();
  if(battle){battleUpdate();if(arenaOn())arenaTick(dt);}
+ timeWarpTick(racers[0],dt);
  const player=racers[0],ohGas=state==='countdown'&&oh.on&&oh.id!==null,gasHeld=held('ArrowUp')||held('KeyW')||ohGas;
  if(state==='countdown'){oh.hop=0;if(!worldReady){setText('message','');return;}if(net&&net.setup&&!net.go){netWaitGo();for(const r of racers)if(r.net)netDrive(r,dt);syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<5);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
   if(Math.ceil(countdown)!==prev)SFX.count(countdown<=0);setLights(countdown>2?1:countdown>1?2:countdown>0?3:4);setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');
@@ -3889,7 +3928,7 @@ protoAll.then(()=>{protoRecovery.settle();
 Promise.race([protoAll,new Promise(r=>setTimeout(r,9000))]).finally(()=>{protoRecovery.snapshot();try{applyGfx();}catch(e){}buildCourse();resize();refreshMenu();try{driverThumbs();}catch(e){}try{buildItemThumbs();}catch(e){console.error('itemThumbs0',e);}readyPromise.then(()=>{updateCamera(1/60,true);try{renderer.render(scene,camera);}catch(e){}
  requestAnimationFrame(()=>{playBgm('menu');const l=$('loader');l.classList.add('done');setTimeout(()=>l.hidden=true,600);requestAnimationFrame(loop);setInterval(prebuildTick,900);
   // Grossbauten nachladen und die betroffenen Strecken neu bauen lassen
-  Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].lasers||courses[i].landmarks||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}
+  Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].lasers||courses[i].lab||courses[i].gothic2||courses[i].landmarks||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}
    // R54: auch das Wiesnland (Index 99) neu bauen - sonst blieben nach einem Erststart dort Platzhalter (blaue Scheibe statt Glockenschalter)
    if(builtSel===WORLD_IDX){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(WORLD_IDX);});});});});
 
@@ -4101,7 +4140,8 @@ function buildArena(){const A={...ARENA,boxes:[],g:new T.Group()};course._arena=
  for(const [x,z] of spots){const g=P.itembox?cloneProto(P.itembox):new T.Mesh(new T.BoxGeometry(1.4,1.4,1.4),mat(0xffc83a,{emissive:0xffa51f,emissiveIntensity:.4}));g.position.set(x,1.2,z);A.g.add(g);A.boxes.push({x,z,g,cool:0});}}
 // R57: Start knapp an der Mitte vorbei ausgerichtet - sonst stand der Maibaum genau vor der Kamera
 function arenaPlace(){const A=arenaOn()&&course._arena;if(!A)return;let k=0;const n=racers.length;
- for(const r of racers){const i=k++;if(r.net)continue;const a=i/n*TAU,x=A.x+Math.sin(a)*A.r*.8,z=A.z+Math.cos(a)*A.r*.8,h=Math.atan2(A.x-x,A.z-z)+.42,d0=projectGlobal(x,z,0),pr=project(x,z,d0);
+ // online nach globalem Platz: das eigene Kart ist lokal immer Nr. 0 - sonst starteten alle Menschen am selben Punkt
+ for(const r of racers){const i=net&&net.setup?toGlobal(r.id,net.mySlot):k;k++;if(r.net)continue;const a=i/n*TAU,x=A.x+Math.sin(a)*A.r*.8,z=A.z+Math.cos(a)*A.r*.8,h=Math.atan2(A.x-x,A.z-z)+.42,d0=projectGlobal(x,z,0),pr=project(x,z,d0);
   Object.assign(r,{x,z,h,vx:0,vz:0,speed:0,y:0,vy:0,air:false,airT:0,stun:0,distance:pr.d,offset:pr.off,safeD:pr.d,lastGround:0,boost:0,driftDir:0,drift:0,item:null,charges:0,itemPending:false});}
  if(racers[0]&&!racers[0].net){roulette=null;updateCamera(1,true);}}
 function arenaWall(r){const A=course._arena,dx=r.x-A.x,dz=r.z-A.z,d=Math.hypot(dx,dz),lim=A.r-.8;if(d<=lim)return;

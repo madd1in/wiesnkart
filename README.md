@@ -8,6 +8,19 @@ Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
 ## Runde 57 (29.09.2026): 12er-Starterfeld, Online-Bestenliste, Festungs-Abwehr im Graben-Flug, Quetschn-Maß
 
+**Sonnen-Canyon: geheime Forschungsanlage und Zeitsprung** (`art/r57/create_lab.py`, eigene Entwuerfe, nur Anklaenge an
+80er/90er-Science-Fiction): Bunker im Felsen mit Panzertor, Warnstreifen und Schild "TESTLABOR 7 · SPERRZONE",
+drehende Radarschuesseln, Testkammer-Silos mit gruen leuchtendem Kern, Kistenstapel, eine Hochbahn mit pendelndem
+Einschienen-Wagen und ein Kleinstadt-Uhrturm (Zeiger auf 10:04). Wer mit 142 km/h ueber den Asphalt jagt, loest einen
+Zeitsprung aus: Blitz, Donner und zwei brennende Reifenspuren.
+
+**Geisterhaus: mehr Gothic-Schloss** (`art/r57/create_gothic2.py`): Ritterruestungen mit Hellebarde, Wasserspeier mit
+gluehenden Augen, Ruinenwaende mit leuchtenden Buntglas-Spitzbogenfenstern, schmiedeeiserne Zaeune und hohe
+Schlosstuerme mit roten Fenstern im Hintergrund.
+
+**Online-Arena**: der Kotzhügel Fight laeuft online in derselben Arena; jeder Mensch startet jetzt auf seinem eigenen
+Platz (vorher standen alle auf Startplatz 1, weil das eigene Kart lokal immer Nummer 0 ist).
+
 **Fass-Kart als Standard** (`art/r56/create_kartbodies.py`, KB_Fass): Sepp in Lederhosn sitzt in einem bauchigen
 Bierfass - vorn und hinten geschlossen, Cockpit-Ausschnitt in der Mitte, Daubenfugen, Reifen in Kartfarbe, weiss-blaue
 Raute und Messing-Zapfhahn vorn, Bierschaum quillt aus dem Spundloch. Neuer Standard (einmalig auch fuer bestehende
