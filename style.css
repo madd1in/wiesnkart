@@ -1271,13 +1271,15 @@ body #menu .menu-brand{display:flex;align-items:center;gap:12px}
 .online-btn small{font-size:10px;font-weight:800;opacity:.92;transform:skewX(8deg);text-align:left;white-space:nowrap}
 .online-btn.live{background:linear-gradient(180deg,#5fd88a,#1f9a4b);animation:wkPulse 1.6s ease-in-out infinite}
 #online [hidden]{display:none!important}
-#online .online-card{width:500px}
+#online .online-card{width:min(500px,calc(100vw - 20px));max-width:none;box-sizing:border-box}
 #online .on-sub{opacity:.85;font-size:14px;margin:0 0 12px}
 #online label.on-name{display:flex;gap:10px;align-items:center;font-weight:800;font-size:13px}
 #online input,#online select{font:inherit;font-weight:800;padding:10px 12px;border-radius:12px;border:2px solid #fff5;background:#ffffff18;color:#fff;min-width:0}
 #online select option{color:#14264a}
 #online input#onName{flex:1}
-#online #onStart{display:grid;gap:10px;margin-top:12px}
+#online #onStart{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:12px}
+#online button{white-space:normal}
+@media (max-width:420px){body #online #onQuick{font-size:16px}#online .online-card{padding-left:14px;padding-right:14px}}
 #online .on-join{display:flex;gap:8px}
 #online .on-join input{flex:1;text-transform:uppercase;letter-spacing:3px;text-align:center}
 #online .on-join button,#online #onCreate{margin-top:0}

@@ -15,6 +15,7 @@ Schluessel bleibt im Browser, je Spieler und Liste zaehlt ein ersetzbarer Eintra
 (Name und Wert sind danach oeffentlich), Zeiten unter 70 % der Gold-Medaille werden verworfen, fremde Namen nur als
 Text angezeigt. Zu sehen im Zeitfahr-Ergebnis (mit Namensfeld) und im Online-Fenster (Auswahl der Liste).
 Fix: Tippen in Eingabefeldern steuert nicht mehr das Kart (Leerzeichen im Namen, P pausierte, Enter startete).
+Fix: Online-Fenster auf dem Handy hochkant war 500 px breit (Beitreten-Knoepfe abgeschnitten) - passt sich jetzt an.
 
 **12 Karts pro Rennen** - Einzelrennen, Grand Prix und Online-Rennen starten mit 12 Karts in Dreierreihen (gleiche
 Tiefe wie vorher 8 in Zweierreihen, der Spieler auf Startplatz 8). Vier neue Bots: Hias, Kathi, Wastl und Zenzi.
