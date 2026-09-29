@@ -178,7 +178,9 @@ const ITEM_ART={storm:"<svg viewBox='0 0 48 48'><path d='M14 28a8 8 0 0 1 1-16 1
 const ITEM_COL={storm:'#b7a4ff',boost:'#ffd45c',triple:'#ffd45c',shell:'#f0b46a',banana:'#ffe45c',shield:'#ffc233',bomb:'#ff9a6a',mega:'#ff6b5a',ink:'#c9c2dc'};
 const MT_COLORS={mini:0xffc72e,super:0xff6a1a,ultra:0x5ff2ff},MT_LABEL={mini:'FUNKEN-TURBO',super:'GLUT-TURBO',ultra:'BLITZ-TURBO'};
 
-let selected=0,colorIndex=0,driverIndex=Math.max(0,Math.min(DRIVERS.length-1,store.get('driver',0)|0)),mode='single',cc=store.get('class',100),state='menu',elapsed=0,countdown=3,last=0,curve,length=1,course,theme,ctx,frame=0,noticeTimer=0,toastTimer=0;
+// R57: neuer Standard - Sepp in Lederhosn im Fass-Kart; einmalig auch fuer bestehende Spielstaende, danach frei waehlbar
+if(!store.get('def57',false)){store.set('driver',5);store.set('kartStyle','fass');store.set('def57',true);}
+let selected=0,colorIndex=0,driverIndex=Math.max(0,Math.min(DRIVERS.length-1,store.get('driver',5)|0)),mode='single',cc=store.get('class',100),state='menu',elapsed=0,countdown=3,last=0,curve,length=1,course,theme,ctx,frame=0,noticeTimer=0,toastTimer=0;
 const loopMiss=[];let boxes=[],racers=[],hazards=[],flags=[],balloons=[],puffs=[],shots=[],ramps=[],pads=[],rings=[],spores=[],swingers=[],gaps=[],boostPads=[],sunPads=[],sporeMesh=null,crowd=null,boostTex=null,foamRing=null,fireflies=null,rails=[],forks=[],raises=[],tunnels=[],agrav=[],loops=[],crystals=[],coasters=[],hpipes=[],ferris=null,dragon=null,elems=[],elemFx=null,owFx=null,worldMode=false,lastRaceSel=0,owPortalAt=null,ridePhoto=null,photoPending=false;
 let rainbowTex=null,mapInfo={cx:0,cz:0,k:.6},shake=0,lastPlace=8,leadAt=-99,finishMusicAt=0,soundOn=true,autoGas=false,startPress=-1,prevDrift=false,roulette=null,camFov=62,camH=0,camRoll=0,camRollPrev=0,cer=null,wrongT=0,autopilot=false;
 let gp={active:false,race:0,points:{}},stats=null,startLights=[],lightState=-1,chevrons=[];
@@ -650,9 +652,9 @@ const kartsG=new T.Group();actors.add(kartsG);
 // instanzierten KI-Karts lagen sie sogar ohne Versatz im Fahrer) und kostet keinen eigenen Draw-Call.
 const kartProtos=new Map();
 // R56 Karosserien (art/r56/create_kartbodies.py): Keilflitzer (Standard) und Tourenwagen - fuer das eigene Kart waehlbar
-let kartStyle=store.get('kartStyle','keil');const KSTYLES=[['keil','Keil'],['tourer','Tourer'],['klassik','Klassik']];
+let kartStyle=store.get('kartStyle','fass');const KSTYLES=[['fass','Fass'],['keil','Keil'],['tourer','Tourer'],['klassik','Klassik']];
 function kartProto(t,style){if(!P.kart)return null;
- if(style&&style!=='klassik'){const src=P.kartbodies?.getObjectByName(style==='tourer'?'KB_Tourer':'KB_Keil');if(src){let q=kartProtos.get('S'+style);if(!q){const root=new T.Group();root.add(src.clone(true));q=mergeByMaterial(root);markShared(q);kartProtos.set('S'+style,q);}return q;}}
+ if(style&&style!=='klassik'){const src=P.kartbodies?.getObjectByName(style==='tourer'?'KB_Tourer':style==='fass'?'KB_Fass':'KB_Keil');if(src){let q=kartProtos.get('S'+style);if(!q){const root=new T.Group();root.add(src.clone(true));q=mergeByMaterial(root);markShared(q);kartProtos.set('S'+style,q);}return q;}}
  const k=DRIVERS[t]?t:0,kit=P.kartkit?.getObjectByName('KX_'+k);if(!kit)return P.kart;
  let p=kartProtos.get(k);if(p)return p;const root=new T.Group();root.add(P.kart.clone(true),kit.clone(true));
  p=mergeByMaterial(root);markShared(p);kartProtos.set(k,p);return p;}
@@ -1732,7 +1734,8 @@ function owScenery(random){const offRoad=(x,z,m)=>{const d=projectGlobal(x,z),q=
  for(let g=0;g<12;g++){const a=random()*TAU,rr=110+random()*300,cx=Math.cos(a)*rr,cz=Math.sin(a)*rr;
   for(let i=0;i<9;i++){const x=cx+(random()-.5)*44,z=cz+(random()-.5)*44;if(zones.some(q=>Math.hypot(q.x-x,q.z-z)<q.r+6)||Math.hypot(x,z)<95||!offRoad(x,z,16))continue;
    if(random()<.65){tree(x,z,1.4+random()*1.6,theme.caps[i%theme.caps.length]);}else mushroom(x,z,1.5+random()*2.5,theme.caps[i%theme.caps.length]);addObstacle(x,z,1.2);}}}
-const ARENA={x:0,z:-190,r:60};
+// R57: groesser (Nutzerhinweis "wirkt zu klein") und etwas weiter suedlich, frei vom Pilzring um den Pilzberg
+const ARENA={x:0,z:-205,r:85};
 function buildScenery(random){if(course.openWorld)zones.push({d:NaN,half:0,x:ARENA.x,z:ARENA.z,r:ARENA.r+14});batch=new Map();buildSceneryInner(random);if(course.openWorld)owScenery(random);forkIslandDecor();for(const b of batch.values())scatterColored(b.proto,b.list,'CapPaint',b.tint,120,.028);batch=null;buildGrass(random);}
 // Eine Instanz-Gruppe je Modell statt je Farbe: Lackfarbe pro Instanz (instanceColor), Leuchten wird per Shader mit eingefaerbt
 const tintEmissive=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n#ifdef USE_COLOR\ntotalEmissiveRadiance *= vColor.rgb;\n#endif');};
@@ -1887,7 +1890,9 @@ function windRingModel(){
  const glow=[];root.traverse(o=>{if(!o.isMesh)return;o.castShadow=false;o.receiveShadow=false;
   if(o.material.name==='WindGlow'){o.material=o.material.clone();o.material.emissive.setHex(0x42d8be);o.material.emissiveIntensity=.55;glow.push(o.material);}});
  return {root,glow};}
-function buildRamps(){const list=course.ramps.map(([v,off,w])=>({d:straightSpot(v,35,85),off,w}));for(const g of gaps)list.push({d:lapDist(g.start-RAMP_LEN/2-.4),off:0,w:13,gap:true});
+// R57: Rampen vor Luecken ueber die ganze befahrbare Breite inkl. Randstreifen (vorher 13 m: wer nach dem Looping am Rand
+// ankam, fuhr an der Rampe vorbei in den Wassergraben)
+function buildRamps(){const list=course.ramps.map(([v,off,w])=>({d:straightSpot(v,35,85),off,w}));for(const g of gaps)list.push({d:lapDist(g.start-RAMP_LEN/2-.4),off:0,w:SHOULDER*2+.6,gap:true});
  for(const {d,off,w,gap} of list){const r={d,off,w,start:d-RAMP_LEN/2,end:d+RAMP_LEN/2,gap};ramps.push(r);const s=sample(d,off);let g;if(P.ramp){g=cloneProto(P.ramp);g.scale.set(w/6.4,1,RAMP_LEN/4.8);if(gap)applyTint(g,'RampPaint',0xffd23f);}else{g=new T.Group();const m=mesh(new T.BoxGeometry(w,.2,RAMP_LEN),mat(0xed6350),g,0,RAMP_H/2,0);m.rotation.x=-Math.atan(RAMP_H/RAMP_LEN);}g.position.copy(s.p);g.rotation.order='YXZ';g.rotation.set(Math.atan(slopeAt(d)),s.angle+Math.PI,s.bank);world.add(g);
   if(gap)continue;
   const rd=r.end+12,rs=sample(rd,off),art=windRingModel(),ring=art.root;ring.position.copy(rs.p);ring.position.y+=3.8;ring.rotation.order='YXZ';ring.rotation.y=rs.angle+Math.PI;world.add(ring);rings.push({d:lapDist(rd),off,y:ring.position.y,mesh:ring,glow:art.glow,flash:0,precision:false});}}
@@ -2315,7 +2320,10 @@ const PUFFS=40,puffMesh=fxMesh(puffGeo,new T.MeshBasicMaterial({color:0xffffff,t
 function dropPuff(r,color=0xdfe8e8){const i=puffIdx++%PUFFS,p=puffPool[i],s=Math.sin(r.h),c=Math.cos(r.h);p.x=r.x-s*1.4;p.y=(r.y||0)+.5;p.z=r.z-c*1.4;p.vx=-s*2+(Math.random()-.5);p.vy=.9;p.vz=-c*2+(Math.random()-.5);p.life=.75;puffMesh.setColorAt(i,_col.setHex(color));puffMesh.instanceColor.needsUpdate=true;}
 
 // ---------------------------------------------------------------- Kart-Physik (vertikal), Kollisionen, Darstellung
-function vertical(r,dt){const {y:ground,rh}=groundAt(r.distance,r.offset);
+function vertical(r,dt){let {y:ground,rh}=groundAt(r.distance,r.offset);
+ // R57 Kotzhuegel-Arena: fester Sandboden. Die Hoehe aus der Streckenprojektion (fast 300 m entfernt) sprang am Rand auf
+ // Luecken oder den See - Bots fielen durch den Boden und ruckelten
+ if(course._arena&&worldMode){const A=course._arena;if((r.x-A.x)**2+(r.z-A.z)**2<(A.r+10)**2){ground=.06;rh=0;}}
  // Halfpipe (R52): an Wand und ueber der Lippe haelt die Pipe-Physik das Kart (update); flach bleibt es am Boden.
  // Wer mit normalem Luftstand (Kuppe, Treffer) an die Wand kommt, setzt dort auf.
  if(r.hpOn){if(r.y===undefined)r.y=ground;const roadVy=clamp((ground-(r.lastGround??ground))/Math.max(dt,1e-3),-45,45);r.lastGround=ground;
@@ -2371,19 +2379,24 @@ function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin
  r.driftVis=(r.driftVis||0)+((r.driftDir||0)*.38-(r.driftVis||0))*Math.min(1,dt*10);
  const hopY=r.hop>0?Math.sin((HOP_T-r.hop)/HOP_T*Math.PI)*.42:0;
  const lift=.1+hopY+(r.air?0:Math.sin(elapsed*22+r.id)*.03*(Math.abs(r.speed)/30));
- const inLoop=loops.length?loopAt(r.distance):null;
+ // R57: weit neben der Strasse (offene Welt, Kotzhuegel-Arena) direkt an die Physik-Lage. posAt verformte dort mit bis zu
+ // 300 m Querversatz Rollzonen, Steilkurven und die See-Tauchspirale der zugeordneten Streckenstelle ins Bild - Karts
+ // tauchten bis y=-338 ab, Neigung und Kamera ruckelten. Auf flacher Wiese liefert posAt dasselbe, der Wechsel springt nicht.
+ const far=worldMode&&Math.abs(r.offset)>14;
+ const inLoop=loops.length&&!far?loopAt(r.distance):null;
  // Immer derselbe Weg ins Bild - keine Schwelle, an der umgeschaltet wird. Ohne Rolle, Hub und
  // Looping gibt posAt genau die physikalische Lage zurueck, flach aendert sich also nichts.
  r.czFloatS=(r.czFloatS||0)+((r.czFloat||0)-(r.czFloatS||0))*Math.min(1,dt*9);
- r.mesh.position.copy(posAt(r.distance,r.offset,(r.y??0)-roadRef(r.distance,r.offset)+lift+r.czFloatS,_agP));e.order='YXZ';
+ if(far)r.mesh.position.set(r.x,(r.y??0)+lift+r.czFloatS,r.z);
+ else r.mesh.position.copy(posAt(r.distance,r.offset,(r.y??0)-roadRef(r.distance,r.offset)+lift+r.czFloatS,_agP));e.order='YXZ';
  // R54 gegen das Ruckeln im Pulk: Kollisions-Korrekturen (Auseinanderschieben) springen nicht mehr ins Bild, sondern
  // werden als Versatz aufgefangen und klingen in ~0,1 s ab - die Physik bleibt exakt, nur die Darstellung ist weich
  if(r.vox||r.voz){const k=Math.exp(-dt*11);r.vox*=k;r.voz*=k;if(Math.abs(r.vox)+Math.abs(r.voz)<.002)r.vox=r.voz=0;if(!dbg.noSmooth){r.mesh.position.x+=r.vox;r.mesh.position.z+=r.voz;}}
  const spin=r.trick>0?Math.min(1,r.trick/.42)*TAU:0;
  // Der Looping ist reine Nickbewegung um die Querachse - Lenken bleibt davon unberuehrt
  e.y=r.h+r.driftVis+(r.stun>0?elapsed*14:0)+spin;
- e.x=inLoop?-loopFrame(inLoop,r.distance).pitch:r.air?clamp(-r.vy*.02,-.45,.45):-Math.atan((slopeAt(r.distance)+(coasters.length?coasterP(r.distance).s:0))*dot);
- e.z=-bank*dot+(r.id===0?-(r.steerS||0)*.07:0)-r.driftVis*.12+rollTot(r.distance);
+ e.x=inLoop?-loopFrame(inLoop,r.distance).pitch:r.air?clamp(-r.vy*.02,-.45,.45):far?0:-Math.atan((slopeAt(r.distance)+(coasters.length?coasterP(r.distance).s:0))*dot);
+ e.z=(far?0:-bank*dot+rollTot(r.distance))+(r.id===0?-(r.steerS||0)*.07:0)-r.driftVis*.12;
  // Im Schraeg-Looping zeigt das Kart entlang der geneigten Bahn: Grundlage ist der Rahmen aus
  // Tangente und Normale, Lenk- und Driftwinkel und die Schraeglage kommen lokal obendrauf.
  if(inLoop){const st=loopFrame(inLoop,r.distance),tn=tanAt(r.distance),tx=tn.x,tz=tn.z,yaw=angleDiff(e.y,Math.atan2(tx,tz)),roll=e.z;
@@ -3101,6 +3114,8 @@ function update(dt){
    // Gewitterwolke: ein kleines Kart wird vom grossen plattgefahren
    const fl=flattenSmall(a,b,rel);if(fl){fl.squash=.6;burst(fl,0xfff27a,10);if(fl.id===0){stats.hitsTaken++;toast('ÜBERROLLT!',1,'bad');SFX.hit();shake=.4;}else if(a.id===0||b.id===0){stats.hitsDealt++;toast('PLATT GEFAHREN!',.9,'good');SFX.hit(.7);}}
    else if((a.id===0||b.id===0)&&rel>6){SFX.bump(clamp(rel/25,.2,.8));shake=Math.max(shake,.15);}}}
+ // R57: Arena-Wand auch nach den Rempeleien - sonst schoben Kollisionen Bots ueber den Rand, wo der Boden fehlte
+ if(battle&&arenaOn())for(const r of racers)if(!r.net)arenaWall(r);
  updateShots(dt);updateBombs(dt);updateInk(dt);
  const newOrder=ranking(racers),place=newOrder.indexOf(player)+1;
  if(place<lastPlace&&elapsed>2&&!battle){stats.overtakes+=lastPlace-place;SFX.overtake();toast(`▲ PLATZ ${place}`,.9,'good');}
@@ -3282,14 +3297,17 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  // Eine einzige Kameraführung fuer flach, Spirale und Looping: Position, Hochachse und
  // Blickrichtung kommen aus demselben Rahmen und werden durchgehend geglättet. Frueher waren das
  // drei Modi mit harten Umschaltern - genau dort ruckte das Bild.
- const lq=loops.length?loopAt(p.distance):null;
+ // R57: weit neben der Strasse (offene Welt, Arena) folgt die Kamera nur dem Kart - Looping, Rollwinkel, Hub und Hoehe der
+ // zugeordneten Streckenstelle verzerrten dort das Bild (Ruckeln im Kotzhuegel Fight)
+ const farC=worldMode&&Math.abs(p.offset)>14;
+ const lq=loops.length&&!farC?loopAt(p.distance):null;
  // R44: Achterbahn-Twists drehen die Kamera nur zu 40 % mit (Horizont bleibt ruhiger), und die Kamera-Rolle ist auf
  // 3,2 rad/s begrenzt - schnelle Spiralen drehten das Bild vorher mit bis zu 15 rad/s
- const rl=(agrav.length?rollAt(p.distance):0)+(coasters.length?coasterCamRoll(p.distance):0);
+ const rl=farC?0:(agrav.length?rollAt(p.distance):0)+(coasters.length?coasterCamRoll(p.distance):0);
  // Gewicht fuer die Bahnkamera: der Sichthub der Rollzone faehrt ohnehin weich hoch und runter
  // Achterbahn (R38): ab ein paar Metern Hoehe setzt sich die Kamera ebenfalls auf die Bahn hinter
  // dem Kart - sonst schneidet sie an Kuppe und Abfahrt durch den Huegel.
- const rw=Math.max(agrav.length&&!lq?Math.min(1,liftAt(p.distance)/7):0,coasters.length&&!lq?Math.min(1,coasterH(p.distance)/6)*.85:0,elems.length&&!lq?Math.min(1,Math.abs(elemH(p.distance))/4)*.9:0);
+ const rw=farC?0:Math.max(agrav.length&&!lq?Math.min(1,liftAt(p.distance)/7):0,coasters.length&&!lq?Math.min(1,coasterH(p.distance)/6)*.85:0,elems.length&&!lq?Math.min(1,Math.abs(elemH(p.distance))/4)*.9:0);
  if(snap)camRoll=camRollPrev=rl;
  else{const dRl=clamp(angleDiff(rl,camRollPrev),-3.2*dt,3.2*dt),pred=camRoll+dRl;camRoll=angleDiff(pred+clamp(angleDiff(rl,pred)*(1-Math.exp(-dt*10)),-3.2*dt,3.2*dt),0);camRollPrev=angleDiff(camRollPrev+dRl,0);}
  let kx=p.x,ky=py,kz=p.z,fx=sx,fy=0,fz=cz,ux=0,uy=1,uz=0;
@@ -3298,6 +3316,7 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  if(lq){const st=loopFrame(lq,p.distance);
   posAt(p.distance,p.offset,py-roadRef(p.distance,p.offset),_agP);kx=_agP.x;ky=_agP.y;kz=_agP.z;
   fx=sx*st.tf+cz*st.tl;fy=st.tu;fz=cz*st.tf-sx*st.tl;ux=sx*st.nf;uy=st.nu;uz=cz*st.nf;}
+ else if(farC){kx=p.x;ky=py;kz=p.z;}
  else {posAt(p.distance,p.offset,py-roadRef(p.distance,p.offset),_agP);kx=_agP.x;ky=_agP.y;kz=_agP.z;
   // Der Versatz nach hinten folgt der Steigung der sichtbaren Fahrbahn. Waagerecht gerechnet
   // landete die Kamera an der abfallenden Rampe einer Anti-Grav-Zone unter der Fahrbahn - dann
@@ -4069,11 +4088,16 @@ function buildArena(){const A={...ARENA,boxes:[],g:new T.Group()};course._arena=
  for(const x of [-7.4,7.4])mesh(new T.CylinderGeometry(.22,.26,6.2,8),post,sign,x,3.1,0);
  mesh(new T.PlaneGeometry(15.4,2.4),label('KOTZHÜGEL FIGHT','#1a5fd0','#fffbe8',768,120),sign,0,5.1,.1);
  const back=mesh(new T.PlaneGeometry(15.4,2.4),label('KOTZHÜGEL FIGHT','#1a5fd0','#fffbe8',768,120),sign,0,5.1,-.1);back.rotation.y=Math.PI;
- // Deckung: vier Fass-Stapel und ein Maibaum in der Mitte
- for(let k=0;k<4;k++){const a=k/4*TAU+Math.PI/4,x=A.x+Math.sin(a)*A.r*.42,z=A.z+Math.cos(a)*A.r*.42,b=r53Part('wiesn','WS_Barrels');if(b){b.position.set(x,0,z);b.rotation.y=a;A.g.add(b);}addObstacle(x,z,2.2);}
+ // Deckung: sechs Fass-Stapel, dazwischen sechs Strohballen-Waelle (R57, fuer die groessere Arena) und ein Maibaum in der Mitte
+ for(let k=0;k<6;k++){const a=k/6*TAU+Math.PI/6,x=A.x+Math.sin(a)*A.r*.42,z=A.z+Math.cos(a)*A.r*.42,b=r53Part('wiesn','WS_Barrels');if(b){b.position.set(x,0,z);b.rotation.y=a;A.g.add(b);}addObstacle(x,z,2.2);}
+ {const wall=new T.InstancedMesh(new T.BoxGeometry(2.2,1.15,1.2),stdMat({color:0xd8b04a,roughness:.95}),6*4);let i=0;
+  for(let k=0;k<6;k++){const a=k/6*TAU,cx=A.x+Math.sin(a)*A.r*.7,cz=A.z+Math.cos(a)*A.r*.7,tx=Math.cos(a),tz=-Math.sin(a);
+   for(let j=0;j<4;j++){const s=(j-1.5)*2.25,x=cx+tx*s,z=cz+tz*s;_m.compose(_v.set(x,.58,z),_q.setFromEuler(_e.set(0,a+Math.PI/2,0)),_s.set(1,1,1));wall.setMatrixAt(i++,_m);addObstacle(x,z,1.25);}}
+  wall.castShadow=wall.receiveShadow=true;A.g.add(wall);}
  if(P.landmarks){const mp=lmPart('LM_Maypole');if(mp){mp.position.set(A.x,0,A.z);A.g.add(mp);addObstacle(A.x,A.z,.9);}}
- // Itemboxen: acht im Ring, zwei nahe der Mitte
- const spots=[];for(let k=0;k<8;k++){const a=k/8*TAU;spots.push([A.x+Math.sin(a)*A.r*.68,A.z+Math.cos(a)*A.r*.68]);}spots.push([A.x+9,A.z],[A.x-9,A.z]);
+ // Itemboxen: zwoelf im Ring (zwischen den Ballen-Waellen), drei nahe der Mitte
+ const spots=[];for(let k=0;k<12;k++){const a=(k+.5)/12*TAU;spots.push([A.x+Math.sin(a)*A.r*.62,A.z+Math.cos(a)*A.r*.62]);}
+ for(let k=0;k<3;k++){const a=k/3*TAU+.5;spots.push([A.x+Math.sin(a)*10,A.z+Math.cos(a)*10]);}
  for(const [x,z] of spots){const g=P.itembox?cloneProto(P.itembox):new T.Mesh(new T.BoxGeometry(1.4,1.4,1.4),mat(0xffc83a,{emissive:0xffa51f,emissiveIntensity:.4}));g.position.set(x,1.2,z);A.g.add(g);A.boxes.push({x,z,g,cool:0});}}
 // R57: Start knapp an der Mitte vorbei ausgerichtet - sonst stand der Maibaum genau vor der Kamera
 function arenaPlace(){const A=arenaOn()&&course._arena;if(!A)return;let k=0;const n=racers.length;
@@ -4089,7 +4113,7 @@ function arenaPickup(r){const A=course._arena;for(const b of A.boxes){if(b.cool>
 function arenaTick(dt){const A=course._arena;for(const b of A.boxes){if(b.cool>0){b.cool-=dt;if(b.cool<=0){b.g.visible=true;b.g.scale.setScalar(.01);}}
   else{b.g.rotation.y+=dt*1.6;const s=b.g.scale.x;if(s<1)b.g.scale.setScalar(Math.min(1,s+dt*3));b.g.position.y=1.2+Math.sin(elapsed*2.4+b.x)*.18;}}}
 // Naechster Gegner mit Herzen (front: bevorzugt, was vor dem Kart liegt)
-function arenaTarget(r,maxD=80,front=false){let best=null,bs=1e9;for(const q of racers){if(q===r||!(q.hearts>0))continue;const d=Math.hypot(q.x-r.x,q.z-r.z);if(d>maxD)continue;
+function arenaTarget(r,maxD=130,front=false){let best=null,bs=1e9;for(const q of racers){if(q===r||!(q.hearts>0))continue;const d=Math.hypot(q.x-r.x,q.z-r.z);if(d>maxD)continue;
   const a=Math.abs(angleDiff(Math.atan2(q.x-r.x,q.z-r.z),r.h)),sc=d*(front?1+a*1.2:1);if(sc<bs){bs=sc;best=q;}}return best;}
 // Jagd-KI: Ziel alle 1-2 s neu - ohne Item die naechste Itembox, sonst (oder je nach Koennen) der naechste Gegner
 function arenaAI(r,dt){const A=course._arena,sp=Math.max(0,r.speed);if(r.out)return {gas:false,brake:sp>1,steer:0,drift:false};
@@ -4219,7 +4243,7 @@ if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,classes:()=>CLA
  wxInfo:()=>({active:wxActive,plan:wxPlan,m:wxM&&Object.fromEntries(Object.entries(wxM).map(([k,v])=>[k,+(+v).toFixed(2)])),grip:+wxGripMul.toFixed(3),wind:+wxWindA.toFixed(2),exp:+renderer.toneMappingExposure.toFixed(2),rain:wxRain.visible,flakes:wxFlakes.visible,bugs:wxBugs.visible,bow:wxBow.visible,aurora:wxAurora[0].visible,moon:wxMoonDisc.visible,meteors:wxMeteors.filter(s=>s.visible).length,ufo:{vis:wxUfo.visible,d:Math.round(wxUfo.userData.d),show:+wxUfo.userData.show.toFixed(2),fly:+wxUfo.userData.fly.toFixed(2),beam:wxUfo.userData.beam.visible},strip:$('wxStrip')?.textContent,lifts:stats.ufoLifts||0}),
  perf:()=>({drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,dpr:renderer.getPixelRatio(),qualityLevel:quality.level}),
  bgm:()=>({ready:bgm.ready,failed:bgm.failed,playing:bgm.current,rate:bgm.rate}),
- chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g?q.g.position.toArray().map(v=>+v.toFixed(1)):'laser']),missiles:hz.missiles.length,lasers:hz.missiles.filter(m=>m.laser).length,waves:(hz.waves||[]).map(w=>w.on?1:0),ships:(hz.waves||[]).flatMap(w=>w.on?w.ships.filter(q=>q.g.visible&&q.d!==undefined).map(q=>[Math.round(wrapDiff(q.d,racers[0].distance)),Math.round(q.h)]):[]),turrets:hz.cannons.filter(c=>c.tur).length,fz:P.fortress===undefined?'pending':P.fortress?'ok':'failed',laserAhead:hz.missiles.filter(m=>m.laser&&m.d!==undefined&&racers[0]).map(m=>Math.round(wrapDiff(m.d,racers[0].distance))),statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),
+ chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g?q.g.position.toArray().map(v=>+v.toFixed(1)):'laser']),missiles:hz.missiles.length,lasers:hz.missiles.filter(m=>m.laser).length,waves:(hz.waves||[]).map(w=>w.on?1:0),ships:(hz.waves||[]).flatMap(w=>w.on?w.ships.filter(q=>q.g.visible&&q.d!==undefined).map(q=>[Math.round(wrapDiff(q.d,racers[0].distance)),Math.round(q.h)]):[]),turrets:hz.cannons.filter(c=>c.tur).length,fz:P.fortress===undefined?'pending':P.fortress?'ok':'failed',kb:!!P.kartbodies,drv:!!P.driver_sepp,laserAhead:hz.missiles.filter(m=>m.laser&&m.d!==undefined&&racers[0]).map(m=>Math.round(wrapDiff(m.d,racers[0].distance))),statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),
  saveGhost:()=>{try{localStorage.setItem('mr-ghost-'+selected,JSON.stringify({...rec,next:undefined,color:0xffffff}));}catch{}return rec&&rec.x.length;},ghost:()=>ghost&&{n:ghost.data.x.length,dist:ghost.dist,visible:ghost.mesh.visible},medalOf:t=>medalOf(t),aiUse:(id,item)=>{racers[id].item=item;return useItem(racers[id]);},racers:()=>racers,world:()=>({ramps,pads,rings,spores,gaps,swingers}),keys,
  loops:()=>loops.map(q=>({...q,s:Math.round(q.s),span:Math.round(q.span),R:Math.round(q.R)})),
  coasters:()=>coasters.map(c=>({s:Math.round(c.s),span:Math.round(c.span),kind:c.spec.kind,launch:c.spec.launch.map(Math.round),hills:c.spec.hills.map(q=>({c:Math.round(q.c),w:Math.round(q.w),h:+q.h.toFixed(1)})),arches:c.archX.map(Math.round),assets:{arch:!!P.magnetarch,truss:!!P.coastertruss},glow:!!coasterGlow})),
@@ -4229,6 +4253,7 @@ if(TEST){window.rallyTest={start,home,use,pause,say,ceremony,hud,classes:()=>CLA
  coasterH:d=>coasterH(d),ridePhoto:()=>ridePhoto?ridePhoto.length:0,ridePhotoURL:()=>ridePhoto,coasterRun:()=>racers.map(r=>({id:r.id,run:r.czRun?{arch:r.czRun.arch,air:r.czRun.airHills,maxOff:+r.czRun.maxOff.toFixed(2),launched:r.czRun.launched}:null,g:r.czG,float:r.czFloat,vis:r.czVis,speed:r.speed})),
  // Standbild an beliebiger Stelle: Spieler auf Streckenmeter d setzen, Kamera einrasten, rendern
  field:n=>{fieldForce=n|0;kartPool=null;return fieldSize();},
+ probe:()=>({cam:camera.position.toArray().map(v=>+v.toFixed(3)),cq:camera.quaternion.toArray().map(v=>+v.toFixed(4)),me:racers[0]?.mesh.position.toArray().map(v=>+v.toFixed(3)),mh:+(racers[0]?.mesh.rotation.y||0).toFixed(4),d:+(racers[0]?.distance||0).toFixed(2),off:+(racers[0]?.offset||0).toFixed(2),sp:+(racers[0]?.speed||0).toFixed(2),bots:racers.slice(1).map(r=>r.mesh.position.toArray().map(v=>+v.toFixed(3)))}),
  lbView:(board,events,me)=>{if(me)store.set('lbPub',me);const root=$('onLb');$('online').hidden=false;lbRender(root.querySelector('.lb-list'),board,lbParse(events,board,lbOpts(board)));return root.innerText;},
  pose:(d,off=0,speed=30,frames=40)=>{if(!racers.length)return null;const r=racers[0],s=sample(d,off),gy=groundAt(d,off).y;r.distance=d;r.offset=off;r.x=s.p.x;r.z=s.p.z;r.h=s.angle;r.speed=speed;r.vx=Math.sin(r.h)*speed;r.vz=Math.cos(r.h)*speed;r.y=gy;r.vy=0;r.air=false;r.airT=0;r.stun=0;r.trick=0;r.finishTime=null;r.lastGround=gy;
   const cz=coasterAt(d);if(cz){r.czRun=null;coasterRide(r,cz,false);}else{r.czFloat=0;r.czVis=1;}

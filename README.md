@@ -8,6 +8,21 @@ Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
 ## Runde 57 (29.09.2026): 12er-Starterfeld, Online-Bestenliste, Festungs-Abwehr im Graben-Flug, Quetschn-Maß
 
+**Fass-Kart als Standard** (`art/r56/create_kartbodies.py`, KB_Fass): Sepp in Lederhosn sitzt in einem bauchigen
+Bierfass - vorn und hinten geschlossen, Cockpit-Ausschnitt in der Mitte, Daubenfugen, Reifen in Kartfarbe, weiss-blaue
+Raute und Messing-Zapfhahn vorn, Bierschaum quillt aus dem Spundloch. Neuer Standard (einmalig auch fuer bestehende
+Spielstaende), Keil/Tourer/Klassik bleiben waehlbar.
+
+**Kotzhügel Fight ruckelfrei und groesser** - Karts und Kamera wurden weit neben der Strasse ueber die zugeordnete
+Streckenstelle ins Bild gesetzt (mit bis zu 300 m Querversatz): Rollzonen, Steilkurven und die See-Tauchspirale
+verzerrten dort Lage, Neigung und Kamera, Bots tauchten bis 338 m unter den Boden. Jetzt steht alles abseits der
+Strasse an seiner echten Lage, die Arena hat festen Sandboden, und die Wand greift auch nach Rempeleien. Messung:
+keine Hoehenspruenge mehr, alle Bots bleiben in der Arena. Arena groesser (Radius 85 statt 60 m, weiter suedlich), sechs
+Fass-Stapel, sechs Strohballen-Waelle, 15 Itemboxen; Bots suchen Gegner im Umkreis von 130 m.
+
+**Rampen vor Luecken ueber die ganze Breite** - auf der Pilz-Promenade fuhr man nach dem Looping am Rand an der
+13 m breiten Rampe vorbei in den Wassergraben; Lueckenrampen decken jetzt Fahrbahn und Randstreifen ab (22,4 m).
+
 **Graben-Flug mit Gegnern** (`art/r57/create_fortress.py`, eigene Entwuerfe): sechs Geschuetztuerme am Grabenrand
 (Sockel mit weiss-blauem Rautenband, Drehkopf mit Doppelrohr) zielen auf den Spieler und feuern Festungs-Laser -
 leuchtende Kugeln mit Schweif, die aus dem Turm in eine Flugspur einschwenken; ausweichen durch Lenken, im

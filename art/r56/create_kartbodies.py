@@ -130,6 +130,60 @@ t.add('Dark', rbox((0, .46, -2.02), (1.7, .12, .1), .03, 1))
 arches(t, flare=.05)
 t.finish()
 
+# ================================================================== R57 Fass-Kart (Standard-Karosserie)
+# Bauchiges Bierfass laengs: vorn und hinten geschlossen, in der Mitte ein Cockpit-Ausschnitt (der Fahrer sitzt drin,
+# die Fassboeden sind die Trennwaende). Reifen in Kartfarbe, Zapfhahn vorn, Spundloch mit Bierschaum oben.
+# Farben linear (Blender): (.3,.14,.05) erschien im Spiel als Pfirsichton - deshalb deutlich dunkler.
+use_materials({'Wood': material('Wood', (.1, .045, .014, 1), .78), 'WoodDark': material('WoodDark', (.035, .014, .005, 1), .85),
+               'Brass': material('Brass', (.95, .7, .25, 1), .3, .85), 'Foam': material('Foam', (.98, .97, .92, 1), .9),
+               'RautBlue': material('RautBlue', (.1, .42, .86, 1), .45)})
+f = Part('KB_Fass')
+L, YC, Z0, Z1, CUT = 2.0, 1.02, -1.35, .55, 1.3
+rad = lambda z: .76 + .12 * (1 - (z / L) ** 2)                                                  # Fassbauch
+
+
+def barrel(z0, z1, n, full):
+    """Fassstueck von z0 bis z1 mit Boeden, Daubenfugen (bei offenen Stuecken nur unterhalb des Schnitts)."""
+    # blib.loft (t, hw, yb, yt, n) - nicht das lokale loft() oben mit anderer Parameterreihenfolge
+    f.add('Wood', blib.loft([(z, rad(z), YC - rad(z), YC + rad(z), 2) for z in [z0 + i * (z1 - z0) / n for i in range(n + 1)]], seg=22), smooth=False)
+    for k in range(22):
+        a = 2 * math.pi * k / 22
+        if not full and YC + math.sin(a) * .9 > CUT - .05:
+            continue
+        pts = [(math.cos(a) * (rad(z) + .012), YC + math.sin(a) * (rad(z) + .012), z) for z in [z0 + .04 + i * (z1 - z0 - .08) / 4 for i in range(5)]]
+        f.add('WoodDark', tube(pts, .02, 4))
+
+
+barrel(-L, Z0, 3, True)
+barrel(Z1, L, 7, True)
+for z in (-1.62, 1.05, 1.62):                                                                    # Reifen (Kartfarbe)
+    f.add('BodyPaint', torus((0, YC, z), rad(z) + .025, .055, (0, 0, 1), 32, 6))
+f.add('WoodDark', torus((0, YC, L - .02), rad(L) - .04, .05, (0, 0, 1), 28, 6))
+f.add('WoodDark', torus((0, YC, -L + .02), rad(-L) - .04, .05, (0, 0, 1), 28, 6))
+# Mittelstueck: nur dieses wird oben aufgeschnitten
+before = set(f.bm.faces)
+barrel(Z0, Z1, 5, False)
+f.add('BodyPaint', torus((0, YC, -.4), rad(-.4) + .025, .055, (0, 0, 1), 32, 6))
+new_f = [q for q in f.bm.faces if q not in before]
+new_v = list({v for q in new_f for v in q.verts})
+new_e = list({e for q in new_f for e in q.edges})
+bmesh.ops.bisect_plane(f.bm, geom=new_v + new_e + new_f, plane_co=G(0, CUT, 0), plane_no=G(0, 1, 0), clear_outer=True)
+f.add('Carbon', rbox((0, .3, .05), (1.4, .1, 3.7), .04, 2))                                     # Bodenplatte fuer die Achsen
+cockpit(f, seat_y=.55)
+f.add('Brass', cyl((0, .62, L - .05), (0, .62, L + .32), .08, .07, 10))                         # Zapfhahn
+f.add('Brass', rbox((0, .8, L + .28), (.08, .3, .08), .02, 1))
+f.add('Brass', sphere((0, .96, L + .28), .07, (1, 1, 1), 8, 6))
+f.add('RautBlue', rbox((0, 1.2, L + .01), (.46, .46, .03), .02, 1, rot=(0, 0, math.pi / 4)), smooth=False)
+f.add('WoodDark', cyl((0, YC + rad(1.25) - .05, 1.25), (0, YC + rad(1.25) + .04, 1.25), .2, .2, 12))   # Spundloch
+for i in range(7):                                                                               # Bierschaum quillt heraus
+    a = i / 7 * 2 * math.pi
+    rr = 0 if i == 0 else .17
+    f.add('Foam', sphere((math.sin(a) * rr, YC + rad(1.25) + .1 + (.1 if i == 0 else 0), 1.25 + math.cos(a) * rr), .16 if i else .2, (1, .8, 1), 10, 6))
+for sx in (-1, 1):
+    f.add('TailLight', rbox((sx * .38, .75, -L - .01), (.22, .12, .04), .02, 1))                 # Ruecklichter am hinteren Boden
+    f.add('KartLight', sphere((sx * .42, .62, L + .02), .09, (1, 1, .4), 10, 6))                 # Laempchen vorn
+f.finish()
+
 rep = export_glb(ROOT / 'assets' / 'kartbodies.glb')
 (ROOT / 'art' / 'r56' / 'kartbodies_report.json').write_text(json.dumps(rep, indent=1), encoding='utf-8')
 print('REPORT', json.dumps(rep))
