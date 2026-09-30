@@ -6,6 +6,21 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 62 (30.09.2026): Kamerafahrt vor dem Start, Intro-Fanfare, Ampel-Pieptoene, der Luft-Loisl
+
+**Kamerafahrt ueber das Starterfeld** (Einzelrennen, Grand Prix, Zeitfahren; nicht online) - vor dem Countdown faehrt die
+Kamera tief an der Startaufstellung entlang und schaut den Fahrern ins Gesicht (Namen blenden ein), dann schwenkt sie hinter
+das eigene Kart. Jede Taste, jeder Tipp und jede Pad-Taste ueberspringt. Dazu eine **eigene Intro-Fanfare** (Chiptune,
+D-Dur, Pulswellen-Lead, Harmonie, Dreieck-Bass, Trommelwirbel und Becken); die Rennmusik setzt erst danach ein.
+
+**Ampel mit Pieptoenen** - drei kurze Toene fuer die drei roten Phasen, ein langer hoher bei Gruen (vorher nur zwei plus
+Start).
+
+**Der Luft-Loisl** (eigene Figur, `art/r62/create_loisl.py`): ein Bayer mit Schnauzer, Gamsbart-Hut und Hosentraegern im
+fliegenden Masskrug mit Propeller. Er schwebt mit der Startampel vor dem Feld (die Lampen folgen dem Countdown) und steigt
+beim Start auf, zeigt bei falscher Richtung sein Schild "FALSCHE RICHTUNG ↺" und fischt Abgestuerzte mit der Angel aus Wasser
+und Abgrund - das Kart haengt an der Schnur und wird sanft auf die Strecke gesetzt.
+
 ## Runde 61 (30.09.2026): Cups, Schoko-Matsch, Online als Standard, eigene Chiptune-Musik je Strecke, CRT-Modus, Xbox-Controller, XXL-Riesendom, 8-Bit-Geisterhaus
 
 **Online ist der Standardmodus** - erster Modus-Knopf "🌐 Online" ist vorausgewaehlt; der (blaue) Startknopf "Online los!"

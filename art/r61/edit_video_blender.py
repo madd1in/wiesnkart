@@ -7,7 +7,7 @@ Erzeugt media/r61_cups_tsunami.mp4 (1080x1920) und media/r61_cups_tsunami_small.
 import bpy, json, os, pathlib
 
 ROOT = pathlib.Path(r'C:/Users/User/Documents/Playground/mushroom-rally')
-FR = ROOT / '.scratch' / 'r61-frames'
+FR = ROOT / '.scratch' / 'r61-final'
 AU = ROOT / 'assets' / 'audio'
 R44 = ROOT / 'art' / 'r61'
 CH = AU / 'sfx' / 'chip'
@@ -49,7 +49,7 @@ placed = []
 # R61: die neuen Chiptune-Stuecke je Szene (Menue/Cups Polka, Schoko Swing, Tsunami Calypso, Riesendom Choral,
 # Geisterhaus Gothic-Barock, Eissee/Controller Walzer), 12 Bilder Ueberblendung zwischen den Stuecken
 SONG = {'Intro': 'polka', 'CUPS': 'polka', 'SCHOKO-MATSCH': 'choco', 'KAKAO-BROCKEN': 'choco', 'TSUNAMI!': 'beach', 'RIESENDOM XXL': 'dome',
-        '8-BIT-GEISTERHAUS': 'gothic8', 'EISPALAST': 'ice', 'XBOX-CONTROLLER': 'ice', 'BÖLLERSCHUSS': 'polka', 'BLAUE BREZN': 'polka'}
+        '8-BIT-GEISTERHAUS': 'gothic8', 'EISPALAST': 'ice', 'XBOX-CONTROLLER': 'ice', 'BÖLLERSCHUSS': 'polka', 'BLAUE BREZN': 'polka', 'KAMERAFAHRT': '', 'LUFT-LOISL': 'race'}
 segs = []
 for c in ev['cuts']:
     song = SONG.get(c['title'], 'race')
@@ -59,6 +59,13 @@ for c in ev['cuts']:
 LEVEL = {'polka': .55, 'choco': .5, 'beach': .55, 'dome': .5, 'gothic8': .45, 'ice': .5}
 for k, (song, f0) in enumerate(segs):
     f1 = segs[k + 1][1] if k + 1 < len(segs) else N + 12
+    if not song:   # Kamerafahrt: keine Musik, dafuer die Intro-Fanfare und die Ampel-Pieptoene des Spiels
+        A2 = ROOT / '.scratch' / 'r62-audio'
+        snd('fanfare', A2 / 'fanfare.wav', f0 / FPS + .06, .8, ch=7)
+        for j, t in enumerate((4.6, 5.6, 6.6)):
+            snd(f'beep{j}', A2 / 'beep.wav', f0 / FPS + t, .7, ch=8 + j)
+        snd('go', A2 / 'go.wav', f0 / FPS + 7.6, .8, ch=11)
+        continue
     st = snd('bgm_' + song, AU / f'bgm_{song}.mp3', max(0, f0 - 6) / FPS, LEVEL.get(song, .5), ch=3 + (k % 2))
     st.frame_final_end = min(st.frame_final_end, f1 + 8)
     v = LEVEL.get(song, .5)

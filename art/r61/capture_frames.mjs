@@ -23,9 +23,11 @@ const SCENES = [
   {k: 'play', s: 7, t: 'RIESENDOM XXL', u: 'Anti-Grav durch die Kathedralenstadt', trk: 10, d0: 'rallyTest.cp(1.55)', check: LOADED + '&&rallyTest.city()?.arches>0', opt: {pre: SINGLE, post: CALM, behind: true}},
   {k: 'play', s: 6, t: '8-BIT-GEISTERHAUS', u: 'Kandelaber zerschlagen · CRT-Look', trk: 3, d0: 'rallyTest.vox().candles[2][0]-70', check: LOADED + '&&rallyTest.vox()?.candles.length>0', opt: {pre: SINGLE + 'rallyTest.crt(true);', post: WX('dusk', 'clear', null), behind: true, off: 4.8}},
   {k: 'play', s: 4.5, t: 'EISPALAST', u: 'Eissee mit eigenen Wahrzeichen', trk: 9, d0: 'rallyTest.cp(4.95)', check: LOADED + '&&!!rallyTest.bayice()', opt: {pre: SINGLE + 'rallyTest.crt(false);', post: CALM, behind: true}},
-  {k: 'still', s: 3.4, what: 'pad', t: 'XBOX-CONTROLLER', u: 'Menü komplett per Pad'},
+  {k: 'still', part: 'pad', s: 3.4, what: 'pad', t: 'XBOX-CONTROLLER', u: 'Menü komplett per Pad'},
   {k: 'play', part: 'items', s: 5, t: 'BÖLLERSCHUSS', u: 'Als Kanonenkugel nach vorn', trk: 5, d0: 'rallyTest.cp(1.0)', check: LOADED, opt: {pre: SINGLE, post: CALM + ";rallyTest.racers()[0].item='cannon';", hook: 'rallyTest.use()', hookAt: .5}},
   {k: 'play', part: 'items', s: 5, t: 'BLAUE BREZN', u: 'Trifft die Spitze von oben', trk: 5, d0: 'rallyTest.cp(3.0)', check: LOADED, opt: {pre: SINGLE, post: CALM + ";rallyTest.racers()[0].item='blue';", hook: 'rallyTest.use()', hookAt: .4}},
+  {k: 'intro', part: 'loisl', s: 8.4, t: 'KAMERAFAHRT', u: 'Übers Starterfeld · Fanfare · Ampel', trk: 0},
+  {k: 'play', part: 'loisl', s: 4.4, t: 'LUFT-LOISL', u: 'Fischt dich aus dem Abgrund', trk: 0, d0: 'rallyTest.cp(9.0)', check: LOADED, opt: {pre: SINGLE, post: CALM, behind: true, hook: 'rallyTest.fall()', hookAt: .7}},
 ].filter(sc => PART ? sc.part === PART : !sc.part);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const freePort = () => new Promise((res, rej) => {const s = net.createServer(); s.on('error', rej); s.listen(0, '127.0.0.1', () => {const p = s.address().port; s.close(() => res(p));});});
@@ -91,7 +93,7 @@ const PAGE = String.raw`
   endCard(){g.drawImage(game,0,0,W,H);g.fillStyle='#14264ae8';g.fillRect(0,0,W,H);
    outlined('NEU',W/2,330,84,'#ffc83a',12);
    g.font=font('800',48);g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff5d9';
-   ['Online ist jetzt Standard','Cups: Brezn · Maßkrug · Lebkuchen','Neue Strecke: Schoko-Matsch','Tsunami mit Wave-Rider-Phase','Riesendom als XXL-Kathedralenstadt','8-Bit-Geisterhaus & CRT-Modus','Items: Böllerschuss & Blaue Brezn','Eigene Chiptune-Musik je Strecke','Xbox-Controller im Menü'].forEach((l,k)=>g.fillText(l,W/2,430+k*66));
+   ['Online ist jetzt Standard','Cups: Brezn · Maßkrug · Lebkuchen','Neue Strecke: Schoko-Matsch','Tsunami mit Wave-Rider-Phase','Riesendom als XXL-Kathedralenstadt','8-Bit-Geisterhaus & CRT-Modus','Items: Böllerschuss & Blaue Brezn','Kamerafahrt, Fanfare & Luft-Loisl','Eigene Chiptune-Musik je Strecke','Xbox-Controller im Menü'].forEach((l,k)=>g.fillText(l,W/2,418+k*62));
    outlined('SUPPA LEDERHOSN KARTS',W/2,1080,84,'#ffc83a',15);
    g.font=font('800',54);g.fillStyle='#fff5d9';g.fillText('madd1in.github.io/wiesnkart',W/2,1205);
    g.font=font('700',40);g.fillStyle='#7cf3ff';g.fillText('Kein Download \u00b7 l\u00e4uft im Browser',W/2,1280);
@@ -128,7 +130,7 @@ try {
   await H.evaluate(`${SINGLE}rallyTest.setTrack(0);rallyTest.start();true`);
   await waitFor(() => H.evaluate(LOADED).catch(() => false), 300000, 'late models');
   await H.evaluate('rallyTest.home();true'); await sleep(5000);
-  await H.evaluate(PAGE);
+  await H.evaluate(PART ? PAGE.replace('if(i<3.6*FPS)', 'if(false)') : PAGE);   // Teile ohne Intro-Einblendung
   await H.evaluate('document.getElementById("testPanel").style.display="none";true');
   const shot = async () => {await H.evaluate(`{const t=document.getElementById('toast');t.className='';t.textContent='';}true`); await sleep(400); return 'data:image/jpeg;base64,' + (await H.send('Page.captureScreenshot', {format: 'jpeg', quality: 92})).data;};
   const saveFrame = (n, url) => writeFileSync(path.join(FRAMES, 'f' + String(n).padStart(5, '0') + '.jpg'), Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'));
@@ -140,10 +142,19 @@ try {
       if (sc.what === 'rooms') {await H.evaluate(`document.getElementById('onlineBtn').click();true`); await sleep(2500);}
       if (sc.what === 'online') {await H.evaluate(`document.querySelector('#modes [data-mode="online"]').click();true`); await sleep(800);}
       if (sc.what === 'cups') {await H.evaluate(`document.querySelector('#modes [data-mode="gp"]').click();document.querySelector('#cups [data-cup="herz"]').click();document.getElementById('tracks').scrollIntoView({block:'center'});true`); await sleep(1500);}
-      if (sc.what === 'pad') {await H.evaluate(`document.querySelector('#modes [data-mode="online"]').click();document.getElementById('menu').scrollTop=0;document.body.classList.add('pad');const h=document.createElement('div');h.id='tvHint';h.innerHTML='🎮 Controller in Edge auf der Xbox: <b>Menü-Taste ☰ gedrückt halten</b> → „Spielsteuerung verwenden“';document.body.append(h);document.querySelector('#modes [data-mode="single"]').classList.add('padf');true`); await sleep(900);}
+      if (sc.what === 'pad') {await H.evaluate(`rallyTest.home();true`); await sleep(2500); await H.evaluate(`document.querySelector('#modes [data-mode="online"]').click();document.getElementById('menu').scrollTop=0;document.body.classList.add('pad');const h=document.createElement('div');h.id='tvHint';h.innerHTML='🎮 Controller in Edge auf der Xbox: <b>Menü-Taste ☰ gedrückt halten</b> → „Spielsteuerung verwenden“';document.body.append(h);document.querySelector('#modes [data-mode="single"]').classList.add('padf');true`); await sleep(900);}
       await H.evaluate(`R55.still(${JSON.stringify(await shot())},${JSON.stringify(sc.t)},${JSON.stringify(sc.u)})`);
       for (let i = 0; i < sc.s * FPS; i++, n++) saveFrame(n, await H.evaluate('R55.stillFrame()'));
       await H.evaluate(`document.getElementById('online').hidden=true;document.getElementById('tvHint')?.remove();document.querySelectorAll('.padf').forEach(e=>e.classList.remove('padf'));document.body.classList.remove('pad');document.querySelector('#modes [data-mode="single"]').click();true`);
+      continue;
+    }
+    if (sc.k === 'intro') {
+      await H.evaluate('R55.real()');
+      await H.evaluate(`${SINGLE}rallyTest.intro(true);rallyTest.setTrack(${sc.trk});true`); await H.evaluate('rallyTest.ready()');
+      await H.evaluate(`rallyTest.start();rallyTest.dbg.manual=true;true`);
+      await H.evaluate(`R55.place(${JSON.stringify(sc.t)},${JSON.stringify(sc.u)},0,${JSON.stringify({keep: true, noWarm: true, post: CALM, secs: sc.s})})`);
+      for (let i = 0; i < sc.s * FPS; i++, n++) saveFrame(n, await H.evaluate('R55.frame()'));
+      await H.evaluate('rallyTest.intro(false);true');
       continue;
     }
     if (sc.k === 'online') {
