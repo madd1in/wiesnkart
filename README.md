@@ -6,6 +6,22 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 67 (01.10.2026): Lebendigere Fahrer, Voxel-Deko an den Strecken, Items halten und nach hinten werfen
+
+**Fahrer** (Nutzerwunsch "grafisch an den Fahrermodellen feilen"): **Pixel-Sprechblasen** über den Köpfen – wütend nach einem
+Dreher, froh nach einem gelandeten Treffer oder beim Überholen, Schreck vor dem XXL-Stachelpanzer, Herz beim Maß Bier. Die
+Fahrer **drehen sich zum Kart neben sich** (auch zu dem, der dicht auffährt).
+
+**Strecken**: **Retro-Voxel-Deko am Rand** je Thema (`voxel.mjs` decoModel): Kakteen im Sonnen-Canyon, Schneemänner am
+Eisstock-See, Palmen in der Schildkröten-Bucht, Kürbisse im Geisterhaus, Fliegenpilze auf Pilz-Promenade und im Neon-Pilzwald,
+Maßkrüge auf Bierstraße und Magnet-Kirmes, Lollis im Schoko-Matsch – instanziert, fest verteilt, nur an freien Plätzen.
+**Reifenspuren** liegen länger, es gibt mehr davon, Farbe je Untergrund (Eis hell, Sand/Schoko braun), auch beim Dreher.
+
+**Gameplay**: **Item hinter sich halten** – Leertaste / Item-Blase / X gedrückt halten: Banane oder Fake-Block hängen hinten am
+Kart und **fangen eine Brezn von hinten ab**; loslassen legt ab (kurz tippen wie bisher, nach 10 s automatisch). **Grüne Brezn
+nach hinten werfen**: dabei Bremse (↓/S) halten – auch die KI wirft nach hinten, wenn einer dicht auffährt. Die Fahrschule
+erklärt das Halten, sobald man eine Banane hat; zwischen zwei Tipps liegen mindestens 18 s.
+
 ## Runde 66 (01.10.2026): XXL-Stachelpanzer, Voxel-Aufsätze, Glücksbrezn, Auto-Spitznamen, Fahrschule, 8-Bit-Jingles
 
 **XXL-Stachelpanzer** (Nutzerwunsch, eigener Entwurf, `voxel.mjs`): eine riesige stachelige Voxel-Kuppel rollt schlingernd die
