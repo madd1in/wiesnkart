@@ -160,3 +160,37 @@ export function dailyDone(ch, {track, cc, place, finished, stats = {}}) {
 // Rivale (R46): ein KI-Fahrer aus dem vorderen Startfeld, je Rennen neu; geschlagen, wenn man vor ihm ankommt
 export function pickRival(aiIds, rnd = Math.random) {return aiIds.length ? aiIds[Math.floor(rnd() * Math.min(3, aiIds.length))] : null;}
 export const rivalBeaten = (order, rivalId) => rivalId !== null && rivalId !== undefined && order.indexOf(0) >= 0 && order.indexOf(0) < order.indexOf(rivalId);
+
+// R66: Aufsaetze (Voxel-Kosmetik ueber dem Kart) - freigeschaltet durch Stufe, Wiesn-Serie, Online-Rennen oder den Online-Sieg
+export const TOPPERS = [
+  {id: 'none', n: 'Ohne', icon: '✖'},
+  {id: 'heart', n: 'Lebkuchenherz', icon: '💝', lvl: 3},
+  {id: 'mug', n: 'Maßkrug', icon: '🍺', streak: 3},
+  {id: 'brezn', n: 'Riesenbrezn', icon: '🥨', lvl: 6},
+  {id: 'star', n: 'Pixel-Stern', icon: '⭐', onl: 10},
+  {id: 'crown', n: 'Pixel-Krone', icon: '👑', crown: true},
+];
+export const topperById = id => TOPPERS.find(t => t.id === id) || null;
+/** me = {level, streakBest, onl, crown} */
+export function topperUnlocked(t, me = {}) {
+  if (!t) return false;
+  if (t.lvl && (me.level || 1) < t.lvl) return false;
+  if (t.streak && (me.streakBest || 0) < t.streak) return false;
+  if (t.onl && (me.onl || 0) < t.onl) return false;
+  if (t.crown && !me.crown) return false;
+  return true;
+}
+export function topperHint(t) {
+  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : '';
+}
+/** Gewaehlter Aufsatz, falls freigeschaltet; ohne Wahl traegt man die Krone, sobald man sie hat */
+export function topperFor(choice, me = {}) {
+  const t = topperById(choice);
+  if (t && topperUnlocked(t, me)) return t.id === 'none' ? null : t.id;
+  return choice == null && me.crown ? 'crown' : null;
+}
+
+// R66: Taegliche Gluecksbrezn - einmal am Tag im Menue aufbrechen, zufaellige XP (selten ein dicker Batzen)
+export const LUCKY = [{xp: 30, w: 34}, {xp: 50, w: 30}, {xp: 80, w: 20}, {xp: 120, w: 11}, {xp: 250, w: 5}];
+export function luckyReward(rnd = Math.random) {let x = rnd() * LUCKY.reduce((a, q) => a + q.w, 0); for (const q of LUCKY) if ((x -= q.w) < 0) return q.xp; return LUCKY[0].xp;}
+export const luckyReady = (lastDay, today) => lastDay !== today;

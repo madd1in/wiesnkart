@@ -11,17 +11,17 @@ import {navPick,navRepeat,isConsole} from './padnav.mjs';
 import {createDraftState,updateDraft} from './draft.mjs';
 import {WIZARD,inSection,castInterval,pickTarget,spellPos,stepSpell,spellHits} from './wizard.mjs';
 import {weatherPlan,calmPlan,weatherMix,weatherLook,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
-import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP} from './progress.mjs';
+import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady} from './progress.mjs';
 import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannonLane,missileAt} from './hazards.mjs';
 import {OW,pswitchMission,pswitchPress,pswitchCollect,pswitchTick,timeLeft,slalomMission,slalomPass,ringsMission,ringsHit,ringsLand,progressAdd} from './ow.mjs';
 import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRings} from './loop.mjs';
-import {NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_SECS,LOBBY_SOLO_SECS,LOBBY_GO_SECS,voteTally,lobbyReturnAt,battleHit,battleResult,makeCode,normCode,toLocal,toGlobal,assignSlots,packKart,unpackKart,F as NF,snapBuf,pushSnap,sampleSnap} from './net.mjs';
+import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_SECS,LOBBY_SOLO_SECS,LOBBY_GO_SECS,voteTally,lobbyReturnAt,battleHit,battleResult,makeCode,normCode,toLocal,toGlobal,assignSlots,packKart,unpackKart,F as NF,snapBuf,pushSnap,sampleSnap} from './net.mjs';
 import {LB_TOP,ttBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
 import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
-import {voxelMesh,breznModel,qBlockModel,crownModel} from './voxel.mjs';
+import {voxelMesh,breznModel,qBlockModel,crownModel,topperModel,BREZN,pixels} from './voxel.mjs';
 import {TSU,tsunamiPhase,tsunamiSurf,waveFront} from './tsunami.mjs';
 import {TIDE,tideLevel,tideFlooded,tideRising,tideDryFor,SURF,surfFront,surfHits,ICE,iceSurf,curlOff,BLOCK,blockScale,SENT,sentinelState,sentinelSpan,sentinelHits,sentinelNextHot} from './surface.mjs';
 import {CANNON_T,SHRINK_T,MEGA_T,INK_T,HOP_T,miniTurbo,flattenSmall,blastHit,comboStep,racer,driveKart,turnCurve,advanceProgress,hitKart,collideKarts,maxCornerSpeed,angleDiff,lap,finish,ranking,activate,clamp,LAPS,rollItem,chargesFor,orbitCount,orbitBlock,loseSpores,addGpPoints,gpStandings,raceStars,gpPoints,MAX_SPORES,PHYS,CLASSES} from './core.mjs';
@@ -251,7 +251,12 @@ const KART_COLORS=[{c:0xff3b30,n:'Ruby / Rot'},{c:0xffc400,n:'Sunny / Gelb'},{c:
  {c:0x2f8cff,n:'Blitz / Blau',lvl:2},{c:0xff7a1a,n:'Lava / Orange',lvl:3},{c:0x22c55e,n:'Wald / Grün',lvl:5},{c:0xff5fc8,n:'Bonbon / Pink',lvl:7},{c:0xeef1f6,n:'Diamant / Weiß',lvl:10},
  // R65: nur durch Online-Rennen (Anzahl Online-Rennen, progress.mjs ONLINE_UNLOCKS)
  {c:0x5aa9ff,n:'Wiesn Blau-Weiß',onl:1},{c:0xa0602a,n:'Lebkuchen',onl:3},{c:0xff66aa,n:'Pixel-Pink',onl:5}];
-const onlRaces=()=>store.get('prog',{}).onl||0,hasCrown=()=>!!store.get('prog',{}).crown;
+const onlRaces=()=>store.get('prog',{}).onl||0;let crownMine=null;const hasCrown=()=>crownMine??(crownMine=!!store.get('prog',{}).crown);
+// R66: Aufsatz (Voxel-Kosmetik) - gewaehlt im Menue, freigeschaltet durch Stufe, Serie, Online-Rennen, Online-Sieg
+const TOPPER_IDS=new Set(TOPPERS.map(t=>t.id).filter(id=>id!=='none'));
+const topperMe=()=>({level:progLevel(),streakBest:store.get('streak',{}).best||0,onl:onlRaces(),crown:hasCrown()});
+let topperMine;const myTopper=()=>topperMine!==undefined?topperMine:(topperMine=topperFor(store.get('topper',null),topperMe()));
+const topperOk=t=>typeof t==='string'&&TOPPER_IDS.has(t)?t:null;
 const progLevel=()=>levelOf(store.get('prog',{xp:0}).xp||0).level;
 // R47 Spiegel-Modus (ab Fahrerstufe 3): das Bild wird gespiegelt (auch Schilder, wie im grossen Vorbild), die Lenkung
 // entsprechend umgedreht - Strecken und Physik bleiben gleich. Nicht im Zeitfahren und nicht im Wiesnland.
@@ -368,7 +373,7 @@ const persistentMats=new Set([cream,dark,white,gold,shieldMat,shieldRivalMat,fla
 // ---------------------------------------------------------------- GLB-Prototypen (Blender-MCP)
 const sharedGeo=new Set([flameGeo,shieldGeo]),sharedMat=new Set(),P={};
 // R65: Retro-Voxel-Modelle aus voxel.mjs (Brezn-Trio, Fake-Block, Pixel-Krone) - Geometrie einmal gebaut, danach geteilt
-const VOX_DEF={brezn_green:()=>breznModel('green'),brezn_red:()=>breznModel('red'),qfake:()=>qBlockModel(true),qreal:()=>qBlockModel(false),crown:()=>crownModel()},VOX_SIZE={brezn_green:.1,brezn_red:.1,qfake:.19,qreal:.19,crown:.13},voxCache={};
+const VOX_DEF={brezn_green:()=>breznModel('green'),brezn_red:()=>breznModel('red'),qfake:()=>qBlockModel(true),qreal:()=>qBlockModel(false),crown:()=>crownModel(),top_heart:()=>topperModel('heart'),top_mug:()=>topperModel('mug'),top_star:()=>topperModel('star'),top_brezn:()=>topperModel('brezn'),top_crown:()=>crownModel()},VOX_SIZE={brezn_green:.1,brezn_red:.1,qfake:.19,qreal:.19,crown:.13,top_heart:.12,top_mug:.12,top_star:.12,top_brezn:.09,top_crown:.13},voxCache={};
 const voxMat=new T.MeshLambertMaterial({vertexColors:true});persistentMats.add(voxMat);
 function voxGeo(k){if(voxCache[k])return voxCache[k];const m=VOX_DEF[k](),d=voxelMesh(m.vox,m.pal,VOX_SIZE[k]),g=new T.BufferGeometry();
  g.setAttribute('position',new T.BufferAttribute(d.positions,3));g.setAttribute('normal',new T.BufferAttribute(d.normals,3));g.setAttribute('color',new T.BufferAttribute(d.colors,3));g.setIndex(new T.BufferAttribute(d.indices,1));
@@ -1201,7 +1206,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  {const lm=label('?','#ed6350','#fff9df',128,128),geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(new Float32Array(boxes.length*3),3));boxQ=new T.Points(geo,new T.PointsMaterial({map:lm.map,size:1.1,transparent:true,depthWrite:false}));boxQ.frustumCulled=false;world.add(boxQ);lm.dispose();}
  bm('boxes');}
 // Neues Rennen auf derselben Strecke: Welt bleibt stehen, nur Fahrer & Zustand werden zurueckgesetzt (kein Ruckler beim Start)
-function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();crownFx.clear();hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
+function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
  for(let i=0;i<SKIDS;i++){skids[i].life=0;skidMesh.setMatrixAt(i,_zeroM);}skidMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<SPARKS;i++){sparkPool[i].life=0;sparkMesh.setMatrixAt(i,_zeroM);}sparkMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<PUFFS;i++){puffPool[i].life=0;puffMesh.setMatrixAt(i,_zeroM);}puffMesh.instanceMatrix.needsUpdate=true;
  for(const b of boxes)b.cooldown=0;for(const s of spores)s.cd=0;for(const r of rings)r.flash=0;for(const p of pads)p.squash=0;lightState=-2;setLights(0);
  placeRacers();drawMap();}
@@ -3869,22 +3874,28 @@ function greenStep(sh,dt){let hit=null;
  sh.g.rotation.y+=dt*16;
  if(hit)shellImpact({target:hit.id,owner:sh.owner,g:sh.g});else burst({mesh:sh.g},0x8beb73,8);return true;}
 // Kreisende Brezn: drei Pixel-Brezn um jedes Kart mit Brezn-Trio im Slot; wer sie beruehrt, dreht sich (kostet eine Ladung)
-const orbitFx=new Map(),crownFx=new Map();
-// R65: Pixel-Krone (erster Online-Sieg gegen einen Menschen) schwebt ueber dem Kart - online sehen sie alle Mitspieler
-function crownTick(r,now){const want=(r.id===0?hasCrown():!!r.crown)&&!!r.mesh&&state!=='menu'&&!isTT();let c=crownFx.get(r);
- if(!want){if(c)c.visible=false;return;}if(!c||!c.parent){c=voxObj('crown');actors.add(c);crownFx.set(r,c);}
+const orbitFx=new Map(),topFx=new Map();
+// R65/R66: Aufsatz (Pixel-Krone, Lebkuchenherz ...) schwebt ueber dem Kart - online sehen ihn alle Mitspieler.
+// Offline tragen ein paar KI-Fahrer auch einen, damit man sieht, was es zu holen gibt.
+const AI_TOPS=['heart','mug','brezn','star','crown'];
+function topperTick(r,now){if(r.topper===undefined)r.topper=r.id!==0&&!(net&&net.setup)&&(r.id*7)%10<3?AI_TOPS[r.id%AI_TOPS.length]:null;
+ const id=r.id===0?myTopper():r.topper,want=!!id&&!!r.mesh&&state!=='menu'&&!isTT();let c=topFx.get(r);
+ if(c&&(!want||c.userData.top!==id)){c.visible=false;if(want){actors.remove(c);topFx.delete(r);c=null;}}
+ if(!want)return;
+ if(!c||!c.parent){c=voxObj('top_'+id);c.userData.top=id;actors.add(c);topFx.set(r,c);}
  const p=r.mesh.position;c.visible=r.mesh.visible;c.position.set(p.x,p.y+3.1+Math.sin(now*3+r.id)*.12,p.z);c.rotation.y=now*1.4;}
 function updateOrbits(dt){const now=performance.now()*.001;
- for(const r of racers){crownTick(r,now);let n=r.net?(r.netOrbit||0):orbitCount(r);const k=r.net?r.netOrbitK:r.item;if(state!=='race'&&state!=='countdown'&&state!=='paused')n=0;
+ for(const r of racers){topperTick(r,now);let n=r.net?(r.netOrbit||0):orbitCount(r);const k=r.net?r.netOrbitK:r.item;if(state!=='race'&&state!=='countdown'&&state!=='paused')n=0;
   let fx=orbitFx.get(r);if(!n){if(fx)fx.g.visible=false;continue;}
   if(!fx||!fx.g.parent||fx.kind!==k){if(fx)actors.remove(fx.g);const g=new T.Group(),balls=[0,1,2].map(()=>{const m=voxObj(k==='red3'?'brezn_red':'brezn_green');g.add(m);return m;});actors.add(g);fx={g,balls,kind:k};orbitFx.set(r,fx);}
   const p=r.mesh.position;fx.g.visible=true;fx.g.position.set(p.x,p.y+.75,p.z);
   for(let i=0;i<3;i++){const b=fx.balls[i],a=now*5.2+i*TAU/3;b.visible=i<n;b.position.set(Math.sin(a)*1.9,Math.sin(now*9+i)*.12,Math.cos(a)*1.9);b.rotation.y=-a;}
-  if(r.net||!n||r.stun>0)continue;
-  // Beruehrung: anderes Kart in Reichweite einer Brezn (lokale Karts; Online-Gegner werden bei sich selbst geprueft)
-  for(const o of racers){if(o===r||o.finishTime!==null||o.out||o.stun>0||(o.orbitCd||0)>elapsed)continue;const dx=o.x-r.x,dz=o.z-r.z;if(dx*dx+dz*dz>7.5||Math.abs((o.y||0)-(r.y||0))>1.5)continue;
+  if(!n||r.stun>0)continue;
+  // Beruehrung: jedes Kart prueft nur Karts, die auf diesem Rechner gefahren werden (online prueft jeder seine eigenen -
+  // auch gegen die kreisenden Brezn der Mitspieler, deren Anzahl ueber die Kart-Flags mitkommt)
+  for(const o of racers){if(o===r||o.net||o.finishTime!==null||o.out||o.stun>0||(o.orbitCd||0)>elapsed)continue;const dx=o.x-r.x,dz=o.z-r.z;if(dx*dx+dz*dz>7.5||Math.abs((o.y||0)-(r.y||0))>1.5)continue;
    let near=false;for(let i=0;i<n;i++){const a=now*5.2+i*TAU/3,bx=r.x+Math.sin(a)*1.9-o.x,bz=r.z+Math.cos(a)*1.9-o.z;if(bx*bx+bz*bz<1.7){near=true;break;}}if(!near)continue;
-   o.orbitCd=elapsed+.8;orbitBlock(r);if(o.net)continue;
+   o.orbitCd=elapsed+.8;if(r.net)r.netOrbit=Math.max(0,n-1);else orbitBlock(r);
    if(o.shield>0){burst(o,0xffe263,10);continue;}if(orbitBlock(o)){burst(o,0x8beb73,10);continue;}
    hitKart(o,1.2,.4);spinOut(o,2,1.1);hitSpores(o);o.lastHitBy=r.id;o.lastHitT=elapsed;burst(o,k==='red3'?0xff6a5a:0x8beb73,14);
    if(o.id===0){stats.hitsTaken++;say('ouch');toast('BREZN-KLATSCHER!',1,'bad');shake=.35;SFX.hit();}else if(r.id===0){stats.hitsDealt++;toast('KLATSCH! 🥨',.9,'good');SFX.hit(.8);}}}}
@@ -4268,10 +4279,11 @@ function end(){document.body.classList.remove('mirror');elapsed=racers[0].finish
  if(rivalId!==null){stats.rivalBeaten=rivalBeaten(order.map(r=>r.id),rivalId);$('resultStats').insertAdjacentHTML('beforeend',`<div class="rival ${stats.rivalBeaten?'won':'lost'}"><span>⚔ Rivale ${racers[rivalId].name}</span><b>${stats.rivalBeaten?'GESCHLAGEN ✓':'vor dir'}</b></div>`);}
  {const ch=dailyChallenge(dayKey());if(!worldMode&&store.get('dailyDone','')!==ch.day&&dailyDone(ch,{track:selected,cc,place,finished:true,stats})){stats.daily=true;store.set('dailyDone',ch.day);dailyShown=null;setTimeout(()=>toast(`📅 TAGESAUFGABE GESCHAFFT! +${DAILY_XP} XP`,2,'good'),600);}}
  const onl=!!(net&&net.setup&&!worldMode),humansBeaten=onl&&net.humans?order.slice(place).filter(r=>r.id!==0&&net.humans.has(toGlobal(r.id,net.mySlot))).length:0,onlFirst=onl&&store.get('onlDay','')!==dayKey();if(onlFirst)store.set('onlDay',dayKey());
- const onl0=onlRaces(),crown0=hasCrown(),yday=dayKey(new Date(Date.now()-864e5)),stk=streakUpdate(store.get('streak',{}),dayKey(),yday);store.set('streak',{last:stk.last,days:stk.days,best:stk.best});
+ const topOpen0=new Set(TOPPERS.filter(t=>topperUnlocked(t,topperMe())).map(t=>t.id)),onl0=onlRaces(),crown0=hasCrown(),yday=dayKey(new Date(Date.now()-864e5)),stk=streakUpdate(store.get('streak',{}),dayKey(),yday);store.set('streak',{last:stk.last,days:stk.days,best:stk.best});
  showProgress(recordRace(store.get('prog',{xp:0,ach:[],done:[],won:[]}),{track:selected,cc,place,finished:true,stats:{...stats},mirror:raceMirror,assist:raceAssist,online:onl,humansBeaten,onlineFirst:onlFirst,streakDays:stk.fresh?stk.days:0}));
  if(stk.fresh&&stk.days>1)setTimeout(()=>toast(`🔥 WIESN-SERIE: ${stk.days} TAGE! +${streakXP(stk.days)} XP`,2,'good'),300);
- if(onl){const u=ONLINE_UNLOCKS.find(q=>q.n>onl0&&q.n<=onlRaces());if(u)setTimeout(()=>toast('🌐 FREIGESCHALTET: '+u.what,2.4,'good'),1400);if(onlFirst)setTimeout(()=>{toast(`🌐 ERSTES ONLINE-RENNEN HEUTE: +${ONLINE_DAILY_XP} XP`,2,'good');SFX.bonus();},500);if(!crown0&&hasCrown()){racers[0].crown=true;setTimeout(()=>{toast('👑 PIXEL-KRONE! Alle sehen sie ab jetzt über deinem Kart',2.6,'good');SFX.crown();},2200);}}
+ crownMine=null;topperMine=undefined;{const fresh=TOPPERS.filter(t=>!topOpen0.has(t.id)&&topperUnlocked(t,topperMe()));fresh.forEach((t,i)=>setTimeout(()=>{toast(`🎁 NEUER AUFSATZ: ${t.icon} ${t.n}`,2.4,'good');SFX.bonus();},2600+i*1400));if(fresh.length)menuToppers();}
+ if(onl){const u=ONLINE_UNLOCKS.find(q=>q.n>onl0&&q.n<=onlRaces());if(u)setTimeout(()=>toast('🌐 FREIGESCHALTET: '+u.what,2.4,'good'),1400);if(onlFirst)setTimeout(()=>{toast(`🌐 ERSTES ONLINE-RENNEN HEUTE: +${ONLINE_DAILY_XP} XP`,2,'good');SFX.bonus();},500);crownMine=null;if(!crown0&&hasCrown()){racers[0].crown=true;setTimeout(()=>{toast('👑 PIXEL-KRONE! Alle sehen sie ab jetzt über deinem Kart',2.6,'good');SFX.crown();},2200);}}
  if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=gpPoints(i,order.length));addGpPoints(gp.points,order);$('resultEyebrow').textContent=`${gpName().toUpperCase()} ${ccName(cc).toUpperCase()} · RENNEN ${gp.race+1} / ${gpN()}`;
   gpStandings(gp.points,racers.map(r=>r.id)).forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${racers[id].name}</span><span class="gain">+${gained[id]}</span><span>${gp.points[id]} P</span>`;board.append(li);});
   $('again').textContent=gp.race<gpN()-1?'Nächstes Rennen →':'Zur Siegerehrung 🏆';if(gp.race<gpN()-1)say('gpnext');}
@@ -4699,9 +4711,30 @@ $('mirrorBtn').onclick=()=>{if(progLevel()<MIRROR_LVL){toast(`🔒 Spiegel-Modus
 $('start').onclick=()=>{if(mode==='online'){openOnline();$('onQuick')?.click();return;}gp=newGp(mode==='gp');start();};
 // R65: einfaches Startmenue (Nutzerwunsch "Menue am Anfang zu abschreckend"): Online, Schnelles Rennen, Fahrer, Tagesaufgabe -
 // alles andere hinter "Alle Modi". Wer das volle Menue aufmacht, bekommt es beim naechsten Mal wieder (merkt sich das Spiel).
+// R66: Aufsatz-Wahl im Menue (Fahrer-Karte): gesperrte zeigen, womit man sie bekommt
+function menuToppers(){const box=$('toppers');if(!box)return;const me=topperMe(),cur=myTopper()||'none';box.replaceChildren();
+ for(const t of TOPPERS){const ok=topperUnlocked(t,me),b=document.createElement('button');b.type='button';b.className='top'+(ok?'':' locked')+(t.id===cur?' selected':'');b.textContent=t.icon;
+  b.title=ok?t.n:`${t.n} – ${topperHint(t)}`;b.setAttribute('aria-label',b.title);b.setAttribute('aria-pressed',String(t.id===cur));
+  b.onclick=()=>{if(!ok){toast(`🔒 ${t.n}: ${topperHint(t)}`,1.8);SFX.wrong();return;}store.set('topper',t.id);topperMine=undefined;SFX.select();toast(t.id==='none'?'Ohne Aufsatz':`${t.icon} ${t.n} – schwebt über deinem Kart`,1.4);menuToppers();};
+  box.append(b);}}
+menuToppers();
+// R66: Taegliche Gluecksbrezn - Pixel-Brezn im einfachen Menue, einmal am Tag aufbrechen
+function pixelCanvas(rows,pal,px=4){const w=Math.max(...rows.map(r=>r.length)),c=document.createElement('canvas');c.width=w*px;c.height=rows.length*px;const q=c.getContext('2d');
+ for(const [x,y,col] of pixels(rows,pal)){q.fillStyle='#'+col.toString(16).padStart(6,'0');q.fillRect(x*px,y*px,px,px);}return c;}
+function luckyRefresh(){const b=$('lucky');if(!b)return;const ready=luckyReady(store.get('luckyDay',''),dayKey());b.hidden=!ready;
+ if(ready&&!b.querySelector('canvas'))b.prepend(pixelCanvas(BREZN,{B:0xc07a34,s:0xffffff},4));}
+function luckyOpen(){const b=$('lucky');if(!luckyReady(store.get('luckyDay',''),dayKey()))return;store.set('luckyDay',dayKey());
+ const xp=luckyReward(),pr=store.get('prog',{xp:0,ach:[],done:[],won:[]}),l0=levelOf(pr.xp||0).level;pr.xp=(pr.xp||0)+xp;store.set('prog',pr);const l1=levelOf(pr.xp).level;
+ b.classList.add('open');SFX.bonus();const r=b.getBoundingClientRect();
+ for(let i=0;i<18;i++){const d=document.createElement('i');d.className='lucky-px';const a=i/18*TAU;d.style.left=(r.left+r.width*.18)+'px';d.style.top=(r.top+r.height/2)+'px';
+  d.style.setProperty('--dx',Math.cos(a)*(60+Math.random()*50)+'px');d.style.setProperty('--dy',Math.sin(a)*(40+Math.random()*40)-30+'px');d.style.background=['#ffd23a','#c07a34','#ffffff','#3cc85a','#e8352e'][i%5];document.body.append(d);setTimeout(()=>d.remove(),950);}
+ toast(`🥨 GLÜCKSBREZN: +${xp} XP${xp>=250?' – JACKPOT!':''}`,2.2,'good');
+ if(l1>l0)setTimeout(()=>{toast(`⬆ FAHRERSTUFE ${l1}!`,2,'good');playClip('s_c_levelup',sfxGain,.9);},1200);
+ topperMine=undefined;setTimeout(()=>{b.classList.remove('open');refreshMenu();luckyRefresh();},900);}
+$('lucky').onclick=luckyOpen;luckyRefresh();
 function menuSimple(on){document.body.classList.toggle('menu-simple',on);store.set('menuFull',!on);quickRefresh();}
 function pickMode(m){const b=document.querySelector(`#modes .mode[data-mode="${m}"]`);if(b&&mode!==m)b.click();}
-function quickRefresh(){const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
+function quickRefresh(){menuToppers();luckyRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
  const onl=onlRaces(),nx=onlineNext(onl),first=store.get('onlDay','')!==dayKey();
  setText('qOnlineBadge',first?`+${ONLINE_DAILY_XP} XP heute`:`×${ONLINE_MUL} XP`);
  {const st=store.get('streak',{}),y=dayKey(new Date(Date.now()-864e5)),d=streakIfToday(st,dayKey(),y);setText('qStreak',st.last===dayKey()?`🔥 Wiesn-Serie: ${st.days} ${st.days===1?'Tag':'Tage'} – morgen wieder fahren!`:`🔥 Erstes Rennen heute: +${streakXP(d)} XP${d>1?` (Serie Tag ${d})`:''}`);}
@@ -5119,16 +5152,16 @@ async function netOpen(code,host,quick,pub){netLeave(true);netMsg('Verbinde …'
  let room;try{room=TR.joinRoom(strat==='nostr'?{appId:NET_APP,relayConfig:{urls:netRelays(),warnOnRelayFailure:false}}:{appId:NET_APP},'wk-'+code);}catch(e){netMsg('Verbindung fehlgeschlagen.');return;}
  const A={};for(const k of ['hello','lobby','setup','ready','go','st','item','bt','humans','chat','vote','lob'])A[k]=room.makeAction(k);
  net={room,A,code,host,pub:pub||null,selfId:TR.selfId,mySlot:host?0:-1,peers:new Map(),slots:new Map(),hostId:host?TR.selfId:null,lobby:null,setup:null,humans:new Map(),go:false,readySent:false,ready:new Set(),bufs:new Map(),sendT:0,goT:0,what:'world',track:0,humFinT:{},cycle:false,waiting:false,lobS:null,lobT:null};
- const hello=()=>({n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0,v:NET_VER});
+ const hello=()=>({n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0,t:myTopper(),v:NET_VER});
  room.onPeerJoin=id=>{if(!net)return;A.hello.send(hello(),{target:id}).catch(()=>{});if(net.host)netLobby();};
  room.onPeerLeave=id=>netPeerLeft(id);
  A.hello.onMessage=(d,{peerId})=>{if(!net||!d||typeof d!=='object')return;if(d.v!==NET_VER){if(net.host)netMsg('Ein Gast hat eine andere Spielversion – bitte neu laden.');return;}
-  const known=net.peers.has(peerId);net.peers.set(peerId,{n:cleanName(d.n)||'Gast',d:clampInt(d.d,0,DRIVERS.length-1),c:clampInt(d.c,0,KART_COLORS.length-1),k:d.k?1:0});if(!known)chatSys(`👋 ${cleanName(d.n)||'Gast'} ist dabei`);if(net.host){netLobby();netDropIn(peerId);}netRenderLobby();};
+  const known=net.peers.has(peerId);net.peers.set(peerId,{n:cleanName(d.n)||'Gast',d:clampInt(d.d,0,DRIVERS.length-1),c:clampInt(d.c,0,KART_COLORS.length-1),k:d.k?1:0,t:topperOk(d.t)});if(!known)chatSys(`👋 ${cleanName(d.n)||'Gast'} ist dabei`);if(net.host){netLobby();netDropIn(peerId);}netRenderLobby();};
  A.lobby.onMessage=(d,{peerId})=>{if(!net||!d||!Array.isArray(d.p))return;
   // Zwei Hosts im selben Raum (Schnell-online, beide starteten mit Bots): die kleinere Kennung bleibt Host, der andere
   // wechselt ohne neue Verbindung zum Gast und laesst sich per erneutem Hallo in die laufende Runde setzen
   if(net.host){if(String(peerId)<String(net.selfId)){net.host=false;net.hostId=peerId;net.slots=new Map();toast('Offene Runde gefunden – du steigst ein',1.6,'good');
-    net.A.hello.send({n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0,v:NET_VER},{target:peerId}).catch(()=>{});}else return;}
+    net.A.hello.send({n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0,t:myTopper(),v:NET_VER},{target:peerId}).catch(()=>{});}else return;}
   if(net.quickT){clearTimeout(net.quickT);net.quickT=0;}net.hostId=peerId;
   net.lobby={p:d.p.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1)})),w:d.w==='race'?'race':'world',t:clampInt(d.t,0,courses.length-1),cc:[50,100,150].includes(d.cc)?d.cc:100};
   net.lobby.st=d.st==='race'||d.st==='world'?d.st:'menu';
@@ -5161,7 +5194,7 @@ function netLeave(silent){if(!net)return;if(net.quickT)clearTimeout(net.quickT);
  try{const u=new URL(location.href);u.searchParams.delete('room');history.replaceState(null,'',u.toString());}catch{}
  if(!silent)netMsg('');netRenderLobby();}
 function netLobby(){if(!net?.host)return;net.slots=assignSlots([...net.peers.keys()],net.slots);
- const p=[{id:net.selfId,s:0,n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0}];for(const [id,s] of net.slots){const q=net.peers.get(id);if(q)p.push({id,s,n:q.n,d:q.d,c:q.c,k:q.k?1:0});}
+ const p=[{id:net.selfId,s:0,n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0,t:myTopper()}];for(const [id,s] of net.slots){const q=net.peers.get(id);if(q)p.push({id,s,n:q.n,d:q.d,c:q.c,k:q.k?1:0,t:q.t||null});}
  net.lobby={p,w:net.what,t:net.track,cc,st:net.setup?(net.setup.w?'world':'race'):'menu'};net.A.lobby.send(net.lobby).catch(()=>{});netRenderLobby();}
 function netHostGo(){if(!net?.host)return;netLobby();const L=net.lobby,world=L.w!=='race';
  net.cycle=L.w!=='battle';const setup={w:world?1:0,b:L.w==='battle'?1:L.w==='world'?2:0,lob:L.w==='world'?1:0,cyc:net.cycle?1:0,n:world?8:FIELD_MAX,t:L.t,cc:L.cc,wx:(Math.random()*4294967296)>>>0,p:L.p,k:Date.now()};
@@ -5209,7 +5242,7 @@ function netRecvState(d,peerId){if(!net?.setup||!Array.isArray(d))return;const n
   const id=toLocal(s.slot,net.mySlot);let b=net.bufs.get(id);if(!b)net.bufs.set(id,b=snapBuf());pushSnap(b,now,s);}}
 function netDrive(r,dt){const b=net?.bufs.get(r.id),s=b&&sampleSnap(b,performance.now()-INTERP_MS);
  if(s){r.x=s.x;r.y=s.y;r.z=s.z;r.h=s.h;r.speed=s.speed;r.vx=Math.sin(s.h)*s.speed;r.vz=Math.cos(s.h)*s.speed;r.distance=s.distance;r.offset=s.offset;const f=s.flags;
-  r.driftDir=f&NF.drift?(f&NF.driftR?1:-1):0;r.boost=f&NF.boost?.25:0;r.air=!!(f&NF.air);r.stun=f&NF.stun?.25:0;r.shield=f&NF.shield?1:0;r.mega=f&NF.mega?1:0;r.shrink=f&NF.shrink?1:0;r.braking=!!(f&NF.brake);
+  r.driftDir=f&NF.drift?(f&NF.driftR?1:-1):0;r.boost=f&NF.boost?.25:0;r.air=!!(f&NF.air);r.stun=f&NF.stun?.25:0;r.shield=f&NF.shield?1:0;r.mega=f&NF.mega?1:0;r.shrink=f&NF.shrink?1:0;r.braking=!!(f&NF.brake);{const o=orbitOf(f);r.netOrbit=o.n;r.netOrbitK=o.red?'red3':'green3';}
   if(s.fin!==null&&r.finishTime===null&&!worldMode)r.finishTime=s.fin;r.mesh.visible=true;
   if(battle&&s.hearts!==null&&s.hearts!==r.hearts){const lost=r.hearts>s.hearts;r.hearts=s.hearts;r.out=s.hearts===0;heartTag(r);if(lost)heartPop(r);}
   else if(battle&&battle.open&&s.hearts===null&&r.hearts!==undefined){r.hearts=undefined;r.out=false;heartTag(r);}}
@@ -5245,9 +5278,9 @@ function netDropIn(peerId){const S=net.setup;if(!S||(state!=='race'&&state!=='co
   take={d:+r.distance.toFixed(2),o:+r.offset.toFixed(2),h:+r.h.toFixed(3),sp:+Math.max(0,r.speed).toFixed(2),el:+elapsed.toFixed(2),st:state==='race'?1:0};}
  net.A.setup.send({...S,late:1,take},{target:peerId}).catch(()=>{});}
 // Wer faehrt welchen Platz (nach Ein- und Ausstiegen): Namensschilder und Besitz der Karts nachziehen
-function netHumans(list){const p=list.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1),k:q.k?1:0}));
+function netHumans(list){const p=list.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1),k:q.k?1:0,t:topperOk(q.t)}));
  net.setup.p=p;net.humans=new Map(p.map(q=>[q.s,q]));
- for(const r of racers){if(r.id===0)continue;const g=toGlobal(r.id,net.mySlot),h=net.humans.get(g);r.net=!!h||!net.host;r.crown=!!h?.k;r.name=h?h.n:(AI_NAMES[g]||'Bot');netTag(r,h?h.n:'');}}
+ for(const r of racers){if(r.id===0)continue;const g=toGlobal(r.id,net.mySlot),h=net.humans.get(g);r.net=!!h||!net.host;r.topper=h?(h.t||(h.k?'crown':null)):null;r.name=h?h.n:(AI_NAMES[g]||'Bot');netTag(r,h?h.n:'');}}
 // ---------------------------------------------------------------- R55 Herzerl-Schlacht (Wiesnland online, auch mit Bots)
 // Jedes Kart traegt drei Lebkuchenherzen; schwere Treffer (Items, Stampfer, Blitz ...) kosten eins, wer keine mehr hat,
 // faehrt als Zuschauer weiter. Es gewinnt, wer zuletzt noch Herzen hat - nach 3 Minuten, wer die meisten hat.
@@ -5369,7 +5402,7 @@ function arenaPlace(){const A=arenaOn()&&course._arena;if(!A)return;let k=0;cons
 function arenaWall(r){const A=course._arena,dx=r.x-A.x,dz=r.z-A.z,d=Math.hypot(dx,dz),lim=A.r-.8;if(d<=lim)return;
  const nx=dx/d,nz=dz/d;r.x=A.x+nx*lim;r.z=A.z+nz*lim;const vn=r.vx*nx+r.vz*nz;if(vn>0){r.vx-=nx*vn*1.4;r.vz-=nz*vn*1.4;if(r.id===0&&vn>6)SFX.bump(clamp(vn/25,.2,.7));}}
 // R58: in der Arena nur Angriffs-Items (Such-Brezn, Pilzbombe, Banane als Falle, Riesenwuchs) - kein Turbo, kein Mass Bier
-function arenaRoll(){const pool=['shell','shell','shell','shell','bomb','bomb','bomb','banana','banana','mega'];return pool[Math.floor(Math.random()*pool.length)];}
+function arenaRoll(){const pool=['shell','shell','shell','red3','green3','green3','bomb','bomb','bomb','banana','fake','mega'];return pool[Math.floor(Math.random()*pool.length)];}
 function arenaPickup(r){const A=course._arena;for(const b of A.boxes){if(b.cool>0)continue;const dx=r.x-b.x,dz=r.z-b.z;if(dx*dx+dz*dz>5.8)continue;
   b.cool=5;b.g.visible=false;burst({mesh:b.g},0xffd452,12);if(r.item||r.itemPending)continue;
   if(r.id===0){r.itemPending=true;roulette={t:.8,tick:0,final:arenaRoll()};SFX.pickup();}else{r.item=arenaRoll();r.charges=chargesFor(r.item);r.cooldown=.6+Math.random()*1.4;}}}

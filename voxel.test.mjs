@@ -28,3 +28,9 @@ test('voxel: Modelle bauen sich, Fake-Block traegt das kopfstehende Fragezeichen
   const hollow = qBlockModel(false, 9);
   assert.ok(!hollow.vox.has('4,4,-4'), 'innen hohl');
 });
+
+test('R66: Aufsatz-Modelle bauen sich', async () => {
+  const {topperModel} = await import('./voxel.mjs');
+  for (const id of ['heart', 'mug', 'star', 'brezn', 'crown']) {const m = topperModel(id); assert.ok(m, id); assert.ok(voxelMesh(m.vox, m.pal, .1).indices.length > 0, id);}
+  assert.equal(topperModel('none'), null);
+});

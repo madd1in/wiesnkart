@@ -1601,3 +1601,30 @@ body.menu-simple .menu-title{font-size:clamp(26px,6.5vw,40px)}
  .q-more{padding:6px 10px;font-size:12px}
  body.menu-simple #menu .menu-meta{display:none}
 }
+/* R66: Aufsatz-Wahl (Voxel-Kosmetik) in der Fahrer-Karte */
+#menu .top-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+#menu .top-row>small{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:10px;letter-spacing:1px;color:#14264a99}
+#menu #toppers{display:flex;gap:5px;flex-wrap:wrap}
+#menu #toppers button{width:34px;height:34px;margin:0;padding:0;border-radius:10px;border:2px solid #14264a33;background:#fff;font-size:17px;line-height:1;cursor:pointer;position:relative}
+#menu #toppers button.selected{border-color:var(--wk-ink);background:var(--wk-yellow);box-shadow:0 3px 0 var(--wk-ink)}
+#menu #toppers button.locked{filter:grayscale(1);opacity:.45}
+#menu #toppers button.locked:after{content:'🔒';position:absolute;right:-4px;bottom:-5px;font-size:10px;filter:none}
+body.menu-simple #menu .top-row{justify-content:center}
+@media (max-height:520px){#menu #toppers button{width:28px;height:28px;font-size:14px}#menu .top-row{margin-top:5px}}
+/* R66: Gluecksbrezn des Tages (Pixel-Brezn aus voxel.mjs, 2D gezeichnet) */
+.lucky{display:flex;align-items:center;gap:12px;margin:0;padding:8px 14px;border-radius:16px;border:2.5px solid var(--wk-ink);background:linear-gradient(100deg,#fff4c9,#ffe08a);color:var(--wk-ink);
+ box-shadow:0 4px 0 var(--wk-ink);cursor:pointer;text-align:left;animation:luckyWob 2.4s ease-in-out infinite}
+.lucky[hidden]{display:none}
+.lucky canvas{image-rendering:pixelated;width:60px;height:40px;flex:none;filter:drop-shadow(0 2px 0 #0004)}
+.lucky span{display:flex;flex-direction:column}
+.lucky b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:16px}
+.lucky small{font-weight:700;font-size:11.5px;color:#14264ab0}
+.lucky.open{animation:luckyPop .8s ease-out}
+.lucky.padf,.lucky:hover{transform:translateY(-2px)}
+@keyframes luckyWob{0%,86%,100%{transform:rotate(0)}89%{transform:rotate(-2.5deg)}92%{transform:rotate(2.5deg)}95%{transform:rotate(-1.5deg)}}
+@keyframes luckyPop{0%{transform:scale(1)}30%{transform:scale(1.08) rotate(-3deg)}60%{transform:scale(.96) rotate(2deg)}100%{transform:scale(1);opacity:.4}}
+.lucky-px{position:fixed;width:8px;height:8px;z-index:60;pointer-events:none;animation:luckyPx .9s cubic-bezier(.2,.7,.3,1) forwards;box-shadow:0 0 0 1px #14264a}
+@keyframes luckyPx{to{transform:translate(var(--dx),var(--dy)) rotate(90deg);opacity:0}}
+@media (max-height:520px){.lucky{grid-column:1/-1;padding:5px 10px}.lucky canvas{width:45px;height:30px}.lucky b{font-size:13px}.lucky small{font-size:10px}}
+/* R66: Hinweise (Gluecksbrezn, Aufsatz, gesperrt) auch im Menue ueber der Karte */
+body:not(.racing) #toast{z-index:70;top:auto;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:22px;-webkit-text-stroke:5px var(--wk-ink);max-width:92vw;white-space:normal;text-align:center}

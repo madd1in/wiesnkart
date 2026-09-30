@@ -54,7 +54,7 @@ export function voxelMesh(vox, palette, size = .2, {center = true, ground = fals
 
 // ---------------------------------------------------------------- Modelle (eigene Pixel-Entwuerfe)
 // Brezn als 15x10-Pixelknoten: zwei Schlaufen oben, gekreuzte Arme, dicker Bauch unten, Salzkoerner hell
-const BREZN = [
+export const BREZN = [
   '..BBBB...BBBB..',
   '.BBssBB.BBssBB.',
   'BB...BBBBB...BB',
@@ -100,3 +100,50 @@ const CROWN = [
   'YYYYYYYYY',
 ];
 export function crownModel() {return {vox: voxels(extrude(CROWN, 2, 'D')), pal: {Y: 0xffd23a, D: 0xc8901a, R: 0xe8352e, B: 0x3d7bff}};}
+
+// ---------------------------------------------------------------- R66: Aufsaetze (Kosmetik, schweben ueber dem Kart)
+const HEART = [
+  '..WWW.WWW..',
+  '.WbbbWbbbW.',
+  'WbbpbbbpbbW',
+  'WbbbbbbbbbW',
+  '.WbbbpbbbW.',
+  '..WbbbbbW..',
+  '...WbbbW...',
+  '....WbW....',
+  '.....W.....',
+];
+const MUG = [
+  '.FFFFF...',
+  'FFFFFFF..',
+  'GFFFFFG..',
+  'GYYYYYGHH',
+  'GYYYYYG.H',
+  'GYYYYYG.H',
+  'GYYYYYGHH',
+  'GYYYYYG..',
+  'GGGGGGG..',
+];
+const STAR = [
+  '....Y....',
+  '....Y....',
+  '...YYY...',
+  'YYYYYYYYY',
+  '.YYYOYYY.',
+  '..YYYYY..',
+  '..YYYYY..',
+  '.YY...YY.',
+  '.Y.....Y.',
+];
+/** Aufsatz-Modelle: Lebkuchenherz, Masskrug, Pixel-Stern, Riesenbrezn (braun), Pixel-Krone */
+export function topperModel(id) {
+  if (id === 'heart') return {vox: voxels(extrude(HEART, 2, 'b')), pal: {W: 0xfff0f4, b: 0x9a5a2a, p: 0xff5fa8}};
+  if (id === 'mug') return {vox: voxels(extrude(MUG, 3)), pal: {F: 0xfffdf2, G: 0xcfe6f0, Y: 0xf5b31a, H: 0xb8d4e0}};
+  if (id === 'star') return {vox: voxels(extrude(STAR, 2)), pal: {Y: 0xffd23a, O: 0xff8a1a}};
+  if (id === 'brezn') {const m = breznModel('green'); return {vox: m.vox, pal: {O: 0x6a3a14, B: 0xb8702e, s: 0xffffff}};}
+  if (id === 'crown') return crownModel();
+  return null;
+}
+
+/** Pixel-Bild (2D) aus ASCII-Zeilen, z. B. fuer Menue-Knoepfe: liefert [x, y, Farbe] je Pixel */
+export function pixels(rows, pal) {const out = []; rows.forEach((r, y) => {for (let x = 0; x < r.length; x++) {const c = pal[r[x]]; if (c !== undefined) out.push([x, y, c]);}}); return out;}

@@ -128,3 +128,22 @@ test('R65: Wiesn-Serie zaehlt aufeinanderfolgende Tage, Bonus nur beim ersten Re
   const a = raceXP({place: 4, cc: 50, stats: {}}), b = raceXP({place: 4, cc: 50, stats: {}, streakDays: 2});
   assert.equal(b.total - a.total, 2 * STREAK_XP);
 });
+
+test('R66: Aufsaetze schalten sich frei, ohne Wahl gibt es die Krone', async () => {
+  const {TOPPERS, topperById, topperUnlocked, topperFor, topperHint} = await import('./progress.mjs');
+  assert.equal(TOPPERS[0].id, 'none');
+  assert.ok(!topperUnlocked(topperById('heart'), {level: 2})); assert.ok(topperUnlocked(topperById('heart'), {level: 3}));
+  assert.ok(!topperUnlocked(topperById('mug'), {streakBest: 2})); assert.ok(topperUnlocked(topperById('mug'), {streakBest: 3}));
+  assert.ok(topperUnlocked(topperById('star'), {onl: 10})); assert.ok(!topperUnlocked(topperById('crown'), {}));
+  assert.equal(topperFor(null, {crown: true}), 'crown'); assert.equal(topperFor(null, {}), null);
+  assert.equal(topperFor('none', {crown: true}), null); assert.equal(topperFor('heart', {level: 1}), null); assert.equal(topperFor('heart', {level: 5}), 'heart');
+  for (const t of TOPPERS.slice(1)) assert.ok(topperHint(t).length > 5);
+});
+
+test('R66: Gluecksbrezn einmal am Tag, Belohnung aus der Tabelle', async () => {
+  const {LUCKY, luckyReward, luckyReady} = await import('./progress.mjs');
+  assert.equal(luckyReward(() => 0), 30); assert.equal(luckyReward(() => .9999), 250);
+  const seen = new Set(); let seq = 1; for (let i = 0; i < 400; i++) seen.add(luckyReward(() => ((seq = seq * 16807 % 2147483647) / 2147483647)));
+  assert.deepEqual([...seen].sort((a, b) => a - b), LUCKY.map(q => q.xp));
+  assert.ok(luckyReady('2026-09-30', '2026-10-01')); assert.ok(!luckyReady('2026-10-01', '2026-10-01'));
+});
