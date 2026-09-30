@@ -94,12 +94,16 @@ export function activate(r,all){const item=r.item;if(!item)return null;r.item=nu
  if(item==='mega'){r.mega=MEGA_T;r.shield=Math.max(r.shield,MEGA_T);r.boost=Math.max(r.boost,.8);}
  // R47 Tintenpilz: alle, die vorne liegen, bekommen Tinte (Sicht bzw. Linie gestoert); das Schild haelt sie ab
  if(item==='ink'){const hit=all.filter(a=>a.id!==r.id&&a.distance>r.distance&&a.finishTime===null&&!(a.shield>0));for(const a of hit)a.ink=INK_T;return {type:item,targets:hit.map(a=>a.id)};}
+ // R61 Boellerschuss (eigene Version eines Kanonen-Turbos): als eiserne Kugel ein Stueck automatisch vorwaerts, unverwundbar
+ if(item==='cannon'){r.cannon=CANNON_T;r.shield=Math.max(r.shield,CANNON_T);r.boost=Math.max(r.boost,CANNON_T);}
+ // R61 Blaue Brezn: fliegt ueber das Feld zum Fuehrenden (nie zu sich selbst) und schlaegt mit Druckwelle ein
+ if(item==='blue'){const lead=all.filter(a=>a.id!==r.id&&a.finishTime===null).sort((a,b)=>b.distance-a.distance)[0];return {type:item,target:lead?.id};}
  if(item==='shell'){const ahead=all.filter(a=>a.id!==r.id&&a.distance>r.distance&&a.finishTime===null).sort((a,b)=>a.distance-b.distance)[0];if(ahead&&!ahead.shield)ahead.stun=Math.max(ahead.stun,1.6);return {type:item,target:ahead?.id};}
  return {type:item,charges:r.charges};}
 // Pilzbombe: vor allem fuers Mittelfeld (dort ist das Gedraenge am groessten)
-export function itemWeights(place,count){const t=count>1?(place-1)/(count-1):0;return {banana:40*(1-t)+8,shield:22*(1-t)+10,shell:18+10*t,boost:6+30*t,triple:t>.45?66*(t-.45):0,bomb:3+16*Math.max(0,1-Math.abs(t-.5)*2.2),storm:t>.55?30*(t-.55):0,mega:t>.3?22*(t-.3):0,ink:t>0?4+8*t:0};}
+export function itemWeights(place,count){const t=count>1?(place-1)/(count-1):0;return {banana:40*(1-t)+8,shield:22*(1-t)+10,shell:18+10*t,boost:6+30*t,triple:t>.45?66*(t-.45):0,bomb:3+16*Math.max(0,1-Math.abs(t-.5)*2.2),storm:t>.55?30*(t-.55):0,mega:t>.3?22*(t-.3):0,ink:t>0?4+8*t:0,cannon:t>.6?44*(t-.6):0,blue:t>.3?10*(t-.3):0};}
 // R47: Dauer von Riesenpilz und Tinte (Sekunden)
-export const MEGA_T=7,INK_T=4.5;
+export const MEGA_T=7,INK_T=4.5,CANNON_T=4.2;
 // Explosion: Karts im Radius werden getroffen (Schild blockt). Rueckgabe: false | 'blocked' | true
 export function blastHit(k,dx,dz,radius=6.5){if(Math.hypot(dx,dz)>radius)return false;if(k.shield>0)return 'blocked';hitKart(k,1.3,.3);return true;}
 // Drift-Combo: Drift-Turbos in kurzer Folge ohne Fehler zaehlen hoch; Fehler (Treffer, Wand, Wiese) setzen auf 0

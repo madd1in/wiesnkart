@@ -53,6 +53,11 @@ eine 26 m hohe Wellenwand mit Schaumkrone rollt vom Meer ueber die ganze Insel, 
 Strecke - alle Karts fahren als Wave-Rider (5 % schneller, rutschiger, Gischt), danach laeuft das Wasser wieder ab. Die Phase
 haengt an der Rennzeit, online sehen alle dasselbe.
 
+**Zwei neue Items** (eigene Entwuerfe, `core.mjs` mit Tests): 🧨 **Boellerschuss** - fuers hintere Feld: eine eiserne
+Boellerkugel mit Lunte umschliesst das Kart, 4,2 s geht es unverwundbar und 42 % schneller automatisch die Ideallinie
+entlang, wer beruehrt wird, fliegt zur Seite. 🔷 **Blaue Brezn** - fliegt mit Fluegeln hoch ueber der Strecke zum
+Fuehrenden (nie zum Werfer), stuerzt herab und trifft mit einer Druckwelle (7 m) auch die Nachbarn; das Mass Bier blockt.
+
 **Feinschliff** - Menue hochkant (<= 420 px): Online-Knopf kompakt, kein Rollbalken; Geisterhaus-Looping findet wieder Platz;
 Ladefehler (Figuren-Paket nach dem Kuh-Modell) behoben; Zeitklo loest ab 7,5 m aus. Werkzeuge: `art/lib/preview_glb.py`
 (Blender-Vorschau), `art/r61/shots.mjs` (Standbilder aus kopflosem Chrome), `art/r61/wav_to_mp3.py`.

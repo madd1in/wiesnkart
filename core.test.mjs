@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {MEGA_T,INK_T,SHRINK_T,SHRINK_TOP,flattenSmall,HOP_T,racer,driveKart,finish,lap,ranking,activate,rollItem,itemWeights,loseSpores,addGpPoints,gpPoints,gpStandings,maxCornerSpeed,miniTurbo,advanceProgress,collideKarts,hitKart,raceStars,blastHit,comboStep,COMBO_WINDOW,PHYS,SPORE_BONUS} from './core.mjs';
+import {CANNON_T,MEGA_T,INK_T,SHRINK_T,SHRINK_TOP,flattenSmall,HOP_T,racer,driveKart,finish,lap,ranking,activate,rollItem,itemWeights,loseSpores,addGpPoints,gpPoints,gpStandings,maxCornerSpeed,miniTurbo,advanceProgress,collideKarts,hitKart,raceStars,blastHit,comboStep,COMBO_WINDOW,PHYS,SPORE_BONUS} from './core.mjs';
 const run=(k,sec,input,surf)=>{for(let i=0;i<sec*60;i++)driveKart(k,1/60,input,surf);};
 test('three complete forward laps required; finish recorded once',()=>{const r=racer(0,'A',0);r.distance=1999;assert.equal(lap(r,1000),2);assert.equal(finish(r,1000,20),false);r.distance=3000;assert.equal(finish(r,1000,30),true);finish(r,1000,40);assert.equal(r.finishTime,30);});
 test('acceleration reaches top speed in a few seconds, not instantly',()=>{const k=racer(0,'A',0);run(k,1,{gas:true});assert.ok(k.speed>10&&k.speed<22,`1s: ${k.speed}`);run(k,4,{gas:true});assert.ok(Math.abs(k.speed-PHYS.top)<.5,`5s: ${k.speed}`);});
@@ -62,3 +62,12 @@ test('R57: GP points follow the field size (8 or 12 karts)',()=>{
  const t8=addGpPoints({},order.slice(0,8));assert.equal(t8[0],10);assert.equal(t8[7],1);
  const w=itemWeights(12,12);assert.ok(w.mega>10,'last of 12 still gets catch-up items');
 });
+
+test('R61 Boellerschuss: nur fuers hintere Feld, macht unverwundbar und schnell',()=>{
+ assert.equal(itemWeights(1,12).cannon,0);assert.equal(itemWeights(6,12).cannon,0);assert.ok(itemWeights(12,12).cannon>10);
+ const a=racer(0,'A',0);a.item='cannon';assert.equal(activate(a,[a]).type,'cannon');assert.equal(a.cannon,CANNON_T);assert.ok(a.shield>=CANNON_T&&a.boost>=CANNON_T);assert.equal(a.item,null);});
+test('R61 Blaue Brezn: zielt auf den Fuehrenden, nie auf den Werfer, nicht fuer die Spitze',()=>{
+ assert.equal(itemWeights(1,12).blue,0);assert.ok(itemWeights(10,12).blue>0);
+ const me=racer(0,'A',0),a=racer(1,'B',1),b=racer(2,'C',2),done=racer(3,'D',3);me.distance=100;a.distance=300;b.distance=250;done.distance=900;done.finishTime=50;
+ me.item='blue';assert.deepEqual(activate(me,[me,a,b,done]),{type:'blue',target:1});
+ a.item='blue';assert.equal(activate(a,[me,a,b,done]).target,2,'der Fuehrende selbst trifft den Naechsten');});

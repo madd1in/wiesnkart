@@ -6,7 +6,8 @@ import {mkdirSync, writeFileSync, rmSync} from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 const root = process.cwd(), FPS = 30;
-const FRAMES = path.join(root, '.scratch', 'r61-frames');
+const PART = process.env.R61_PART || '';   // 'items': nur die Item-Szenen (Teil 2, wird hinten angehaengt)
+const FRAMES = path.join(root, '.scratch', PART ? 'r61-frames-' + PART : 'r61-frames');
 rmSync(FRAMES, {recursive: true, force: true}); mkdirSync(FRAMES, {recursive: true});
 const WX = (tod, wx, ev) => `rallyTest.wxForce([0,1,2].map(()=>({tod:'${tod}',wx:'${wx}',ev:${ev ? `'${ev}'` : 'null'}})))`;
 const CALM = WX('day', 'clear', null), SINGLE = "rallyTest.setMode('single');", WORLD = "rallyTest.setMode('world');";
@@ -18,12 +19,14 @@ const SCENES = [
   {k: 'still', s: 3.2, what: 'cups', t: 'CUPS', u: 'Brezn · Maßkrug · Lebkuchen · Marathon'},
   {k: 'play', s: 6, t: 'SCHOKO-MATSCH', u: 'Neue Strecke · Matsch bremst', trk: 11, d0: 'rallyTest.cp(1.3)', check: LOADED + '&&!!rallyTest.choco()&&rallyTest.choco().deco>0', opt: {pre: SINGLE, post: CALM, behind: true, off: -2}},
   {k: 'play', s: 5, t: 'KAKAO-BROCKEN', u: 'rollen quer über die Bahn', trk: 11, d0: 'rallyTest.cp(3.72)', check: LOADED + '&&!!rallyTest.choco()', opt: {pre: SINGLE, post: CALM, behind: true}},
-  {k: 'play', s: 11, t: 'TSUNAMI!', u: 'Schildkröten-Bucht · Wave-Rider', trk: 8, d0: 'rallyTest.cp(2.0)', check: LOADED + '&&!!rallyTest.bayice()', opt: {pre: SINGLE, post: CALM + ';rallyTest.tsuAt(-1)', behind: true}},
+  {k: 'play', s: 11, t: 'TSUNAMI!', u: 'Schildkröten-Bucht · Wave-Rider', trk: 8, d0: 'rallyTest.cp(2.0)', check: LOADED, opt: {pre: SINGLE, post: CALM + ';rallyTest.tsuAt(-1)', behind: true}},
   {k: 'play', s: 7, t: 'RIESENDOM XXL', u: 'Anti-Grav durch die Kathedralenstadt', trk: 10, d0: 'rallyTest.cp(1.55)', check: LOADED + '&&rallyTest.city()?.arches>0', opt: {pre: SINGLE, post: CALM, behind: true}},
   {k: 'play', s: 6, t: '8-BIT-GEISTERHAUS', u: 'Kandelaber zerschlagen · CRT-Look', trk: 3, d0: 'rallyTest.vox().candles[2][0]-70', check: LOADED + '&&rallyTest.vox()?.candles.length>0', opt: {pre: SINGLE + 'rallyTest.crt(true);', post: WX('dusk', 'clear', null), behind: true, off: 4.8}},
   {k: 'play', s: 4.5, t: 'EISPALAST', u: 'Eissee mit eigenen Wahrzeichen', trk: 9, d0: 'rallyTest.cp(4.95)', check: LOADED + '&&!!rallyTest.bayice()', opt: {pre: SINGLE + 'rallyTest.crt(false);', post: CALM, behind: true}},
   {k: 'still', s: 3.4, what: 'pad', t: 'XBOX-CONTROLLER', u: 'Menü komplett per Pad'},
-];
+  {k: 'play', part: 'items', s: 5, t: 'BÖLLERSCHUSS', u: 'Als Kanonenkugel nach vorn', trk: 5, d0: 'rallyTest.cp(1.0)', check: LOADED, opt: {pre: SINGLE, post: CALM + ";rallyTest.racers()[0].item='cannon';", hook: 'rallyTest.use()', hookAt: .5}},
+  {k: 'play', part: 'items', s: 5, t: 'BLAUE BREZN', u: 'Trifft die Spitze von oben', trk: 5, d0: 'rallyTest.cp(3.0)', check: LOADED, opt: {pre: SINGLE, post: CALM + ";rallyTest.racers()[0].item='blue';", hook: 'rallyTest.use()', hookAt: .4}},
+].filter(sc => PART ? sc.part === PART : !sc.part);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const freePort = () => new Promise((res, rej) => {const s = net.createServer(); s.on('error', rej); s.listen(0, '127.0.0.1', () => {const p = s.address().port; s.close(() => res(p));});});
 const logs = [];
@@ -88,7 +91,7 @@ const PAGE = String.raw`
   endCard(){g.drawImage(game,0,0,W,H);g.fillStyle='#14264ae8';g.fillRect(0,0,W,H);
    outlined('NEU',W/2,330,84,'#ffc83a',12);
    g.font=font('800',48);g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff5d9';
-   ['Online ist jetzt Standard','Cups: Brezn · Maßkrug · Lebkuchen','Neue Strecke: Schoko-Matsch','Tsunami mit Wave-Rider-Phase','Riesendom als XXL-Kathedralenstadt','8-Bit-Geisterhaus & CRT-Modus','Eigene Chiptune-Musik je Strecke','Xbox-Controller im Menü'].forEach((l,k)=>g.fillText(l,W/2,440+k*70));
+   ['Online ist jetzt Standard','Cups: Brezn · Maßkrug · Lebkuchen','Neue Strecke: Schoko-Matsch','Tsunami mit Wave-Rider-Phase','Riesendom als XXL-Kathedralenstadt','8-Bit-Geisterhaus & CRT-Modus','Items: Böllerschuss & Blaue Brezn','Eigene Chiptune-Musik je Strecke','Xbox-Controller im Menü'].forEach((l,k)=>g.fillText(l,W/2,430+k*66));
    outlined('SUPPA LEDERHOSN KARTS',W/2,1080,84,'#ffc83a',15);
    g.font=font('800',54);g.fillStyle='#fff5d9';g.fillText('madd1in.github.io/wiesnkart',W/2,1205);
    g.font=font('700',40);g.fillStyle='#7cf3ff';g.fillText('Kein Download \u00b7 l\u00e4uft im Browser',W/2,1280);
@@ -119,7 +122,7 @@ try {
   const H = await mkTab('host');
   // kein fester Math.random-Seed: Trystero/Nostr bekaemen sonst in jedem Lauf dieselben Kennungen (Relays verwerfen Duplikate)
   await H.send('Page.navigate', {url: base + '/?test=1'});
-  await waitFor(() => H.evaluate('!!window.rallyTest').catch(() => false), 90000, 'test API'); await H.evaluate('rallyTest.ready()');
+  await waitFor(() => H.evaluate('!!window.rallyTest').catch(() => false), 300000, 'test API'); await H.evaluate('rallyTest.ready()');
   await H.evaluate(`localStorage.setItem('mr-netName',JSON.stringify('Sepp'));localStorage.setItem('mr-netWhat',JSON.stringify('world'));rallyTest.setClass(100);rallyTest.assist('aus');rallyTest.autopilot(true);rallyTest.gfx('auto');rallyTest.dbg.camBack=6.4;rallyTest.dbg.camUp=3.3;true`);
   // Nachgeladene Modelle (Hindernisse, Wahrzeichen, Wiesnland) vorab laden: ein Rennen anstarten, warten, zurueck ins Menue
   await H.evaluate(`${SINGLE}rallyTest.setTrack(0);rallyTest.start();true`);
@@ -162,7 +165,7 @@ try {
       await H.evaluate(`${sc.opt.pre || ''}${sc.trk === 99 ? '' : `rallyTest.setTrack(${sc.trk});`}rallyTest.start();true`); await H.evaluate('rallyTest.ready()');
       await waitFor(() => H.evaluate('rallyTest.state().state==="race"').catch(() => false), 60000, 'race ' + sc.trk);
       if (await H.evaluate(sc.check).catch(() => false)) break;
-      if (tries > 8) throw new Error('late models ' + sc.trk);
+      if (tries > 8) {console.log('WARN late models', sc.trk, await H.evaluate('JSON.stringify({b:rallyTest.bayice(),c:rallyTest.city(),v:!!rallyTest.vox()})').catch(e => e.message)); break;}
       await sleep(4000);
     }
     await H.evaluate(`R55.place(${JSON.stringify(sc.t)},${JSON.stringify(sc.u)},${sc.d0},${JSON.stringify({...sc.opt, secs: sc.s})})`);
