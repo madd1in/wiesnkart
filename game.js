@@ -89,7 +89,7 @@ const courses=[
   raise:[[6.55,8.45,8,44,1]],hills:[[10.6,4,.022]],elem:[[2.95,4.3,'bach']],tunnel:[[2.35,2.92,'wood']],gaps:[[11.6,12]],agrav:[[4.5,6.4,'wallrun',90]],loopc:[[10.75,13,2,1]],builds:[[.9,'roottree'],[1.7,'schloss']],
   ramps:[[4.4,0,9],[9.7,0,8]],pads:[[3.1,-4],[10.0,4]],
   pipes:[[2.1,1,1],[2.24,-1,0],[8.7,1,1],[9.35,-1,1]],landmarks:{maypoles:[[.35,1],[10.0,-1]]},pennants:[0x1a73e8,0xffffff],cows:[[9.45,10.4,3]],eggs:{klos:[[.45,-1],[9.2,1],[5.0,-1]],tentacles:[[3.2,1,14,'purple'],[2.6,-1,14,'green'],[6.1,-1,15,'purple'],[11.3,-1,14,'green'],[12.6,1,15,'purple']],signs:[[3.0,1],[11.1,-1]]},boost:[1.9,5.5,12.3],boxes:[1.6,4.9,9.3,12.0],stands:[[.2,18],[5.2,-19]]},
- {name:'Sonnen-Canyon',icon:'☀',kind:'Wüstensturm · Dünen · Sandhosen · Güterzug',medals:[125,131,142],music:'sunset',theme:'canyon',seed:23,
+ {name:'Sonnen-Canyon',oil:[[3.3,-2.5,2.6],[9.1,2.2,2.4]],icon:'☀',kind:'Wüstensturm · Dünen · Sandhosen · Güterzug',medals:[125,131,142],music:'sunset',theme:'canyon',seed:23,
   points:[[0,78],[95,78],[125,45],[120,-20],[85,-45],[105,-88],[50,-102],[2,-50],[-60,-98],[-115,-72],[-122,0],[-105,55],[-55,80]],sharp:[[4,13]],
   loopc:[[9.12,13,1,-1]],dunes:[[.55,2.25,1.7,18]],twisters:[[5.95,6,.35,0],[12.1,6,.3,1.7],[12.7,6,.33,3.1]],sand:[[4,0,8.5]],hills:[[1.5,4,.03],[4.5,6,.04]],plateau:[9.45,11.7,7,34],gaps:[[10.5,14]],fork:[[6.25,8.75,.36]],
   raise:[[2.3,3.3,7,30,1]],tunnel:[[4.6,5.85,'rock']],
@@ -128,7 +128,7 @@ const courses=[
   swing:[[5.6,5,1,.9],[7.0,5,1.05,2],[12.2,5,1,.3]],cannons:[[2.2,1],[13.3,0,1]],stampers:[[13.72,-3.6,0],[13.95,3.6,1.8]],
   ramps:[[2.4,0,9],[9.7,0,8]],pads:[[5.9,-4]],
   boost:[.55,6.4,11.8],boxes:[1.6,4.4,8.0,9.9,13.6],stands:[[.4,18],[8.6,-19]]},
- {name:'Bierstraße',icon:'🍺',kind:'Bier-Fahrbahn \u00b7 Maßkrug-Stampfer \u00b7 Sternschnuppen',medals:[127,133,144],music:'polka',bgmRate:1.04,theme:'rainbow',seed:101,
+ {name:'Bierstraße',oil:[[2.6,2.2,2.4],[7.4,-2.5,2.6]],icon:'🍺',kind:'Bier-Fahrbahn \u00b7 Maßkrug-Stampfer \u00b7 Sternschnuppen',medals:[127,133,144],music:'polka',bgmRate:1.04,theme:'rainbow',seed:101,
   points:[[0,90],[70,88],[120,52],[108,-2],[128,-52],[96,-96],[36,-104],[-18,-78],[-8,-30],[-52,-8],[-104,-30],[-126,16],[-96,64],[-40,84]],
   loopc:[[6.2,21,2,-1,'curve']],agrav:[[2.05,4.05,'roll',1],[8.85,10.8,'ceiling',1]],coaster:[[10.9,12.95,'hills']],
   hills:[[8.4,5,.03]],gaps:[[4.55,13]],elem:[[.3,1.72,'flug']],stampers:[[5.0,3.6,.9],[13.1,-3.6,0],[13.28,3.6,1.8]],
@@ -136,7 +136,7 @@ const courses=[
   meteors:[[4.7,5.85]],boost:[.6,5.4,11.4],boxes:[1.4,4.0,7.9,10.7,.45]},
  // R38: Kirmes-Strecke rund um die Magnet-Achterbahn (Katapult, Top-Hat, Kamelruecken, Bunny-Hop),
  // dazu Looping auf der rechten Geraden und ein Korkenzieher links.
- {name:'Magnet-Kirmes',icon:'❂',kind:'Achterbahn · Magnet-Katapult · Airtime',medals:[119,125,136],music:'kirmes',bgmRate:1.05,theme:'fair',seed:138,
+ {name:'Magnet-Kirmes',oil:[[4.4,-2.2,2.5],[10.8,2.5,2.4]],icon:'❂',kind:'Achterbahn · Magnet-Katapult · Airtime',medals:[119,125,136],music:'kirmes',bgmRate:1.05,theme:'fair',seed:138,
   points:[[0,92],[70,94],[118,66],[132,10],[126,-48],[96,-92],[40,-110],[-30,-112],[-92,-100],[-126,-56],[-122,0],[-90,26],[-104,60],[-60,88]],
   coaster:[[5.45,9.2,'dragon']],loopc:[[12.3,16,1,-1]],halfpipe:[[.95,110]],elem:[[1.82,4.75,'see',{loop:[2,15,1]}]],agrav:[[9.3,11.3,'roll',1]],
   hills:[[11.9,4,.03]],
@@ -1011,7 +1011,7 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
   // R60 Riesendom: die Stadt steht auf einem Felsplateau hoch ueber einem Wolkenmeer - Insel tiefer, Seiten aus Fels
   const isH=theme.cloudSea?74:12,cliff=theme.cloudSea?stdMat({map:speckleTexture(hex(theme.skirt),hex(0x5a4a44),2400),roughness:1}):grassMat;
   mesh(new T.CylinderGeometry(210*WK,theme.cloudSea?150*WK:210*WK-15,isH,Math.round(96*Math.sqrt(WK))),theme.cloudSea?[cliff,grassMat,cliff]:grassMat,world,0,-isH/2-.3,0).castShadow=false;}
- lakeMask=lakeMask&&elems.some(z=>z.lake)?lakeMask:null;buildHazards();buildLandmarks();buildDeco();buildTrench();buildDesert();buildCharacter();buildR60();buildChoco();buildVoxel();buildCity();buildBayIce();buildTsunami();if(elems.length)buildElems();if(course.openWorld){buildOW();buildArena();}if(elemFx)buildBuoyInst();
+ lakeMask=lakeMask&&elems.some(z=>z.lake)?lakeMask:null;buildHazards();buildLandmarks();buildDeco();buildTrench();buildDesert();buildCharacter();buildR60();buildChoco();buildVoxel();buildCity();buildBayIce();buildTsunami();buildOil();if(elems.length)buildElems();if(course.openWorld){buildOW();buildArena();}if(elemFx)buildBuoyInst();
  // R60: Bucht - Meer knapp unter dem Strand (die Wellen lecken am Sandrand); Eisstock-See - zugefrorenes Meer ohne Wellen;
  // Riesendom - warmes Wolkenmeer tief unter der Stadt
  const seaY=theme.beach?-2.7:theme.frozen?-1.4:theme.cloudSea?-64:-12;if(r60)r60.seaY=seaY;
@@ -2348,7 +2348,7 @@ function laserFly(m,t){const run=(t-m.t0)*m.spd,d=lapDist(m.d0-run),z=elemAt(d);
 function hazardHits(r,me){if(!hz)return;
  if(hz.obs?.length)trenchObsHit(r,me);
  for(const s of hz.stampers){const st=s.st;if(!st||!stamperBlocks(st))continue;const dd=wrapDiff(r.distance,s.d),doff=r.offset-s.off;if(Math.abs(dd)>STAMP.half+1.2||Math.abs(doff)>STAMP.half+1.3)continue;
-  if(stamperCrushes(st)&&!((r.crushCd||0)>elapsed)){r.crushCd=elapsed+1.6;if(r.shield>0){r.shield=0;burst(r,0xffe263,12);continue;}hitKart(r,1.35,.12);r.squash=.6;loseSpores(r,2);if(me){stats.squashed++;SFX.hit();shake=.6;toast('PLATT!',.9,'bad');}}
+  if(stamperCrushes(st)&&!((r.crushCd||0)>elapsed)){r.crushCd=elapsed+1.6;if(r.shield>0){r.shield=0;burst(r,0xffe263,12);continue;}hitKart(r,1.35,.12);flatten(r);loseSpores(r,2);if(me){stats.squashed++;SFX.hit();shake=.6;toast('PLATT WIE EINE FLUNDER! 📄',1.2,'bad');}}
   else{const p=s.g.position,dx=r.x-p.x,dz=r.z-p.z,dl=Math.hypot(dx,dz)||1,rr=3.3;if(dl<rr){r.x=p.x+dx/dl*rr;r.z=p.z+dz/dl*rr;bounce(r,dx/dl,dz/dl,true);}}}
  for(const f of hz.plants){if(f.lunge<.55)continue;const dx=r.x-f.head.x,dz=r.z-f.head.z;if(dx*dx+dz*dz>4.4||Math.abs((r.y||0)+.9-f.head.y)>2.6||(r.biteCd||0)>elapsed)continue;r.biteCd=elapsed+1.8;
   if(r.shield>0){r.shield=0;burst(r,0xffe263,10);continue;}hitKart(r,.95,.45);loseSpores(r,1);if(me){SFX.hit(.8);toast('GESCHNAPPT!',.9,'bad');}}
@@ -2954,6 +2954,31 @@ function updateR60(dt,t,live=true){if(!r60)return;const pl=racers[0];
    if(live&&pl){const dd=Math.hypot(pl.x-s.x,pl.z-s.z);if(dd<70){SFX.boom(Math.max(.25,1-dd/70));shake=Math.max(shake,.35*(1-dd/70));}}}}
  if(r60.smoke&&frame%9===0){const s=r60.smoke;emit(s.x+(Math.random()-.5)*.4,s.y,s.z+(Math.random()-.5)*.4,0xdde4ec,.4+Math.random()*.4,1.4+Math.random(),(Math.random()-.5)*.4,1.4);}
  for(const m of r60.glowMats){const k=wxM?(wxM.seaglow||0):0;m.emissiveIntensity=(m.userData.base??(m.userData.base=m.emissiveIntensity))+k*1.6;if(k>.01)m.emissive.setHex(0x1aa8ff);else m.emissive.setHex(0x0a3a48);}}
+// ---------------------------------------------------------------- R63 Dreher, platt wie eine Flunder, Oelpfuetzen, Rueckspiegel
+// Dreher (Nutzerwunsch, wie in klassischen Kart-Spielen): nach Banane, Such-/Blauer Brezn, Oel oder einem Rempler ohne Sporen
+// dreht sich das Kart zwei-, dreimal um die eigene Achse und huepft dabei leicht. Stampfer druecken es papierduenn - es flattert
+// wie ein Blatt und ploppt nach 1,9 s zurueck. Der Rueckspiegel blendet ein, wenn ein Geschoss hinter mir auf mich zufliegt.
+function spinOut(r,turns=2,dur=1.1){if(r.spinO>0&&r.spinO>dur*.5)return;r.spinO=dur;r.spinD=dur;r.spinN=turns;if(nearPlayer(r,50))for(let k=0;k<8;k++){const a=k/8*TAU;emit(r.x+Math.sin(a)*1.2,(r.y||0)+.4,r.z+Math.cos(a)*1.2,0xd8d2c4,Math.sin(a)*2,1+Math.random(),Math.cos(a)*2,.5);}}
+function flatten(r,dur=1.9){r.flat=dur;r.squash=0;if(nearPlayer(r,60)){for(let k=0;k<10;k++)emit(r.x,(r.y||0)+.3,r.z,0xfff6d8,(Math.random()-.5)*6,.5+Math.random()*2,(Math.random()-.5)*6,.5);}}
+function r63Tick(r,me,dt){
+ if(r.flat>0){r.flat=Math.max(0,r.flat-dt);if(r.flat===0){r.squash=.6;if(me||nearPlayer(r,40)){sfxTone(240,720,.16,'square',.05);sfxTone(480,1100,.1,'triangle',.04,.08);}}}
+ if(oils.length&&!r.air&&Math.abs(r.speed)>6&&!((r.oilCd||0)>elapsed)){for(const o of oils){if(Math.abs(wrapDiff(r.distance,o.d))<o.r&&Math.abs(r.offset-o.off)<o.r*.9){r.oilCd=elapsed+1.4;
+   if(r.shield>0||r.cannon>0||r.mega>0){burst(r,0xffe263,6);break;}spinOut(r,2,1.15);hitKart(r,.7,.55);if(me){toast('🌀 ÖLPFÜTZE!',1,'bad');SFX.slip?.();stats.hitsTaken=(stats.hitsTaken||0)+1;}break;}}}}
+let oils=[];
+function oilTex(){if(oilTex.t)return oilTex.t;oilTex.t=canvasTex(128,128,(q,w,h)=>{q.clearRect(0,0,w,h);const g=q.createRadialGradient(w/2,h/2,4,w/2,h/2,w/2);g.addColorStop(0,'#0c0b10');g.addColorStop(.72,'#141220');g.addColorStop(.86,'#1a1626cc');g.addColorStop(1,'#1a162600');q.fillStyle=g;q.beginPath();q.arc(w/2,h/2,w/2,0,7);q.fill();
+  q.globalCompositeOperation='source-atop';for(let i=0;i<5;i++){const cols=['#ff3fd044','#3fd0ff44','#ffe23f44','#7dff5a44','#a86bff44'];q.strokeStyle=cols[i];q.lineWidth=5;q.beginPath();q.ellipse(w*(.4+Math.random()*.2),h*(.4+Math.random()*.2),w*(.12+i*.05),h*(.08+i*.04),Math.random()*3,0,7);q.stroke();}});return oilTex.t;}
+function buildOil(){oils=[];const C=course.oil;if(!C)return;const m=stdMat({map:oilTex(),transparent:true,roughness:.05,metalness:.4,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+ for(const [v,off,rr] of C){const d=cpDist(v),g=addStrip(strip(d-rr,d+rr,off,rr*2,.1,rr*2,6),m,false);g.renderOrder=2;oils.push({d,off,r:rr});}}
+const mirrorCam=new T.PerspectiveCamera(58,3.2,.3,420),_mv=new T.Vector2();let mirrorK=0;
+const mirrorEl=document.createElement('div');mirrorEl.id='mirror';mirrorEl.hidden=true;mirrorEl.innerHTML='<b>⚠ VON HINTEN!</b>';document.body.append(mirrorEl);
+function threatBehind(){const pl=racers[0];if(!pl||state!=='race'||pl.finishTime!==null)return false;
+ for(const sh of shots){if(sh.target!==0)continue;if(sh.free)return true;const gap=wrapDiff(pl.distance,sh.d);if(gap>-2&&gap<90)return true;}
+ for(const b of blues)if(b.target===0&&!b.dive)return true;return false;}
+function renderMirror(dt){const want=threatBehind()?1:0;mirrorK+=(want-mirrorK)*Math.min(1,dt*9);if(mirrorK<.03){if(!mirrorEl.hidden)mirrorEl.hidden=true;return;}
+ renderer.getSize(_mv);const W=_mv.x,H=_mv.y,w=Math.round(Math.min(440,W*.52)),h=Math.round(w/3.2),x=Math.round((W-w)/2),top=Math.round(H*.1+(W<700?64:40));
+ mirrorEl.hidden=false;mirrorEl.style.cssText=`left:${x-4}px;top:${top-4}px;width:${w}px;height:${h}px;opacity:${Math.min(1,mirrorK*1.4).toFixed(2)}`;
+ const pl=racers[0],hd=pl.h||0,p=pl.mesh.position;mirrorCam.aspect=w/h;mirrorCam.updateProjectionMatrix();mirrorCam.position.set(p.x+Math.sin(hd)*.4,p.y+2.3,p.z+Math.cos(hd)*.4);mirrorCam.up.set(0,1,0);mirrorCam.lookAt(p.x-Math.sin(hd)*25,p.y+1.2,p.z-Math.cos(hd)*25);
+ const y=H-top-h;renderer.setScissorTest(true);renderer.setScissor(x,y,w,h);renderer.setViewport(x,y,w,h);renderer.render(scene,mirrorCam);renderer.setScissorTest(false);renderer.setViewport(0,0,W,H);}
 // ---------------------------------------------------------------- R62 Intro-Fanfare (eigene Komposition, Chiptune)
 // D-Dur, 160 bpm: Lead als 25-%-Pulswelle, Harmonie 50 %, Dreieck-Bass, Trommelwirbel und Becken zum Schluss (~4,7 s).
 // Eigene Oszillatoren an einem eigenen Gain (zaehlt nicht gegen die Effekt-Obergrenze), Ueberspringen blendet aus.
@@ -3022,7 +3047,7 @@ function updateLoisl(dt){if(!P.loisl||state==='menu'){if(loisl)loisl.g.visible=f
  else if(L.mode==='away'){want=[L.x,L.y+dt*14,L.z];if(L.t>1.4){L.g.visible=false;L.mode='idle';}}
  else{L.g.visible=false;}
  if(want){const k=L.mode==='wrong'||L.mode==='rescue'?Math.min(1,dt*6):Math.min(1,dt*8);L.x+=(want[0]-L.x)*k;L.y+=(want[1]-L.y)*k;L.z+=(want[2]-L.z)*k;L.g.position.set(L.x,L.y+bob,L.z);
-  if(face){L.g.lookAt(face[0],face[1],face[2]);L.g.rotation.x=0;L.g.rotation.z=Math.sin(performance.now()/500)*.08;}}}
+  if(face)L.g.rotation.set(0,Math.atan2(face[0]-L.x,face[2]-L.z),Math.sin(performance.now()/500)*.08);}}
 // Angel-Rettung: das Kart haengt an der Schnur und wird in 1,4 s auf die Strecke gesetzt (kein Steuern, kein Schwung)
 function rescueTick(r,dt){const R=r.rescue;R.t+=dt;const k=Math.min(1,R.t/1.4),e=k*k*(3-2*k);r.y=R.gy+2.2+(1-e)*5.5;r.vy=0;r.vx=r.vz=0;r.speed=0;r.air=true;
  if(k>=1){r.rescue=null;r.air=true;if(r.id===0&&loisl)loislMode('away');}}
@@ -3062,7 +3087,7 @@ function updateBlues(dt){for(let i=blues.length-1;i>=0;i--){const b=blues[i],tg=
 function blueImpact(b){const tg=racers[b.target],me=b.owner===0;let n=0;
  for(let k=0;k<30;k++){const a=Math.random()*TAU;emit(tg.x,(tg.y||0)+1,tg.z,k%3?0x3a78ff:0xffffff,Math.sin(a)*9,3+Math.random()*5,Math.cos(a)*9,.8);}
  if(nearPlayer(tg,90)){SFX.boom?.(tg.id===0||me?1:.6);shake=Math.max(shake,tg.id===0?.8:.3);}
- for(const q of racers){if(q.finishTime!==null)continue;const r=blastHit(q,q.x-tg.x,q.z-tg.z,7);if(r===true){n++;hitSpores(q);if(q.id===0){stats.hitsTaken=(stats.hitsTaken||0)+1;toast('💥 BLAUE BREZN! Von oben erwischt',1.4,'bad');}}else if(r==='blocked'&&q.id===0)toast('🍺 ABGEWEHRT!',1,'good');}
+ for(const q of racers){if(q.finishTime!==null)continue;const r=blastHit(q,q.x-tg.x,q.z-tg.z,7);if(r===true){n++;hitSpores(q);spinOut(q,3,1.4);if(q.id===0){stats.hitsTaken=(stats.hitsTaken||0)+1;toast('💥 BLAUE BREZN! Von oben erwischt',1.4,'bad');}}else if(r==='blocked'&&q.id===0)toast('🍺 ABGEWEHRT!',1,'good');}
  if(me&&n){stats.hitsDealt=(stats.hitsDealt||0)+n;toast(`🔷 BLAUE BREZN TRIFFT DIE SPITZE! ×${n}`,1.3,'good');}}
 // ---------------------------------------------------------------- R61 Tsunami in der Schildkroeten-Bucht (tsunami.mjs)
 // Wasserteppich ueber der ganzen Strecke, die Insel lauft voll, eine Wellenwand mit Schaumkrone rollt vom Meer ueber alles.
@@ -3339,7 +3364,7 @@ const _kX=new T.Vector3(),_kY=new T.Vector3(),_kZ=new T.Vector3(),_kM=new T.Matr
 function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin(r.h)*s.x+Math.cos(r.h)*s.z,bank=s.b;
  r.driftVis=(r.driftVis||0)+((r.driftDir||0)*.38-(r.driftVis||0))*Math.min(1,dt*10);
  const hopY=r.hop>0?Math.sin((HOP_T-r.hop)/HOP_T*Math.PI)*.42:0;
- const lift=.1+hopY+(r.air?0:Math.sin(elapsed*22+r.id)*.03*(Math.abs(r.speed)/30));
+ const lift=.1+hopY+(r.air?0:Math.sin(elapsed*22+r.id)*.03*(Math.abs(r.speed)/30))+(r.spinO>0?Math.abs(Math.sin((1-r.spinO/r.spinD)*Math.PI*r.spinN))*.28:0);
  // R57: weit neben der Strasse (offene Welt, Kotzhuegel-Arena) direkt an die Physik-Lage. posAt verformte dort mit bis zu
  // 300 m Querversatz Rollzonen, Steilkurven und die See-Tauchspirale der zugeordneten Streckenstelle ins Bild - Karts
  // tauchten bis y=-338 ab, Neigung und Kamera ruckelten. Auf flacher Wiese liefert posAt dasselbe, der Wechsel springt nicht.
@@ -3355,7 +3380,8 @@ function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin
  if(r.vox||r.voz){const k=Math.exp(-dt*11);r.vox*=k;r.voz*=k;if(Math.abs(r.vox)+Math.abs(r.voz)<.002)r.vox=r.voz=0;if(!dbg.noSmooth){r.mesh.position.x+=r.vox;r.mesh.position.z+=r.voz;}}
  const spin=r.trick>0?Math.min(1,r.trick/.42)*TAU:0;
  // Der Looping ist reine Nickbewegung um die Querachse - Lenken bleibt davon unberuehrt
- e.y=r.h+r.driftVis+(r.stun>0?elapsed*14:0)+spin;
+ if(r.spinO>0)r.spinO=Math.max(0,r.spinO-dt);const spk=r.spinO>0?1-r.spinO/r.spinD:1,spA=r.spinO>0?(1-Math.pow(1-spk,2.2))*r.spinN*TAU:0;
+ e.y=r.h+r.driftVis+(r.spinO>0?spA:r.stun>0?elapsed*14:0)+spin;
  e.x=inLoop?-loopFrame(inLoop,r.distance).pitch:r.air?clamp(-r.vy*.02,-.45,.45):far?0:-Math.atan((slopeAt(r.distance)+(coasters.length?coasterP(r.distance).s:0))*dot);
  e.z=(far?0:-bank*dot+rollTot(r.distance))+(r.id===0?-(r.steerS||0)*.07:0)-r.driftVis*.12;
  // Im Schraeg-Looping zeigt das Kart entlang der geneigten Bahn: Grundlage ist der Rahmen aus
@@ -3373,7 +3399,8 @@ function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin
  {const tgt=r.mega>0?(r.mega<1.1&&Math.sin(elapsed*26)>0?1.25:1.75):1;r.megaS=(r.megaS||1)+(tgt-(r.megaS||1))*Math.min(1,dt*(r.mega>0&&r.mega<1.1?30:5));}
  let sv=(r.shrinkVis??1)+(((r.shrink||0)>0?.58:1)-(r.shrinkVis??1))*Math.min(1,dt*7);if(Math.abs(sv-1)<.002)sv=1;r.shrinkVis=sv;
  const ks0=r.kartScale||[1,1,1],sm=sv*(r.megaS||1),ks=sm===1?ks0:[ks0[0]*sm,ks0[1]*sm,ks0[2]*sm];
- if(r.squash>0){r.squash=Math.max(0,r.squash-dt*1.4);const q=Math.sin(r.squash/.3*Math.PI)*r.squash*.55;r.mesh.scale.set(ks[0]*(1+q*.6),ks[1]*(1-q),ks[2]*(1+q*.6));}
+ if(r.flat>0){const fk=Math.min(1,(1.9-r.flat)/.12),ft=elapsed*9+r.id;r.mesh.scale.set(ks[0]*(1+.42*fk),ks[1]*(1-.88*fk),ks[2]*(1+.42*fk));r.mesh.rotation.x+=Math.sin(ft*1.3)*.18*fk;r.mesh.rotation.z+=Math.sin(ft)*.22*fk;}
+ else if(r.squash>0){r.squash=Math.max(0,r.squash-dt*1.4);const q=Math.sin(r.squash/.3*Math.PI)*r.squash*.55;r.mesh.scale.set(ks[0]*(1+q*.6),ks[1]*(1-q),ks[2]*(1+q*.6));}
  else if(r.mesh.scale.y!==ks[1])r.mesh.scale.set(ks[0],ks[1],ks[2]);
  // Federung: Laengsbeschleunigung geglaettet, daraus Nicken und gegenlaeufiges Einfedern.
  // Ohne das steht das Kart starr auf den Raedern und wirkt wie ein Brett.
@@ -3452,6 +3479,7 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
    line=o.k==='gate'?obsGap(o,elapsed+ahead/Math.max(sp,8)):o.g;break;}}
  if(r60)line=r60Line(r,line,sp);
  if(choco)line=chocoLine(r,line,sp);
+ if(oils.length&&r.skill>.3)for(const o of oils){const ahead=wrapDiff(o.d,r.distance);if(ahead>-o.r&&ahead<34){line=mudDodge(line,{off:o.off,hw:o.r});break;}}
  // R53 Verkehr (Nutzerhinweis "Karts verkeilen sich fuzzy"): nicht mehr stur auffahren. Langsameres Kart dicht voraus:
  // auf der freieren Seite vorbei; wer noch direkt dahinter klemmt, faehrt dessen Tempo mit. Nebeneinander: Abstand halten.
  let follow=Infinity;
@@ -3787,7 +3815,7 @@ function fireShell(r,target){const g=new T.Group();if(P.shell){const s=cloneProt
 function hitSpores(r){const lost=loseSpores(r);if(lost){const p=r.mesh.position;for(let i=0;i<lost*3;i++){const a=Math.random()*TAU;emit(p.x,p.y+.8,p.z,0xfff27a,Math.sin(a)*5,4+Math.random()*3,Math.cos(a)*5,.9);}}return lost;}
 function shellImpact(sh){const t=racers[sh.target],me=sh.owner===0,onMe=sh.target===0,near=nearPlayer(t,60);
  if(t.shield>0){burst(t,0xffe263,14);if(onMe)toast('ABGEWEHRT!',.9,'good');if(near)SFX.shield();return;}
- if(t.finishTime===null){hitKart(t,1.6,.25);hitSpores(t);}t.lastHitBy=sh.owner;t.lastHitT=elapsed;burst(t,0x8beb73,18);if(me||onMe||near)SFX.hit(me||onMe?1:.5);
+ if(t.finishTime===null){hitKart(t,1.6,.25);hitSpores(t);spinOut(t,2,1.2);}t.lastHitBy=sh.owner;t.lastHitT=elapsed;burst(t,0x8beb73,18);if(me||onMe||near)SFX.hit(me||onMe?1:.5);
  if(me){stats.hitsDealt++;say('hit');toast('VOLLTREFFER!',1,'good');}if(onMe){stats.hitsTaken++;say('ouch');toast('AUTSCH! −✦',1,'bad');shake=.45;}}
 // Bombe fliegt im Bogen voraus, landet, zischt kurz und explodiert (oder sofort bei Kontakt). Druckwelle schleudert Karts hoch.
 let bombs=[];const bombGeo=new T.SphereGeometry(.62,16,12),fuseGeo=new T.CylinderGeometry(.06,.06,.45,6),bombMat=stdMat({color:0x2a2238,roughness:.35,metalness:.2}),bombCap=stdMat({color:0xff3b30,roughness:.5}),sparkBall=new T.MeshBasicMaterial({color:0xffe066});
@@ -3944,10 +3972,10 @@ function update(dt){
   // In Rollzonen uebernimmt die Magnetbahn den Hoehenweg: Hang-Widerstand faellt weg, sonst
   // fehlt genau dort der Schwung, wo die Strecke zusaetzlich noch kippt.
   if(me&&offroad&&!r.air&&state==='race')r.lapDirty=true;
-  const sf=r60Surf(r);if(tsu&&tsu.surf&&!r.air){sf.speedMul*=TSU.speed;sf.gripMul*=TSU.grip/.85;}if(r.cannon>0){sf.speedMul*=1.42;sf.gripMul*=1.8;}
+  const sf=r60Surf(r);if(tsu&&tsu.surf&&!r.air){sf.speedMul*=TSU.speed;sf.gripMul*=TSU.grip/.85;}if(r.cannon>0){sf.speedMul*=1.42;sf.gripMul*=1.8;}if(r.flat>0){sf.speedMul*=.62;}
   driveKart(r,dt,input,{air:r.air,offroad,meadow,slope:inRoll?0:slopeAt(r.distance)*dot,speedMul:sf.speedMul*(meadow?.95:1)*(r.mega>0?1.1:1)*speedMul*(czn&&r.czRun?.launched?COASTER.launchTop/PHYS.boostTop:1)*(tfF==='dive'?.95:tfF==='plane'?1.04:1),gripMul:(lp?1.5:inRoll?2.3:1)*(tfF==='boat'?.85:1)*(lp||inRoll?1:wxGripMul*sf.gripMul),moveMul:lp?1/loopStretch(lp,loopFrame(lp,r.distance)):czMove});
   if(wxWindA&&!r.air&&!inRoll&&!czn&&!lp){r.vx+=Math.sin(wxWindDir)*wxWindA*dt;r.vz+=Math.cos(wxWindDir)*wxWindA*dt;}   // R50 Sturmboeen (fuer alle gleich)
-  if(me&&r.hopT>0&&!r.hopWas)SFX.hop();r.hopWas=r.hopT>0;desertHits(r,me,dt);r60Hits(r,me,dt,sf);chocoHits(r,me,dt,sf);cannonTick(r,me,dt);if(r.rescue)rescueTick(r,dt);
+  if(me&&r.hopT>0&&!r.hopWas)SFX.hop();r.hopWas=r.hopT>0;desertHits(r,me,dt);r60Hits(r,me,dt,sf);chocoHits(r,me,dt,sf);cannonTick(r,me,dt);if(r.rescue)rescueTick(r,dt);r63Tick(r,me,dt);
   // Luftfuehrung (R44): nach Schanzen und Luecken folgt das Kart in der Luft sanft dem Streckenverlauf und wird
   // Richtung Mitte gezogen - eine Kurve direkt hinter dem Sprung (12 Stellen im Audit) fuehrt nicht mehr zum Absturz
   // R55 Wiesnland: auf der freien Wiese (weit neben der Strasse) keine Luftfuehrung - sie zog Karts zur Strasse zurueck
@@ -4077,7 +4105,7 @@ function update(dt){
   if(r.boost>0&&frame%3===0&&nearPlayer(r,80))emit(r.x-sx*1.8,r.y+.6,r.z-cz*1.8,0xffc04a,-sx*5,.5,-cz*5,.25);
   for(const s of swingers){if(s.kind!=='ghost'||(r.spookCd||0)>elapsed)continue;const dx=r.x-s.x,dz=r.z-s.z;if(dx*dx+dz*dz<5.3&&Math.abs(r.y+.8-s.y)<2.3){r.spookCd=elapsed+1.5;if(r.shield>0){burst(r,0xffe263,10);continue;}hitKart(r,.8,.6);loseSpores(r,1);burst(r,0xb48cff,16);if(me){stats.hitsTaken++;SFX.spook();toast('BUUUH! 👻',1.1,'bad');shake=.3;}else if(nearPlayer(r,40))SFX.spook(.4);}}
   // Bananen treffen jeden (auch den Leger nach kurzer Schonzeit), nicht in der Luft; Schild zerstoert sie.
-  for(const h of hazards){if(h.life<=0||r.air||(h.owner===r.id&&h.arm>0))continue;const dx=r.x-h.x,dz=r.z-h.z;if(dx*dx+dz*dz<2.2&&Math.abs((r.y||0)-h.y)<2){h.life=0;if(r.shield>0){burst(r,0xffe263,10);continue;}hitKart(r,me?1.1:1.4,.45);r.lastHitBy=h.owner;r.lastHitT=elapsed;hitSpores(r);burst(r,0xffd23f,12);if(me){stats.hitsTaken++;SFX.slip();say('ouch');toast('AUSGERUTSCHT!',1,'bad');shake=.35;}else{if(h.owner===0)stats.hitsDealt++;if(nearPlayer(r,45))SFX.slip(h.owner===0?.8:.4);}}}
+  for(const h of hazards){if(h.life<=0||r.air||(h.owner===r.id&&h.arm>0))continue;const dx=r.x-h.x,dz=r.z-h.z;if(dx*dx+dz*dz<2.2&&Math.abs((r.y||0)-h.y)<2){h.life=0;if(r.shield>0){burst(r,0xffe263,10);continue;}hitKart(r,me?1.1:1.4,.45);spinOut(r);r.lastHitBy=h.owner;r.lastHitT=elapsed;hitSpores(r);burst(r,0xffd23f,12);if(me){stats.hitsTaken++;SFX.slip();say('ouch');toast('AUSGERUTSCHT!',1,'bad');shake=.35;}else{if(h.owner===0)stats.hitsDealt++;if(nearPlayer(r,45))SFX.slip(h.owner===0?.8:.4);}}}
  }
  // Kart-Kollisionen (Rempeln)
  for(let i=0;i<racers.length;i++)for(let j=i+1;j<racers.length;j++){const a=racers[i],b=racers[j];if(Math.abs(a.x-b.x)>3||Math.abs(a.z-b.z)>3||Math.abs(a.y-b.y)>1.2)continue;
@@ -4093,7 +4121,8 @@ function update(dt){
    // Bild-Versatz gegen den Korrektursprung (syncKart laesst ihn weich abklingen), hoechstens 1,2 m
    const cv=(r,x0,z0)=>{r.vox=clamp((r.vox||0)+x0-r.x,-1.2,1.2);r.voz=clamp((r.voz||0)+z0-r.z,-1.2,1.2);};cv(a,ax0,az0);cv(b,bx0,bz0);
    // Gewitterwolke: ein kleines Kart wird vom grossen plattgefahren
-   const fl=flattenSmall(a,b,rel);if(fl){fl.squash=.6;burst(fl,0xfff27a,10);if(fl.id===0){stats.hitsTaken++;toast('ÜBERROLLT!',1,'bad');SFX.hit();shake=.4;}else if(a.id===0||b.id===0){stats.hitsDealt++;toast('PLATT GEFAHREN!',.9,'good');SFX.hit(.7);}}
+   if(rel>6.5)for(const k of [a,b]){if((k.spores||0)>0||k.shield>0||k.mega>0||k.cannon>0||k.spinO>0||k.air)continue;spinOut(k,1,.85);hitKart(k,.45,.72);if(k.id===0){toast('🌀 OHNE SPOREN – DREHER!',1,'bad');SFX.slip?.();}}
+   const fl=flattenSmall(a,b,rel);if(fl){flatten(fl,1.3);burst(fl,0xfff27a,10);if(fl.id===0){stats.hitsTaken++;toast('ÜBERROLLT!',1,'bad');SFX.hit();shake=.4;}else if(a.id===0||b.id===0){stats.hitsDealt++;toast('PLATT GEFAHREN!',.9,'good');SFX.hit(.7);}}
    else if((a.id===0||b.id===0)&&rel>6){SFX.bump(clamp(rel/25,.2,.8));shake=Math.max(shake,.15);}}}
  // R57: Arena-Wand auch nach den Rempeleien - sonst schoben Kollisionen Bots ueber den Rand, wo der Boden fehlte
  if(battle&&arenaOn())for(const r of racers)if(!r.net&&(!battle.open||r.fighter))arenaWall(r);
@@ -4413,7 +4442,7 @@ function frameStep(dt,now){if(dbg.freeze)return;frame++;
  if(frame%3===0){hud();if(state==='race'||state==='countdown')drawMap();}
  if(racers[0]&&headlight.intensity>0){const p=racers[0];headlight.position.set(p.x+Math.sin(p.h)*5,(p.y||0)+3.2,p.z+Math.cos(p.h)*5);}
  if(racers[0]){sun.target.position.set(racers[0].x,0,racers[0].z);sun.position.set(racers[0].x+theme.sunPos[0]*.8,theme.sunPos[1]*.8,racers[0].z+theme.sunPos[2]*.8);}
- if(!renderer.shadowMap.autoUpdate)renderer.shadowMap.needsUpdate=frame%2===0;const p2=performance.now();crtRender();if(photoPending)takeRidePhoto();prof.ren+=performance.now()-p2;prof.n++;}
+ if(!renderer.shadowMap.autoUpdate)renderer.shadowMap.needsUpdate=frame%2===0;const p2=performance.now();crtRender();renderMirror(dt);if(photoPending)takeRidePhoto();prof.ren+=performance.now()-p2;prof.n++;}
 // ---------------------------------------------------------------- R61 CRT-Modus (optional, Nutzerwunsch)
 // Szene in ein HDR-Zwischenbild, dann ein Vollbild-Shader: Roehrenwoelbung, Farbsaeume, leichtes Leuchten, ~270 Scanlines,
 // Streifenmaske, Vignette und ein Hauch Flimmern; Tonemapping und sRGB wie sonst am Bildschirm. HUD bekommt per CSS feine Zeilen.
@@ -5501,6 +5530,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  // Standbild an beliebiger Stelle: Spieler auf Streckenmeter d setzen, Kamera einrasten, rendern
  field:n=>{fieldForce=n|0;kartPool=null;return fieldSize();},
  r60At:t=>{updateR60(0,t,false);renderer.render(scene,camera);return true;},
+ spinTest:(n=0)=>{spinOut(racers[n]);return racers[n].spinO;},fireAt:n=>{fireShell(racers[n],0);return shots.length;},flatTest:(n=0)=>{flatten(racers[n]);return racers[n].flat;},mirror:()=>({k:+mirrorK.toFixed(2),threat:threatBehind()}),oils:()=>oils.map(o=>[Math.round(o.d),o.off,o.r]),
  intro:v=>{introForce=!!v;return introT;},fall:()=>{const r=racers[0];r.safeD=lapDist(r.distance);respawn(r);return !!r.rescue;},loisl:()=>({mode:loisl?.mode,vis:loisl?.g.visible,rescue:!!racers[0]?.rescue,fan:!!fanfare,light:lightState,bgm:bgm.current}),
  tsunami:()=>tsu&&{t0:tsu.t0,ph:tsu.ph,surf:tsu.surf},tsuAt:v=>{if(tsu){tsu.at=v<0?elapsed:v;tsu.t0=null;tsu.msg='';}return !!tsu;},
  bayice:()=>bayIce&&{n:bayIce.n,dol:bayIce.dol.length},

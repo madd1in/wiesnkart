@@ -1537,3 +1537,7 @@ body.tv #menu .menu-panel{margin-bottom:max(4vh,24px)}
 #tvHint{position:fixed;left:50%;top:max(12px,3vh);transform:translateX(-50%);z-index:30;max-width:min(680px,calc(100vw - 32px));padding:10px 16px;border-radius:14px;
  background:#14264aee;color:#fff;font:700 15px/1.3 var(--wk-font);box-shadow:0 0 0 2.5px #ffd23f,0 8px 24px #0008;text-align:center}
 #tvHint b{color:#ffd23f}
+
+/* R63 Rueckspiegel: Rahmen um den eingeblendeten Rueckblick (das Bild zeichnet der Renderer darunter) */
+#mirror{position:fixed;z-index:12;pointer-events:none;border:4px solid #14264a;border-radius:14px;box-shadow:0 0 0 3px #fff,0 6px 18px #0008;transition:opacity .12s}
+#mirror b{position:absolute;left:50%;top:-30px;transform:translateX(-50%) skewX(-8deg);white-space:nowrap;font:italic 900 18px var(--wk-font,sans-serif);color:#ff4a3d;-webkit-text-stroke:4px #14264a;paint-order:stroke fill;animation:wkPulse 0.6s ease-in-out infinite}

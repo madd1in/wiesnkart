@@ -1,0 +1,168 @@
+{
+  "startedAt": "2026-09-30T03:24:49.122Z",
+  "cc": 100,
+  "tracks": [
+    {
+      "track": 1,
+      "outcome": "finished",
+      "finishTime": 122.83333333332764,
+      "falls": 0,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "☀Sonnen-CanyonWüstensturm · Dünen · Sand",
+      "coaster": [],
+      "state": "finished",
+      "fallAt": [],
+      "place": 1,
+      "simulated": 130,
+      "perf": {
+        "drawCalls": 149,
+        "triangles": 248620,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 105.4
+    },
+    {
+      "track": 5,
+      "outcome": "finished",
+      "finishTime": 137.10000000000124,
+      "falls": 0,
+      "airtime": 6,
+      "coasters": 3,
+      "maxLaunch": 45.1036400583732,
+      "minVis": 0.8065810164646767,
+      "maxFloat": 0.5,
+      "launches": 0,
+      "name": "🍺BierstraßeBier-Fahrbahn · Maßkrug-Stam",
+      "coaster": [
+        {
+          "s": 821,
+          "span": 161,
+          "kind": "hills",
+          "launch": [
+            3,
+            35
+          ],
+          "hills": [
+            {
+              "c": 72,
+              "w": 23,
+              "h": 13.1
+            },
+            {
+              "c": 117,
+              "w": 16,
+              "h": 8
+            }
+          ],
+          "arches": [
+            3,
+            10,
+            16,
+            23,
+            29,
+            35
+          ],
+          "assets": {
+            "arch": true,
+            "truss": true
+          },
+          "glow": true
+        }
+      ],
+      "state": "finished",
+      "fallAt": [],
+      "place": 3,
+      "simulated": 150,
+      "perf": {
+        "drawCalls": 174,
+        "triangles": 264278,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 76.2
+    },
+    {
+      "track": 6,
+      "outcome": "finished",
+      "finishTime": 153.95000000001465,
+      "falls": 0,
+      "airtime": 9,
+      "coasters": 3,
+      "maxLaunch": 44.933301338747995,
+      "minVis": 0.6402066949827614,
+      "maxFloat": 0.5,
+      "launches": 0,
+      "name": "❂Magnet-KirmesAchterbahn · Magnet-Katapu",
+      "coaster": [
+        {
+          "s": 437,
+          "span": 316,
+          "kind": "dragon",
+          "launch": [
+            5,
+            38
+          ],
+          "hills": [
+            {
+              "c": 82,
+              "w": 38,
+              "h": 22
+            },
+            {
+              "c": 148,
+              "w": 27,
+              "h": 15.6
+            },
+            {
+              "c": 199,
+              "w": 16,
+              "h": 8
+            },
+            {
+              "c": 262,
+              "w": 60,
+              "h": 9
+            }
+          ],
+          "arches": [
+            5,
+            11,
+            18,
+            25,
+            31,
+            38
+          ],
+          "assets": {
+            "arch": true,
+            "truss": true
+          },
+          "glow": true
+        }
+      ],
+      "state": "finished",
+      "fallAt": [],
+      "place": 6,
+      "simulated": 160,
+      "perf": {
+        "drawCalls": 203,
+        "triangles": 615694,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 74
+    }
+  ],
+  "errors": [],
+  "networkFailures": [],
+  "passed": true,
+  "completedAt": "2026-09-30T03:29:14.945Z"
+}

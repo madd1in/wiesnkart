@@ -6,6 +6,25 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 63 (30.09.2026): Dreher, platt wie eine Flunder, Oelpfuetzen, Rueckspiegel
+
+**Dreher** (Nutzerwunsch, wie in klassischen Kart-Spielen) - nach Banane, Such-Brezn, Blauer Brezn, einer Oelpfuetze oder
+einem harten Rempler ohne Sporen dreht sich das Kart sichtbar zwei-, dreimal um die eigene Achse, huepft dabei leicht und
+verliert das Tempo (vorher kreiselte es nur waehrend der Betaeubung). Sporen machen weiter schneller (+0,35 m/s je Spore,
+hoechstens 10) - wer keine hat, faellt beim Rempeln herum.
+
+**Platt wie eine Flunder** - die Masskrug-Stampfer (und Riesenwuchs-Karts) druecken das Kart papierduenn: es flattert 1,9 s wie
+ein Blatt Papier, faehrt langsamer und ploppt dann mit einem Klang zurueck.
+
+**Oelpfuetzen** auf Sonnen-Canyon, Bierstrasse und Magnet-Kirmes (schillernde Lachen auf der Fahrbahn) - Dreher, Mass Bier,
+Boellerschuss und Riesenwuchs schuetzen; die KI weicht aus.
+
+**Rueckspiegel** - fliegt eine Such-Brezn von hinten auf mich zu oder ist eine Blaue Brezn im Anflug, blendet oben ein
+gerahmter Rueckspiegel ("⚠ VON HINTEN!") mit dem Blick nach hinten ein.
+
+**Ampel-Loisl** schaut jetzt zum Starterfeld (die Drehung wurde aus lookAt und zurueckgesetzten Euler-Winkeln gebaut und
+kippte je nach Richtung weg).
+
 ## Runde 62 (30.09.2026): Kamerafahrt vor dem Start, Intro-Fanfare, Ampel-Pieptoene, der Luft-Loisl
 
 **Kamerafahrt ueber das Starterfeld** (Einzelrennen, Grand Prix, Zeitfahren; nicht online) - vor dem Countdown faehrt die
