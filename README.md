@@ -6,6 +6,19 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 64 (30.09.2026): Riesendom mit Retro-Pixel-Charme, Klaenge fuer Dreher und Flunder, Haenger-Suche
+
+**Riesendom mit leichtem Retro-Pixel-Voxel-Charme** (Nutzerwunsch, `art/r64/create_voxdome.py`): ein grosser Pixel-
+Sonnenball im Abendhimmel hinter den Tuermen, blockige Pixelwolken treiben ueber dem Wolkenmeer, am Strassenrand
+Pixel-Banner mit Sonnenwappen, Voxel-Waechterstatuen mit Grossschwert und Kohlebecken mit Pixelflamme (ohne Kollision, damit
+die Anti-Grav-Roehren frei bleiben), dazu kreisende Pixel-Vogelschwaerme.
+
+**Klaenge** - Reifenquietschen beim Dreher, ein "Pfff" mit Papierflattern beim Plattdruecken, ein Doppelpiep, wenn der
+Rueckspiegel aufgeht.
+
+**Haenger-Suche** (`art/r64/stuck_sweep.py`) - an allen Loopings und Anti-Grav-Roehren aller Strecken mit Vollgas und drei
+Einfahrtstempos durchgefahren: kein harter Stopp mehr wie vorher im Riesendom; alle Loopings schaffen schon 10 m/s Einfahrt.
+
 ## Runde 63 (30.09.2026): Dreher, platt wie eine Flunder, Oelpfuetzen, Rueckspiegel
 
 **Dreher** (Nutzerwunsch, wie in klassischen Kart-Spielen) - nach Banane, Such-Brezn, Blauer Brezn, einer Oelpfuetze oder
