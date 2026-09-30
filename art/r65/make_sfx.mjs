@@ -85,4 +85,7 @@ report.push(wav('splash', render(.6, [{type: 'noise', f0: 6000, f1: 700, vol: .2
 report.push(wav('wrong', render(.4, [{type: 'sq', duty: .5, steps: [[0, note('D#4')], [.16, note('C4')]], vol: .2, hold: .8, decay: 1.3}])));
 // Online-Bonus eingesackt: Muenzregen-Arpeggio
 report.push(wav('bonus', render(.8, [{type: 'sq', duty: .25, steps: arp(['C6', 'E6', 'G6', 'C7', 'G6', 'C7', 'E7'], .06), vol: .2, hold: .6, decay: 1.2}, {type: 'tri', steps: arp(['C4', 'G4', 'C5'], .12), vol: .25, hold: .5}])));
+// R66 XXL-Stachelpanzer: tiefes Grollen mit Rechteck-Knurren (Abwurf) und Walzen-Krach (Treffer)
+report.push(wav('spiky', render(.9, [{type: 'sq', duty: .25, f0: 90, f1: 140, vib: [17, .08], vol: .2, attack: .03, hold: .5, decay: 1.2}, {type: 'tri', f0: 60, f1: 45, vol: .4, hold: .5}, {type: 'noise', f0: 700, vol: .12, attack: .05, hold: .4, decay: 1.3}])));
+report.push(wav('crush', render(.6, [{type: 'noise', f0: 1400, vol: .28, decay: 1.5}, {type: 'sq', duty: .5, f0: 520, f1: 60, vol: .2, decay: 1.2}, {type: 'tri', f0: 110, f1: 40, vol: .4, decay: 1.4}, {type: 'noise', f0: 9000, short: true, at: .05, len: .2, vol: .06, decay: 2}])));
 console.table(report);

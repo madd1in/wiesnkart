@@ -3,7 +3,7 @@
 <script type="module">
 // R65: Vorschau der Laufzeit-Voxel-Modelle aus voxel.mjs (Aufruf ueber server.cjs: /art/r65/voxel_preview.html)
 import * as T from '../../vendor/three.module.js';
-import {voxelMesh, breznModel, qBlockModel, crownModel, topperModel} from '../../voxel.mjs';
+import {voxelMesh, breznModel, qBlockModel, crownModel, topperModel, spikyShellModel} from '../../voxel.mjs';
 const W = 1200, H = 620, r = new T.WebGLRenderer({antialias: true}); r.setSize(W, H); r.outputColorSpace = T.SRGBColorSpace; document.body.appendChild(r.domElement);
 const sc = new T.Scene(), cam = new T.PerspectiveCamera(30, W / H, .1, 100); cam.position.set(0, 2.2, 13); cam.lookAt(0, 0, 0);
 sc.add(new T.HemisphereLight(0xffffff, 0x5a6472, 2.3)); const dl = new T.DirectionalLight(0xfff2dc, 2.4); dl.position.set(3, 5, 4); sc.add(dl);
@@ -13,5 +13,6 @@ const mk = (m, size) => {const d = voxelMesh(m.vox, m.pal, size), g = new T.Buff
 const items = [[breznModel('green'), .1, -4.6, .35], [breznModel('red'), .1, -2.6, .35], [qBlockModel(false), .19, 0, .5], [qBlockModel(true), .19, 2.4, -.5], [crownModel(), .13, 4.6, .4]];
 for (const [id, x] of [['heart', -4.4], ['mug', -2.2], ['star', 0], ['brezn', 2.2], ['crown', 4.4]]) {const o = mk(topperModel(id), id === 'brezn' ? .09 : .12); o.position.set(x, -1.9, 1.5); o.rotation.y = .3; sc.add(o);}
 for (const [m, s, x, ry] of items) {const o = mk(m, s); o.position.set(x, 1.2, 0); o.rotation.y = ry; sc.add(o);}
+{const o = mk(spikyShellModel(6), .22); o.position.set(0, -1.6, -4); o.rotation.y = .4; sc.add(o);}
 r.render(sc, cam); window.done = true;
 </script></body></html>

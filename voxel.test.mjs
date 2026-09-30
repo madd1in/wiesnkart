@@ -34,3 +34,10 @@ test('R66: Aufsatz-Modelle bauen sich', async () => {
   for (const id of ['heart', 'mug', 'star', 'brezn', 'crown']) {const m = topperModel(id); assert.ok(m, id); assert.ok(voxelMesh(m.vox, m.pal, .1).indices.length > 0, id);}
   assert.equal(topperModel('none'), null);
 });
+
+test('R66: XXL-Stachelpanzer - Kuppel mit Stacheln, hohl', async () => {
+  const {spikyShellModel} = await import('./voxel.mjs');
+  const m = spikyShellModel(6), g = voxelMesh(m.vox, m.pal, .22), c = [...m.vox.values()];
+  assert.ok(c.filter(x => x === 'W').length >= 7 * 3, 'sieben Stacheln'); assert.ok(c.includes('R') && c.includes('P'));
+  assert.ok(!m.vox.has('0,3,0'), 'innen hohl'); assert.ok(g.size[0] > 2.5 && g.size[0] < 3.2, 'gut 2,5 m breit');
+});

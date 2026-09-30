@@ -147,3 +147,22 @@ export function topperModel(id) {
 
 /** Pixel-Bild (2D) aus ASCII-Zeilen, z. B. fuer Menue-Knoepfe: liefert [x, y, Farbe] je Pixel */
 export function pixels(rows, pal) {const out = []; rows.forEach((r, y) => {for (let x = 0; x < r.length; x++) {const c = pal[r[x]]; if (c !== undefined) out.push([x, y, c]);}}); return out;}
+
+// ---------------------------------------------------------------- R66: XXL-Stachelpanzer (eigener Entwurf)
+/** Kuppel aus Wuerfeln (Radius R), Plattenmuster, heller Rand unten, weisse Stacheln oben und im Kranz */
+export function spikyShellModel(R = 6) {
+  const vox = new Map(), put = (x, y, z, c) => vox.set(`${x},${y},${z}`, c);
+  for (let x = -R; x <= R; x++) for (let z = -R; z <= R; z++) for (let y = 0; y <= R; y++) {
+    const d = Math.hypot(x, y * 1.05, z); if (d > R + .35) continue;
+    const inner = Math.hypot(x, (y + 1) * 1.05, z) < R - .6 && Math.hypot(x + 1, y * 1.05, z) < R - .6 && Math.hypot(x - 1, y * 1.05, z) < R - .6 && Math.hypot(x, y * 1.05, z + 1) < R - .6 && Math.hypot(x, y * 1.05, z - 1) < R - .6;
+    if (inner && y > 0) continue;                                                       // hohl
+    let c = y <= 1 ? 'R' : 'S';                                                         // Rand / Panzer
+    if (c === 'S') {const a = Math.atan2(z, x), band = Math.floor(y / 2.2), seg = Math.floor((a + Math.PI) / (Math.PI / 3) + band * .5); if ((seg + band) % 2 === 0 && d > R - .6) c = 'P';}
+    if (y === 2 && d > R - .7) c = 'D';                                                 // dunkle Naht ueber dem Rand
+    put(x, y, z, c);
+  }
+  const spike = (bx, by, bz, h = 3) => {for (let i = 0; i < h; i++) {const w = i < h - 1 ? 1 : 0; for (let dx = 0; dx <= w; dx++) for (let dz = 0; dz <= w; dz++) put(bx + dx, by + i, bz + dz, i === h - 1 ? 'T' : 'W');}};
+  spike(0, R, 0, 4);
+  for (let k = 0; k < 6; k++) {const a = k / 6 * Math.PI * 2, rr = R * .72; const x = Math.round(Math.cos(a) * rr), z = Math.round(Math.sin(a) * rr), y = Math.round(Math.sqrt(Math.max(0, R * R - x * x - z * z)) / 1.05); spike(x, y, z, 3);}
+  return {vox, pal: {S: 0x2f7a36, P: 0x49a84f, D: 0x1c4a22, R: 0xf1e2b4, W: 0xf7f5ee, T: 0xb9b3a4}};
+}

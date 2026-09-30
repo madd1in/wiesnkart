@@ -104,10 +104,12 @@ export function activate(r,all){const item=r.item;if(!item)return null;r.item=nu
   const ahead=all.filter(a=>a.id!==r.id&&a.distance>r.distance&&a.finishTime===null).sort((a,b)=>a.distance-b.distance)[0];return {type:item,target:ahead?.id,charges:r.charges};}
  // R65: Fake-Fragezeichen-Block - liegt wie eine Itembox auf der Strecke, wirkt aber wie eine Bananenschale
  if(item==='fake')return {type:item};
+ // R66: XXL-Stachelpanzer - rollt die Strecke entlang und walzt alle auf seiner Spur um (game.js)
+ if(item==='spiky')return {type:item};
  if(item==='shell'){const ahead=all.filter(a=>a.id!==r.id&&a.distance>r.distance&&a.finishTime===null).sort((a,b)=>a.distance-b.distance)[0];if(ahead&&!ahead.shield)ahead.stun=Math.max(ahead.stun,1.6);return {type:item,target:ahead?.id};}
  return {type:item,charges:r.charges};}
 // Pilzbombe: vor allem fuers Mittelfeld (dort ist das Gedraenge am groessten)
-export function itemWeights(place,count){const t=count>1?(place-1)/(count-1):0;return {banana:40*(1-t)+8,shield:22*(1-t)+10,shell:18+10*t,boost:6+30*t,triple:t>.45?66*(t-.45):0,bomb:3+16*Math.max(0,1-Math.abs(t-.5)*2.2),storm:t>.55?30*(t-.55):0,mega:t>.3?22*(t-.3):0,ink:t>0?4+8*t:0,cannon:t>.6?44*(t-.6):0,blue:t>.3?10*(t-.3):0,green3:12*(1-t)+6,red3:t>.15&&t<.85?14*(1-Math.abs(t-.5)*2.4):0,fake:14*(1-t)+3};}
+export function itemWeights(place,count){const t=count>1?(place-1)/(count-1):0;return {banana:40*(1-t)+8,shield:22*(1-t)+10,shell:18+10*t,boost:6+30*t,triple:t>.45?66*(t-.45):0,bomb:3+16*Math.max(0,1-Math.abs(t-.5)*2.2),storm:t>.55?30*(t-.55):0,mega:t>.3?22*(t-.3):0,ink:t>0?4+8*t:0,cannon:t>.6?44*(t-.6):0,blue:t>.3?10*(t-.3):0,green3:12*(1-t)+6,red3:t>.15&&t<.85?14*(1-Math.abs(t-.5)*2.4):0,fake:14*(1-t)+3,spiky:t>.35?18*(t-.35):0};}
 // R65: Items mit mehreren Ladungen (bleiben im Slot, bis alle verbraucht sind)
 export const ITEM_CHARGES={triple:3,green3:3,red3:3};
 export const chargesFor=item=>ITEM_CHARGES[item]||0;

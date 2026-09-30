@@ -1628,3 +1628,7 @@ body.menu-simple #menu .top-row{justify-content:center}
 @media (max-height:520px){.lucky{grid-column:1/-1;padding:5px 10px}.lucky canvas{width:45px;height:30px}.lucky b{font-size:13px}.lucky small{font-size:10px}}
 /* R66: Hinweise (Gluecksbrezn, Aufsatz, gesperrt) auch im Menue ueber der Karte */
 body:not(.racing) #toast{z-index:70;top:auto;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:22px;-webkit-text-stroke:5px var(--wk-ink);max-width:92vw;white-space:normal;text-align:center}
+/* R66: Spitznamen wuerfeln */
+#online .on-name{position:relative}
+#online #onDice{margin:0 0 0 6px;padding:4px 8px;border-radius:10px;border:2px solid #14264a33;background:#fff;font-size:18px;line-height:1;cursor:pointer;vertical-align:middle;width:auto}
+#online #onDice:hover{transform:rotate(-12deg) scale(1.08)}

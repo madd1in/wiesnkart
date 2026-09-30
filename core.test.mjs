@@ -78,3 +78,5 @@ test('R65: Brezn-Trio feuert dreimal, rote sucht den Naechsten, kreisende Brezn 
  a.item='green3';a.charges=3;assert.equal(activate(a,[a,b]).type,'green3');assert.equal(a.charges,2);
  a.item='fake';assert.deepEqual(activate(a,[a,b]),{type:'fake'});assert.equal(a.item,null);
  const lead=itemWeights(1,8),mid=itemWeights(4,8);assert.ok(lead.fake>mid.fake&&lead.green3>0);assert.equal(lead.red3,0);assert.ok(mid.red3>0);});
+test('R66: XXL-Stachelpanzer gibt es nur im hinteren Feld',()=>{const a=racer(0,'A',0);a.item='spiky';assert.deepEqual(activate(a,[a]),{type:'spiky'});assert.equal(a.item,null);
+ assert.equal(itemWeights(1,12).spiky,0);assert.equal(itemWeights(4,12).spiky,0);assert.ok(itemWeights(12,12).spiky>10);});
