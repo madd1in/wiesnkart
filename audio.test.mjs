@@ -30,7 +30,8 @@ test('sampled and synthetic cues share the effects compressor; music stays outsi
  const {api,nodes}=harness(),{ctx,sfxGain,masterGain}=api.get();
  api.clipBuf.s_boost=ctx.createBuffer(1,100,1000);api.playClip('s_boost',sfxGain);api.sfxTone(500,700,.2);api.sfxNoise(.2,1000,200);
  const comp=nodes.find(n=>n.kind==='compressor');for(const src of api.effectSources){assert.ok(reaches(src,sfxGain));assert.ok(reaches(src,comp));assert.ok(reaches(src,masterGain));}
- const music=nodes.filter(n=>n.kind==='media');assert.equal(music.length,8);for(const src of music){assert.ok(reaches(src,masterGain));assert.equal(reaches(src,comp),false);}
+ const music=nodes.filter(n=>n.kind==='media');assert.equal(music.length,26);   // R61: 13 Musikstuecke (4 alte + 9 Chiptune) mit je 2 Elementen fuer die Ueberblendung
+ for(const src of music){assert.ok(reaches(src,masterGain));assert.equal(reaches(src,comp),false);}
 });
 
 test('rapid repeated events are suppressed and simultaneous sources are bounded',()=>{

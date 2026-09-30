@@ -1,0 +1,297 @@
+{
+  "startedAt": "2026-09-30T00:06:41.708Z",
+  "cc": 100,
+  "tracks": [
+    {
+      "track": 11,
+      "outcome": "finished",
+      "finishTime": 160.36666666668643,
+      "falls": 3,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "🍫Schoko-MatschSchokomatsch · Kakao-Broc",
+      "coaster": [],
+      "state": "finished",
+      "fallAt": [
+        [
+          166,
+          -8.6,
+          162
+        ],
+        [
+          184,
+          -10.2,
+          162
+        ],
+        [
+          183,
+          -10.3,
+          162
+        ]
+      ],
+      "place": 3,
+      "simulated": 170,
+      "perf": {
+        "drawCalls": 106,
+        "triangles": 78242,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 92.2
+    },
+    {
+      "track": 10,
+      "outcome": "simulation_limit",
+      "finishTime": null,
+      "falls": 21,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "⛪RiesendomGötterstadt · Riesenwächter · ",
+      "coaster": [],
+      "state": "race",
+      "fallAt": [
+        [
+          217,
+          -0.1,
+          213
+        ],
+        [
+          217,
+          0.5,
+          213
+        ],
+        [
+          217,
+          0.7,
+          213
+        ],
+        [
+          217,
+          -1.3,
+          213
+        ],
+        [
+          218,
+          -1.6,
+          213
+        ],
+        [
+          217,
+          -0.4,
+          213
+        ],
+        [
+          218,
+          1.5,
+          213
+        ],
+        [
+          218,
+          -1.9,
+          213
+        ],
+        [
+          218,
+          2.3,
+          213
+        ],
+        [
+          218,
+          -1.8,
+          213
+        ],
+        [
+          217,
+          -1.4,
+          213
+        ],
+        [
+          218,
+          -2.2,
+          213
+        ],
+        [
+          218,
+          2.5,
+          213
+        ],
+        [
+          218,
+          2.1,
+          213
+        ],
+        [
+          218,
+          2.1,
+          213
+        ],
+        [
+          218,
+          -1.9,
+          213
+        ],
+        [
+          218,
+          -1.8,
+          213
+        ],
+        [
+          217,
+          0.4,
+          213
+        ],
+        [
+          217,
+          0.4,
+          213
+        ],
+        [
+          217,
+          -0.4,
+          213
+        ],
+        [
+          218,
+          2.2,
+          213
+        ]
+      ],
+      "place": 5,
+      "simulated": 300,
+      "perf": {
+        "drawCalls": 186,
+        "triangles": 320372,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 134.1
+    },
+    {
+      "track": 8,
+      "outcome": "finished",
+      "finishTime": 112.61666666666156,
+      "falls": 0,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "🏝Schildkröten-BuchtLagune · Gezeiten · ",
+      "coaster": [],
+      "state": "finished",
+      "fallAt": [],
+      "place": 1,
+      "simulated": 120,
+      "perf": {
+        "drawCalls": 251,
+        "triangles": 524417,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 48.2
+    },
+    {
+      "track": 9,
+      "outcome": "finished",
+      "finishTime": 126.61666666666076,
+      "falls": 0,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "❄Eisstock-SeeGlatteis · Eisstöcke · Eish",
+      "coaster": [],
+      "state": "finished",
+      "fallAt": [],
+      "place": 1,
+      "simulated": 130,
+      "perf": {
+        "drawCalls": 197,
+        "triangles": 491763,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 48.2
+    },
+    {
+      "track": 3,
+      "outcome": "finished",
+      "finishTime": 108.03333333332849,
+      "falls": 0,
+      "airtime": 6,
+      "coasters": 3,
+      "maxLaunch": 45.46156412025177,
+      "minVis": 0.8735802715831906,
+      "maxFloat": 0.5,
+      "launches": 0,
+      "name": "👻GeisterhausSpuk · Gewitter · Geisterhä",
+      "coaster": [
+        {
+          "s": 522,
+          "span": 110,
+          "kind": "hills",
+          "launch": [
+            2,
+            24
+          ],
+          "hills": [
+            {
+              "c": 49,
+              "w": 15,
+              "h": 8.9
+            },
+            {
+              "c": 80,
+              "w": 11,
+              "h": 6.4
+            }
+          ],
+          "arches": [
+            2,
+            7,
+            11,
+            15,
+            20,
+            24
+          ],
+          "assets": {
+            "arch": true,
+            "truss": true
+          },
+          "glow": true
+        }
+      ],
+      "state": "finished",
+      "fallAt": [],
+      "place": 2,
+      "simulated": 120,
+      "perf": {
+        "drawCalls": 429,
+        "triangles": 565366,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 63.9
+    }
+  ],
+  "errors": [],
+  "networkFailures": [],
+  "passed": false,
+  "completedAt": "2026-09-30T00:13:23.185Z"
+}

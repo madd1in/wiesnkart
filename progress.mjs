@@ -3,7 +3,7 @@
 // 5 Bierstraße, 6 Magnet-Kirmes, 7 Graben-Flug, 8 Schildkröten-Bucht, 9 Eisstock-See, 10 Riesendom.
 export const PLACE_XP = [100, 80, 66, 56, 47, 40, 34, 28];
 export const CLASS_MUL = {50: 1, 100: 1.25, 150: 1.6};
-export const TRACKS = 11;
+export const TRACKS = 12;
 // R46: Bonus fuer den geschlagenen Rivalen und die geschaffte Tages-Herausforderung
 export const RIVAL_XP = 25, DAILY_XP = 60;
 // R55: Wer ohne (oder mit leichter) Lenkhilfe faehrt, bekommt einen Aufschlag auf die Rennpunkte; jede saubere Runde

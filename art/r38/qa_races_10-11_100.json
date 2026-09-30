@@ -1,0 +1,62 @@
+{
+  "startedAt": "2026-09-30T00:13:36.456Z",
+  "cc": 100,
+  "tracks": [
+    {
+      "track": 10,
+      "outcome": "finished",
+      "finishTime": 123.44999999999428,
+      "falls": 0,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "⛪RiesendomGötterstadt · Riesenwächter · ",
+      "coaster": [],
+      "state": "finished",
+      "fallAt": [],
+      "place": 2,
+      "simulated": 130,
+      "perf": {
+        "drawCalls": 133,
+        "triangles": 103030,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 86.8
+    },
+    {
+      "track": 11,
+      "outcome": "finished",
+      "finishTime": 141.35000000000463,
+      "falls": 0,
+      "airtime": 0,
+      "coasters": 0,
+      "maxLaunch": 0,
+      "minVis": 1,
+      "maxFloat": 0,
+      "launches": 0,
+      "name": "🍫Schoko-MatschSchokomatsch · Kakao-Broc",
+      "coaster": [],
+      "state": "finished",
+      "fallAt": [],
+      "place": 2,
+      "simulated": 150,
+      "perf": {
+        "drawCalls": 248,
+        "triangles": 525837,
+        "dpr": 0.7,
+        "qualityLevel": 5
+      },
+      "errors": [],
+      "wallSeconds": 70.4
+    }
+  ],
+  "errors": [],
+  "networkFailures": [],
+  "passed": true,
+  "completedAt": "2026-09-30T00:16:26.072Z"
+}

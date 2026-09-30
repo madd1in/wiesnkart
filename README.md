@@ -6,6 +6,57 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 61 (30.09.2026): Cups, Schoko-Matsch, Online als Standard, eigene Chiptune-Musik je Strecke, CRT-Modus, Xbox-Controller, XXL-Riesendom, 8-Bit-Geisterhaus
+
+**Online ist der Standardmodus** - erster Modus-Knopf "🌐 Online" ist vorausgewaehlt; der (blaue) Startknopf "Online los!"
+springt direkt in die oeffentliche Lobby-Welt. Einzelrennen, Grand Prix, Zeitfahren, Wiesnland und Kotzhügel bleiben daneben.
+
+**Strecken in Cups** (`cups.mjs`, Tests) - Grand Prix jetzt je Cup: 🥨 Brezn-Cup, 🍺 Masskrug-Cup, 💝 Lebkuchen-Cup (je vier
+Strecken) und 🎡 Wiesn-Marathon ueber alle zwoelf. Cup-Auswahl erscheint im Grand-Prix-Modus, die Cup-Strecken sind nummeriert,
+Pokale je Cup und Klasse (der Marathon behaelt die alten Pokale).
+
+**Neue Strecke Schoko-Matsch** (eigene Hommage an Schokoladen-Matschstrecken, eigener Name und eigenes Layout, `choco.mjs`
+mit Tests): Schokomatsch-Pfuetzen bremsen und nehmen Seitenhalt (mit Turbo gleitet man fast ungebremst durch, schmatzender
+Klang), Schokobrocken wackeln am Hang (rosa Warnstreifen) und rollen quer ueber die Bahn, Sprung ueber den Schokofluss,
+Keks-Stollen, Waffel-Buckel. Blender-Modelle (`art/r61/create_choco.py`): Schokobrocken mit Nuessen, Lebkuchenherz am
+Holzgestell, Riesen-Schokobrezn mit Streuseln, Waffelturm, Sahnehaube, dreistoeckiger Schokobrunnen, Pralinen,
+Zuckerwatte-Baeume. Die KI weicht Pfuetzen (je nach Koennen) und rollenden Brocken aus.
+
+**Eigene Chiptune-Musik** (`art/r61/chiptune.mjs`: kleiner 8-Bit-Synthesizer, eigene Kompositionen, Blender-Mixdown zu MP3):
+Geisterhaus Gothic-Barock, Bierstrasse Masskrug-Polka, Graben-Flug Sturzflug-Marsch, Bucht Lagunen-Calypso, Eissee Walzer,
+Riesendom Orgel-Choral, Schoko-Matsch Swing, Lava-Feste Magma-Galopp, Magnet-Kirmes Rummelwalzer; Lautheit an die alte Musik
+angeglichen. Es spielt immer nur ein Stueck (MP3 und Chiptune ueberlagern sich nicht).
+
+**CRT-Modus** (optional, Knopf "📺 CRT" unter Grafik, im Pausenmenue, Controller X): Roehrenwoelbung, Farbsaeume, Leuchten,
+Scanlines, Streifenmaske, Vignette, leichtes Flimmern als Nachbearbeitungs-Shader; das HUD bekommt feine Zeilen.
+
+**Xbox / Edge mit Controller** (`padnav.mjs`, Tests): das ganze Menue und alle Fenster (auch Online) sind per Steuerkreuz/Stick
+raeumlich navigierbar (gelber Fokusrahmen, Halten wiederholt), A bestaetigt, B zurueck, Menue-Taste startet, LB/RB Modus.
+Auf der Xbox (oder mit `?tv=1`) Fernseh-Modus ohne Touch-Tasten und ein Hinweis: in Edge die Menue-Taste halten und
+"Spielsteuerung verwenden" waehlen - dann gehen alle Tasten ans Spiel.
+
+**Riesendom als XXL-Kathedralenstadt** (`art/r61/create_domecity.py`): Riesen-Kathedralen mit Doppeltuermen und Rosenfenster,
+Glockentuerme, Kuppel-Rotunden, Arkadenzeilen und Strebebogen-Tore quer ueber der Fahrbahn, dazu ein Ring aus Riesenbauten,
+die aus dem Wolkenmeer ragen. Zwei Anti-Grav-Passagen schlaengeln sich durch die Haeuserschluchten (Ueberkopf-Fahrt und
+Rundum-Tour unter den Toren).
+
+**Geisterhaus in 8/16-Bit** (`art/r61/create_voxel.py`, Voxel aus Pixelkarten): Kandelaber auf der Fahrbahn zerspringen beim
+Durchfahren in Pixelwuerfel und geben ein Item (Pixel-Herz steigt auf, 8-Bit-Klang), Pixel-Fledermaeuse, Gespenster,
+Totenkopf-Saeulen, Buntglasfenster, Ruestungen, Zinnenmauern und ein grosser Pixel-Mond.
+
+**Schildkroeten-Bucht und Eisstock-See mit eigenen Wahrzeichen** (`art/r61/create_bayice.py`): Schildkroetenpanzer-Insel mit
+Palmen und Schiffswrack draussen in der Lagune, Riesen-Sandburgen, Rettungstuerme, springende Delfine; Eispalast am See,
+Eisskulpturen (Masskrug, Brezn), Iglu-Dorf, gefrorene Wasserfaelle.
+
+**Tsunami in der Schildkroeten-Bucht** (`tsunami.mjs`, Tests): bei 44 s Rennzeit heult die Sirene ("TSUNAMI-WARNUNG!"),
+eine 26 m hohe Wellenwand mit Schaumkrone rollt vom Meer ueber die ganze Insel, das Wasser steigt und steht 22 s ueber der
+Strecke - alle Karts fahren als Wave-Rider (5 % schneller, rutschiger, Gischt), danach laeuft das Wasser wieder ab. Die Phase
+haengt an der Rennzeit, online sehen alle dasselbe.
+
+**Feinschliff** - Menue hochkant (<= 420 px): Online-Knopf kompakt, kein Rollbalken; Geisterhaus-Looping findet wieder Platz;
+Ladefehler (Figuren-Paket nach dem Kuh-Modell) behoben; Zeitklo loest ab 7,5 m aus. Werkzeuge: `art/lib/preview_glb.py`
+(Blender-Vorschau), `art/r61/shots.mjs` (Standbilder aus kopflosem Chrome), `art/r61/wav_to_mp3.py`.
+
 ## Runde 60 (29.09.2026): Drei neue Strecken, Online-Lobby-Welt, Chat & Emojis, Wiesnland-Challenges, Ritter auf dem Drachen
 
 **Drei neue Strecken** (Wunsch: eine Strandstrecke, ein zugefrorener See und eine gotische Goetterstadt im Abendlicht -
