@@ -101,3 +101,30 @@ test('R55: clean laps and driving without steering assist earn extra XP', () => 
   assert.ok(achById('wildfree').t({...win, assist: 'aus'}) && !achById('wildfree').t({...win, cc: 100, assist: 'aus'}));
   assert.ok(achById('spotless').t(win) && !achById('spotless').t({...win, stats: {cleanLaps: 2}}));
 });
+
+test('R65: Online-Rennen bringen doppelte Punkte, Menschen-Bonus, Tagesbonus, Erfolge und die Pixel-Krone', async () => {
+  const {ONLINE_MUL, HUMAN_XP, ONLINE_DAILY_XP, onlineNext} = await import('./progress.mjs');
+  const base = raceXP({place: 2, cc: 100, stats: {hitsTaken: 1}});
+  const on = raceXP({place: 2, cc: 100, stats: {hitsTaken: 1}, online: true, humansBeaten: 2, onlineFirst: true});
+  assert.equal(on.total, Math.round((base.total / 1.25 * ONLINE_MUL + 2 * HUMAN_XP + ONLINE_DAILY_XP) * 1.25));
+  let r = recordRace({}, {track: 0, cc: 100, place: 1, finished: true, stats: {hitsTaken: 1}, online: true, humansBeaten: 1});
+  assert.ok(r.fresh.includes('net1') && r.fresh.includes('netwin'));
+  assert.equal(r.prog.onl, 1); assert.equal(r.prog.onlBeat, 1); assert.equal(r.prog.crown, true);
+  r = recordRace({...r.prog, onl: 9}, {track: 0, cc: 100, place: 3, finished: true, stats: {}, online: true, humansBeaten: 0});
+  assert.ok(r.fresh.includes('net10')); assert.equal(r.prog.crown, true, 'Krone bleibt');
+  const off = recordRace({}, {track: 0, cc: 100, place: 1, finished: true, stats: {}});
+  assert.ok(!off.fresh.includes('net1')); assert.ok(!off.prog.crown);
+  assert.equal(onlineNext(0).n, 1); assert.equal(onlineNext(3).n, 5); assert.equal(onlineNext(5), null);
+});
+
+test('R65: Wiesn-Serie zaehlt aufeinanderfolgende Tage, Bonus nur beim ersten Rennen des Tages', async () => {
+  const {streakUpdate, streakXP, streakIfToday, STREAK_XP} = await import('./progress.mjs');
+  let st = streakUpdate({}, '2026-09-28', '2026-09-27'); assert.deepEqual(st, {last: '2026-09-28', days: 1, best: 1, fresh: true});
+  st = streakUpdate(st, '2026-09-29', '2026-09-28'); assert.equal(st.days, 2); assert.ok(st.fresh);
+  assert.equal(streakUpdate(st, '2026-09-29', '2026-09-28').fresh, false, 'zweites Rennen am selben Tag');
+  const gap = streakUpdate(st, '2026-10-02', '2026-10-01'); assert.equal(gap.days, 1); assert.equal(gap.best, 2);
+  assert.equal(streakXP(3), 3 * STREAK_XP); assert.equal(streakXP(30), streakXP(7));
+  assert.equal(streakIfToday(st, '2026-09-30', '2026-09-29'), 3);
+  const a = raceXP({place: 4, cc: 50, stats: {}}), b = raceXP({place: 4, cc: 50, stats: {}, streakDays: 2});
+  assert.equal(b.total - a.total, 2 * STREAK_XP);
+});

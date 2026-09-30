@@ -1,0 +1,16 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>R65 Voxel-Vorschau</title>
+<style>html,body{margin:0;background:#8fd0ff;overflow:hidden}canvas{display:block}</style></head><body>
+<script type="module">
+// R65: Vorschau der Laufzeit-Voxel-Modelle aus voxel.mjs (Aufruf ueber server.cjs: /art/r65/voxel_preview.html)
+import * as T from '../../vendor/three.module.js';
+import {voxelMesh, breznModel, qBlockModel, crownModel} from '../../voxel.mjs';
+const W = 1200, H = 520, r = new T.WebGLRenderer({antialias: true}); r.setSize(W, H); r.outputColorSpace = T.SRGBColorSpace; document.body.appendChild(r.domElement);
+const sc = new T.Scene(), cam = new T.PerspectiveCamera(30, W / H, .1, 100); cam.position.set(0, 2.6, 11); cam.lookAt(0, .6, 0);
+sc.add(new T.HemisphereLight(0xffffff, 0x5a6472, 2.3)); const dl = new T.DirectionalLight(0xfff2dc, 2.4); dl.position.set(3, 5, 4); sc.add(dl);
+const ground = new T.Mesh(new T.PlaneGeometry(30, 12), new T.MeshLambertMaterial({color: 0x3a3a44})); ground.rotation.x = -Math.PI / 2; ground.position.y = -1; sc.add(ground);
+const mat = new T.MeshLambertMaterial({vertexColors: true});
+const mk = (m, size) => {const d = voxelMesh(m.vox, m.pal, size), g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(d.positions, 3)); g.setAttribute('normal', new T.BufferAttribute(d.normals, 3)); g.setAttribute('color', new T.BufferAttribute(d.colors, 3)); g.setIndex(new T.BufferAttribute(d.indices, 1)); return new T.Mesh(g, mat);};
+const items = [[breznModel('green'), .1, -4.6, .35], [breznModel('red'), .1, -2.6, .35], [qBlockModel(false), .19, 0, .5], [qBlockModel(true), .19, 2.4, -.5], [crownModel(), .13, 4.6, .4]];
+for (const [m, s, x, ry] of items) {const o = mk(m, s); o.position.set(x, .5, 0); o.rotation.y = ry; sc.add(o);}
+r.render(sc, cam); window.done = true;
+</script></body></html>

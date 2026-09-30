@@ -6,6 +6,54 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 65 (01.10.2026): Einfaches Startmenü, Online-Anreize, Brezn-Trio, Fake-Block, Pixel-Itemboxen, neue Chiptune-Musik
+
+**Einfaches Startmenü** (Nutzerwunsch "Menü am Anfang zu abschreckend und komplex"): beim Start nur noch zwei große Knöpfe
+**🌐 Online fahren** und **🏁 Schnelles Rennen** (zuletzt gewählte Strecke und Klasse), darunter Fahrerwahl und Tagesaufgabe.
+Modi, Strecken, Kart, Lenkhilfe und Grafik liegen hinter **☰ Alle Modi, Strecken & Einstellungen**; "← Einfaches Menü" führt
+zurück. Wer das volle Menü aufmacht, bekommt es beim nächsten Besuch wieder. Controller: A startet online.
+
+**Mehr Anreize für Online** (`progress.mjs`, Tests): Online-Rennen zählen **doppelt** (×2 XP), **+20 XP je geschlagenem
+Menschen**, **+100 XP fürs erste Online-Rennen des Tages**. Drei **Lackierungen nur online** (Wiesn Blau-Weiß nach 1, Lebkuchen
+nach 3, Pixel-Pink nach 5 Online-Rennen, 🌐 am Farbtupfer). Der erste Online-Sieg vor einem Menschen bringt die
+**Pixel-Krone** (Voxel), die ab dann über dem eigenen Kart schwebt – online sehen sie alle Mitspieler. Neue Erfolge
+*Wiesn-Gesellig*, *Online-Champion*, *Stammgast* (10 Online-Rennen), *Menschenkenner* (25 Menschen geschlagen). Der
+Online-Knopf zeigt den Bonus ("+100 XP heute" / "×2 XP") und die Zahl der Spieler online; das Online-Fenster listet alle Vorteile.
+
+**Wiesn-Serie** (Streak): wer an aufeinanderfolgenden Tagen fährt, bekommt beim ersten Rennen des Tages +15 XP je Serientag
+(bis Tag 7); das Menü zeigt den Stand.
+
+**Brezn-Trio** (Nutzerwunsch "3 um den Fahrer rotierende grüne/rote Panzer"): drei Pixel-Brezn kreisen ums Kart. Sie fangen
+Bananen, Fake-Blöcke und Such-Brezn ab (je eine Brezn), wer sie streift, dreht sich. Jeder Item-Druck feuert eine:
+**grün** fährt stur geradeaus die Spur entlang und trifft den Ersten, den sie erwischt (auch den Werfer), **rot** sucht den
+Nächsten vor einem. Online synchronisiert, KI nutzt beide.
+
+**Fake-Fragezeichen-Block** (Nutzerwunsch): sieht aus wie eine Itembox, nur mit kopfstehendem "¿" – wer reinfährt, rutscht
+wie auf einer Bananenschale ("FAKE! REINGELEGT 😈"). Die Hälfte der KI-Fahrer fällt drauf rein.
+
+**Retro-Voxel-Pixel-Assets** (`voxel.mjs`, Tests): kleiner Voxel-Baukasten zur Laufzeit (ASCII-Pixelkarten → nur
+Außenflächen, 8-Bit-Flächenlicht) – Brezn grün/rot, Pixel-"?"-Block, Fake-Block, Pixel-Krone. Die **Itemboxen sind jetzt
+Pixel-"?"-Blöcke**, auch im HUD.
+
+**Chiptune** – neue eigene Stücke (`art/r61/chiptune.mjs`, MP3 per ffmpeg, Lautheit angeglichen): Menü *Wiesn-Ouvertüre*,
+Pilz-Promenade *Almwiesen-Galopp*, Sonnen-Canyon *Wüstenritt*, Neon-Pilzwald *Leuchtpilz-Beat*, Lobby-Welt/Kotzhügel
+*Festzelt-Boogie* – damit läuft überall eigene 8-Bit-Musik. Neue Chip-Effekte (`art/r65/make_sfx.mjs`): Brezn-Wurf,
+Fake-Block (Kichern und Zerplatzen), Dreher, Flunder und Zurückploppen, Rückspiegel-Piep, Pixel-Krone-Fanfare, Online-Bonus,
+Menü-Klick, Wusch, Landung, Platschen, falsche Richtung.
+
+### Ideen für mehr Spieler (nächste Runden)
+
+- **Wochen-Cup online**: jede Woche ein fester Cup mit Online-Bestenliste und Pokal fürs Profil.
+- **Freunde-Bonus**: wer über den eigenen Einladungslink kommt, bringt beiden beim ersten gemeinsamen Rennen Extra-XP.
+- **Saison-Pass "Wiesn-Saison"**: kostenlose Belohnungsstufen (Hupen, Reifenspuren, Pixel-Hüte) über 4 Wochen.
+- **Geister-Duelle**: Zeitfahr-Geister von Freunden per Link teilen und schlagen.
+- **Emotes und Hupen** im Rennen (schon im Chat vorhanden) als schnelle Pad-Tasten, freischaltbar.
+- **Zuschauer-Modus** in der Lobby-Welt: laufendes Rennen live aus der Luft-Loisl-Kamera verfolgen.
+- **Clans / Festzelte**: Teams mit gemeinsamer Punktzahl pro Woche, Zeltfahne über dem Kart.
+- **Tägliche Glücksbrezn**: einmal am Tag ein kleines Zufallsgeschenk (Lackierung, Hupe, XP).
+- **Kurze Einstiegs-Tour**: 30-Sekunden-Übungsrunde beim ersten Start, die Drift, Hopsen und Items zeigt.
+- **Teilbare Siegerbilder**: On-Ride-Foto mit Platz und Zeit als Bild zum Teilen.
+
 ## Runde 64 (30.09.2026): Riesendom mit Retro-Pixel-Charme, Klaenge fuer Dreher und Flunder, Haenger-Suche
 
 **Riesendom mit leichtem Retro-Pixel-Voxel-Charme** (Nutzerwunsch, `art/r64/create_voxdome.py`): ein grosser Pixel-

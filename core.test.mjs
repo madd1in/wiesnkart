@@ -71,3 +71,10 @@ test('R61 Blaue Brezn: zielt auf den Fuehrenden, nie auf den Werfer, nicht fuer 
  const me=racer(0,'A',0),a=racer(1,'B',1),b=racer(2,'C',2),done=racer(3,'D',3);me.distance=100;a.distance=300;b.distance=250;done.distance=900;done.finishTime=50;
  me.item='blue';assert.deepEqual(activate(me,[me,a,b,done]),{type:'blue',target:1});
  a.item='blue';assert.equal(activate(a,[me,a,b,done]).target,2,'der Fuehrende selbst trifft den Naechsten');});
+test('R65: Brezn-Trio feuert dreimal, rote sucht den Naechsten, kreisende Brezn fangen Treffer ab',async()=>{const {orbitBlock,orbitCount,chargesFor}=await import('./core.mjs');
+ const a=racer(0,'A',0),b=racer(1,'B',1);b.distance=50;a.item='red3';a.charges=chargesFor('red3');assert.equal(orbitCount(a),3);
+ const r1=activate(a,[a,b]);assert.equal(r1.type,'red3');assert.equal(r1.target,1);assert.equal(b.stun,0,'Treffer erst beim Aufprall');assert.equal(a.item,'red3');assert.equal(a.charges,2);
+ assert.ok(orbitBlock(a));assert.equal(a.charges,1);assert.equal(activate(a,[a,b]).charges,0);assert.equal(a.item,null);assert.equal(orbitCount(a),0);assert.ok(!orbitBlock(a));
+ a.item='green3';a.charges=3;assert.equal(activate(a,[a,b]).type,'green3');assert.equal(a.charges,2);
+ a.item='fake';assert.deepEqual(activate(a,[a,b]),{type:'fake'});assert.equal(a.item,null);
+ const lead=itemWeights(1,8),mid=itemWeights(4,8);assert.ok(lead.fake>mid.fake&&lead.green3>0);assert.equal(lead.red3,0);assert.ok(mid.red3>0);});

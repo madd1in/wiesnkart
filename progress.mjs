@@ -9,9 +9,28 @@ export const RIVAL_XP = 25, DAILY_XP = 60;
 // R55: Wer ohne (oder mit leichter) Lenkhilfe faehrt, bekommt einen Aufschlag auf die Rennpunkte; jede saubere Runde
 // (kein Gras, keine Wand, kein Absturz) bringt CLEAN_XP.
 export const ASSIST_BONUS = {aus: .25, leicht: .1}, CLEAN_XP = 20;
+// R65: Anreize fuer Online-Rennen - doppelte Rennpunkte, Bonus je geschlagenem Menschen, erstes Online-Rennen des Tages
+export const ONLINE_MUL = 2, HUMAN_XP = 20, ONLINE_DAILY_XP = 100;
+// Online-Freischaltungen (Anzahl Online-Rennen): Lackierungen und die Pixel-Krone (erster Online-Sieg gegen einen Menschen)
+export const ONLINE_UNLOCKS = [
+  {n: 1, what: 'Lackierung „Wiesn Blau-Weiß“'},
+  {n: 3, what: 'Lackierung „Lebkuchen“'},
+  {n: 5, what: 'Lackierung „Pixel-Pink“'},
+];
+export const onlineNext = races => ONLINE_UNLOCKS.find(u => u.n > races) || null;
+// R65: Wiesn-Serie - wer an aufeinanderfolgenden Tagen faehrt, bekommt beim ersten Rennen des Tages einen Bonus (bis Tag 7 steigend)
+export const STREAK_XP = 15, STREAK_MAX = 7;
+export const streakXP = days => Math.min(STREAK_MAX, Math.max(0, days)) * STREAK_XP;
+export function streakUpdate(st = {}, today, yesterday) {
+  if (st.last === today) return {...st, fresh: false};
+  const days = st.last === yesterday ? (st.days || 0) + 1 : 1;
+  return {last: today, days, best: Math.max(st.best || 0, days), fresh: true};
+}
+/** Wie lang ist die Serie, wenn heute gefahren wird (fuer die Anzeige im Menue)? */
+export const streakIfToday = (st = {}, today, yesterday) => st.last === today ? (st.days || 0) : st.last === yesterday ? (st.days || 0) + 1 : 1;
 
 // XP eines Rennens mit Aufschluesselung (fuer die Ergebnisanzeige)
-export function raceXP({place, cc, stats = {}, assist}) {
+export function raceXP({place, cc, stats = {}, assist, online, humansBeaten, onlineFirst, streakDays}) {
   const mt = stats.mt || {}, parts = [['Platz ' + place, PLACE_XP[place - 1] || 20]];
   const add = (k, v) => {if (v > 0) parts.push([k, Math.round(v)]);};
   add('Drift-Turbos', (mt.mini || 0) * 4 + (mt.super || 0) * 8 + (mt.ultra || 0) * 15);
@@ -26,6 +45,12 @@ export function raceXP({place, cc, stats = {}, assist}) {
   add('Saubere Runden', (stats.cleanLaps || 0) * CLEAN_XP);
   const bonus = ASSIST_BONUS[assist] || 0;
   if (bonus) add(assist === 'aus' ? 'Ohne Lenkhilfe' : 'Leichte Lenkhilfe', parts.reduce((a, p) => a + p[1], 0) * bonus);
+  if (online) {
+    add('🌐 Online ×' + ONLINE_MUL, parts.reduce((a, p) => a + p[1], 0) * (ONLINE_MUL - 1));
+    add('Menschen geschlagen', (humansBeaten || 0) * HUMAN_XP);
+    if (onlineFirst) add('Erstes Online-Rennen heute', ONLINE_DAILY_XP);
+  }
+  if (streakDays) add('🔥 Wiesn-Serie Tag ' + streakDays, streakXP(streakDays));
   const mul = CLASS_MUL[cc] || 1;
   return {parts, mul, total: Math.round(parts.reduce((a, p) => a + p[1], 0) * mul)};
 }
@@ -85,13 +110,19 @@ export const ACH = [
   // R60: je neue Strecke einer zur eigenen Idee
   {id: 'tide', n: 'Gezeitenkenner', d: 'Schildkröten-Bucht: nimm die Sandbank dreimal trocken', t: r => r.track === 8 && cnt(r.stats, 'tideDry') >= 3},
   {id: 'iceking', n: 'Eisstock-König', d: 'Eisstock-See ohne Eisblock und Eisstock', t: r => r.track === 9 && r.finished && !cnt(r.stats, 'iceHits')},
+  // R65: Online
+  {id: 'net1', n: 'Wiesn-Gesellig', d: 'Fahre dein erstes Online-Rennen', t: r => !!r.online},
+  {id: 'netwin', n: 'Online-Champion', d: 'Gewinne online vor mindestens einem Menschen (Pixel-Krone!)', t: r => !!r.online && r.place === 1 && (r.humansBeaten || 0) >= 1},
+  {id: 'net10', n: 'Stammgast', d: 'Fahre 10 Online-Rennen', t: (r, p) => (p.onl || 0) >= 10},
+  {id: 'netbeat', n: 'Menschenkenner', d: 'Schlage online insgesamt 25 Menschen', t: (r, p) => (p.onlBeat || 0) >= 25},
   {id: 'halberd', n: 'Hellebarden-Tänzer', d: 'Riesendom, ohne vom Riesenwächter getroffen zu werden', t: r => r.track === 10 && r.finished && !cnt(r.stats, 'halberdHits')},
 ];
 export const achById = id => ACH.find(a => a.id === id);
 
 // Rennen verbuchen: Fortschritt aktualisieren (neues Objekt), neue Erfolge und Stufenwechsel zurueckgeben
 export function recordRace(prog, r) {
-  const p = {xp: prog.xp || 0, ach: [...(prog.ach || [])], done: [...(prog.done || [])], won: [...(prog.won || [])]};
+  const p = {...prog, xp: prog.xp || 0, ach: [...(prog.ach || [])], done: [...(prog.done || [])], won: [...(prog.won || [])]};
+  if (r.online) {p.onl = (p.onl || 0) + 1; p.onlBeat = (p.onlBeat || 0) + (r.humansBeaten || 0); if (r.place === 1 && (r.humansBeaten || 0) >= 1) p.crown = true;}
   if (r.finished && r.track >= 0 && r.track < TRACKS && !p.done.includes(r.track)) p.done.push(r.track);
   if (r.place === 1 && r.track >= 0 && r.track < TRACKS && !p.won.includes(r.track)) p.won.push(r.track);
   const xp = raceXP(r), before = levelOf(p.xp).level;

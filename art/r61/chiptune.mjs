@@ -97,6 +97,22 @@ const SONGS = {
   kirmes: {title: 'Magnet-Kirmes - Rummelwalzer', bpm: 168, meter: 6, duty: .25, lead: .19, leadKind: 'organ', bass: 'waltz', drums: 'waltz', arp: 0, echo: .15,
     A: {ch: 'G G D D D7 D7 G G', mel: 'D5:2 G5:2 B5:2 | D6:4 B5:2 | C6:2 A5:2 F#5:2 | A5:4 D5:2 | C6:2 A5:2 F#5:2 | A5:2 C6:2 D6:2 | B5:2 G5:2 D5:2 | G5:4 -:2'},
     B: {ch: 'C C G G A7 D7 G D7', mel: 'E5:2 G5:2 C6:2 | E6:4 C6:2 | D6:2 B5:2 G5:2 | B5:4 G5:2 | C#6:2 A5:2 E5:2 | F#5:2 A5:2 C6:2 | B5:2 D6:2 G6:2 | F#6:2 D6:2 A5:2'}},
+  // R65: neue Chiptune-Stuecke fuer Menue, Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald und die Lobby-Welt (eigene Kompositionen)
+  menu8: {title: 'Menue - Wiesn-Ouvertuere', bpm: 138, meter: 8, duty: .25, lead: .19, bass: 'polka', drums: 'polka', arp: 16, arpDuty: .125, echo: .2,
+    A: {ch: 'G G C D G Em C D', mel: 'D5:1 G5:1 B5:1 D6:1 B5:2 G5:2 | A5:1 B5:1 A5:1 G5:1 D5:4 | E5:1 G5:1 C6:1 E6:1 D6:2 C6:2 | B5:2 A5:2 F#5:2 D5:2 | G5:1 A5:1 B5:1 G5:1 D6:2 B5:2 | E6:2 D6:1 B5:1 G5:2 E5:2 | C6:1 B5:1 A5:1 G5:1 E5:2 A5:2 | F#5:2 A5:2 D6:4'},
+    B: {ch: 'C C G G Am D G G', mel: 'E6:3 D6:1 C6:2 G5:2 | A5:1 G5:1 E5:1 G5:1 C6:4 | D6:3 C6:1 B5:2 G5:2 | B5:1 A5:1 G5:1 A5:1 B5:4 | C6:2 E6:2 A5:2 C6:2 | D6:2 F#6:2 A5:2 C6:2 | B5:1 D6:1 G6:2 D6:2 B5:2 | G5:4 -:2 D5:2'}},
+  alm: {title: 'Pilz-Promenade - Almwiesen-Galopp', bpm: 156, meter: 8, duty: .25, lead: .19, bass: 'gallop', drums: 'drive', arp: 0, echo: .22,
+    A: {ch: 'D D G A D Bm G A', mel: 'A4:1 D5:1 F#5:1 A5:1 D6:2 A5:2 | F#5:1 A5:1 F#5:1 D5:1 A4:4 | B4:1 D5:1 G5:1 B5:1 D6:2 B5:2 | C#6:2 B5:1 A5:1 E5:2 C#5:2 | D5:1 F#5:1 A5:1 D6:1 F#6:2 D6:2 | B5:2 F#5:2 D6:2 B5:2 | G5:1 B5:1 D6:1 G6:1 E6:2 C#6:2 | A5:4 E5:2 C#5:2'},
+    B: {ch: 'G G D D Em A D D', mel: 'B5:2 D6:2 G6:3 F#6:1 | E6:1 D6:1 B5:1 G5:1 D5:4 | A5:2 D6:2 F#6:3 E6:1 | D6:1 A5:1 F#5:1 A5:1 D5:4 | E5:1 G5:1 B5:1 E6:1 G6:2 E6:2 | C#6:2 E6:2 A6:2 G6:2 | F#6:1 E6:1 D6:1 C#6:1 D6:2 A5:2 | D6:4 -:4'}},
+  canyon: {title: 'Sonnen-Canyon - Wuestenritt', bpm: 144, meter: 8, duty: .5, lead: .18, bass: 'gallop', drums: 'rock', arp: 0, echo: .35, vib: .009,
+    A: {ch: 'Em Em C B Em Em Am B', mel: 'E5:3 B4:1 E5:2 G5:2 | F#5:1 G5:1 F#5:1 E5:1 B4:4 | C5:2 E5:2 G5:3 F#5:1 | F#5:4 D#5:2 B4:2 | E5:1 G5:1 B5:2 E6:3 D6:1 | B5:2 G5:2 E5:4 | A5:2 C6:2 E6:2 C6:2 | B5:4 F#5:2 D#5:2'},
+    B: {ch: 'Am Am Em Em C D B B', mel: 'A5:3 E5:1 A5:2 C6:2 | B5:1 C6:1 B5:1 A5:1 E5:4 | G5:3 E5:1 G5:2 B5:2 | A5:1 B5:1 A5:1 G5:1 E5:4 | E5:2 G5:2 C6:2 E6:2 | D6:2 A5:2 F#5:2 D6:2 | D#6:3 C#6:1 B5:2 F#5:2 | B5:6 -:2'}},
+  neon: {title: 'Neon-Pilzwald - Leuchtpilz-Beat', bpm: 128, meter: 8, duty: .125, lead: .19, bass: 'drive', drums: 'drive', arp: 16, arpDuty: .125, echo: .3,
+    A: {ch: 'Am F C G Am F C E', mel: 'A5:2 -:1 A5:1 C6:2 E6:2 | F6:2 E6:1 C6:1 A5:4 | G5:2 -:1 G5:1 C6:2 E6:2 | D6:2 B5:1 G5:1 D5:4 | E5:1 A5:1 C6:1 E6:1 A6:2 G6:2 | F6:2 C6:2 A5:2 F5:2 | G5:1 C6:1 E6:1 G6:1 E6:2 C6:2 | B5:4 G#5:4'},
+    B: {ch: 'Dm Dm Am Am F G E E', mel: 'D6:3 F6:1 A6:2 F6:2 | E6:1 D6:1 C6:1 A5:1 D5:4 | C6:3 E6:1 A6:2 E6:2 | D6:1 C6:1 B5:1 G5:1 A5:4 | A5:2 C6:2 F6:2 A6:2 | G6:2 D6:2 B5:2 G5:2 | G#5:1 B5:1 E6:1 G#6:1 B6:2 G#6:2 | E6:6 -:2'}},
+  lobby: {title: 'Lobby-Welt - Festzelt-Boogie', bpm: 132, meter: 8, swing: .62, duty: .25, lead: .2, bass: 'walk', drums: 'swing', arp: 0, stabs: true, echo: .15,
+    A: {ch: 'C C F C G F C G', mel: 'C5:1 E5:1 G5:1 A5:1 Bb5:1 A5:1 G5:2 | E5:1 G5:1 C6:2 A5:1 G5:1 E5:2 | F5:1 A5:1 C6:1 D6:1 Eb6:1 D6:1 C6:2 | G5:2 E5:1 C5:1 G4:4 | D5:1 G5:1 B5:1 D6:1 F6:2 D6:2 | C6:1 A5:1 F5:1 A5:1 C6:4 | E6:1 D6:1 C6:1 A5:1 G5:2 E5:2 | D5:2 F5:2 G5:2 B5:2'},
+    B: {ch: 'F F C C D7 G C G7', mel: 'A5:2 C6:2 F6:3 E6:1 | D6:1 C6:1 A5:1 F5:1 A5:4 | G5:2 C6:2 E6:3 D6:1 | C6:1 A5:1 G5:1 E5:1 G5:4 | F#5:1 A5:1 C6:1 D6:1 F#6:2 D6:2 | B5:2 G5:2 D6:2 B5:2 | C6:1 E6:1 G6:2 E6:1 C6:1 G5:2 | F5:2 D5:2 B4:2 G4:2'}},
 };
 
 function render(key) {

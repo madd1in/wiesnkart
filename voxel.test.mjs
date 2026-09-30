@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {voxels, extrude, voxelMesh, breznModel, qBlockModel, crownModel, flipGlyph} from './voxel.mjs';
+
+test('voxel: nur Aussenflaechen, zentriert, Farben abgestuft', () => {
+  const one = voxelMesh(voxels([['A']]), {A: 0xffffff}, 1);
+  assert.equal(one.indices.length, 36, 'Einzelwuerfel: 6 Flaechen');
+  const two = voxelMesh(voxels([['AA']]), {A: 0xffffff}, 1);
+  assert.equal(two.indices.length, 60, 'zwei Wuerfel nebeneinander: innere Flaechen fallen weg');
+  assert.deepEqual(two.size, [2, 1, 1]);
+  const xs = [...two.positions].filter((_, i) => i % 3 === 0);
+  assert.equal(Math.min(...xs), -1); assert.equal(Math.max(...xs), 1);
+  const cols = new Set([...one.colors].map(v => v.toFixed(2)));
+  assert.ok(cols.size >= 5, 'Flaechen je Richtung unterschiedlich hell');
+  assert.throws(() => voxelMesh(voxels([['Z']]), {}, 1), /Farbe fehlt/);
+});
+
+test('voxel: Modelle bauen sich, Fake-Block traegt das kopfstehende Fragezeichen', () => {
+  for (const m of [breznModel('green'), breznModel('red'), qBlockModel(false), qBlockModel(true), crownModel()]) {
+    const g = voxelMesh(m.vox, m.pal, .2);
+    assert.ok(g.indices.length > 0 && g.indices.length % 6 === 0);
+    assert.equal(g.positions.length, g.colors.length);
+  }
+  assert.equal(extrude(['AB'], 3, 'D')[2][0], 'DD');
+  assert.deepEqual(flipGlyph(['ab', 'cd']), ['dc', 'ba']);
+  const real = qBlockModel(false), fake = qBlockModel(true), q = m => [...m.vox.values()].filter(c => c === 'Q').length;
+  assert.ok(q(real) > 20 && q(real) === q(fake), 'gleich viele Zeichen-Pixel');
+  const hollow = qBlockModel(false, 9);
+  assert.ok(!hollow.vox.has('4,4,-4'), 'innen hohl');
+});
