@@ -189,7 +189,7 @@ const courses=[
   // R61 (Nutzerwunsch "XXL-Kathedralenstadt, Anti-Grav durch den Gebaeudekomplex"): Wand-Decke-Wand-Passage durch die
   // Arkadenschlucht (ueber Kopf) und eine Rundum-Tour unter den Strebebogen-Toren; city = Riesen-Kathedralen, Glockentuerme, Kuppel-Rotunden
   agrav:[[1.95,2.95,'ceiling',1],[7.75,8.75,'tour',1]],
-  city:{arches:[2.05,2.45,2.85,7.85,8.3,8.7,11.05,13.65],rows:[[1.95,2.95,1,27],[1.95,2.95,-1,27],[7.75,8.75,1,29],[7.75,8.75,-1,29]],
+  city:{arches:[2.05,2.45,2.85,7.85,8.3,8.7,11.05,13.65],rows:[[1.95,2.95,1,40],[1.95,2.95,-1,40],[7.75,8.75,1,42],[7.75,8.75,-1,42]],
    cathedrals:[[.55,1,72],[6.9,-1,82],[11.9,1,86]],towers:[[1.3,-1,56],[4.0,1,60],[5.8,-1,64],[9.3,1,60],[10.6,-1,62],[13.0,-1,58],[14.3,1,66]],rotundas:[[3.9,-1,96],[12.6,-1,105]],skyline:18},
   ramps:[[3.35,0,9]],pads:[[5.75,4],[10.6,-4]],boost:[.45,5.55,10.3],boxes:[.62,3.05,5.4,9.25,10.75,12.25],stands:[[.28,19],[9.05,-19]],
   dome:{statues:[[.1,1],[.1,-1],[2.2,1],[2.35,-1],[3.9,1],[5.3,-1],[8.3,1],[10.4,-1],[11.1,1],[13.2,-1]],candles:[[.4,1],[.55,-1],[2.6,1],[3.6,-1],[5.1,1],[8.4,-1],[10.2,1],[12.3,-1],[13.5,1]],
@@ -3043,9 +3043,11 @@ function updateBayIce(dt,t,live=true){if(!bayIce)return;const sea=-2.7;
 let cityN=null;
 function buildCity(){cityN=null;const C=course.city;if(!C||!P.domecity)return;cityN={arches:0,rows:0,big:0};
  const part=n=>r53Part('domecity',n),onIsland=(x,z,rad)=>Math.hypot(x,z)<198*WK-rad;
- for(const v of C.arches||[]){const d=cpDist(v),g=part('DC_Arch');if(!g)continue;const s=sample(d,0),y=groundAt(d,0).y;g.position.set(s.p.x,Math.max(0,y),s.p.z);g.rotation.y=s.angle;world.add(g);
-  for(const sd of [-1,1]){const q=samplePos(d,sd*22.5,_sp);addObstacle(q.x,q.z,3.4);}cityN.arches++;}
- for(const [a,b,side,off] of C.rows||[]){const d0=cpDist(a),span=lapDist(cpDist(b)-d0);for(let x=6;x<span;x+=54){const d=lapDist(d0+x),o=side*off;if(!decoSpot(d,o,6))continue;const g=part('DC_Row');if(!g)continue;lmAt(g,d,o,1);addObstacle(g.position.x,g.position.z,8);cityN.rows++;}}
+ // R61 Fix (Nutzerhinweis "bleibe an einer Spirale haengen"): die Anti-Grav-Roehre hebt und schwingt das Kart weit zur
+ // Seite - dort standen Kollisionspunkte der Pfeiler. Tore und Arkaden haben keine Kollision mehr, Tore ueber Anti-Grav-Zonen
+ // sind 1,6-fach (Pfeiler 36 m neben der Mitte, lichte Hoehe 45 m)
+ for(const v of C.arches||[]){const d=cpDist(v),g=part('DC_Arch');if(!g)continue;const s=sample(d,0),y=groundAt(d,0).y;g.position.set(s.p.x,Math.max(0,y),s.p.z);g.rotation.y=s.angle;if(agrav.some(z=>lapDist(d-z.s+12)<=z.span+24))g.scale.setScalar(1.6);world.add(g);cityN.arches++;}
+ for(const [a,b,side,off] of C.rows||[]){const d0=cpDist(a),span=lapDist(cpDist(b)-d0);for(let x=6;x<span;x+=54){const d=lapDist(d0+x),o=side*off;if(!decoSpot(d,o,6))continue;const g=part('DC_Row');if(!g)continue;lmAt(g,d,o,1);cityN.rows++;}}
  const big=(n,list,rad,sc)=>{for(const [v,side,o2] of list||[]){const d=cpDist(v);for(const o of [o2,o2+18,o2+36]){const of=side*o,s=sample(d,of);if(!onIsland(s.p.x,s.p.z,rad)||!decoSpot(d,of,rad))continue;const g=part(n);if(!g)break;lmAt(g,d,of,sc);addObstacle(g.position.x,g.position.z,rad*.7);cityN.big++;break;}}};
  big('DC_Cathedral',C.cathedrals,34,1);big('DC_Tower',C.towers,9,1);big('DC_Rotunda',C.rotundas,32,1);
  // Skyline: ein Ring riesiger Bauten ragt rund um die Insel aus dem Wolkenmeer (Sockel tief in den Wolken, bis 2,4-fach)

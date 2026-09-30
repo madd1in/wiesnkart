@@ -38,7 +38,7 @@ Auf der Xbox (oder mit `?tv=1`) Fernseh-Modus ohne Touch-Tasten und ein Hinweis:
 **Riesendom als XXL-Kathedralenstadt** (`art/r61/create_domecity.py`): Riesen-Kathedralen mit Doppeltuermen und Rosenfenster,
 Glockentuerme, Kuppel-Rotunden, Arkadenzeilen und Strebebogen-Tore quer ueber der Fahrbahn, dazu ein Ring aus Riesenbauten,
 die aus dem Wolkenmeer ragen. Zwei Anti-Grav-Passagen schlaengeln sich durch die Haeuserschluchten (Ueberkopf-Fahrt und
-Rundum-Tour unter den Toren).
+Rundum-Tour unter den Toren). Fix: in der Ueberkopf-Passage prallte man seitlich gegen unsichtbare Kollisionspunkte der Pfeiler und blieb haengen - Tore und Arkaden haben keine Kollision mehr, Tore ueber Anti-Grav-Zonen sind 1,6-fach gross.
 
 **Geisterhaus in 8/16-Bit** (`art/r61/create_voxel.py`, Voxel aus Pixelkarten): Kandelaber auf der Fahrbahn zerspringen beim
 Durchfahren in Pixelwuerfel und geben ein Item (Pixel-Herz steigt auf, 8-Bit-Klang), Pixel-Fledermaeuse, Gespenster,
