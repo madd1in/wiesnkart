@@ -22,7 +22,7 @@ import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
 import {autoNick} from './nick.mjs';
-import {voxelMesh,breznModel,qBlockModel,crownModel,topperModel,spikyShellModel,BREZN,pixels} from './voxel.mjs';
+import {voxelMesh,breznModel,qBlockModel,crownModel,topperModel,spikyShellModel,BREZN,pixels,EMOTE_PIX,EMOTE_PAL} from './voxel.mjs';
 import {TSU,tsunamiPhase,tsunamiSurf,waveFront} from './tsunami.mjs';
 import {TIDE,tideLevel,tideFlooded,tideRising,tideDryFor,SURF,surfFront,surfHits,ICE,iceSurf,curlOff,BLOCK,blockScale,SENT,sentinelState,sentinelSpan,sentinelHits,sentinelNextHot} from './surface.mjs';
 import {CANNON_T,SHRINK_T,MEGA_T,INK_T,HOP_T,miniTurbo,flattenSmall,blastHit,comboStep,racer,driveKart,turnCurve,advanceProgress,hitKart,collideKarts,maxCornerSpeed,angleDiff,lap,finish,ranking,activate,clamp,LAPS,rollItem,chargesFor,orbitCount,orbitBlock,loseSpores,addGpPoints,gpStandings,raceStars,gpPoints,MAX_SPORES,PHYS,CLASSES} from './core.mjs';
@@ -1207,7 +1207,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  {const lm=label('?','#ed6350','#fff9df',128,128),geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(new Float32Array(boxes.length*3),3));boxQ=new T.Points(geo,new T.PointsMaterial({map:lm.map,size:1.1,transparent:true,depthWrite:false}));boxQ.frustumCulled=false;world.add(boxQ);lm.dispose();}
  bm('boxes');}
 // Neues Rennen auf derselben Strecke: Welt bleibt stehen, nur Fahrer & Zustand werden zurueckgesetzt (kein Ruckler beim Start)
-function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
+function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();emotes.length=0;{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
  for(let i=0;i<SKIDS;i++){skids[i].life=0;skidMesh.setMatrixAt(i,_zeroM);}skidMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<SPARKS;i++){sparkPool[i].life=0;sparkMesh.setMatrixAt(i,_zeroM);}sparkMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<PUFFS;i++){puffPool[i].life=0;puffMesh.setMatrixAt(i,_zeroM);}puffMesh.instanceMatrix.needsUpdate=true;
  for(const b of boxes)b.cooldown=0;for(const s of spores)s.cd=0;for(const r of rings)r.flash=0;for(const p of pads)p.squash=0;lightState=-2;setLights(0);
  placeRacers();drawMap();}
@@ -2979,7 +2979,7 @@ function updateR60(dt,t,live=true){if(!r60)return;const pl=racers[0];
 // Dreher (Nutzerwunsch, wie in klassischen Kart-Spielen): nach Banane, Such-/Blauer Brezn, Oel oder einem Rempler ohne Sporen
 // dreht sich das Kart zwei-, dreimal um die eigene Achse und huepft dabei leicht. Stampfer druecken es papierduenn - es flattert
 // wie ein Blatt und ploppt nach 1,9 s zurueck. Der Rueckspiegel blendet ein, wenn ein Geschoss hinter mir auf mich zufliegt.
-function spinOut(r,turns=2,dur=1.1){if(r.spinO>0&&r.spinO>dur*.5)return;r.spinO=dur;r.spinD=dur;r.spinN=turns;if(nearPlayer(r,45))SFX.spin(r.id===0?1:.45);if(nearPlayer(r,50))for(let k=0;k<8;k++){const a=k/8*TAU;emit(r.x+Math.sin(a)*1.2,(r.y||0)+.4,r.z+Math.cos(a)*1.2,0xd8d2c4,Math.sin(a)*2,1+Math.random(),Math.cos(a)*2,.5);}}
+function spinOut(r,turns=2,dur=1.1){if(r.spinO>0&&r.spinO>dur*.5)return;r.spinO=dur;r.spinD=dur;r.spinN=turns;emote(r,'angry');if(r.lastHitBy!==undefined&&r.lastHitBy!==r.id&&elapsed-(r.lastHitT??-9)<.4)emote(racers[r.lastHitBy],'happy');if(nearPlayer(r,45))SFX.spin(r.id===0?1:.45);if(nearPlayer(r,50))for(let k=0;k<8;k++){const a=k/8*TAU;emit(r.x+Math.sin(a)*1.2,(r.y||0)+.4,r.z+Math.cos(a)*1.2,0xd8d2c4,Math.sin(a)*2,1+Math.random(),Math.cos(a)*2,.5);}}
 function flatten(r,dur=1.9){r.flat=dur;r.squash=0;if(nearPlayer(r,50))SFX.flat(r.id===0?1:.5);if(nearPlayer(r,60)){for(let k=0;k<10;k++)emit(r.x,(r.y||0)+.3,r.z,0xfff6d8,(Math.random()-.5)*6,.5+Math.random()*2,(Math.random()-.5)*6,.5);}}
 function r63Tick(r,me,dt){
  if(r.flat>0){r.flat=Math.max(0,r.flat-dt);if(r.flat===0){r.squash=.6;if(me||nearPlayer(r,40)){if(!playClip('s_c_unflat',sfxGain,me?.8:.4)){sfxTone(240,720,.16,'square',.05);sfxTone(480,1100,.1,'triangle',.04,.08);}}}}
@@ -3336,9 +3336,10 @@ function emit(x,y,z,color,vx,vy,vz,life=.5){const i=sparkIdx++%SPARKS,s=sparkPoo
 function burst(r,color,n=5){const p=r.mesh.position;for(let i=0;i<n;i++){const a=Math.random()*TAU;emit(p.x,p.y+.5,p.z,color,Math.sin(a)*4,2+Math.random()*3,Math.cos(a)*4,.6);}}
 const marks=new T.Group();scene.add(marks);
 const markGeo=new T.PlaneGeometry(.32,.95);markGeo.rotateX(-Math.PI/2);sharedGeo.add(markGeo);
-const SKIDS=160,skidMesh=fxMesh(markGeo,new T.MeshBasicMaterial({color:0x14181f,transparent:true,opacity:.36,depthWrite:false}),SKIDS),skids=Array.from({length:SKIDS},()=>({x:0,y:0,z:0,a:0,life:0}));let skidIdx=0;
+// R67: mehr und laenger liegende Spuren, Farbe je Untergrund (Eis hell, Sand/Schoko braun), auch beim Dreher
+const SKIDS=LITE?160:420,skidMesh=fxMesh(markGeo,new T.MeshBasicMaterial({color:0x14181f,transparent:true,opacity:.36,depthWrite:false}),SKIDS),skids=Array.from({length:SKIDS},()=>({x:0,y:0,z:0,a:0,life:0}));let skidIdx=0;
 function setSkid(i,s){if(s.life<=0){skidMesh.setMatrixAt(i,_zeroM);return;}_e.set(0,s.a,0);_q.setFromEuler(_e);_m.compose(_v.set(s.x,s.y,s.z),_q,_s.set(Math.min(1,s.life*.4),1,1));skidMesh.setMatrixAt(i,_m);}
-function dropSkid(x,y,z,angle){const i=skidIdx++%SKIDS,s=skids[i];s.x=x;s.y=y+.08;s.z=z;s.a=angle;s.life=5;setSkid(i,s);skidMesh.instanceMatrix.needsUpdate=true;}
+function dropSkid(x,y,z,angle){const i=skidIdx++%SKIDS,s=skids[i];s.x=x;s.y=y+.08;s.z=z;s.a=angle;s.life=9;setSkid(i,s);skidMesh.instanceMatrix.needsUpdate=true;}
 const puffGeo=new T.SphereGeometry(.18,8,6);sharedGeo.add(puffGeo);
 const PUFFS=40,puffMesh=fxMesh(puffGeo,new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.36,depthWrite:false}),PUFFS),puffPool=Array.from({length:PUFFS},()=>({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0}));let puffIdx=0;
 function dropPuff(r,color=0xdfe8e8){const i=puffIdx++%PUFFS,p=puffPool[i],s=Math.sin(r.h),c=Math.cos(r.h);p.x=r.x-s*1.4;p.y=(r.y||0)+.5;p.z=r.z-c*1.4;p.vx=-s*2+(Math.random()-.5);p.vy=.9;p.vz=-c*2+(Math.random()-.5);p.life=.75;puffMesh.setColorAt(i,_col.setHex(color));puffMesh.instanceColor.needsUpdate=true;}
@@ -3453,11 +3454,15 @@ function syncKart(r,dt){const s=tanAt(r.distance),e=r.mesh.rotation,dot=Math.sin
    w.piv.position.y=w.y0+c;}
   if(parts.dino)dinoAnim(parts.dino,r,dt);
   const d=parts.driver;if(d){const lean=-st*.2-(r.driftVis||0)*.3,done=r.finishTime!==null;d.rotation.z+=(lean-d.rotation.z)*Math.min(1,dt*8);d.rotation.x+=((r.air?-.2:r.czFloatS>.05?-.3:r.boost>0?.12:0)-d.rotation.x)*Math.min(1,dt*6);
-   d.position.y=.95+(parts.dy||0)+(r.air?.14:0)+Math.min(.2,(r.czFloatS||0)*.6)+(done?Math.abs(Math.sin(elapsed*8+r.id))*.3:0)+Math.sin(elapsed*17+r.id)*.015*Math.min(1,Math.abs(r.speed)/20);d.rotation.y=r.stun>0?Math.sin(elapsed*28)*.35:done?Math.sin(elapsed*5+r.id)*.4:0;}}
+   d.position.y=.95+(parts.dy||0)+(r.air?.14:0)+Math.min(.2,(r.czFloatS||0)*.6)+(done?Math.abs(Math.sin(elapsed*8+r.id))*.3:0)+Math.sin(elapsed*17+r.id)*.015*Math.min(1,Math.abs(r.speed)/20);if((frame+r.id)%6===0)r.lookT=driverLook(r);r.lookS=(r.lookS||0)+((r.lookT||0)-(r.lookS||0))*Math.min(1,dt*5);
+   d.rotation.y=r.stun>0?Math.sin(elapsed*28)*.35:done?Math.sin(elapsed*5+r.id)*.4:r.lookS;}}
  syncGlider(r,dt,spin);r.mesh.userData.shield.visible=r.shield>0&&!(r.mega>0);const fl=r.boost>0;for(const f of r.mesh.userData.flames){f.visible=fl;if(fl)f.scale.set(1,1,.7+Math.random()*.7);}
  const ug=r.mesh.userData.underglow;if(ug)ug.visible=!r.air&&magOn()&&hasMag(r.distance)&&Math.abs(r.speed)>5;
  for(const b of r.mesh.userData.brakes||[])b.visible=!!r.braking;
  syncTransform(r,dt);}
+// R67: Fahrer schauen zum naechsten Kart neben sich (oder kurz nach hinten, wenn einer dicht auffaehrt)
+function driverLook(r){if(!nearPlayer(r,50))return 0;let best=null,bd=64;for(const o of racers){if(o===r||!o.mesh?.visible)continue;const dx=o.x-r.x,dz=o.z-r.z,d2=dx*dx+dz*dz;if(d2<bd){bd=d2;best=o;}}
+ if(!best)return Math.sin(elapsed*.7+r.id*1.7)*.12;const a=angleDiff(Math.atan2(best.x-r.x,best.z-r.z),r.h);return clamp(a,-1.3,1.3)*.45;}
 // Lenkhilfe (R39, Flow): wie Smart Steering - das Kart folgt der Kurve auf der Spur, auf der es
 // gerade faehrt; die eigene Lenkung kommt obendrauf (Spur wechseln, Ideallinie, Drift). Vor Kurven,
 // die zu eng fuer das Tempo sind, geht sie vom Gas. Rechnet auf der flachen Mittellinie - in
@@ -3813,6 +3818,7 @@ function useItem(r){if(r.itemPending||(battle&&r.out))return null;const prevStun
  if(res.type==='red3'){fireShell(r,res.target,'red');if(nearPlayer(r,60))SFX.throw();}if(res.type==='green3')fireGreen(r);if(res.type==='fake')dropFake(r);if(res.type==='spiky')fireSpiky(r);
  if(res.type==='cannon')startCannon(r);if(res.type==='blue')fireBlue(r,res.target);
  if(res.type==='banana')dropBanana(r);if(res.type==='shell')fireShell(r,res.target);if(res.type==='bomb')throwBomb(r);if(res.type==='storm')stormStrike(r,res.hit);
+ if(res.type==='shield')emote(r,'love');
  if(res.type==='mega'){burst(r,0xff4a3d,16);if(!me&&Math.hypot(r.x-racers[0].x,r.z-racers[0].z)<60)SFX.mega();}
  if(res.type==='ink'){for(const id of res.targets)spawnInkcap(racers[id]);if(me)stats.inkBest=Math.max(stats.inkBest||0,res.targets.length);if(res.targets.includes(0)){inkSplash();SFX.ink();toast('TINTE! 🖋',1.1,'bad');}}
  if(net&&net.setup&&!r.net)netItem(r,res);
@@ -3890,6 +3896,21 @@ function coachTick(dt){const el=$('coach');if(coachT>0){coachT-=dt;if(coachT<=0&
  if(c.gas!=='ok'){if(pl.speed>14)coachLearn('gas');else if(elapsed>2.5&&pl.speed<4)coachShow('gas');}
  if(c.drift!=='ok'&&!worldMode&&pl.speed>13&&elapsed>6&&Math.abs(trackAt(pl.distance+22).kap)>1/40)coachShow('drift');
  if(c.item!=='ok'){coachHold=pl.item&&!pl.itemPending?coachHold+dt:0;if(coachHold>2.5)coachShow('item');}}
+// R67: Pixel-Sprechblasen ueber den Fahrern (getroffen: wuetend, Treffer gelandet/ueberholt/Ziel: froh, Riesenpanzer: Schreck)
+const emoteMats={},emotes=[];
+function emoteMat(k){if(emoteMats[k])return emoteMats[k];const c=document.createElement('canvas');c.width=c.height=64;const q=c.getContext('2d'),px=4,cell=(x,y,col)=>{q.fillStyle=col;q.fillRect(x*px,y*px,px,px);};
+ for(let y=0;y<16;y++)for(let x=0;x<16;x++){const inB=y>=1&&y<=12&&x>=1&&x<=14&&!((y===1||y===12)&&(x===1||x===14)),tail=(y===13&&x>=6&&x<=8)||(y===14&&x===7);
+  if(inB||tail){const edge=tail?(y===14||x===6||x===8):(y===1||y===12||x===1||x===14||((y===2||y===11)&&(x===2||x===13)));cell(x,y,edge?'#14264a':'#fffdf3');}}
+ cell(7,12,'#fffdf3');
+ for(const [x,y,col] of pixels(EMOTE_PIX[k],EMOTE_PAL))cell(x+3,y+2,'#'+col.toString(16).padStart(6,'0'));
+ const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.magFilter=T.NearestFilter;t.minFilter=T.NearestFilter;t.generateMipmaps=false;
+ const m=new T.SpriteMaterial({map:t,transparent:true,depthWrite:false});persistentMats.add(m);return emoteMats[k]=m;}
+function emote(r,k){if(!r?.mesh||!r.mesh.visible||(r.emoteCd||0)>elapsed||!nearPlayer(r,55))return;r.emoteCd=elapsed+2.2;
+ for(const e of emotes)if(e.r===r){e.sp.material=emoteMat(k);e.t=0;return;}
+ const sp=new T.Sprite(emoteMat(k));sp.renderOrder=5;actors.add(sp);emotes.push({sp,r,t:0});}
+function updateEmotes(dt){for(let i=emotes.length-1;i>=0;i--){const e=emotes[i];e.t+=dt;const p=e.r.mesh.position,top=(e.r.id===0?myTopper():e.r.topper)?.9:0;
+ const s=e.t<.14?e.t/.14*1.25:e.t<.24?1.25-(e.t-.14)*2.5:e.t>1.35?Math.max(0,(1.65-e.t)/.3):1;e.sp.scale.set(1.5*s,1.5*s,1);e.sp.position.set(p.x,p.y+2.9+top+Math.sin(e.t*9)*.05,p.z);
+ if(e.t>1.65||!e.r.mesh.parent){actors.remove(e.sp);emotes.splice(i,1);}}}
 // R66: "?"-Block zerspringt beim Einsammeln in Pixel-Splitter (Farben des Voxel-Blocks)
 function boxPop(b){const y=b.baseY;for(let i=0;i<22;i++){const a=Math.random()*TAU,sp=3+Math.random()*5;emit(b.x+Math.sin(a)*.5,y+Math.random()*.8,b.z+Math.cos(a)*.5,[0xf6c23c,0xf6c23c,0x8a5a10,0xffffff,0xffe89a][i%5],Math.sin(a)*sp,2.5+Math.random()*5,Math.cos(a)*sp,.55+Math.random()*.35);}}
 // R66: XXL-Stachelpanzer (Nutzerwunsch) - riesige stachelige Voxel-Kuppel, rollt schlingernd die Strecke entlang und walzt
@@ -3909,6 +3930,7 @@ function spikyStep(sh,dt){const k0=sh.t;let x,z,y;
  for(const k of racers){if(sh.hit.has(k.id)||k.finishTime!==null||k.out||(k.id===sh.owner&&sh.t<1))continue;
   const near=sh.free?Math.hypot(k.x-x,k.z-z)<2.9:Math.abs(wrapDiff(k.distance,sh.d))<2.6&&Math.abs(k.offset-sh.off)<2.8;if(!near||Math.abs((k.y||0)-y)>3.5)continue;
   sh.hit.add(k.id);spikyHit(k,sh.owner);}
+ for(const k of racers)if(!sh.free&&!sh.hit.has(k.id)&&k.id!==sh.owner){const g=wrapDiff(k.distance,sh.d);if(g>3&&g<14)emote(k,'shock');}
  return sh.t>(sh.free?7:6.5);}
 function spikyHit(k,owner){const me=k.id===0,near=nearPlayer(k,70);
  if(k.shield>0||k.mega>0){burst(k,0xffe263,14);if(me)toast('HÄLT STAND! 🍺',.9,'good');if(near)SFX.shield?.();return;}
@@ -3952,7 +3974,7 @@ function hitSpores(r){const lost=loseSpores(r);if(lost){const p=r.mesh.position;
 function shellImpact(sh){const t=racers[sh.target],me=sh.owner===0,onMe=sh.target===0,near=nearPlayer(t,60);
  if(t.shield>0){burst(t,0xffe263,14);if(onMe)toast('ABGEWEHRT!',.9,'good');if(near)SFX.shield();return;}
  if(orbitBlock(t)){burst(t,0x8beb73,14);if(onMe)toast('BREZN FÄNGT AB!',.9,'good');if(near)SFX.bump(.7);return;}
- if(t.finishTime===null){hitKart(t,1.6,.25);hitSpores(t);spinOut(t,2,1.2);}t.lastHitBy=sh.owner;t.lastHitT=elapsed;burst(t,0x8beb73,18);if(me||onMe||near)SFX.hit(me||onMe?1:.5);
+ if(t.finishTime===null){hitKart(t,1.6,.25);hitSpores(t);spinOut(t,2,1.2);}t.lastHitBy=sh.owner;t.lastHitT=elapsed;emote(racers[sh.owner],'happy');burst(t,0x8beb73,18);if(me||onMe||near)SFX.hit(me||onMe?1:.5);
  if(me){stats.hitsDealt++;say('hit');toast('VOLLTREFFER!',1,'good');}if(onMe){stats.hitsTaken++;say('ouch');toast('AUTSCH! −✦',1,'bad');shake=.45;}}
 // Bombe fliegt im Bogen voraus, landet, zischt kurz und explodiert (oder sofort bei Kontakt). Druckwelle schleudert Karts hoch.
 let bombs=[];const bombGeo=new T.SphereGeometry(.62,16,12),fuseGeo=new T.CylinderGeometry(.06,.06,.45,6),bombMat=stdMat({color:0x2a2238,roughness:.35,metalness:.2}),bombCap=stdMat({color:0xff3b30,roughness:.5}),sparkBall=new T.MeshBasicMaterial({color:0xffe066});
@@ -4219,7 +4241,7 @@ function update(dt){
   const sx=Math.sin(r.h),cz=Math.cos(r.h);
   if(r.driftDir&&!r.air&&frame%2===0&&nearPlayer(r,90)){const lvl=miniTurbo(r.drift)?.[2]||null;if(lvl)for(const side of [-1,1])emit(r.x-sx*1.3+cz*side*.9,r.y+.25,r.z-cz*1.3-sx*side*.9,MT_COLORS[lvl],-sx*3+(Math.random()-.5)*3,1.5+Math.random()*2,-cz*3+(Math.random()-.5)*3,.3);}
   // Reifenspuren liegen flach am Boden - an der Halfpipe-Wand landeten sie sonst hinter der Pipe im Gras (R52)
-  if(!r.air&&!(r.hpOn&&Math.abs(r.offset)>HP.flat-.6)&&(r.driftDir||Math.abs(r.slide)>2.2)&&Math.abs(r.speed)>8&&frame%3===0&&nearPlayer(r,70))for(const side of [-1,1])dropSkid(r.x-sx*.9+cz*side*.85,r.y,r.z-cz*.9-sx*side*.85,r.h);
+  if(!r.air&&!(r.hpOn&&Math.abs(r.offset)>HP.flat-.6)&&(r.driftDir||Math.abs(r.slide)>2.2||(r.spinO>0&&Math.abs(r.speed)>3))&&(Math.abs(r.speed)>8||r.spinO>0)&&frame%3===0&&nearPlayer(r,70))for(const side of [-1,1])dropSkid(r.x-sx*.9+cz*side*.85,r.y,r.z-cz*.9-sx*side*.85,r.h);
   if(me&&offroad&&r.combo){if(r.combo>=2)toast('COMBO WEG',.7,'bad');r.combo=0;}
  // Ueberkopf: kopfueber zieht das Kart eine Funkenspur
  {const lq3=loops.length?loopAt(r.distance):null;
@@ -4265,9 +4287,9 @@ function update(dt){
    else if((a.id===0||b.id===0)&&rel>6){SFX.bump(clamp(rel/25,.2,.8));shake=Math.max(shake,.15);}}}
  // R57: Arena-Wand auch nach den Rempeleien - sonst schoben Kollisionen Bots ueber den Rand, wo der Boden fehlte
  if(battle&&arenaOn())for(const r of racers)if(!r.net&&(!battle.open||r.fighter))arenaWall(r);
- updateShots(dt);updateBombs(dt);updateInk(dt);updateOrbits(dt);coachTick(dt);
+ updateShots(dt);updateBombs(dt);updateInk(dt);updateOrbits(dt);coachTick(dt);updateEmotes(dt);
  const newOrder=ranking(racers),place=newOrder.indexOf(player)+1;
- if(place<lastPlace&&elapsed>2&&!battle){stats.overtakes+=lastPlace-place;SFX.overtake();toast(`▲ PLATZ ${place}`,.9,'good');}
+ if(place<lastPlace&&elapsed>2&&!battle){stats.overtakes+=lastPlace-place;SFX.overtake();if(place<=3||Math.random()<.35)emote(racers[0],'happy');toast(`▲ PLATZ ${place}`,.9,'good');}
  if(place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
  // Falsche Richtung
  // R52: im Wiesnland gibt es keine falsche Richtung - dort faehrt man, wohin man will (Nutzerhinweis: staendige Anzeige)

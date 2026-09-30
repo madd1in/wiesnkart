@@ -166,3 +166,12 @@ export function spikyShellModel(R = 6) {
   for (let k = 0; k < 6; k++) {const a = k / 6 * Math.PI * 2, rr = R * .72; const x = Math.round(Math.cos(a) * rr), z = Math.round(Math.sin(a) * rr), y = Math.round(Math.sqrt(Math.max(0, R * R - x * x - z * z)) / 1.05); spike(x, y, z, 3);}
   return {vox, pal: {S: 0x2f7a36, P: 0x49a84f, D: 0x1c4a22, R: 0xf1e2b4, W: 0xf7f5ee, T: 0xb9b3a4}};
 }
+
+// ---------------------------------------------------------------- R67: Pixel-Gesichter fuer Sprechblasen ueber den Fahrern
+export const EMOTE_PIX = {
+  happy: ['..YYYYYY..', '.YYYYYYYY.', 'YYKYYYYKYY', 'YYKYYYYKYY', 'YYYYYYYYYY', 'YKYYYYYYKY', 'YYKYYYYKYY', '.YYKKKKYY.', '..YYYYYY..'],
+  angry: ['..RRRRRR..', '.RKRRRRKR.', 'RRRKRRKRRR', 'RRKKRRKKRR', 'RRRRRRRRRR', 'RRRRRRRRRR', 'RRRKKKKRRR', '.RKRRRRKR.', '..RRRRRR..'],
+  shock: ['..BBBBBB..', '.BBBBBBBB.', 'BBKKBBKKBB', 'BBKKBBKKBB', 'BBBBBBBBBB', 'BBBBKKBBBB', 'BBBKBBKBBB', '.BBBKKBBB.', '..BBBBBB..'],
+  love: ['.PP...PP..', 'PPPP.PPPP.', 'PPPPPPPPP.', 'PPPPPPPPP.', '.PPPPPPP..', '..PPPPP...', '...PPP....', '....P.....', '..........'],
+};
+export const EMOTE_PAL = {Y: 0xffd23a, K: 0x14264a, R: 0xff5a44, B: 0x7ec8ff, P: 0xff5fa8};
