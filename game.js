@@ -5558,7 +5558,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  intro:v=>{introForce=!!v;return introT;},fall:()=>{const r=racers[0];r.safeD=lapDist(r.distance);respawn(r);return !!r.rescue;},loisl:()=>({mode:loisl?.mode,vis:loisl?.g.visible,rescue:!!racers[0]?.rescue,fan:!!fanfare,light:lightState,bgm:bgm.current}),
  tsunami:()=>tsu&&{t0:tsu.t0,ph:tsu.ph,surf:tsu.surf},tsuAt:v=>{if(tsu){tsu.at=v<0?elapsed:v;tsu.t0=null;tsu.msg='';}return !!tsu;},
  bayice:()=>bayIce&&{n:bayIce.n,dol:bayIce.dol.length},
- pix:()=>domePix&&{deco:domePix.deco,clouds:domePix.clouds.length,birds:domePix.birds.length,sun:!!domePix.sun},
+ pix:()=>domePix&&{deco:domePix.deco,clouds:domePix.clouds.length,birds:domePix.birds.length,sun:!!domePix.sun,sunPos:domePix.sun?domePix.sun.position.toArray().map(Math.round):null},
  city:()=>cityN,
  vox:()=>vox&&{candles:vox.candles.map(c=>[Math.round(c.d),c.off,c.broke?1:0]),bats:vox.bats.length,ghosts:vox.ghosts.length,deco:vox.deco,moon:!!vox.moon},
  crt:v=>{if(v!==undefined)crtSet(v);return crtOn;},
