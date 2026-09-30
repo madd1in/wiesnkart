@@ -88,4 +88,23 @@ report.push(wav('bonus', render(.8, [{type: 'sq', duty: .25, steps: arp(['C6', '
 // R66 XXL-Stachelpanzer: tiefes Grollen mit Rechteck-Knurren (Abwurf) und Walzen-Krach (Treffer)
 report.push(wav('spiky', render(.9, [{type: 'sq', duty: .25, f0: 90, f1: 140, vib: [17, .08], vol: .2, attack: .03, hold: .5, decay: 1.2}, {type: 'tri', f0: 60, f1: 45, vol: .4, hold: .5}, {type: 'noise', f0: 700, vol: .12, attack: .05, hold: .4, decay: 1.3}])));
 report.push(wav('crush', render(.6, [{type: 'noise', f0: 1400, vol: .28, decay: 1.5}, {type: 'sq', duty: .5, f0: 520, f1: 60, vol: .2, decay: 1.2}, {type: 'tri', f0: 110, f1: 40, vol: .4, decay: 1.4}, {type: 'noise', f0: 9000, short: true, at: .05, len: .2, vol: .06, decay: 2}])));
+// R66 Ergebnis-Jingles (eigene Kompositionen): Sieg/Treppchen-Fanfare in C-Dur, "Nochmal!" mit Posaunen-Wahwah und Aufschwung
+const ph = (at, notes, len, o = {}) => ({type: 'sq', duty: .25, at, len, steps: notes.map(([t, n]) => [t, note(n)]), vol: .2, hold: .85, decay: 1.1, ...o});
+report.push(wav('win', render(5.0, [
+  ph(0, [[0, 'G5'], [.15, 'C6'], [.3, 'E6'], [.45, 'G6'], [.75, 'E6'], [.9, 'G6']], 1.45),
+  ph(1.5, [[0, 'F6'], [.15, 'E6'], [.3, 'D6'], [.45, 'C6'], [.6, 'D6']], 1.15),
+  ph(2.7, [[0, 'E6'], [.15, 'F6'], [.3, 'G6'], [.6, 'C7']], 2.2, {hold: .6, vib: [5.5, .006]}),
+  ph(0, [[0, 'E5'], [.15, 'E5'], [.3, 'C6'], [.45, 'E6'], [.75, 'C6'], [.9, 'E6']], 1.45, {duty: .5, vol: .08}),
+  ph(1.5, [[0, 'D6'], [.15, 'C6'], [.3, 'B5'], [.45, 'A5'], [.6, 'B5']], 1.15, {duty: .5, vol: .08}),
+  ph(2.7, [[0, 'C6'], [.15, 'D6'], [.3, 'E6'], [.6, 'G6']], 2.2, {duty: .5, vol: .08, hold: .6}),
+  {type: 'tri', at: 0, len: 4.9, steps: [[0, note('C3')], [.45, note('C4')], [.75, note('G3')], [1.5, note('F3')], [2.1, note('G3')], [2.7, note('A3')], [3.0, note('G3')], [3.3, note('C3')]], vol: .32, hold: .9, decay: 1},
+  ...[0, .45, .9, 1.5, 2.1, 2.7, 3.3].map(at => ({type: 'noise', f0: 2400, at, len: .16, vol: .14, decay: 2.2})),
+  ...[3.0, 3.075, 3.15, 3.225].map(at => ({type: 'noise', f0: 5200, at, len: .07, vol: .09, decay: 2})),
+  {type: 'noise', f0: 9500, short: true, at: 3.3, len: 1.5, vol: .05, decay: 1.4}])));
+report.push(wav('lose', render(3.3, [
+  {type: 'sq', duty: .5, at: 0, len: 1.4, steps: [[0, note('C5')], [.25, note('B4')], [.5, note('A#4')], [.75, note('A4')]], vib: [5, .018], vol: .2, hold: .8, decay: 1.2},
+  {type: 'sq', duty: .25, at: 1.5, len: 1.7, steps: [[0, note('F5')], [.12, note('G5')], [.24, note('A5')], [.4, note('C6')]], vol: .2, hold: .6, decay: 1.2},
+  {type: 'sq', duty: .5, at: 1.9, len: 1.3, f0: note('A5'), vol: .07, hold: .6},
+  {type: 'tri', at: 0, len: 3.2, steps: [[0, note('F3')], [.75, note('D3')], [1.5, note('F3')], [1.9, note('C3')], [2.2, note('F3')]], vol: .3, hold: .85, decay: 1},
+  ...[0, .75, 1.9].map(at => ({type: 'noise', f0: 1600, at, len: .14, vol: .12, decay: 2.3}))])));
 console.table(report);

@@ -6,6 +6,32 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 66 (01.10.2026): XXL-Stachelpanzer, Voxel-Aufsätze, Glücksbrezn, Auto-Spitznamen, Fahrschule, 8-Bit-Jingles
+
+**XXL-Stachelpanzer** (Nutzerwunsch, eigener Entwurf, `voxel.mjs`): eine riesige stachelige Voxel-Kuppel rollt schlingernd die
+Strecke entlang und **walzt jeden auf ihrer Spur um** (bleibt nicht stehen, trifft jeden einmal, schleudert hoch). Maß Bier und
+Riesenwuchs halten stand, kreisende Brezn opfern sich. In der Arena prallt er am Rand ab. Nur im hinteren Feld, Rückspiegel
+warnt, eigene Chip-Klänge (Grollen, Walzen-Krach), online und KI.
+
+**Voxel-Aufsätze** (Kosmetik über dem Kart, `progress.mjs` TOPPERS): Lebkuchenherz (Stufe 3), Maßkrug (3 Tage Wiesn-Serie),
+Riesenbrezn (Stufe 6), Pixel-Stern (10 Online-Rennen), Pixel-Krone (Online-Sieg). Wahl in der Fahrer-Karte (auch im einfachen
+Menü), gesperrte zeigen, wie man sie bekommt; **online sehen alle Mitspieler deinen Aufsatz**. Ein paar KI-Fahrer tragen auch
+einen. Nah an der Kamera werden fremde Aufsätze ausgeblendet.
+
+**Glücksbrezn des Tages**: einmal am Tag im Menü aufbrechen – 30 bis 250 XP (Pixel-Brezn, Pixel-Konfetti, Chip-Klang).
+
+**Automatische Spitznamen online** (Nutzerwunsch, `nick.mjs`): wer keinen Namen eingibt, fährt als „TurboBrezn42“,
+„DriftFuchs76“ … – einmal vergeben und gemerkt, 🎲 würfelt einen neuen.
+
+**Fahrschule**: Tipps im ersten Rennen nur, wenn sie gebraucht werden (kein Gas nach dem Start, erste Kurve ohne Drift-Turbo,
+Item ungenutzt), passend zu Tastatur, Touch oder Controller; gelernt = nie wieder.
+
+**Online**: kreisende Brezn reisen in den Kart-Flags mit (alte Clients ignorieren sie); Brezn-Treffer prüft jeder für seine
+eigenen Karts. Arena-Items um Brezn-Trio, Fake-Block erweitert.
+
+**8-Bit-Jingles** für Sieg/Treppchen und „Nochmal!“ (eigene Kompositionen statt der alten Samples), „?“-Blöcke zerspringen beim
+Einsammeln in Pixel-Splitter.
+
 ## Runde 65 (01.10.2026): Einfaches Startmenü, Online-Anreize, Brezn-Trio, Fake-Block, Pixel-Itemboxen, neue Chiptune-Musik
 
 **Einfaches Startmenü** (Nutzerwunsch "Menü am Anfang zu abschreckend und komplex"): beim Start nur noch zwei große Knöpfe

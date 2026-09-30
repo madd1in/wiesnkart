@@ -1632,3 +1632,11 @@ body:not(.racing) #toast{z-index:70;top:auto;bottom:calc(18px + env(safe-area-in
 #online .on-name{position:relative}
 #online #onDice{margin:0 0 0 6px;padding:4px 8px;border-radius:10px;border:2px solid #14264a33;background:#fff;font-size:18px;line-height:1;cursor:pointer;vertical-align:middle;width:auto}
 #online #onDice:hover{transform:rotate(-12deg) scale(1.08)}
+/* R66: Fahrschule (Tipps im ersten Rennen) */
+#coach{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);z-index:8;display:flex;align-items:center;gap:10px;max-width:min(560px,92vw);
+ padding:9px 16px;border-radius:16px;background:#fffdf3;border:3px solid var(--wk-ink);box-shadow:0 5px 0 var(--wk-ink);color:var(--wk-ink);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none}
+#coach.on{opacity:1;transform:translate(-50%,0)}
+#coach b{flex:none;padding:3px 8px;border-radius:999px;background:var(--wk-yellow);font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:12px}
+#coach span{font-weight:800;font-size:15px;line-height:1.25}
+@media (max-width:620px){#coach{bottom:calc(210px + env(safe-area-inset-bottom,0px))}#coach span{font-size:13px}}
+@media (pointer:coarse) and (orientation:landscape){#coach{bottom:calc(120px + env(safe-area-inset-bottom,0px))}#coach span{font-size:12.5px}}
