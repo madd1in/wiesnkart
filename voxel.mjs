@@ -175,3 +175,47 @@ export const EMOTE_PIX = {
   love: ['.PP...PP..', 'PPPP.PPPP.', 'PPPPPPPPP.', 'PPPPPPPPP.', '.PPPPPPP..', '..PPPPP...', '...PPP....', '....P.....', '..........'],
 };
 export const EMOTE_PAL = {Y: 0xffd23a, K: 0x14264a, R: 0xff5a44, B: 0x7ec8ff, P: 0xff5fa8};
+
+// ---------------------------------------------------------------- R67: Voxel-Deko am Streckenrand (je Thema)
+function shape(w, h, d, fn) {const vox = new Map(); for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) for (let z = 0; z < d; z++) {const c = fn(x, y, z); if (c) vox.set(`${x},${y},${-z}`, c);} return vox;}
+const ball = (x, y, z, cx, cy, cz, r) => (x - cx) ** 2 + (y - cy) ** 2 + (z - cz) ** 2 <= r * r;
+export function decoModel(kind) {
+  if (kind === 'cactus') return {vox: shape(9, 14, 3, (x, y, z) => {
+    const trunk = x >= 3 && x <= 5 && y <= 13 && !(y === 13 && (x === 3 || x === 5));
+    const armL = (x >= 0 && x <= 1 && y >= 6 && y <= 10) || (y >= 5 && y <= 6 && x >= 0 && x <= 3);
+    const armR = (x >= 7 && x <= 8 && y >= 4 && y <= 8) || (y >= 3 && y <= 4 && x >= 5 && x <= 8);
+    if (z !== 1 && !(trunk && z >= 0)) return null;
+    if (!(trunk || armL || armR)) return null;
+    return (x + y) % 4 === 0 ? 'L' : y === 13 && x === 4 ? 'F' : 'G';}), pal: {G: 0x3f9a45, L: 0x6cc26a, F: 0xff5fa8}};
+  if (kind === 'snowman') return {vox: shape(9, 16, 9, (x, y, z) => {
+    if (y >= 14 && x >= 3 && x <= 5 && z >= 3 && z <= 5) return 'K';                         // Hut
+    if (y === 13 && x >= 2 && x <= 6 && z >= 2 && z <= 6) return 'K';
+    if (y === 10 && x === 4 && z === 8) return 'O';                                            // Karottennase
+    if (y === 11 && (x === 3 || x === 5) && z === 7) return 'K';                               // Augen
+    if (ball(x, y, z, 4, 10.5, 4, 2.6)) return 'W';
+    if (y === 8 && z >= 6 && x >= 2 && x <= 6) return 'R';                                      // Schal
+    if (ball(x, y, z, 4, 6.5, 4, 3.2)) return (y === 6 || y === 4) && x === 4 && z === 7 ? 'K' : 'W';
+    if (ball(x, y, z, 4, 2.5, 4, 3.8)) return 'W';
+    return null;}), pal: {W: 0xf4f8ff, K: 0x1d2230, O: 0xff8a1a, R: 0xe8352e}};
+  if (kind === 'palm') return {vox: (() => {const vox = new Map(), put = (x, y, z, c) => vox.set(`${x},${y},${-z}`, c);
+    let cx = 6; for (let y = 0; y <= 13; y++) {if (y === 5 || y === 10) cx++; for (const [dx, dz] of [[0, 0], [1, 0], [0, 1], [1, 1]]) put(cx + dx, y, 6 + dz, y % 3 === 0 ? 'b' : 'B');}
+    for (let k = 0; k < 7; k++) {const a = k / 7 * Math.PI * 2; for (let d = 1; d <= 6; d++) {const x = Math.round(cx + .5 + Math.cos(a) * d), z = Math.round(6.5 + Math.sin(a) * d), y = 14 - Math.floor(d * d / 9); put(x, y, z, d < 5 ? 'L' : 'D'); if (d > 1 && d < 5) put(x, y - 1, z, 'D');}}
+    put(cx - 1, 12, 6, 'C'); put(cx + 2, 12, 7, 'C'); put(cx, 12, 8, 'C');
+    return vox;})(), pal: {B: 0x9a6a3a, b: 0x7a4e26, L: 0x3cc85a, D: 0x228a3a, C: 0x5a3a1a}};
+  if (kind === 'pumpkin') return {vox: shape(9, 8, 9, (x, y, z) => {
+    if (y >= 6 && x === 4 && z === 4) return 'S';
+    if (!ball(x, y * 1.25, z, 4, 3.2 * 1.25, 4, 4.3)) return null;
+    if (z >= 7 && ((y === 4 && (x === 2 || x === 6)) || (y === 2 && x >= 2 && x <= 6 && x !== 4))) return 'Y';   // Gesicht leuchtet
+    return (x + z) % 3 === 0 ? 'o' : 'O';}), pal: {O: 0xff8a1a, o: 0xe06a10, S: 0x3f7a2a, Y: 0xfff27a}};
+  if (kind === 'shroom') return {vox: shape(11, 11, 11, (x, y, z) => {
+    if (y <= 4 && ball(x, 0, z, 5, 0, 5, 1.6)) return 'W';
+    if (y >= 5 && ball(x, y * 1.4, z, 5, 5 * 1.4, 5, 5.4) && y <= 10) return ((x * 7 + z * 3 + y * 5) % 11 === 0) && y >= 6 ? 'w' : 'R';
+    return null;}), pal: {W: 0xf4ecd8, R: 0xe8352e, w: 0xffffff}};
+  if (kind === 'mug') return topperModel('mug');
+  if (kind === 'lolly') return {vox: shape(9, 16, 3, (x, y, z) => {
+    if (x === 4 && y <= 8 && z === 1) return 'S';
+    if (y >= 8 && (x - 4) ** 2 + (y - 12) ** 2 <= 16 && z <= 2) {const rr = Math.hypot(x - 4, y - 12); return z !== 1 && rr > 3.2 ? 'D' : Math.floor(rr * 1.05) % 2 ? 'P' : 'W';}
+    return null;}), pal: {S: 0xf4ecd8, P: 0xff5fa8, W: 0xfff4f8, D: 0xd94a8a}};
+  return null;
+}
+export const DECO_FOR = {canyon: ['cactus'], ice: ['snowman'], beach: ['palm'], haunted: ['pumpkin'], forest: ['shroom'], night: ['shroom'], rainbow: ['mug'], fair: ['mug'], choco: ['lolly']};

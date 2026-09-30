@@ -41,3 +41,9 @@ test('R66: XXL-Stachelpanzer - Kuppel mit Stacheln, hohl', async () => {
   assert.ok(c.filter(x => x === 'W').length >= 7 * 3, 'sieben Stacheln'); assert.ok(c.includes('R') && c.includes('P'));
   assert.ok(!m.vox.has('0,3,0'), 'innen hohl'); assert.ok(g.size[0] > 2.5 && g.size[0] < 3.2, 'gut 2,5 m breit');
 });
+
+test('R67: Voxel-Deko je Thema baut sich', async () => {
+  const {decoModel, DECO_FOR} = await import('./voxel.mjs');
+  for (const kinds of Object.values(DECO_FOR)) for (const k of kinds) {const m = decoModel(k); assert.ok(m && m.vox.size > 20, k); const g = voxelMesh(m.vox, m.pal, .3); assert.ok(g.indices.length > 0, k);}
+  assert.equal(decoModel('unbekannt'), null);
+});

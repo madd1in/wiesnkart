@@ -22,7 +22,7 @@ import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
 import {autoNick} from './nick.mjs';
-import {voxelMesh,breznModel,qBlockModel,crownModel,topperModel,spikyShellModel,BREZN,pixels,EMOTE_PIX,EMOTE_PAL} from './voxel.mjs';
+import {voxelMesh,breznModel,qBlockModel,crownModel,topperModel,spikyShellModel,BREZN,pixels,EMOTE_PIX,EMOTE_PAL,decoModel,DECO_FOR} from './voxel.mjs';
 import {TSU,tsunamiPhase,tsunamiSurf,waveFront} from './tsunami.mjs';
 import {TIDE,tideLevel,tideFlooded,tideRising,tideDryFor,SURF,surfFront,surfHits,ICE,iceSurf,curlOff,BLOCK,blockScale,SENT,sentinelState,sentinelSpan,sentinelHits,sentinelNextHot} from './surface.mjs';
 import {CANNON_T,SHRINK_T,MEGA_T,INK_T,HOP_T,miniTurbo,flattenSmall,blastHit,comboStep,racer,driveKart,turnCurve,advanceProgress,hitKart,collideKarts,maxCornerSpeed,angleDiff,lap,finish,ranking,activate,clamp,LAPS,rollItem,chargesFor,orbitCount,orbitBlock,loseSpores,addGpPoints,gpStandings,raceStars,gpPoints,MAX_SPORES,PHYS,CLASSES} from './core.mjs';
@@ -1198,7 +1198,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
   buildTunnels();buildBridges();buildRails();buildForkVisuals();if(hpipes.length)buildHalfpipes();buildR60Late();
  bm('flags+fences');buildChevrons();bm('chevrons');
  buildScenery(random);bm('scenery');
- buildRamps();buildPads();buildSwingers();buildSpores();buildStands();buildChallenges();bm('ramps..stands');
+ buildRamps();buildPads();buildSwingers();buildSpores();buildStands();buildChallenges();buildVoxDeco();bm('ramps..stands');
  boxes=[];for(const v of course.boxes){let d=cpDist(v);if(lapDist(d+52)<66)d=lapDist(d+72);for(const k of [-4,0,4]){const s=sample(d,k);boxes.push({distance:d,offset:k,x:s.p.x,z:s.p.z,baseY:s.p.y+1.6,cooldown:0});}}
  for(const f of forks){const rel=Math.round(f.span*.55),d=f.dA+rel,o=f.offT[rel];for(const k of [-2.6,2.6]){const s=sample(d,o+k);boxes.push({distance:lapDist(d),offset:o+k,x:s.p.x,z:s.p.z,baseY:Math.max(0,s.p.y)+1.6,cooldown:0});}}
  // R65: Itemboxen als Retro-Pixel-"?"-Bloecke (voxel.mjs) - der Fake-Block sieht genauso aus, nur mit kopfstehendem "¿"
@@ -2404,6 +2404,16 @@ function buildLandmarks(){trainFx=null;if(!P.landmarks)return;const L=course.lan
 function r53Part(file,n){const o=P[file]?.getObjectByName(n);if(!o)return null;const c=o.clone(true);c.position.set(0,0,0);c.traverse(q=>{if(q.isMesh){q.castShadow=true;q.receiveShadow=true;}});return c;}
 // Freie Stelle neben der Strasse: keine Zone und kein anderer Streckenteil naeher als der eigene Versatz;
 // dicht an der Strasse zusaetzlich nicht an Tunneln, Bruecken, Rollzonen, Luecken oder Hochstrassen
+// R67: Retro-Voxel-Deko am Streckenrand je Thema (Kakteen, Schneemaenner, Palmen, Kuerbisse, Fliegenpilze, Masskruege, Lollis)
+// - instanziert (ein Zeichenaufruf je Art), feste Verteilung je Strecke, nur an freien Plaetzen (decoSpot), mit kleiner Kollision
+const DECO_SIZE={cactus:.34,snowman:.26,palm:.36,pumpkin:.24,shroom:.3,mug:.3,lolly:.3},decoGeos={};
+function decoGeo(k){if(decoGeos[k])return decoGeos[k];const m=decoModel(k),d=voxelMesh(m.vox,m.pal,DECO_SIZE[k]||.3,{ground:true}),g=new T.BufferGeometry();
+ g.setAttribute('position',new T.BufferAttribute(d.positions,3));g.setAttribute('normal',new T.BufferAttribute(d.normals,3));g.setAttribute('color',new T.BufferAttribute(d.colors,3));g.setIndex(new T.BufferAttribute(d.indices,1));g.computeBoundingSphere();sharedGeo.add(g);return decoGeos[k]=g;}
+function buildVoxDeco(){const kinds=DECO_FOR[course.theme];if(!kinds||course.openWorld||!length)return;let sd=(course.seed||1)*7919+13;const rnd=()=>((sd=(sd*16807)%2147483647)/2147483647);
+ for(const k of kinds){const want=LITE?10:Math.min(26,Math.round(length/60)),im=new T.InstancedMesh(decoGeo(k),voxMat,want);im.castShadow=!LITE;im.receiveShadow=true;let n=0;
+  for(let a=0;a<want*5&&n<want;a++){const d=rnd()*length,side=rnd()<.5?-1:1,of=side*(15+rnd()*24),sp=decoSpot(d,of,1.6);if(!sp)continue;
+   const y=Math.max(0,groundAt(d,of).y),sc=.85+rnd()*.45;_e.set(0,rnd()*TAU,0);_q.setFromEuler(_e);_m.compose(_v.set(sp.p.x,y,sp.p.z),_q,_s.setScalar(sc));im.setMatrixAt(n++,_m);addObstacle(sp.p.x,sp.p.z,.9*sc);}
+  im.count=n;if(n)world.add(im);else im.dispose();}}
 function decoSpot(d,off,rad){if(inZone(d,rad*.5)||nearLoop(d)||forkBlocks(d,off))return null;
  if(Math.abs(off)<18&&(inGap(d)||inTunnel(d)||inBridge(d)||hasRoll(d)||raiseH(d)>.5||(hpipes.length&&hpAt(d,8))))return null;
  const s=sample(d,off);if(!Number.isFinite(groundAt(d,off).y)||nearTrack(s.p.x,s.p.z,Math.min(Math.abs(off)-1.5,rad+9.5)))return null;
@@ -5723,7 +5733,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
   let m=1e9;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){if(Math.abs(pts[i][1]-pts[j][1])<far)continue;const dd=pts[i][0].distanceTo(pts[j][0]);if(dd<m)m=dd;}
   return {s:Math.round(q.s),span:Math.round(q.span),n:q.n,R:+q.R.toFixed(1),style:q.style,len:Math.round(sl),min:+m.toFixed(2)};}),
  autopilot:v=>{autopilot=v;},finishNow:()=>{racers[0].distance=length*LAPS+1;finish(racers[0],length,elapsed);end();},
- coach:id=>{coachShow(id);return $("coach").textContent;},state:()=>({state,elapsed,length,mode,cc,gp,stats,racers:racers.map(({mesh,...r})=>r)}),setItem:item=>{racers[0].item=item;racers[0].charges=chargesFor(item);},inkMe:()=>{racers[0].ink=INK_T;inkSplash();},sunPads:()=>sunPads.map(p=>[Math.round(p.d),+p.off.toFixed(1)]),sunStats:()=>stats.sunBoosts||0,inkcaps:()=>({proto:!!P.inkcap,list:inkcaps.map(e=>({vis:e.g.visible,t:+(e.t||0).toFixed(2),y:+e.g.position.y.toFixed(1),s:+e.g.scale.y.toFixed(2),parent:!!e.g.parent}))}),
+ coach:id=>{coachShow(id);return $("coach").textContent;},vdeco:()=>{const out={};world.traverse(o=>{if(o.isInstancedMesh)for(const [k,g] of Object.entries(decoGeos))if(o.geometry===g)out[k]=(out[k]||0)+o.count;});return out;},state:()=>({state,elapsed,length,mode,cc,gp,stats,racers:racers.map(({mesh,...r})=>r)}),setItem:item=>{racers[0].item=item;racers[0].charges=chargesFor(item);},inkMe:()=>{racers[0].ink=INK_T;inkSplash();},sunPads:()=>sunPads.map(p=>[Math.round(p.d),+p.off.toFixed(1)]),sunStats:()=>stats.sunBoosts||0,inkcaps:()=>({proto:!!P.inkcap,list:inkcaps.map(e=>({vis:e.g.visible,t:+(e.t||0).toFixed(2),y:+e.g.position.y.toFixed(1),s:+e.g.scale.y.toFixed(2),parent:!!e.g.parent}))}),
  padPoll:()=>{padPoll(performance.now());return {steer:pad.steer,pkeys:[...pkeys],hints:padHints,state,selected,cc,mode,focus:document.activeElement?.id||document.activeElement?.tagName};},
  wxForce:plan=>{wxOn=true;wxStart();if(plan){wxRacePlan=wxPlan=plan;wxActive=true;wxStripKey='';wxStrip();}return wxActive;},
  wxSafe:d=>wxSafe(d),wxStrike:()=>{wxStrike();return true;},
