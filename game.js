@@ -19,6 +19,7 @@ import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_S
 import {LB_TOP,ttBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
 import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
+import {CAM_VIEWS,camViewIndex,nextCamView,findCorners,noteAhead,noteLabel,lookAhead,TRAP_AT,trapCrossed,trapGrade} from './arcade.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
 import {autoNick} from './nick.mjs';
@@ -88,12 +89,12 @@ const THEMES={
 // stands [cp, Querversatz], plateau [cpStart, cpEnde, Hoehe, Rampenlaenge m], gap [cp, Laenge m], swing [cp, Amplitude, Tempo, Phase].
 const courses=[
  // R53: das Maerchenschloss steht nicht mehr am Inselrand, die Strasse fuehrt mitten hindurch (Torbau, Innenhof, Palas)
- {name:'Pilz-Promenade',icon:'✿',kind:'Almwiese · Kühe · Schloss-Durchfahrt',medals:[93,99,110],music:'alm',theme:'forest',seed:7,
+ {name:'Pilz-Promenade',icon:'✿',kind:'Almwiese · Kühe · Schloss-Durchfahrt',medals:[92,98,108],music:'alm',theme:'forest',seed:7,
   points:[[-45,-45],[-8,-8],[30,30],[72,62],[112,42],[118,-12],[82,-52],[38,-38],[-35,35],[-72,68],[-112,40],[-118,-15],[-85,-58]],sharp:[[9,13]],
   raise:[[6.55,8.45,8,44,1]],hills:[[10.6,4,.022]],elem:[[2.95,4.3,'bach']],tunnel:[[2.35,2.92,'wood']],gaps:[[11.6,12]],agrav:[[4.5,6.4,'wallrun',90]],loopc:[[10.75,13,2,1]],builds:[[.9,'roottree'],[1.7,'schloss']],
   ramps:[[4.4,0,9],[9.7,0,8]],pads:[[3.1,-4],[10.0,4]],
   pipes:[[2.1,1,1],[2.24,-1,0],[8.7,1,1],[9.35,-1,1]],landmarks:{maypoles:[[.35,1],[10.0,-1]]},pennants:[0x1a73e8,0xffffff],cows:[[9.45,10.4,3]],eggs:{klos:[[.45,-1],[9.2,1],[5.0,-1]],tentacles:[[3.2,1,14,'purple'],[2.6,-1,14,'green'],[6.1,-1,15,'purple'],[11.3,-1,14,'green'],[12.6,1,15,'purple']],signs:[[3.0,1],[11.1,-1]]},boost:[1.9,5.5,12.3],boxes:[1.6,4.9,9.3,12.0],stands:[[.2,18],[5.2,-19]]},
- {name:'Sonnen-Canyon',oil:[[3.3,-2.5,2.6],[9.1,2.2,2.4]],icon:'☀',kind:'Wüstensturm · Dünen · Sandhosen · Güterzug',medals:[125,131,142],music:'canyon',theme:'canyon',seed:23,
+ {name:'Sonnen-Canyon',oil:[[3.3,-2.5,2.6],[9.1,2.2,2.4]],icon:'☀',kind:'Wüstensturm · Dünen · Sandhosen · Güterzug',medals:[120,126,137],music:'canyon',theme:'canyon',seed:23,
   points:[[0,78],[95,78],[125,45],[120,-20],[85,-45],[105,-88],[50,-102],[2,-50],[-60,-98],[-115,-72],[-122,0],[-105,55],[-55,80]],sharp:[[4,13]],
   loopc:[[9.12,13,1,-1]],dunes:[[.55,2.25,1.7,18]],twisters:[[5.95,6,.35,0],[12.1,6,.3,1.7],[12.7,6,.33,3.1]],sand:[[4,0,8.5]],hills:[[1.5,4,.03],[4.5,6,.04]],plateau:[9.45,11.7,7,34],gaps:[[10.5,14]],fork:[[6.25,8.75,.36]],
   raise:[[2.3,3.3,7,30,1]],tunnel:[[4.6,5.85,'rock']],
@@ -102,7 +103,7 @@ const courses=[
   // R57: geheime Forschungsanlage (Bunker, Radar, Silo, Kisten, Hochbahn) und Kleinstadt-Uhrturm; Zeitsprung ab 142 km/h
   lab:{bunker:[[1.6,-1,42],[8.1,1,44],[11.4,-1,44]],dishes:[[2.0,1,30],[7.3,-1,34],[12.0,1,32],[5.2,1,40]],silos:[[1.2,1,38],[12.4,-1,36],[8.6,-1,40]],
    crates:[[1.45,-1,17],[1.95,1,16],[8.25,1,17],[12.05,-1,17],[7.9,-1,18]],clock:[[.55,-1,30],[.4,1,32]],tram:[.6,2.2,1,27]},timewarp:1},
- {name:'Neon-Pilzwald',icon:'✦',kind:'Beat · Taktschranken · Oktoberfest',medals:[115,121,132],music:'neon',theme:'night',seed:41,
+ {name:'Neon-Pilzwald',icon:'✦',kind:'Beat · Taktschranken · Oktoberfest',medals:[105,111,121],music:'neon',theme:'night',seed:41,
   points:[[0,70],[50,75],[80,50],[55,25],[85,0],[95,-45],[55,-60],[30,-35],[0,-60],[-30,-95],[-80,-80],[-70,-40],[-105,-10],[-95,40],[-60,35],[-40,65]],
   hills:[[10.5,5,.035]],raise:[[1.1,2.1,7,28,1]],tunnel:[[8.9,10.3,'neon']],gaps:[[12.55,12]],agrav:[[8.6,10.75,'roll',1]],elem:[[2.36,5.6,'see',{loop:[3,11,1]}]],
   ramps:[[10.6,0,8]],pads:[[4.4,3],[12.4,-3]],
@@ -110,7 +111,7 @@ const courses=[
   // R53 Pilz-Wiesn: Buden, Masskrug-Schilder, Faesser, Biertische, Kettenkarussells, zweites Zelt, Wimpelketten, Riesenrad
   wiesn:{stalls:[[.5,-1],[1.25,-1],[11.65,-1],[12.75,1],[14.45,-1],[6.2,1]],steins:[[.95,1],[11.3,1],[13.7,-1],[14.9,1],[3.2,-1]],barrels:[[1.15,1],[12.3,-1],[6.6,1]],
    benches:[[11.85,-1,22],[12.2,-1,23],[.6,1,24],[1.4,1,22]],carousels:[[1.7,-1,34],[13.0,1,36],[7.4,-1,40]],tent2:[14.2,1],bunting:[.3,1.0,1.55,11.25,12.9,14.75,15.5],ferris:1},pennants:[0x1a73e8,0xffffff],beatgates:[[11.05],[11.9],[14.1]],boost:[.6,6.3,11.6],fork:[[5.75,8.75,.36]],boxes:[1.3,3.6,6.9,9.8,13.8],stands:[[.25,18],[10.85,-19]]},
- {name:'Geisterhaus',icon:'👻',kind:'Spuk · Gewitter · Geisterhände',medals:[101,108,120],music:'gothic8',bgmRate:.9,theme:'haunted',seed:66,
+ {name:'Geisterhaus',minR:24,icon:'👻',kind:'Spuk · Gewitter · Geisterhände',medals:[101,108,120],music:'gothic8',bgmRate:.9,theme:'haunted',seed:66,
   points:[[0,70],[55,78],[95,55],[105,10],[70,-16],[100,-60],[70,-95],[20,-90],[-30,-90],[-75,-95],[-112,-55],[-104,-18],[-93,12],[-104,40],[-80,70],[-40,76]],
   hills:[[3.5,4,.03],[13.6,5,.03]],mansion:7.8,raise:[[9.9,11.1,8,34,1]],tunnel:[[2.2,3.6,'crypt']],agrav:[[11.4,13.4,'ceiling',1]],coaster:[[8.2,9.82,'hills']],loopc:[[4.1,12,1,-1]],elem:[[5.9,7.85,'see']],
   ramps:[[5.4,0,9],[13.5,0,8]],pads:[[4.6,3],[14.6,-3]],
@@ -126,13 +127,13 @@ const courses=[
    windows:[[1.1,1,24],[3.9,1,22],[9.4,1,24],[14.45,-1,24],[12.0,-1,26]],fences:[[.35,-1],[.65,-1],[1.25,1],[1.55,1],[13.85,-1],[14.35,1],[14.9,1],[15.25,-1]],
    spires:[[.9,-1,70],[4.4,1,80],[8.4,-1,75],[12.6,1,85],[15.0,-1,72]]},
   hands:[[.7,2.1,6]],boost:[.5,6,12.5],ghosts:[[1.6,5.5,.9,0],[5.3,5.5,1.1,2],[7.5,4.2,1,.5],[10.4,5.5,.8,4],[12.9,5.5,1.2,1]],boxes:[1.2,4.1,9.6,13.9],stands:[[.3,-19],[13.2,19]]},
- {name:'Lava-Feste',icon:'\u2668',kind:'Burg \u00b7 Magma \u00b7 Feuerb\u00e4lle',medals:[111,117,128],music:'lava',bgmRate:1.06,theme:'lava',seed:88,
+ {name:'Lava-Feste',icon:'\u2668',kind:'Burg \u00b7 Magma \u00b7 Feuerb\u00e4lle',medals:[109,115,126],music:'lava',bgmRate:1.06,theme:'lava',seed:88,
   points:[[-80,86],[0,90],[80,84],[118,56],[126,12],[112,-34],[92,-74],[44,-98],[-14,-94],[-62,-86],[-92,-56],[-72,-26],[-96,6],[-118,44],[-108,74]],
   castle:1.05,hills:[[8.6,3,.028]],elem:[[2.62,4.52,'flug']],raise:[[12.3,13.45,14,44,1]],tunnel:[[4.6,5.25,'pipe'],[12.95,13.12,'breach']],towers:[[12.8]],gaps:[[8.15,14]],agrav:[[9.45,12.0,'tour',1]],loopc:[[6.4,14,2,1]],
   swing:[[5.6,5,1,.9],[7.0,5,1.05,2],[12.2,5,1,.3]],cannons:[[2.2,1],[13.3,0,1]],stampers:[[13.72,-3.6,0],[13.95,3.6,1.8]],
   ramps:[[2.4,0,9],[9.7,0,8]],pads:[[5.9,-4]],
   boost:[.55,6.4,11.8],boxes:[1.6,4.4,8.0,9.9,13.6],stands:[[.4,18],[8.6,-19]]},
- {name:'Bierstraße',oil:[[2.6,2.2,2.4],[7.4,-2.5,2.6]],icon:'🍺',kind:'Bier-Fahrbahn \u00b7 Maßkrug-Stampfer \u00b7 Sternschnuppen',medals:[127,133,144],music:'polka',bgmRate:1.04,theme:'rainbow',seed:101,
+ {name:'Bierstraße',oil:[[2.6,2.2,2.4],[7.4,-2.5,2.6]],icon:'🍺',kind:'Bier-Fahrbahn \u00b7 Maßkrug-Stampfer \u00b7 Sternschnuppen',medals:[121,127,137],music:'polka',bgmRate:1.04,theme:'rainbow',seed:101,
   points:[[0,90],[70,88],[120,52],[108,-2],[128,-52],[96,-96],[36,-104],[-18,-78],[-8,-30],[-52,-8],[-104,-30],[-126,16],[-96,64],[-40,84]],
   loopc:[[6.2,21,2,-1,'curve']],agrav:[[2.05,4.05,'roll',1],[8.85,10.8,'ceiling',1]],coaster:[[10.9,12.95,'hills']],
   hills:[[8.4,5,.03]],gaps:[[4.55,13]],elem:[[.3,1.72,'flug']],stampers:[[5.0,3.6,.9],[13.1,-3.6,0],[13.28,3.6,1.8]],
@@ -140,7 +141,7 @@ const courses=[
   meteors:[[4.7,5.85]],boost:[.6,5.4,11.4],boxes:[1.4,4.0,7.9,10.7,.45]},
  // R38: Kirmes-Strecke rund um die Magnet-Achterbahn (Katapult, Top-Hat, Kamelruecken, Bunny-Hop),
  // dazu Looping auf der rechten Geraden und ein Korkenzieher links.
- {name:'Magnet-Kirmes',oil:[[4.4,-2.2,2.5],[10.8,2.5,2.4]],icon:'❂',kind:'Achterbahn · Magnet-Katapult · Airtime',medals:[119,125,136],music:'kirmes',bgmRate:1.05,theme:'fair',seed:138,
+ {name:'Magnet-Kirmes',oil:[[4.4,-2.2,2.5],[10.8,2.5,2.4]],icon:'❂',kind:'Achterbahn · Magnet-Katapult · Airtime',medals:[118,124,135],music:'kirmes',bgmRate:1.05,theme:'fair',seed:138,
   points:[[0,92],[70,94],[118,66],[132,10],[126,-48],[96,-92],[40,-110],[-30,-112],[-92,-100],[-126,-56],[-122,0],[-90,26],[-104,60],[-60,88]],
   coaster:[[5.45,9.2,'dragon']],loopc:[[12.3,16,1,-1]],halfpipe:[[.95,110]],elem:[[1.82,4.75,'see',{loop:[2,15,1]}]],agrav:[[9.3,11.3,'roll',1]],
   hills:[[11.9,4,.03]],
@@ -159,7 +160,7 @@ const courses=[
  // Schildkroeten-Bucht: Strandpromenade mit Brandungswellen (surf), Sandbank-Abkuerzung mit Ebbe und Flut (tide = Index
  // der Abzweigung), Bootsfahrt durch die Lagune, Wellen-Looping an der Steilkueste, Krabben queren den Strand.
  // bay:{palms,huts,chairs,shades,boards,light,turtles} [cp, Seite, Versatz m]
- {name:'Schildkröten-Bucht',icon:'🏝',kind:'Lagune · Gezeiten · Brandung · Krabben',medals:[114,120,131],music:'beach',bgmRate:1.04,theme:'beach',seed:177,
+ {name:'Schildkröten-Bucht',icon:'🏝',kind:'Lagune · Gezeiten · Brandung · Krabben',medals:[112,118,129],music:'beach',bgmRate:1.04,theme:'beach',seed:177,
   points:[[-60,98],[10,102],[75,92],[118,62],[130,10],[112,-38],[66,-46],[98,-98],[32,-132],[-45,-118],[-104,-84],[-124,-22],[-100,28],[-116,70]],
   surf:[[.5,1.9]],fork:[[6.3,8.9,.3]],tide:[0],elem:[[9.45,10.9,'bach']],loopc:[[3.55,15,1,1]],hills:[[5.1,4,.03],[12.2,3,.02]],crabs:[[12.05,13.45,3],[2.2,2.8,1]],
   ramps:[[2.45,0,9]],pads:[[2.95,4],[11.25,-4]],boost:[.3,4.6,11.7],boxes:[1.3,3.1,5.4,9.05,12.3],stands:[[.2,18],[5.8,-19]],
@@ -174,7 +175,7 @@ const courses=[
   bay2:{isle:[1.1],wreck:[5.0],castles:[[3.0,1,24],[3.1,-1,26],[11.9,-1,26],[8.2,1,30]],guards:[[.9,-1,15],[4.9,1,15],[12.2,1,15],[13.8,-1,15]],dolphins:[1.0,1.5,4.8,5.3,9.1,12.6,13.4]}},
  // Eisstock-See: zugefrorener Bergsee - Glatteis (weniger Seitenhalt, Drift laedt schneller), Eisstoecke gleiten quer,
  // Eisbloecke zerspringen, Gletscherspalte, Eishoehle, Bobbahn (Halfpipe). snow:{firs,men,huts,cabin,chapel,lane}
- {name:'Eisstock-See',icon:'❄',kind:'Glatteis · Eisstöcke · Eishöhle · Bobbahn',medals:[121,127,139],music:'ice',bgmRate:.97,theme:'ice',seed:211,
+ {name:'Eisstock-See',icon:'❄',kind:'Glatteis · Eisstöcke · Eishöhle · Bobbahn',medals:[117,123,134],music:'ice',bgmRate:.97,theme:'ice',seed:211,
   points:[[0,-95],[-60,-100],[-110,-70],[-125,-10],[-95,35],[-40,20],[10,50],[-15,95],[50,110],[110,85],[120,30],[90,-15],[115,-60],[70,-100]],
   ice:[[4.72,6.62],[10.55,11.55]],curling:[[5.25,5.6,.7,0],[6.1,5.6,.6,2.2],[11.05,5.2,.75,1]],blocks:[[5.6,-4.6],[5.62,4.6],[5.95,0],[11.32,-4.2],[11.36,4.2]],
   tunnel:[[1.35,2.55,'ice']],gaps:[[3.45,12]],halfpipe:[[7.55,110]],loopc:[[12.55,14,1,-1]],hills:[[10.3,4,.025]],
@@ -187,7 +188,7 @@ const courses=[
  // Riesendom: Goetterstadt in ewiger Abendsonne - Fahrt durchs Kirchenschiff (Sonnen-Turbos aus den Fenstern),
  // Riesenwaechter mit Hellebarden (sentinels [cp, Seite, Phase]), Strebebogen-Bruecke, Dachsprung, Glockenturm-Looping.
  // dome:{statues,candles,banners,arches,spires,cypress,columns}
- {name:'Riesendom',icon:'⛪',kind:'Götterstadt · Riesenwächter · Strebebögen',medals:[117,123,134],music:'dome',bgmRate:.94,theme:'dome',seed:243,
+ {name:'Riesendom',icon:'⛪',kind:'Götterstadt · Riesenwächter · Strebebögen',medals:[114,120,130],music:'dome',bgmRate:.94,theme:'dome',seed:243,
   points:[[-80,-90],[0,-100],[80,-95],[120,-55],[105,-5],[125,45],[95,95],[35,85],[5,40],[-35,85],[-95,95],[-125,45],[-100,-5],[-120,-50]],
   tunnel:[[.92,1.78,'nave']],sentinels:[[4.3,1,0],[4.62,-1,2.3],[4.94,1,4.6],[9.62,-1,1.2],[9.98,1,3.6]],raise:[[6.35,7.55,9,40,1]],gaps:[[11.55,13]],loopc:[[12.6,15,1,1]],hills:[[3.2,3,.02]],
   // R61 (Nutzerwunsch "XXL-Kathedralenstadt, Anti-Grav durch den Gebaeudekomplex"): Wand-Decke-Wand-Passage durch die
@@ -205,7 +206,7 @@ const courses=[
  // R61 Schoko-Matsch (Nutzerwunsch, eigene Strecke im Wiesn-Stil): Schokomatsch-Pfuetzen bremsen (mit Turbo gleitet man
  // durch), Schokobrocken rollen vom Hang quer ueber die Bahn, Sprung ueber den Schokofluss, Keks-Stollen, Waffel-Buckel.
  // choco:{mud:[[cp,Versatz,Laenge,halbe Breite]],boulders:[[cp,Seite,Phase]],hearts,brezn,wafers,creams,fountain,pralines,trees}
- {name:'Schoko-Matsch',icon:'🍫',kind:'Schokomatsch · Kakao-Brocken · Schokofluss',medals:[134,141,153],music:'choco',theme:'choco',seed:307,
+ {name:'Schoko-Matsch',icon:'🍫',kind:'Schokomatsch · Kakao-Brocken · Schokofluss',medals:[129,136,148],music:'choco',theme:'choco',seed:307,
   points:[[0,-100],[70,-110],[125,-80],[120,-25],[80,0],[110,45],[95,100],[35,110],[-10,70],[-50,105],[-110,90],[-130,30],[-95,-10],[-120,-60],[-70,-100]],
   tunnel:[[2.25,3.2,'choco']],gaps:[[7.35,12]],hills:[[5.8,4,.035],[11.4,4,.03],[13.3,3,.035]],loopc:[[9.2,13,1,1]],
   ramps:[[4.75,0,9]],pads:[[3.6,4],[10.3,-4]],boost:[.4,6.3,12.1],boxes:[1.1,2.9,4.3,8.0,9.9,12.9],stands:[[.25,18],[8.4,-19]],
@@ -264,7 +265,11 @@ const topperOk=t=>typeof t==='string'&&TOPPER_IDS.has(t)?t:null;
 const progLevel=()=>levelOf(store.get('prog',{xp:0}).xp||0).level;
 // R47 Spiegel-Modus (ab Fahrerstufe 3): das Bild wird gespiegelt (auch Schilder, wie im grossen Vorbild), die Lenkung
 // entsprechend umgedreht - Strecken und Physik bleiben gleich. Nicht im Zeitfahren und nicht im Wiesnland.
+// R72 (Nutzerwunsch "kein Flow"): kleinster Kurvenradius der Mittellinie in Metern (vorher 24: fast jede Kurve lag am Minimum)
+const FLOW_MIN_R=38;
 const MIRROR_LVL=3;let mirrorOn=store.get('mirror',false),raceMirror=false;
+// R72 Arcade-Paket: Zustand (Funktionen weiter unten, Logik in arcade.mjs)
+let camView=camViewIndex(store.get('camView',0)),paceOn=store.get('pace',true)!==false;const arcade={notes:[],traps:[],lastD:null,key:'',pace:null,bannerT:0};
 // Jede Figur faehrt ihr eigenes Kart: Beschleunigung, Hoechsttempo, Grip, Lenkung und Bauform
 const DRIVERS=[
  {k:'driver',n:'Pilzi',i:'🍄',kart:'Sporenflitzer',acc:1,top:1,grip:1,turn:1,sc:[1,1,1],tip:'ausgewogen'},
@@ -937,7 +942,7 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
  flags=[];balloons=[];ramps=[];pads=[];rings=[];spores=[];swingers=[];gaps=[];zones=[];bats=null;boostPads=[];sunPads=[];sporeMesh=null;crowd=null;fireflies=null;rails=[];forks=[];raises=[];tunnels=[];agrav=[];loops=[];crystals=[];coasters=[];hpipes=[];ferris=null;dragon=null;elems=[];elemFx=null;owFx=null;hz=null;deco=null;r60=null;owCh=null;
  course=courseAt(selected);theme=THEMES[course.theme];WK=(course.worldR||210)/210;AK=Math.min(WK*WK,4)*DENS;
  scene.background=skyTexture(hex(theme.skyTop),hex(theme.skyBottom));scene.fog=new T.Fog(theme.fog,theme.fogNear,theme.fogFar);applyTheme();
- curve=smoothCurve(course.points,24,course.sharp||[]);length=curve.getLength();bm('clear+theme');buildTable();bm('table');
+ curve=smoothCurve(course.points,course.minR||FLOW_MIN_R,course.sharp||[]);length=curve.getLength();bm('clear+theme');buildTable();bm('table');
  cpU=course.points.map(([x,z])=>projectGlobal(x*TRACK_SCALE,z*TRACK_SCALE));
  // Looping: ein kurzes, moeglichst gerades Stueck Fahrbahn wird im Bild zu einem senkrechten
  // Kreis aufgestellt (Radius R, Fussabdruck span). Gefahren wird dabei ganz normal geradeaus -
@@ -1034,7 +1039,7 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
   // R60 Riesendom: die Stadt steht auf einem Felsplateau hoch ueber einem Wolkenmeer - Insel tiefer, Seiten aus Fels
   const isH=theme.cloudSea?74:12,cliff=theme.cloudSea?stdMat({map:speckleTexture(hex(theme.skirt),hex(0x5a4a44),2400),roughness:1}):grassMat;
   mesh(new T.CylinderGeometry(210*WK,theme.cloudSea?150*WK:210*WK-15,isH,Math.round(96*Math.sqrt(WK))),theme.cloudSea?[cliff,grassMat,cliff]:grassMat,world,0,-isH/2-.3,0).castShadow=false;}
- lakeMask=lakeMask&&elems.some(z=>z.lake)?lakeMask:null;buildHazards();buildLandmarks();buildDeco();buildTrench();buildDesert();buildCharacter();buildR60();buildChoco();buildVoxel();buildCity();buildDomePix();buildBayIce();buildTsunami();buildOil();if(elems.length)buildElems();if(course.openWorld){buildOW();buildArena();}if(elemFx)buildBuoyInst();
+ lakeMask=lakeMask&&elems.some(z=>z.lake)?lakeMask:null;buildHazards();buildLandmarks();buildDeco();buildTrench();buildDesert();buildCharacter();buildR60();buildChoco();buildVoxel();buildCity();buildDomePix();buildBayIce();buildTsunami();buildOil();buildArcade();if(elems.length)buildElems();if(course.openWorld){buildOW();buildArena();}if(elemFx)buildBuoyInst();
  // R60: Bucht - Meer knapp unter dem Strand (die Wellen lecken am Sandrand); Eisstock-See - zugefrorenes Meer ohne Wellen;
  // Riesendom - warmes Wolkenmeer tief unter der Stadt
  const seaY=theme.beach?-2.7:theme.frozen?-1.4:theme.cloudSea?-64:-12;if(r60)r60.seaY=seaY;
@@ -1210,7 +1215,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  {const lm=label('?','#ed6350','#fff9df',128,128),geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(new Float32Array(boxes.length*3),3));boxQ=new T.Points(geo,new T.PointsMaterial({map:lm.map,size:1.1,transparent:true,depthWrite:false}));boxQ.frustumCulled=false;world.add(boxQ);lm.dispose();}
  bm('boxes');}
 // Neues Rennen auf derselben Strecke: Welt bleibt stehen, nur Fahrer & Zustand werden zurueckgesetzt (kein Ruckler beim Start)
-function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();trailFx.clear();emotes.length=0;{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
+function resetRace(){arcadeReset();ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();trailFx.clear();emotes.length=0;{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
  for(let i=0;i<SKIDS;i++){skids[i].life=0;skidMesh.setMatrixAt(i,_zeroM);}skidMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<SPARKS;i++){sparkPool[i].life=0;sparkMesh.setMatrixAt(i,_zeroM);}sparkMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<PUFFS;i++){puffPool[i].life=0;puffMesh.setMatrixAt(i,_zeroM);}puffMesh.instanceMatrix.needsUpdate=true;
  for(const b of boxes)b.cooldown=0;for(const s of spores)s.cd=0;for(const r of rings)r.flash=0;for(const p of pads)p.squash=0;lightState=-2;setLights(0);
  placeRacers();drawMap();}
@@ -2039,7 +2044,7 @@ function buildGrass(random){if(course.theme==='fortress'||course.theme==='ice')r
  matG.onBeforeCompile=sh=>{sh.uniforms.uTime=shaderTime;
   sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime;')
    .replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nvec3 gp=instanceMatrix[3].xyz;float sw=sin(uTime*1.7+gp.x*.11+gp.z*.15)*.22+sin(uTime*3.1+gp.z*.23)*.08;transformed.x+=sw*transformed.y;transformed.z+=sw*.55*transformed.y;\n#endif');};
- for(let i=0;i<1800*DENS;i++){const d=random()*length,side=random()<.5?-1:1,off=side*(11.8+Math.pow(random(),1.6)*14);if(inGap(d)||inZone(d,20)||forkRoadNear(d,off,7.5)||inBridge(d)||inTunnel(d))continue;const s=samplePos(d,off,_sp),y=Math.max(0,s.y-(Math.abs(off)-8.9)/1.5);const key=Math.floor(s.x/120)+','+Math.floor(s.z/120);let c=cells.get(key);if(!c)cells.set(key,c=[]);c.push([s.x,y,s.z,.7+random()*.9,random()*TAU]);}
+ for(let i=0;i<1450*DENS;i++){const d=random()*length,side=random()<.5?-1:1,off=side*(11.8+Math.pow(random(),1.6)*14);if(inGap(d)||inZone(d,20)||forkRoadNear(d,off,7.5)||inBridge(d)||inTunnel(d))continue;const s=samplePos(d,off,_sp),y=Math.max(0,s.y-(Math.abs(off)-8.9)/1.5);const key=Math.floor(s.x/120)+','+Math.floor(s.z/120);let c=cells.get(key);if(!c)cells.set(key,c=[]);c.push([s.x,y,s.z,.7+random()*.9,random()*TAU]);}
  for(const list of cells.values()){const im=new T.InstancedMesh(geo,matG,list.length);list.forEach(([x,y,z,sc,ry],i)=>{_e.set(0,ry,0);_q.setFromEuler(_e);_m.compose(_v.set(x,y,z),_q,_s.set(sc,sc*(.8+((i*37)%7)/14),sc));im.setMatrixAt(i,_m);});im.castShadow=false;im.receiveShadow=true;world.add(im);}}
 // Riesenrad (R38, Blender): Wahrzeichen der Magnet-Kirmes. Eine GLB, drei Teile ueber die
 // Materialnamen: Gestell (gebacken), Rad (WheelPaint/WheelLights, dreht um die Nabe in 24 m Hoehe)
@@ -3044,8 +3049,8 @@ function threatBehind(){const pl=racers[0];if(!pl||state!=='race'||pl.finishTime
  for(const sh of shots){if(sh.spiky&&sh.owner!==0&&!sh.hit.has(0)){if(sh.free)return true;const gap=wrapDiff(pl.distance,sh.d);if(gap>-2&&gap<90)return true;}if(sh.target!==0)continue;if(sh.free)return true;const gap=wrapDiff(pl.distance,sh.d);if(gap>-2&&gap<90)return true;}
  for(const b of blues)if(b.target===0&&!b.dive)return true;return false;}
 function renderMirror(dt){const want=threatBehind()?1:0;if(want&&mirrorK<.05&&state==='race')SFX.warnBehind();mirrorK+=(want-mirrorK)*Math.min(1,dt*9);if(mirrorK<.03){if(!mirrorEl.hidden)mirrorEl.hidden=true;return;}
- renderer.getSize(_mv);const W=_mv.x,H=_mv.y,w=Math.round(Math.min(440,W*.52)),h=Math.round(w/3.2),x=Math.round((W-w)/2),top=Math.round(H*.1+(W<700?64:40));
- mirrorEl.hidden=false;mirrorEl.style.cssText=`left:${x-4}px;top:${top-4}px;width:${w}px;height:${h}px;opacity:${Math.min(1,mirrorK*1.4).toFixed(2)}`;
+ renderer.getSize(_mv);const W=_mv.x,H=_mv.y,w=Math.round(Math.max(150,Math.min(250,W*.32))),h=Math.round(w/3.2),x=Math.round((W-w)/2),top=Math.round(H*.1+(W<700?64:40));
+ mirrorEl.hidden=false;mirrorEl.style.cssText=`left:${x-3}px;top:${top-3}px;width:${w}px;height:${h}px;opacity:${Math.min(.9,mirrorK*1.4).toFixed(2)}`;
  const pl=racers[0],hd=pl.h||0,p=pl.mesh.position;mirrorCam.aspect=w/h;mirrorCam.updateProjectionMatrix();mirrorCam.position.set(p.x+Math.sin(hd)*.4,p.y+2.3,p.z+Math.cos(hd)*.4);mirrorCam.up.set(0,1,0);mirrorCam.lookAt(p.x-Math.sin(hd)*25,p.y+1.2,p.z-Math.cos(hd)*25);
  const y=H-top-h;renderer.setScissorTest(true);renderer.setScissor(x,y,w,h);renderer.setViewport(x,y,w,h);renderer.render(scene,mirrorCam);renderer.setScissorTest(false);renderer.setViewport(0,0,W,H);}
 // ---------------------------------------------------------------- R62 Intro-Fanfare (eigene Komposition, Chiptune)
@@ -3092,12 +3097,13 @@ function loislLabel(){const t=canvasTex(512,256,(q,w,h)=>{q.fillStyle='#fffbe8';
  q.font='900 86px "Trebuchet MS","Arial Black",sans-serif';q.fillText('FALSCHE',w/2,h*.3);q.fillText('RICHTUNG ↺',w/2,h*.72);});return new T.MeshBasicMaterial({map:t,toneMapped:false});}
 function loislBuild(){if(!P.loisl)return null;const part=n=>r53Part('loisl',n),g=new T.Group(),body=part('LO_Body'),prop=part('LO_Prop');if(!body)return null;g.add(body);
  const piv=new T.Group();piv.position.y=3.8;if(prop){prop.position.set(0,0,0);piv.add(prop);}g.add(piv);
- const light=new T.Group(),lamps=[];const lf=part('LO_Light');if(lf)light.add(lf);for(let i=1;i<=3;i++){const m=part('LO_L'+i);if(!m)continue;m.traverse(o=>{if(o.isMesh){o.material=o.material.clone();lamps.push(o.material);}});light.add(m);}g.add(light);
+ const light=new T.Group(),lamps=[];const lf=part('LO_Light');if(lf)light.add(lf);const glows=[];for(let i=1;i<=3;i++){const m=part('LO_L'+i);if(!m)continue;m.traverse(o=>{if(o.isMesh){o.material=o.material.clone();lamps.push(o.material);}});light.add(m);m.updateMatrixWorld(true);const gs=new T.Sprite(new T.SpriteMaterial({map:loislGlowTex(),blending:T.AdditiveBlending,depthWrite:false,depthTest:false,transparent:true,toneMapped:false}));gs.position.copy(new T.Box3().setFromObject(m).getCenter(new T.Vector3()));gs.scale.setScalar(2.6);gs.renderOrder=7;gs.visible=false;light.add(gs);glows.push(gs);}g.add(light);
  const sign=new T.Group(),sp=part('LO_Sign');if(sp)sign.add(sp);const pl=new T.Mesh(new T.PlaneGeometry(1.7,.86),loislLabel());pl.position.set(-1.05,3.55,.53);sign.add(pl);g.add(sign);
  const rod=new T.Group(),rp=part('LO_Rod');if(rp)rod.add(rp);g.add(rod);
  const line=new T.Mesh(new T.CylinderGeometry(.018,.018,1,5).translate(0,-.5,0),new T.MeshBasicMaterial({color:0xf2f2f2}));g.add(line);
  g.scale.setScalar(1.15);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});
- return {g,piv,light,lamps,sign,rod,line,mode:'',t:0,x:0,y:0,z:0};}
+ return {g,piv,light,lamps,glows,sign,rod,line,mode:'',t:0,x:0,y:0,z:0,snap:true};}
+function loislGlowTex(){if(loislGlowTex.t)return loislGlowTex.t;loislGlowTex.t=canvasTex(128,128,(q,w,h)=>{const g=q.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2);g.addColorStop(0,'#ffffffff');g.addColorStop(.25,'#ffffffa0');g.addColorStop(.6,'#ffffff30');g.addColorStop(1,'#ffffff00');q.fillStyle=g;q.fillRect(0,0,w,h);});return loislGlowTex.t;}
 function loislMode(m){if(!loisl)return;if(loisl.mode===m)return;const from=loisl.mode;loisl.mode=m;loisl.t=0;
  if(m==='wrong'||m==='rescue'){loisl.sx=loisl.x;loisl.sy=loisl.y;loisl.sz=loisl.z;if(!loisl.g.visible||from===''||from==='away'){const c=camera.position;loisl.x=loisl.sx=c.x;loisl.y=loisl.sy=c.y+14;loisl.z=loisl.sz=c.z;}}}
 function updateLoisl(dt){if(!P.loisl||state==='menu'){if(loisl)loisl.g.visible=false;return;}
@@ -3105,8 +3111,9 @@ function updateLoisl(dt){if(!P.loisl||state==='menu'){if(loisl)loisl.g.visible=f
  const L=loisl,pl=racers[0];if(!pl)return;if(pl.rescue&&L.mode!=='rescue')loislMode('rescue');L.t+=dt;L.piv.rotation.y+=dt*22;const bob=Math.sin(performance.now()/300)*.18;let want=null,face=null;
  const showLight=state==='countdown'&&introT<=0,atStart=state==='countdown'||(state==='race'&&elapsed<2.2&&L.mode==='');
  L.light.visible=atStart;L.sign.visible=L.mode==='wrong';L.rod.visible=L.mode==='rescue';L.line.visible=L.mode==='rescue'&&!!pl.rescue;
- if(atStart&&L.mode===''){const d=pl.distance+10,p=samplePos(d,-1.2,_iv);L.g.scale.setScalar(1.45);want=[p.x,p.y+2.6+(state==='race'?elapsed*elapsed*4:0),p.z];face=[pl.x,(pl.y||0)+2,pl.z];
+ if(atStart&&L.mode===''){const d=pl.distance+15,p=samplePos(d,0,_iv);L.g.scale.setScalar(2);want=[p.x,p.y+3+(state==='race'?elapsed*elapsed*4:0),p.z];face=[pl.x,(pl.y||0)+3,pl.z];if(L.snap){L.x=want[0];L.y=want[1];L.z=want[2];L.snap=false;}
   const n=lightState;L.lamps.forEach((m,i)=>{const on=showLight&&(n===4||i<n);m.color.setHex(!on?0x3a3a3a:n===4?0x2bd653:0xff3b2f);if(m.emissive){m.emissive.setHex(!on?0:n===4?0x3dff6a:0xff2a1f);m.emissiveIntensity=on?3:0;}});
+  L.glows?.forEach((gs,i)=>{const on=showLight&&(n===4||i<n);gs.visible=on;if(on)gs.material.color.setHex(n===4?0x3dff6a:0xff3b2f);});
   L.g.visible=introT<=0||introT<1.2;}
  else if(L.mode==='wrong'){const c=camera;L.g.scale.setScalar(1);_iv.set(2.3,-2.7,-11).applyMatrix4(c.matrixWorld);want=[_iv.x,_iv.y,_iv.z];face=[c.position.x,c.position.y,c.position.z];L.g.visible=true;}
  else if(L.mode==='rescue'){const r=pl.rescue;L.g.scale.setScalar(1.15);if(r){want=[pl.x-1.4,(pl.y||0)+4.6,pl.z-.6];face=[camera.position.x,(pl.y||0)+3,camera.position.z];L.g.visible=true;
@@ -3207,7 +3214,9 @@ function updateBayIce(dt,t,live=true){if(!bayIce)return;const sea=-2.7;
 // Pixel-Sonne tief im Abendhimmel, blockige Pixelwolken treiben ueber dem Wolkenmeer, am Strassenrand Pixel-Banner,
 // Voxel-Waechter und Kohlebecken (ohne Kollision - die Anti-Grav-Roehren schwingen weit nach aussen), Vogelschwaerme.
 let domePix=null;
-function buildDomePix(){domePix=null;const X=course.pixel;if(!X||!P.voxdome)return;domePix={deco:0,clouds:[],birds:[],fires:[],sun:null};
+// R72 (Nutzerwunsch "wieder weg vom Pixeligen"): der R64-Retro-Pixel-Charme im Riesendom ist abgeschaltet, true bringt ihn zurueck
+const PIXEL_CHARM=false;
+function buildDomePix(){domePix=null;const X=course.pixel;if(!PIXEL_CHARM||!X||!P.voxdome)return;domePix={deco:0,clouds:[],birds:[],fires:[],sun:null};
  const part=n=>r53Part('voxdome',n),noFog=g=>g.traverse(q=>{if(q.isMesh){q.material=q.material.clone();q.material.fog=false;q.castShadow=false;q.receiveShadow=false;}});
  const put=(n,list,rad,sc,after)=>{for(const [v,side,off] of list||[]){const d=cpDist(v),of=side*off;if(!decoSpot(d,of,rad))continue;const g=part(n);if(!g)continue;lmAt(g,d,of,sc);after?.(g);domePix.deco++;}};
  put('VD_Banner',X.banners,.6,1.25);put('VD_Knight',X.knights,1.2,1.3);put('VD_Brazier',X.braziers,.6,1.15,g=>{const p=g.position;domePix.fires.push({x:p.x,y:p.y+3.4,z:p.z});});
@@ -3238,6 +3247,67 @@ function buildCity(){cityN=null;const C=course.city;if(!C||!P.domecity)return;ci
  for(let i=0;i<n;i++){const a=i/n*TAU+(i%3)*.07,rr=222*WK+30+((i*37)%5)*16,g=part(ring[i%ring.length]);if(!g)continue;const sc=1.5+((i*53)%7)*.14;
   g.position.set(Math.cos(a)*rr,-62+(ring[i%ring.length]==='DC_Row'?40:0),Math.sin(a)*rr);g.rotation.y=Math.atan2(-g.position.x,-g.position.z);g.scale.setScalar(sc);
   g.traverse(q=>{if(q.isMesh)q.castShadow=false;});world.add(g);cityN.sky++;}}
+// ---------------------------------------------------------------- R72 Arcade-Paket (arcade.mjs)
+// Rallye-Automat: der Beifahrer sagt die naechste Kurve an (Richtung, Schaerfe 1-6, Meter), Kameraansichten wie am Automaten (Taste C).
+// Drift-Automat: dicker Reifenrauch im Drift, grosse Banner im Automaten-Look (LETZTE RUNDE).
+// Strassenrennen: Speed-Traps mit Blitz, Anzeige in km/h und Rekord je Strecke, Hoechstgeschwindigkeit im Ergebnis.
+const kmhOf=p=>Math.round(Math.abs(p.speed)*(p.czVis||1)*3.6);
+function camViewSync(){const b=$('pauseCam');if(b)b.textContent='Kamera: '+CAM_VIEWS[camView].name;}
+function cycleCamView(){camView=nextCamView(camView);store.set('camView',camView);camViewSync();toast('📷 '+CAM_VIEWS[camView].name,.9);}
+function paceToggle(on){paceOn=on;store.set('pace',on);const b=$('pauseCo');if(b){b.textContent='Beifahrer-Ansagen: '+(on?'AN':'AUS');b.setAttribute('aria-pressed',String(on));}if(!on)arcade.key='';}
+function arcBanner(title,sub='',cls='',dur=2){const el=$('arcBanner');if(!el)return;const b=el.querySelector('b'),sp=el.querySelector('span');el.hidden=true;el.className=cls;el.style.setProperty('--dur',dur+'s');
+ b.textContent=title;sp.textContent=sub;sp.hidden=!sub;void el.offsetWidth;el.hidden=false;arcade.bannerT=dur;}
+function arcadeReset(){resetSmoke();arcade.lastD=null;arcade.key='';arcade.bannerT=0;const b=$('arcBanner');if(b)b.hidden=true;if(arcade.pace){arcade.pace.e.hidden=true;arcade.pace.hid=true;arcade.pace.key='';}}
+// Blitzer: Torbogen mit Kamerakasten ueber der Strecke, zwei je Runde (am liebsten bei 31 % und 69 %), nur auf freien, flachen Stellen
+function buildArcade(){arcade.notes=[];arcade.traps=[];arcade.lastD=null;if(worldMode||course.openWorld||!(length>200))return;
+ const ds=6,n=Math.floor(length/ds),heads=new Array(n);for(let i=0;i<n;i++){const tn=tanAt(i*ds);heads[i]=Math.atan2(tn.x,tn.z);}
+ arcade.notes=findCorners(heads,ds);
+ const steel=new T.MeshStandardMaterial({color:0x3b4758,roughness:.5,metalness:.55}),dark=new T.MeshStandardMaterial({color:0x151b27,roughness:.6,metalness:.3});
+ const stripes=canvasTex(256,32,(q,w,h)=>{q.fillStyle='#ffc83a';q.fillRect(0,0,w,h);q.fillStyle='#14264a';for(let x=-h;x<w+h;x+=44){q.beginPath();q.moveTo(x,h);q.lineTo(x+22,h);q.lineTo(x+22+h,0);q.lineTo(x+h,0);q.fill();}},true);stripes.repeat.set(5,1);
+ const sign=canvasTex(512,128,(q,w,h)=>{q.fillStyle='#14264a';q.fillRect(0,0,w,h);q.fillStyle='#ffc83a';q.fillRect(8,8,w-16,h-16);q.fillStyle='#14264a';q.fillRect(14,14,w-28,h-28);
+  q.fillStyle='#ffffff';q.textAlign='center';q.textBaseline='middle';q.font='900 italic 70px Rubik,"Trebuchet MS",sans-serif';q.fillText('SPEED TRAP',w/2,h/2+4);});
+ TRAP_AT.forEach(f=>{let spot=null;
+  const okAt=(d,strict)=>{if(d<length*.08||d>length*.92)return false;if(strict&&noteAhead(arcade.notes,d,length,30))return false;return !!(decoSpot(d,-10.4,1.2)&&decoSpot(d,10.4,1.2));};
+  for(const strict of [true,false]){for(let k=0;k<=30&&spot===null;k++)for(const sg of k?[1,-1]:[0]){const d=lapDist(f*length+sg*k*9);if(okAt(d,strict)&&arcade.traps.every(t=>Math.abs(wrapDiff(t.d,d))>60)){spot=d;break;}}if(spot!==null)break;}
+  if(spot===null)return;
+  const s=sample(spot,0),g=new T.Group();g.position.copy(s.p);g.rotation.y=s.angle;world.add(g);
+  const add=(geo,m,x,y,z)=>{const o=new T.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o;};
+  for(const x of [-10.4,10.4]){add(new T.BoxGeometry(.8,7.4,.8),steel,x,3.7,0);const p=sample(spot,x).p;addObstacle(p.x,p.z,.9);}
+  add(new T.BoxGeometry(21.6,.9,.9),steel,0,7.3,0);
+  for(const z of [-.46,.46]){const st=add(new T.PlaneGeometry(21.2,.5),new T.MeshBasicMaterial({map:stripes}),0,7.3,z);if(z<0)st.rotation.y=Math.PI;}
+  for(const z of [-.49,.49]){const sg=add(new T.PlaneGeometry(6.4,1.6),new T.MeshBasicMaterial({map:sign,toneMapped:false}),0,6.1,z*1.0);if(z<0)sg.rotation.y=Math.PI;}
+  add(new T.BoxGeometry(1.9,1.2,1.7),dark,0,8.4,0);
+  const lens=new T.MeshStandardMaterial({color:0x2a0a0a,emissive:0xff2a1f,emissiveIntensity:.6,roughness:.3});
+  const lp=add(new T.CylinderGeometry(.42,.5,.5,14),lens,0,8.4,-.95);lp.rotation.x=Math.PI/2;
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+  arcade.traps.push({d:spot,flash:0,lens});});}
+function speedTrap(t,kmh){if(kmh<20)return;const all=store.get('trap',{}),g=trapGrade(kmh,all[course.name]||0);
+ if(g.record){all[course.name]=kmh;store.set('trap',all);}
+ t.flash=.55;const f=$('trapFlash');if(f){f.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('on')));}
+ arcBanner('SPEED TRAP',`${g.kmh} KM/H · ${g.text}`,g.cls,2.2);sfxTone(2600,1100,.16,'square',.05);sfxTone(1500,1500,.05,'square',.04,.14);
+ if(stats)stats.traps=(stats.traps||0)+1;}
+function updatePace(p){let el=arcade.pace;
+ if(!el){const e=$('paceNote');if(!e)return;el=arcade.pace={e,arrow:e.querySelector('i'),num:e.querySelector('b'),word:e.querySelector('span'),dist:e.querySelector('em'),then:e.querySelector('u'),key:'',hid:true};}
+ const res=p&&paceOn&&!p.air&&!p.hpOn&&arcade.notes.length?noteAhead(arcade.notes,p.distance,length,lookAhead(p.speed)):null;
+ if(!res){if(!el.hid){el.e.hidden=true;el.hid=true;el.key='';}return;}
+ const n=res.note,lab=noteLabel(n,raceMirror),m=res.inside?0:Math.round(res.dist/5)*5,key=n.d+'|'+m+'|'+(res.inside?1:0);
+ if(key===el.key)return;
+ const fresh=!el.key.startsWith(n.d+'|');el.key=key;
+ el.e.className='s'+n.sev+(res.inside?' inside':'');el.arrow.textContent=lab.arrow;el.num.textContent=String(n.sev);el.word.textContent=(lab.hairpin?'HAARNADEL ':'')+lab.word+(lab.long?' · LANG':'');
+ el.dist.textContent=res.inside?'JETZT':m+' m';
+ el.then.textContent=res.then?'dann '+noteLabel(res.then,raceMirror).arrow+' '+res.then.sev:'';
+ if(el.hid){el.e.hidden=false;el.hid=false;}
+ if(fresh&&n.sev<=3)sfxTone(1250,1250,.05,'square',.025);}
+function updateArcade(dt){if(arcade.bannerT>0){arcade.bannerT-=dt;if(arcade.bannerT<=0){const b=$('arcBanner');if(b)b.hidden=true;}}
+ const p=racers[0];
+ if(!p||state!=='race'||worldMode||introT>0){updatePace(null);arcade.lastD=null;return;}
+ const k=kmhOf(p);if(stats&&k>(stats.topKmh||0))stats.topKmh=k;
+ if(arcade.lastD!==null)for(const t of arcade.traps)if(trapCrossed(arcade.lastD,p.distance,t.d,length))speedTrap(t,k);
+ arcade.lastD=p.distance;
+ for(const t of arcade.traps)if(t.flash>0){t.flash=Math.max(0,t.flash-dt);t.lens.emissiveIntensity=.6+t.flash*9;}
+ updatePace(p);}
+addEventListener('keydown',e=>{if(e.code!=='KeyC'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target?.closest?.('input,select,textarea'))return;if(state==='race'||state==='countdown')cycleCamView();});
+
 // ---------------------------------------------------------------- R61 Pixel-/Voxel-Gothic im Geisterhaus (assets/voxel.glb)
 // Kandelaber stehen auf der Fahrbahn und zerspringen beim Durchfahren in Pixelwuerfel - der Spieler bekommt ein Item
 // (oder einen kleinen Schub, wenn er schon eins hat) und ein Pixel-Herz steigt auf; nach 9 s stehen sie wieder.
@@ -3391,6 +3461,12 @@ function dropSkid(x,y,z,angle){const i=skidIdx++%SKIDS,s=skids[i];s.x=x;s.y=y+.0
 const puffGeo=new T.SphereGeometry(.18,8,6);sharedGeo.add(puffGeo);
 const PUFFS=40,puffMesh=fxMesh(puffGeo,new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.36,depthWrite:false}),PUFFS),puffPool=Array.from({length:PUFFS},()=>({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0}));let puffIdx=0;
 function dropPuff(r,color=0xdfe8e8){const i=puffIdx++%PUFFS,p=puffPool[i],s=Math.sin(r.h),c=Math.cos(r.h);p.x=r.x-s*1.4;p.y=(r.y||0)+.5;p.z=r.z-c*1.4;p.vx=-s*2+(Math.random()-.5);p.vy=.9;p.vz=-c*2+(Math.random()-.5);p.life=.75;puffMesh.setColorAt(i,_col.setHex(color));puffMesh.instanceColor.needsUpdate=true;}
+// R72 Reifenrauch (Drift) und Staub abseits der Strasse: groessere, weiche Wolken als die kleinen Puffs
+const SMOKES=70,smokeMesh=fxMesh(new T.SphereGeometry(.34,8,6),new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.3,depthWrite:false}),SMOKES),smokePool=Array.from({length:SMOKES},()=>({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1}));let smokeIdx=0;sharedGeo.add(smokeMesh.geometry);
+function dropSmoke(x,y,z,vx,vz,color=0xeef2f5,life=.85){const i=smokeIdx++%SMOKES,q=smokePool[i];q.x=x;q.y=y;q.z=z;q.vx=vx;q.vy=.7+Math.random()*.5;q.vz=vz;q.life=q.max=life;smokeMesh.setColorAt(i,_col.setHex(color));smokeMesh.instanceColor.needsUpdate=true;}
+function updateSmoke(dt){let dirty=false;for(let i=0;i<SMOKES;i++){const q=smokePool[i];if(q.life<=0)continue;q.life-=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;q.vx*=1-dt*1.6;q.vz*=1-dt*1.6;
+  if(q.life>0){const u=1-q.life/q.max,k=(.6+u*2.6)*Math.min(1,q.life*4);_m.makeScale(k,k,k).setPosition(q.x,q.y,q.z);smokeMesh.setMatrixAt(i,_m);}else smokeMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)smokeMesh.instanceMatrix.needsUpdate=true;}
+function resetSmoke(){for(let i=0;i<SMOKES;i++){smokePool[i].life=0;smokeMesh.setMatrixAt(i,_zeroM);}smokeMesh.instanceMatrix.needsUpdate=true;}
 
 // ---------------------------------------------------------------- Kart-Physik (vertikal), Kollisionen, Darstellung
 function vertical(r,dt){let {y:ground,rh}=groundAt(r.distance,r.offset);
@@ -3868,20 +3944,35 @@ const FX_INTERVAL={boost:320,draftready:700,draftboost:650,bump:150,hit:150,drif
 for(const [name,ms] of Object.entries(FX_INTERVAL)){const play=SFX[name];SFX[name]=(...args)=>{const now=ctx?ctx.currentTime*1000:performance.now();if(!soundOn||state==='paused'||now-(fxPlayed[name]??-9999)<ms)return;fxPlayed[name]=now;return play(...args);};}
 // R61: eigene Chiptune-Stuecke je Strecke (art/r61/chiptune.mjs -> Blender-Mixdown), die alten drei bleiben fuer Pilz, Canyon, Neon
 // R65: eigene Chiptune-Stuecke auch fuer Menue, Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald und Lobby-Welt (art/r61/chiptune.mjs, ffmpeg-MP3)
-const BGM_SRC={menu:'bgm_menu8.mp3',alm:'bgm_alm.mp3',canyon:'bgm_canyon.mp3',neon:'bgm_neon.mp3',lobby:'bgm_lobby.mp3',race:'bgm_race.mp3',gothic8:'bgm_gothic8.mp3',polka:'bgm_polka.mp3',space:'bgm_space.mp3',beach:'bgm_beach.mp3',ice:'bgm_ice.mp3',dome:'bgm_dome.mp3',choco:'bgm_choco.mp3',lava:'bgm_lava.mp3',kirmes:'bgm_kirmes.mp3'},BGM_VOL=AUDIO_MIX.music,BGM_XF=2.2;
-// R61: Chiptune-Stuecke auf die Lautheit der alten Musik (-15 dB RMS) und 1 dB leiser (Rechteckwellen klingen haerter)
-const TRACK_GAIN={menu:.75,alm:.65,canyon:.66,neon:.67,lobby:.72,race:1,gothic8:.63,polka:.8,space:.65,beach:.86,ice:.72,dome:.71,choco:.71,lava:.62,kirmes:.99};
+// R72: die neun Strecken-Stuecke laufen als lokal gemasterte Mixe (assets/audio/drive/, art/audio-20261001) mit exakt kopiertem Loop-Anfang
+const BGM_SRC={menu:'bgm_menu8.mp3',alm:'bgm_alm.mp3',canyon:'bgm_canyon.mp3',neon:'bgm_neon.mp3',lobby:'bgm_lobby.mp3',race:'bgm_race.mp3',gothic8:'drive/bgm_gothic8.mp3',polka:'drive/bgm_polka.mp3',space:'drive/bgm_space.mp3',beach:'drive/bgm_beach.mp3',ice:'drive/bgm_ice.mp3',dome:'drive/bgm_dome.mp3',choco:'drive/bgm_choco.mp3',lava:'drive/bgm_lava.mp3',kirmes:'drive/bgm_kirmes.mp3'},BGM_VOL=AUDIO_MIX.music,BGM_XF=2.2;
+const BGM_LOOP=Object.freeze({"gothic8":70.24390022675738,"polka":75.78945578231293,"space":66.20689342403628,"beach":83.47825396825397,"ice":66.20689342403628,"dome":64,"choco":78.90410430839002,"lava":62.60868480725624,"kirmes":62.60868480725624});
+// Die gemasterten Mixe sind schon auf gleiche Lautheit gebracht, nur die uebrigen Stuecke brauchen ihre alten Pegel
+const TRACK_GAIN={menu:.75,alm:.65,canyon:.66,neon:.67,lobby:.72,race:1,gothic8:1,polka:1,space:1,beach:1,ice:1,dome:1,choco:1,lava:1,kirmes:1};
 const bgm={current:null,ready:{},failed:{},tracks:{},rate:1};
-for(const [name,src] of Object.entries(BGM_SRC)){const els=[0,1].map(()=>{const a=new Audio('assets/audio/'+src);a.preload=name==='menu'?'auto':'metadata';a.volume=0;return a;});els[0].addEventListener('canplaythrough',()=>bgm.ready[name]=true);els[0].addEventListener('error',()=>bgm.failed[name]=true);bgm.tracks[name]={els,gains:null,active:0,xf:-1,t0:0};}
+for(const [name,src] of Object.entries(BGM_SRC)){const els=[0,1].map(()=>{const a=new Audio('assets/audio/'+src);a.preload=name==='menu'?'auto':'metadata';a.volume=0;return a;});els[0].addEventListener('canplaythrough',()=>bgm.ready[name]=true);els[0].addEventListener('error',()=>bgm.failed[name]=true);bgm.tracks[name]={els,gains:null,active:0,xf:-1,xfReady:false,xfToken:0,t0:0};}
 const raceTrack=()=>{const m=courseAt(selected).music;return bgm.failed[m]?'race':m;};
 function buildRaceFilter(){if(raceFilter||!ctx)return;try{raceFilter=ctx.createBiquadFilter();raceFilter.type='lowpass';raceFilter.frequency.value=4000;raceFilter.connect(masterGain);for(const n of Object.keys(BGM_SRC)){const tr=bgm.tracks[n];tr.gains=tr.els.map(a=>{const g=ctx.createGain();g.gain.value=0;ctx.createMediaElementSource(a).connect(g);g.connect(n==='menu'?masterGain:raceFilter);a.volume=1;return g;});}}catch{raceFilter=null;}}
 function setTrackVol(tr,i,v){if(tr.gains)tr.gains[i].gain.value=v;else tr.els[i].volume=clamp(v,0,1);}
 function setBgmRate(rate){bgm.rate=rate;const tr=bgm.tracks[bgm.current];if(!tr)return;for(const a of tr.els){a.preservesPitch=false;a.mozPreservesPitch=false;a.playbackRate=rate;}}
-function stopBgm(){for(const tr of Object.values(bgm.tracks))tr.els.forEach((a,i)=>{a.pause();setTrackVol(tr,i,0);});bgm.current=null;}
-function playBgm(name){if(!bgm.tracks[name])name='race';if(!soundOn||bgm.failed[name])return;if(bgm.current===name)return;stopBgm();const tr=bgm.tracks[name];tr.active=0;tr.xf=-1;tr.t0=performance.now();for(const a of tr.els)a.playbackRate=1;bgm.rate=1;const a=tr.els[0];try{a.currentTime=0;}catch{}bgm.current=name;a.play().catch(()=>{if(bgm.current===name)bgm.current=null;});}
-function bgmTick(now){const tr=bgm.tracks[bgm.current];if(!tr)return;const a=tr.els[tr.active],b=tr.els[1-tr.active],dur=a.duration,base=BGM_VOL*(TRACK_GAIN[bgm.current]??.9)*duckLevel*(state==='paused'?.65:1)*Math.min(1,(now-tr.t0)/700),xfDur=BGM_XF*bgm.rate;
- if(tr.xf<0&&isFinite(dur)&&dur>BGM_XF*3&&a.currentTime>dur-xfDur){tr.xf=now;try{b.currentTime=0;}catch{}if(b.currentTime>1)b.load();b.playbackRate=bgm.rate;b.play().catch(()=>{});}
- let va=1,vb=0;if(tr.xf>=0){const k=Math.min(1,(now-tr.xf)/(BGM_XF*1000));va=Math.cos(k*Math.PI/2);vb=Math.sin(k*Math.PI/2);if(k>=1){a.pause();tr.active=1-tr.active;tr.xf=-1;setTrackVol(tr,1-tr.active,0);setTrackVol(tr,tr.active,base);return;}}
+function stopBgm(){for(const tr of Object.values(bgm.tracks)){tr.xfToken++;tr.xf=-1;tr.xfReady=false;tr.els.forEach((a,i)=>{a.pause();setTrackVol(tr,i,0);});}bgm.current=null;}
+function playBgm(name){if(!bgm.tracks[name])name='race';if(!soundOn||bgm.failed[name])return;if(bgm.current===name)return;stopBgm();const tr=bgm.tracks[name];tr.active=0;tr.xf=-1;tr.xfReady=false;tr.t0=performance.now();for(const a of tr.els)a.playbackRate=1;bgm.rate=1;const a=tr.els[0],token=tr.xfToken;try{a.currentTime=0;}catch{}bgm.current=name;a.play().catch(()=>{if(bgm.current===name&&tr.xfToken===token)bgm.current=null;});}
+function recoverBgmLoop(tr,a,b,loopEnd){tr.xfToken++;tr.xf=-1;tr.xfReady=false;b.pause();setTrackVol(tr,1-tr.active,0);const phase=loopEnd?((a.currentTime-loopEnd)%loopEnd+loopEnd)%loopEnd:0;try{a.currentTime=phase;}catch{}a.playbackRate=bgm.rate;a.play().catch(()=>{});}
+function bgmTick(now){const name=bgm.current,tr=bgm.tracks[name];if(!tr)return;const a=tr.els[tr.active],b=tr.els[1-tr.active],dur=a.duration,loopEnd=BGM_LOOP[name]||0,base=BGM_VOL*(TRACK_GAIN[name]??.9)*duckLevel*(state==='paused'?.65:1)*clamp((now-tr.t0)/700,0,1),boundary=loopEnd||(dur-BGM_XF*bgm.rate);
+ // A throttled/background frame can arrive after the copied head ended.
+ if(loopEnd&&a.currentTime>=loopEnd+BGM_XF&&!tr.xfReady){recoverBgmLoop(tr,a,b,loopEnd);setTrackVol(tr,tr.active,base);return;}
+ if(tr.xf<0&&isFinite(dur)&&dur>BGM_XF*3&&a.currentTime>=boundary){
+  tr.xf=now;tr.xfReady=false;const token=++tr.xfToken;
+  try{b.currentTime=loopEnd?Math.max(0,a.currentTime-loopEnd):0;}catch{}
+  b.playbackRate=bgm.rate;setTrackVol(tr,1-tr.active,0);
+  b.play().then(()=>{if(tr.xfToken!==token||bgm.current!==name)return;if(loopEnd){const phase=Math.max(0,a.currentTime-loopEnd);if(phase>=BGM_XF){recoverBgmLoop(tr,a,b,loopEnd);return;}try{b.currentTime=phase;}catch{}}tr.xfReady=true;}).catch(()=>{if(tr.xfToken===token&&bgm.current===name)recoverBgmLoop(tr,a,b,loopEnd);});
+ }
+ let va=1,vb=0;
+ if(tr.xf>=0&&tr.xfReady){const k=clamp(loopEnd?(a.currentTime-loopEnd)/BGM_XF:(now-tr.xf)/(BGM_XF*1000),0,1);
+  // Exact duplicate-head audio uses a linear fade, preserving mix headroom.
+  va=loopEnd?1-k:Math.cos(k*Math.PI/2);vb=loopEnd?k:Math.sin(k*Math.PI/2);
+  if(k>=1){a.pause();tr.active=1-tr.active;tr.xf=-1;tr.xfReady=false;setTrackVol(tr,1-tr.active,0);setTrackVol(tr,tr.active,base);return;}
+ }
  setTrackVol(tr,tr.active,base*va);setTrackVol(tr,1-tr.active,base*vb);}
 function setSound(){soundOn=!soundOn;if(soundOn)audioInit();if(engine)engine.g.gain.value=0;if(!soundOn){stopBgm();stopVoice();scapeStop();}else playBgm(state==='menu'||state==='finished'||state==='ceremony'?'menu':raceTrack());syncAudioMix();$('sound').textContent=soundOn?'♪ AN':'♪ AUS';$('sound').setAttribute('aria-label',soundOn?'Ton ausschalten':'Ton einschalten');}
 
@@ -3900,11 +3991,11 @@ function splitSharedMaterials(root){
   const mats=[].concat(o.material).map(m=>{const keep=sharedMat.has(m)||persistentMats.has(m);if(!m||!plain.has(m)||!inst.has(m)||m.isShaderMaterial||!keep)return m;
    let alt=MAT_SPLIT.get(m);if(!alt){alt=m.clone();alt.name=m.name;alt.onBeforeCompile=m.onBeforeCompile;alt.customProgramCacheKey=m.customProgramCacheKey;MAT_SPLIT.set(m,alt);sharedMat.add(alt);persistentMats.add(alt);}ch=true;return alt;});
   if(ch)o.material=Array.isArray(o.material)?mats:mats[0];});}
-function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introForce||(!TEST&&!(net&&net.setup)))&&!worldMode?INTRO_S:0;introPrev=null;if(loisl)loisl.mode='';if(tsu){tsu.t0=null;tsu.msg='';tsu.at=course.tsunami?.at??44;}if(!(net&&net.setup&&net.setup.b))battleStop();setTimeout(()=>{if(worldMode&&!net&&mode==='world'&&state==='countdown'&&!battle)battleStart();},0);if(gp.active)selected=gp.list?gp.list[gp.race]:gp.race;worldMode=isOW(mode)&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
+function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introForce||(!TEST&&!(net&&net.setup)))&&!worldMode?INTRO_S:0;introPrev=null;if(loisl){loisl.mode='';loisl.snap=true;}if(tsu){tsu.t0=null;tsu.msg='';tsu.at=course.tsunami?.at??44;}if(!(net&&net.setup&&net.setup.b))battleStop();setTimeout(()=>{if(worldMode&&!net&&mode==='world'&&state==='countdown'&&!battle)battleStart();},0);if(gp.active)selected=gp.list?gp.list[gp.race]:gp.race;worldMode=isOW(mode)&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=!(net&&net.setup)&&mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();scapeStart(course.openWorld?'forest':course.theme);stageCard();talerReset();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
- splitSharedMaterials(scene);if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8);},2400);}if(coarseInput){wantFs=true;enterFs();}}
+ splitSharedMaterials(scene);if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
 function home(){scapeStop();if(menuMode==='online'&&mode!=='online'){mode='online';setTimeout(()=>{syncModeUi();refreshMenu();syncModeUi();},0);}wxRestore();battleStop();document.body.classList.remove('mirror','ow');raceMirror=false;owPortalHide();setAmbience(false);gp.active=false;state='menu';keys.clear();buildCourse();for(const id of ['hud','touch','pause','pausePanel','result','ceremony'])$(id).hidden=true;$('menu').hidden=false;setText('message','');document.body.classList.remove('racing','cer');if(engine)engine.g.gain.value=0;SFX.hum(false);stopVoice();finishMusicAt=0;playBgm('menu');refreshMenu();}
 let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$('pausePanel').hidden=true;}else if(state==='race'||state==='countdown'){beforePause=state;state='paused';keys.clear();$('pausePanel').hidden=false;stopVoice();}if(engine)engine.g.gain.value=soundOn&&state==='race'?.011:0;}
 function use(){if(state!=='race')return;useItem(racers[0]);}
@@ -3930,7 +4021,7 @@ function useItem(r){if(r.itemPending||(battle&&r.out))return null;if(r.id!==0)r.
  if(res.type==='mega'){burst(r,0xff4a3d,16);if(!me&&Math.hypot(r.x-racers[0].x,r.z-racers[0].z)<60)SFX.mega();}
  if(res.type==='ink'){for(const id of res.targets)spawnInkcap(racers[id]);if(me)stats.inkBest=Math.max(stats.inkBest||0,res.targets.length);if(res.targets.includes(0)){inkSplash();SFX.ink();toast('TINTE! 🖋',1.1,'bad');}}
  if(net&&net.setup&&!r.net)netItem(r,res);
- if(me){coachLearn('item');if(res.type==='boost'||res.type==='triple')say('turbo');if(res.type==='shield')say('shield');if(res.type==='banana')say('banana');notice({coins:'MÜNZREGEN! +'+(res.gained||0),spiky:'XXL-STACHELPANZER!',green3:'GRÜNE BREZN! ×'+(res.charges||0),red3:'ROTE BREZN! ×'+(res.charges||0),fake:'FAKE-BLOCK! 😈',boost:'TURBO!',triple:'TURBO ×'+(res.charges||0),shield:'MASS BIER – PROSIT!',banana:'BANANE!',shell:'SUCH-BREZN!',bomb:'PILZBOMBE!',storm:'GEWITTERWOLKE!',mega:'RIESENWUCHS!',cannon:'BÖLLERSCHUSS!',blue:'BLAUE BREZN!',ink:res.targets&&res.targets.length?'TINTE FÜR '+res.targets.length+'!':'TINTENPILZ!'}[res.type],.8);}
+ if(me){coachLearn('item');if(res.type==='boost'||res.type==='triple')say('turbo');if(res.type==='shield')say('shield');if(res.type==='banana')say('banana');notice({coins:'MÜNZREGEN! +'+(res.gained||0),spiky:'XXL-STACHELPANZER!',green3:'GRÜNE BREZN! ×'+(res.charges||0),red3:'ROTE BREZN! ×'+(res.charges||0),fake:'FAKE-BLOCK!',boost:'TURBO!',triple:'TURBO ×'+(res.charges||0),shield:'MASS BIER – PROSIT!',banana:'BANANE!',shell:'SUCH-BREZN!',bomb:'PILZBOMBE!',storm:'GEWITTERWOLKE!',mega:'RIESENWUCHS!',cannon:'BÖLLERSCHUSS!',blue:'BLAUE BREZN!',ink:res.targets&&res.targets.length?'TINTE FÜR '+res.targets.length+'!':'TINTENPILZ!'}[res.type],.8);}
  return res;}
 const MAX_HAZARDS=14;
 // Gewitterwolke (R46): ueber jedem getroffenen Kart eine dunkle Wolke, ein Zickzack-Blitz faehrt herab (geteilte
@@ -4008,12 +4099,11 @@ function coachTick(dt){const el=$('coach');if(coachT>0){coachT-=dt;if(coachT<=0&
  else if(c.hold!=='ok'&&TRAIL_ITEMS.has(pl.item)&&!pl.itemPending){if(pl.trail)coachLearn('hold');else coachShow('hold');}}
 // R67: Pixel-Sprechblasen ueber den Fahrern (getroffen: wuetend, Treffer gelandet/ueberholt/Ziel: froh, Riesenpanzer: Schreck)
 const emoteMats={},emotes=[];
-function emoteMat(k){if(emoteMats[k])return emoteMats[k];const c=document.createElement('canvas');c.width=c.height=64;const q=c.getContext('2d'),px=4,cell=(x,y,col)=>{q.fillStyle=col;q.fillRect(x*px,y*px,px,px);};
- for(let y=0;y<16;y++)for(let x=0;x<16;x++){const inB=y>=1&&y<=12&&x>=1&&x<=14&&!((y===1||y===12)&&(x===1||x===14)),tail=(y===13&&x>=6&&x<=8)||(y===14&&x===7);
-  if(inB||tail){const edge=tail?(y===14||x===6||x===8):(y===1||y===12||x===1||x===14||((y===2||y===11)&&(x===2||x===13)));cell(x,y,edge?'#14264a':'#fffdf3');}}
- cell(7,12,'#fffdf3');
- for(const [x,y,col] of pixels(EMOTE_PIX[k],EMOTE_PAL))cell(x+3,y+2,'#'+col.toString(16).padStart(6,'0'));
- const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.magFilter=T.NearestFilter;t.minFilter=T.NearestFilter;t.generateMipmaps=false;
+// R72 (Nutzerwunsch "zu pixelig, hochaufloesend, transparent, ohne Sprechblase"): freie Emoji statt Pixel-Sprechblase, gross gezeichnet und mit Mipmaps verkleinert
+const EMOTE_GLYPH={happy:'😄',angry:'😡',shock:'😱',love:'😍'};
+function emoteMat(k){if(emoteMats[k])return emoteMats[k];const c=document.createElement('canvas');c.width=c.height=256;const q=c.getContext('2d');
+ q.textAlign='center';q.textBaseline='middle';q.font='196px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';q.shadowColor='rgba(8,16,40,.4)';q.shadowBlur=16;q.shadowOffsetY=6;q.fillText(EMOTE_GLYPH[k]||'🙂',128,134);
+ const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;
  const m=new T.SpriteMaterial({map:t,transparent:true,depthWrite:false});persistentMats.add(m);return emoteMats[k]=m;}
 function emote(r,k){if(!r?.mesh||!r.mesh.visible||(r.emoteCd||0)>elapsed||!nearPlayer(r,55))return;r.emoteCd=elapsed+2.2;babble(r,k);
  for(const e of emotes)if(e.r===r){e.sp.material=emoteMat(k);e.t=0;return;}
@@ -4187,7 +4277,7 @@ function update(dt){
  timeWarpTick(racers[0],dt);
  const player=racers[0],ohGas=state==='countdown'&&oh.on&&oh.id!==null,gasHeld=held('ArrowUp')||held('KeyW')||ohGas;
  if(state==='countdown'){oh.hop=0;if(!worldReady){setText('message','');return;}if(net&&net.setup&&!net.go){netWaitGo();for(const r of racers)if(r.net)netDrive(r,dt);syncKartInstances();return;}
-  if(introT>0){introT=Math.max(0,introT-dt);setLights(0);setText('message','');if(introT<=0){stopFanfare(.4);playBgm(raceTrack());setBgmRate(course.bgmRate||1);}syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<5);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
+  if(introT>0){introT=Math.max(0,introT-dt);if(introT<=0)document.body.classList.remove('introcam');setLights(0);setText('message','');if(introT<=0){stopFanfare(.4);playBgm(raceTrack());setBgmRate(course.bgmRate||1);}syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<5);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
   {const ln=countdown>2?1:countdown>1?2:countdown>0?3:4;if(ln!==lightState)SFX.count(ln===4);setLights(ln);}setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');
   if(engine&&ctx){const t=ctx.currentTime;aset(engine.o1.frequency,gasHeld?170:60,t,.08);aset(engine.o2.frequency,gasHeld?85:30,t,.08);aset(engine.f.frequency,gasHeld?1500:500,t,.1);aset(engine.g.gain,soundOn?.008:0,t,.1);}
   if(countdown<=0){state='race';notice('O\'ZAPFT IS!',1.1);stats.lapStart=0;raceAssist=assistMode;player.lapDirty=false;if(isTT()){player.item='triple';player.charges=3;}
@@ -4197,7 +4287,7 @@ function update(dt){
    else if(gasHeld&&startPress>=2.2&&!ohGas){player.stall=1.1;say('early');toast('ZU FRÜH! Motor abgewürgt',1.4,'bad');}
    for(const r of racers)if(r.id&&Math.random()<CLASSES[cc].skill*.6){r.boost=.9;}}
   for(const r of racers){if(r.net)netDrive(r,dt);else syncKart(r,dt);}syncKartInstances();return;}
- elapsed+=dt;updateSwingers();updateHazards(dt);updateTrain(dt,elapsed);updateDesert(dt,elapsed);updateCharacter(dt,elapsed);updateR60(dt,elapsed);updateChoco(dt,elapsed);updateVoxel(dt,elapsed);updateDomePix(dt,elapsed);updateBayIce(dt,elapsed);updateTsunami(dt,elapsed);updateBlues(dt);setLights(elapsed<2.5?4:0);recordGhost(player);updateGhost();
+ elapsed+=dt;updateSwingers();updateHazards(dt);updateTrain(dt,elapsed);updateDesert(dt,elapsed);updateCharacter(dt,elapsed);updateR60(dt,elapsed);updateChoco(dt,elapsed);updateVoxel(dt,elapsed);updateDomePix(dt,elapsed);updateBayIce(dt,elapsed);updateTsunami(dt,elapsed);updateBlues(dt);updateArcade(dt);setLights(elapsed<2.5?4:0);recordGhost(player);updateGhost();
  if(oh.on)ohTick(dt,player);const ohHop=oh.hop>0;oh.hop=0;if(ohHintOn&&(elapsed>4||!oh.on))ohHint(false);
  const order=ranking(racers),placeOf=r=>order.indexOf(r)+1,driftKey=held('ShiftLeft')||held('ShiftRight')||(oh.on&&(oh.drift||ohHop));
  if(!autopilot&&driftKey&&!prevDrift&&player.air&&player.airT>.06&&!player.trick)startTrick(player);prevDrift=driftKey;
@@ -4356,11 +4446,12 @@ function update(dt){
   for(const sp of spores)if(sp.cd<=0&&Math.abs(wrapDiff(r.distance,sp.d))<1.8&&Math.abs(r.offset-sp.off)<1.8&&Math.abs(r.y+.8+coasterH(sp.d)+(elems.length?elemH(sp.d):0)-sp.y)<2.3){sp.cd=10;if(r.spores<MAX_SPORES){r.spores++;if(me){stats.maxSpores=Math.max(stats.maxSpores,r.spores);SFX.spore(r.spores);if(r.spores===MAX_SPORES){say('spores');toast('VOLLE SPOREN-POWER!',1.2,'good');}}}}
   if(!isTT())for(const b of boxes){if(b.cooldown<=0&&!r.item&&!r.itemPending&&Math.abs(wrapDiff(r.distance,b.distance))<2.6&&Math.abs(r.offset-b.offset)<2.2&&Math.abs(r.y+1+coasterH(b.distance)+(elems.length?elemH(b.distance):0)-b.baseY)<3){b.cooldown=4;if(nearPlayer(r,70))boxPop(b);if(me){r.itemPending=true;roulette={t:.95,tick:0,final:rollItem(placeOf(r),racers.length)};}else{r.item=rollItem(placeOf(r),racers.length);r.charges=chargesFor(r.item);r.cooldown=1+Math.random()*2;}}}
   if(me&&!worldMode&&lap(r,length)>oldLap){const lt=elapsed-stats.lapStart,best=lt<stats.bestLap;stats.bestLap=Math.min(stats.bestLap,lt);stats.lapStart=elapsed;const isLast=lap(r,length)===LAPS,clean=lapClean(r);
-   toast(`RUNDE ${oldLap}: ${format(lt)}${best&&oldLap>1?' · BESTE RUNDE!':''}${clean?' · SAUBER ✓':''}`,2,best&&oldLap>1||clean?'good':'');notice(isLast?'LETZTE RUNDE!':'RUNDE 2',1.5);say(isLast?'lastlap':'lap2');if(isLast){if(!playClip('s_finallap',sfxGain,.9))SFX.lap();setBgmRate((course.bgmRate||1)*1.07);}else SFX.lap();}
+   toast(`RUNDE ${oldLap}: ${format(lt)}${best&&oldLap>1?' · BESTE RUNDE!':''}${clean?' · SAUBER ✓':''}`,2,best&&oldLap>1||clean?'good':'');if(isLast)arcBanner('FINAL LAP','Letzte Runde – gib alles!','final',2.4);else notice('RUNDE 2',1.5);say(isLast?'lastlap':'lap2');if(isLast){if(!playClip('s_finallap',sfxGain,.9))SFX.lap();setBgmRate((course.bgmRate||1)*1.07);}else SFX.lap();}
   if(finish(r,length,elapsed)&&me){const lt=elapsed-stats.lapStart;stats.bestLap=Math.min(stats.bestLap,lt);if(r.cleanFin===undefined)r.cleanFin=lapClean(r);planFireworks();}
   syncKart(r,dt);
   // Drift-Funken je Ladestufe (blau/orange/lila) an den Hinterraedern, Reifenspuren beim Rutschen
   const sx=Math.sin(r.h),cz=Math.cos(r.h);
+  if(!r.air&&Math.abs(r.speed)>11&&nearPlayer(r,60)){if((r.driftDir||Math.abs(r.slide)>3)&&frame%2===0){const dust=offroad;for(const side of [-1,1])dropSmoke(r.x-sx*1.05+cz*side*.85,(r.y||0)+.25,r.z-cz*1.05-sx*side*.85,-sx*1.4+(Math.random()-.5)*1.6,-cz*1.4+(Math.random()-.5)*1.6,dust?0xb9a173:0xeef2f5,dust?1.1:.85);}else if(offroad&&frame%3===0)dropSmoke(r.x-sx*1.2,(r.y||0)+.2,r.z-cz*1.2,-sx*1.8+(Math.random()-.5)*1.4,-cz*1.8+(Math.random()-.5)*1.4,0xb9a173,.9);}
   if(r.driftDir&&!r.air&&frame%2===0&&nearPlayer(r,90)){const lvl=miniTurbo(r.drift)?.[2]||null;if(lvl)for(const side of [-1,1])emit(r.x-sx*1.3+cz*side*.9,r.y+.25,r.z-cz*1.3-sx*side*.9,MT_COLORS[lvl],-sx*3+(Math.random()-.5)*3,1.5+Math.random()*2,-cz*3+(Math.random()-.5)*3,.3);}
   // Reifenspuren liegen flach am Boden - an der Halfpipe-Wand landeten sie sonst hinter der Pipe im Gras (R52)
   if(!r.air&&!(r.hpOn&&Math.abs(r.offset)>HP.flat-.6)&&(r.driftDir||Math.abs(r.slide)>2.2||(r.spinO>0&&Math.abs(r.speed)>3))&&(Math.abs(r.speed)>8||r.spinO>0)&&frame%3===0&&nearPlayer(r,70))for(const side of [-1,1])dropSkid(r.x-sx*.9+cz*side*.85,r.y,r.z-cz*.9-sx*side*.85,r.h);
@@ -4388,7 +4479,7 @@ function update(dt){
   if(r.boost>0&&frame%3===0&&nearPlayer(r,80))emit(r.x-sx*1.8,r.y+.6,r.z-cz*1.8,0xffc04a,-sx*5,.5,-cz*5,.25);
   for(const s of swingers){if(s.kind!=='ghost'||(r.spookCd||0)>elapsed)continue;const dx=r.x-s.x,dz=r.z-s.z;if(dx*dx+dz*dz<5.3&&Math.abs(r.y+.8-s.y)<2.3){r.spookCd=elapsed+1.5;if(r.shield>0){burst(r,0xffe263,10);continue;}hitKart(r,.8,.6);loseSpores(r,1);burst(r,0xb48cff,16);if(me){stats.hitsTaken++;SFX.spook();toast('BUUUH! 👻',1.1,'bad');shake=.3;}else if(nearPlayer(r,40))SFX.spook(.4);}}
   // Bananen treffen jeden (auch den Leger nach kurzer Schonzeit), nicht in der Luft; Schild zerstoert sie.
-  for(const h of hazards){if(h.life<=0||r.air||(h.owner===r.id&&h.arm>0))continue;const dx=r.x-h.x,dz=r.z-h.z;if(dx*dx+dz*dz<(h.fake?3.4:2.2)&&Math.abs((r.y||0)-h.y)<2){h.life=0;if(h.fake)fakePop(h);if(r.shield>0){burst(r,0xffe263,10);continue;}if(orbitBlock(r)){burst(r,0x8beb73,10);if(me)toast('BREZN FÄNGT AB!',.9,'good');continue;}hitKart(r,me?1.1:1.4,.45);spinOut(r);r.lastHitBy=h.owner;r.lastHitT=elapsed;hitSpores(r);burst(r,h.fake?0xf6c23c:0xffd23f,12);if(me){stats.hitsTaken++;SFX.slip();say('ouch');toast(h.fake?'FAKE! REINGELEGT 😈':'AUSGERUTSCHT!',1,'bad');shake=.35;}else{if(h.owner===0)stats.hitsDealt++;if(nearPlayer(r,45))SFX.slip(h.owner===0?.8:.4);}}}
+  for(const h of hazards){if(h.life<=0||r.air||(h.owner===r.id&&h.arm>0))continue;const dx=r.x-h.x,dz=r.z-h.z;if(dx*dx+dz*dz<(h.fake?3.4:2.2)&&Math.abs((r.y||0)-h.y)<2){h.life=0;if(h.fake)fakePop(h);if(r.shield>0){burst(r,0xffe263,10);continue;}if(orbitBlock(r)){burst(r,0x8beb73,10);if(me)toast('BREZN FÄNGT AB!',.9,'good');continue;}hitKart(r,me?1.1:1.4,.45);spinOut(r);r.lastHitBy=h.owner;r.lastHitT=elapsed;hitSpores(r);burst(r,h.fake?0xf6c23c:0xffd23f,12);if(me){stats.hitsTaken++;SFX.slip();say('ouch');toast(h.fake?'FAKE! REINGELEGT':'AUSGERUTSCHT!',1,'bad');shake=.35;}else{if(h.owner===0)stats.hitsDealt++;if(nearPlayer(r,45))SFX.slip(h.owner===0?.8:.4);}}}
  }
  // Kart-Kollisionen (Rempeln)
  for(let i=0;i<racers.length;i++)for(let j=i+1;j<racers.length;j++){const a=racers[i],b=racers[j];if(Math.abs(a.x-b.x)>3||Math.abs(a.z-b.z)>3||Math.abs(a.y-b.y)>1.2)continue;
@@ -4462,7 +4553,7 @@ function end(){scapeStop();document.body.classList.remove('mirror');elapsed=race
  stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3){SFX.cheer();confetti(racers[0],place===1?110:60);}board.replaceChildren();board.classList.toggle('many',order.length>8);
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
  const bestKey=`bestlap-${selected}`,oldBestLap=store.get(bestKey,Infinity),newBestLap=stats.bestLap<oldBestLap;if(newBestLap)store.set(bestKey,stats.bestLap);
- const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Saubere Runden',`${stats.cleanLaps||0} / ${LAPS}`],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Saubere Runden',`${stats.cleanLaps||0} / ${LAPS}`],['Höchstgeschwindigkeit',`${stats.topKmh||0} km/h`],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  // Rivale und Tages-Herausforderung (R46) vor dem Verbuchen, damit XP und Erfolge sie sehen
  if(rivalId!==null){stats.rivalBeaten=rivalBeaten(order.map(r=>r.id),rivalId);$('resultStats').insertAdjacentHTML('beforeend',`<div class="rival ${stats.rivalBeaten?'won':'lost'}"><span>⚔ Rivale ${racers[rivalId].name}</span><b>${stats.rivalBeaten?'GESCHLAGEN ✓':'vor dir'}</b></div>`);}
@@ -4591,7 +4682,7 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  // Halfpipe (R52): die Kamera schaut die Pipe entlang - folgte sie der Nase, stuende sie beim Herunterfahren hinter der Wand
  if(p.hpOn){const tn=tanAt(p.distance),ta=Math.atan2(tn.x,tn.z);targetH=ta+clamp(angleDiff(targetH,ta),-.3,.3);}
  camH=snap?targetH:camH+angleDiff(targetH,camH)*Math.min(1,dt*(p.driftDir?3.2:5));
- const mgC=(p.megaS||1)-1,back0=(dbg.camBack??(portrait?10.5:8.4))*(1+mgC*.14),up0=(dbg.camUp??(portrait?4.8:3.7))*(1+mgC*.18),sx=Math.sin(camH),cz=Math.cos(camH),py=p.y??0;
+ const mgC=(p.megaS||1)-1,back0=(dbg.camBack??(portrait?10.5:8.4))*(1+mgC*.14)*CAM_VIEWS[camView].back,up0=(dbg.camUp??(portrait?4.8:3.7))*(1+mgC*.18)*CAM_VIEWS[camView].up,sx=Math.sin(camH),cz=Math.cos(camH),py=p.y??0;
 
  // Anti-Grav: Kamera folgt der gedrehten Fahrbahn (Versatz und Hochachse um die Fahrtrichtung gedreht)
  // Feed-Forward: das analytische Roll-Delta wird direkt uebernommen, nur der Restfehler wird geglaettet.
@@ -4650,7 +4741,7 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  camera.lookAt(kx+fx*8+camUp.x*1.3,ky+fy*8+camUp.y*1.3,kz+fz*8+camUp.z*1.3);
  if(p.boost>0){camera.position.y+=Math.sin(elapsed*63)*.05;camera.position.x+=Math.sin(elapsed*49)*.04;}
  if(shake>0){shake=Math.max(0,shake-dt);const sk=shake*calmK();camera.position.x+=(Math.random()-.5)*sk*.9;camera.position.y+=(Math.random()-.5)*sk*.7;}
- setFov((portrait?74:62)+(p.boost>0?10:0)+clamp(Math.abs(p.speed)-24,0,16)*.35+(p.czFloatS>.05?6:0),dt,snap);}
+ setFov((portrait?74:62)+CAM_VIEWS[camView].fov+(p.boost>0?10:0)+clamp(Math.abs(p.speed)-24,0,16)*.35+(p.czFloatS>.05?6:0),dt,snap);}
 function setFov(target,dt,snap){camFov=snap?target:camFov+(target-camFov)*Math.min(1,dt*6);if(Math.abs(camera.fov-camFov)>.01){camera.fov=camFov;camera.updateProjectionMatrix();}}
 function adaptQuality(fps){if(gfxMode!=='auto'||(state!=='race'&&state!=='countdown')||fps>=50||quality.level>=5)return;quality.level++;
  // R44: mitten im Rennen nur Aufloesung, Schattenkarte und Schattenrhythmus - nie Schatten oder Material umschalten
@@ -4702,7 +4793,7 @@ function animateWorld(dt,now){wxTick(dt,now);updateLoisl(dt);updateDizzy(now);up
  {let dirty=false;for(let i=0;i<SPARKS;i++){const s=sparkPool[i];if(s.life<=0)continue;s.life-=dt;s.vy-=dt*8;s.x+=s.vx*dt;s.y+=s.vy*dt;s.z+=s.vz*dt;if(s.life>0){const k=s.life*2;_m.makeScale(k,k,k).setPosition(s.x,s.y,s.z);sparkMesh.setMatrixAt(i,_m);}else sparkMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)sparkMesh.instanceMatrix.needsUpdate=true;
  {let dirty=false;for(let i=0;i<CONFETTI;i++){const c=confettiPool[i];if(c.life<=0)continue;c.life-=dt;c.ph+=c.rv*dt;c.x+=Math.sin(c.ph*.6)*c.sw*dt;c.y+=c.vy*dt;if(c.life>0){_e.set(c.ph*.4,c.ph,0);_q.setFromEuler(_e);_m.compose(_v.set(c.x,c.y,c.z),_q,_s.set(1,1,1));confettiMesh.setMatrixAt(i,_m);}else confettiMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)confettiMesh.instanceMatrix.needsUpdate=true;}
   dirty=false;for(let i=0;i<PUFFS;i++){const p=puffPool[i];if(p.life<=0)continue;p.life-=dt;p.vy+=dt*1.1;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;if(p.life>0){const k=(1+(.75-p.life)*1.8)*Math.min(1,p.life*3);_m.makeScale(k,k,k).setPosition(p.x,p.y,p.z);puffMesh.setMatrixAt(i,_m);}else puffMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)puffMesh.instanceMatrix.needsUpdate=true;
-  dirty=false;for(let i=0;i<SKIDS;i++){const s=skids[i];if(s.life<=0)continue;s.life-=dt;if(s.life<2.5){setSkid(i,s);dirty=true;}}if(dirty)skidMesh.instanceMatrix.needsUpdate=true;}
+  updateSmoke(dt);dirty=false;for(let i=0;i<SKIDS;i++){const s=skids[i];if(s.life<=0)continue;s.life-=dt;if(s.life<2.5){setSkid(i,s);dirty=true;}}if(dirty)skidMesh.instanceMatrix.needsUpdate=true;}
  if(!dbg.noFlags&&frame%2===0)for(const f of flags){const pos=f.mesh.geometry.attributes.position,q=pos.array;for(let v=0;v<pos.count;v++){const xn=f.xn[v],w=Math.sin(now*.006+xn*4+v*.02)*(f.amp||.11)*xn;q[v*3]=f.base[v*3]+f.dx[v]*w;q[v*3+2]=f.base[v*3+2]+f.dz[v]*w;}pos.needsUpdate=true;}
  for(const b of balloons){b.g.position.y=b.base+Math.sin(now*.00045+b.ph)*2.4;b.g.rotation.y=now*.00008+b.ph;}
  if(bats&&zones.length){const z=zones[0];for(let i=0;i<bats.count;i++){const a=now*.0005*(1+(i%3)*.25)+i*1.7,rr=10+(i%5)*4;_e.set(0,-a,0);_q.setFromEuler(_e);_m.compose(_v.set(z.x+Math.cos(a)*rr,24+Math.sin(now*.001+i)*4+(i%4)*2.5,z.z+Math.sin(a)*rr),_q,_s.set(1,Math.sin(now*.03+i*2),1));bats.setMatrixAt(i,_m);}bats.instanceMatrix.needsUpdate=true;}
@@ -5295,6 +5386,7 @@ function wxTick(dt,now){const live=state==='race'||state==='countdown'||state===
  wxStrip();wxAudio(rain,Math.min(1,gust/2.6*((m.storm||0)+(m.sand||0))+(m.snow||0)*.25));}
 const wxOc=m=>Math.min(1,Math.max((m.clouds||0)*.45,(m.rain||0)*.75,m.storm||0));
 {const b=$('pauseWx');if(b){b.onclick=()=>wxToggle(!wxOn);b.textContent='Wetter: '+(wxOn?'WECHSELHAFT':'AUS');b.setAttribute('aria-pressed',String(wxOn));}}
+{const b=$('pauseCam');if(b){b.onclick=cycleCamView;camViewSync();}const c=$('pauseCo');if(c){c.onclick=()=>paceToggle(!paceOn);paceToggle(paceOn);}}
 // ---------- Controller (R50): Gamepad-API mit Standard-Belegung (pad.mjs). Stick/Steuerkreuz lenken stufenlos,
 // A/RT Gas, B/LT Bremse, LB/RB Hops & Drift (in der Luft Trick), X/Y Item, START Pause, VIEW/SELECT zuruecksetzen.
 // Im Menue: links/rechts Strecke, hoch/runter Klasse, LB/RB Modus, A/START los, Y Erfolge; in Fenstern
@@ -5804,14 +5896,24 @@ function renderChat(){const now=performance.now(),row=(e)=>{const li=document.cr
  const log=$('onChatLog');if(log){log.replaceChildren(...chatLog.slice(-30).map(row));log.scrollTop=log.scrollHeight;}}
 setInterval(()=>{const f=$('chatFeed');if(f&&!f.hidden)renderChat();},1500);
 const bubbleTex=new Map();
+// R72 (Nutzerwunsch): Emojis stehen frei, hochaufloesend und transparent ueber dem Kart (kein Kasten, keine Sprechblase);
+// Sprueche sind dick umrandete Schrift ohne Blase. Beides wird gross gezeichnet und per Mipmap/Anisotropie sauber verkleinert.
+function chatBubbleTex(text,emo){const key=(emo?'e:':'t:')+text;let tex=bubbleTex.get(key);if(tex)return tex;
+ tex=emo?canvasTex(384,384,(q,w,h)=>{q.textAlign='center';q.textBaseline='middle';q.font='280px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+   q.shadowColor='rgba(8,16,40,.42)';q.shadowBlur=20;q.shadowOffsetY=8;q.fillText(text,w/2,h/2+12);})
+  :canvasTex(1024,256,(q,w,h)=>{q.textAlign='center';q.textBaseline='middle';q.lineJoin='round';q.font='900 italic 108px Rubik,"Trebuchet MS",sans-serif';
+   q.shadowColor='rgba(8,16,40,.5)';q.shadowBlur=16;q.shadowOffsetY=8;q.lineWidth=22;q.strokeStyle='#14264a';q.strokeText(text,w/2,h/2,w-60);q.shadowColor='transparent';q.fillStyle='#ffffff';q.fillText(text,w/2,h/2,w-60);});
+ tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());tex.generateMipmaps=true;tex.minFilter=T.LinearMipmapLinearFilter;tex.magFilter=T.LinearFilter;
+ if(bubbleTex.size>40){const [k,v]=bubbleTex.entries().next().value;v.dispose();bubbleTex.delete(k);}bubbleTex.set(key,tex);return tex;}
 function chatBubble(r,text,emo){const u=r.mesh.userData;let sp=u.chatB;
  if(!sp){sp=new T.Sprite(new T.SpriteMaterial({depthWrite:false,transparent:true}));sp.renderOrder=6;r.mesh.add(sp);u.chatB=sp;}
- let tex=bubbleTex.get(text);if(!tex){tex=canvasTex(256,128,(q,w,h)=>{q.fillStyle='#ffffff';q.strokeStyle='#14264a';q.lineWidth=7;q.beginPath();q.roundRect(8,8,w-16,h-40,26);q.fill();q.stroke();
-   q.beginPath();q.moveTo(w/2-16,h-33);q.lineTo(w/2,h-10);q.lineTo(w/2+16,h-33);q.fillStyle='#ffffff';q.fill();q.stroke();q.fillRect(w/2-13,h-40,26,8);
-   q.fillStyle='#14264a';q.textAlign='center';q.textBaseline='middle';q.font=emo?'62px sans-serif':'900 italic 28px Rubik, sans-serif';q.fillText(text,w/2,(h-32)/2+6,w-36);});
-  if(bubbleTex.size>40){const [k,v]=bubbleTex.entries().next().value;v.dispose();bubbleTex.delete(k);}bubbleTex.set(text,tex);}
- sp.material.map=tex;sp.material.needsUpdate=true;sp.scale.set(emo?2.4:4.2,emo?1.2:2.1,1);sp.position.set(0,emo?3.9:4.3,0);sp.visible=true;u.chatT=performance.now()+3200;}
-function chatBubbleTick(){const now=performance.now();for(const r of racers){const u=r.mesh?.userData;if(u?.chatB&&u.chatB.visible&&now>u.chatT)u.chatB.visible=false;}}
+ sp.material.map=chatBubbleTex(text,emo);sp.material.opacity=0;sp.material.needsUpdate=true;
+ const k=r.id===0?.62:1;u.chatS=emo?[2.3*k,2.3*k]:[5.4*k,1.35*k];u.chatY=(emo?4.3:4.5)-(r.id===0?.6:0);sp.scale.set(0,0,1);sp.position.set(0,u.chatY,0);sp.visible=true;u.chatT0=performance.now();u.chatT=u.chatT0+3200;}
+// Einblenden mit kleinem Ueberschwinger, sanftes Schweben, am Ende ausblenden
+function chatBubbleTick(){const now=performance.now();for(const r of racers){const u=r.mesh?.userData,sp=u?.chatB;if(!sp||!sp.visible)continue;
+  if(now>u.chatT){sp.visible=false;continue;}
+  const age=now-u.chatT0,k=Math.min(1,age/280),e=1+2.7*Math.pow(k-1,3)+1.7*Math.pow(k-1,2),fade=Math.min(1,(u.chatT-now)/450);
+  sp.scale.set(u.chatS[0]*e,u.chatS[1]*e,1);sp.position.y=u.chatY+Math.min(1,age/700)*.35+Math.sin(age/260)*.06;sp.material.opacity=fade;}}
 function chatOpen(on){const bar=$('chatBar');if(!bar)return;bar.hidden=!on||!net;if(!bar.hidden){const i=$('chatIn');i.value='';setTimeout(()=>i.focus(),0);}else $('chatIn')?.blur();}
 {const bar=$('chatBar');if(bar){
  const emo=bar.querySelector('.ch-emo'),qk=bar.querySelector('.ch-quick');
@@ -5955,7 +6057,12 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  wxSafe:d=>wxSafe(d),wxStrike:()=>{wxStrike();return true;},
  wxInfo:()=>({active:wxActive,plan:wxPlan,m:wxM&&Object.fromEntries(Object.entries(wxM).map(([k,v])=>[k,+(+v).toFixed(2)])),grip:+wxGripMul.toFixed(3),wind:+wxWindA.toFixed(2),exp:+renderer.toneMappingExposure.toFixed(2),rain:wxRain.visible,flakes:wxFlakes.visible,bugs:wxBugs.visible,bow:wxBow.visible,aurora:wxAurora[0].visible,moon:wxMoonDisc.visible,meteors:wxMeteors.filter(s=>s.visible).length,ufo:{vis:wxUfo.visible,d:Math.round(wxUfo.userData.d),show:+wxUfo.userData.show.toFixed(2),fly:+wxUfo.userData.fly.toFixed(2),beam:wxUfo.userData.beam.visible},strip:$('wxStrip')?.textContent,lifts:stats.ufoLifts||0}),
  perf:()=>({drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,dpr:renderer.getPixelRatio(),qualityLevel:quality.level}),
- bgm:()=>({ready:bgm.ready,failed:bgm.failed,playing:bgm.current,rate:bgm.rate}),
+ bgm:()=>{const tr=bgm.tracks[bgm.current];return {ready:bgm.ready,failed:bgm.failed,playing:bgm.current,rate:bgm.rate,master:masterGain?.gain.value,active:tr?.active,xf:tr?.xf,loopEnd:typeof BGM_LOOP!=='undefined'?BGM_LOOP[bgm.current]:null,elements:tr?.els.map((a,i)=>({time:a.currentTime,duration:a.duration,paused:a.paused,rate:a.playbackRate,src:a.src,gain:tr.gains?tr.gains[i].gain.value:a.volume})),tracks:Object.fromEntries(Object.entries(bgm.tracks).map(([k,v])=>[k,{src:v.els[0].src,duration:v.els[0].duration}]))};},
+ bgmSeek:seconds=>{const tr=bgm.tracks[bgm.current];if(!tr||!Number.isFinite(seconds)||seconds<0)return false;tr.els[tr.active].currentTime=seconds;return true;},
+ bgmRate:rate=>{if(Number.isFinite(rate)&&rate>.5&&rate<2)setBgmRate(rate);return bgm.rate;},
+ arcade:()=>({notes:arcade.notes.map(n=>[Math.round(n.d),Math.round(n.len),+n.turn.toFixed(2),n.sev,n.dir,Math.round(n.radius)]),traps:arcade.traps.map(t=>Math.round(t.d)),camView,paceOn,length:Math.round(length),pace:arcade.pace&&!arcade.pace.e.hidden?arcade.pace.e.textContent:null,banner:!$('arcBanner').hidden}),
+ arcCam:()=>{cycleCamView();return camView;},bubble:(i,t,e)=>{chatBubble(racers[i],t,!!e);return true;},emoteTest:(i,k)=>{const r=racers[i];if(!r)return false;r.emoteCd=0;emote(r,k);const e=emotes.find(q=>q.r===r);return e?{n:emotes.length,pos:e.sp.position.toArray().map(v=>+v.toFixed(1)),scale:e.sp.scale.x,vis:e.sp.visible,hasMap:!!e.sp.material.map,mapW:e.sp.material.map?.image?.width}:false;},
+ feat:()=>({name:course.name,len:Math.round(length),loops:loops.length,hp:hpipes.length,co:coasters.length,ag:agrav.length,tu:tunnels.length,ra:raises.length,fk:forks.length,el:elems.length,ramps:ramps.length,gaps:gaps.length,pads:pads.length,rings:rings.length,zones:zones.length,spores:spores.length,swing:swingers.length}),
  chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g?q.g.position.toArray().map(v=>+v.toFixed(1)):'laser']),missiles:hz.missiles.length,lasers:hz.missiles.filter(m=>m.laser).length,waves:(hz.waves||[]).map(w=>w.on?1:0),ships:(hz.waves||[]).flatMap(w=>w.on?w.ships.filter(q=>q.g.visible&&q.d!==undefined).map(q=>[Math.round(wrapDiff(q.d,racers[0].distance)),Math.round(q.h)]):[]),turrets:hz.cannons.filter(c=>c.tur).length,fz:P.fortress===undefined?'pending':P.fortress?'ok':'failed',kb:!!P.kartbodies,drv:!!P.driver_sepp,laserAhead:hz.missiles.filter(m=>m.laser&&m.d!==undefined&&racers[0]).map(m=>Math.round(wrapDiff(m.d,racers[0].distance))),statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),
  saveGhost:()=>{try{localStorage.setItem('mr-ghost-'+selected,JSON.stringify({...rec,next:undefined,color:0xffffff}));}catch{}return rec&&rec.x.length;},ghost:()=>ghost&&{n:ghost.data.x.length,dist:ghost.dist,visible:ghost.mesh.visible},medalOf:t=>medalOf(t),aiUse:(id,item)=>{racers[id].item=item;racers[id].charges=chargesFor(item);return useItem(racers[id]);},racers:()=>racers,world:()=>({ramps,pads,rings,spores,gaps,swingers}),keys,
  loops:()=>loops.map(q=>({...q,s:Math.round(q.s),span:Math.round(q.span),R:Math.round(q.R)})),
@@ -5968,7 +6075,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  field:n=>{fieldForce=n|0;kartPool=null;return fieldSize();},
  r60At:t=>{updateR60(0,t,false);renderer.render(scene,camera);return true;},
  spinTest:(n=0)=>{spinOut(racers[n]);return racers[n].spinO;},fireAt:n=>{fireShell(racers[n],0);return shots.length;},agravZones:()=>agrav.map(z=>[Math.round(z.s),Math.round(z.span),z.mode]),flatTest:(n=0)=>{flatten(racers[n]);return racers[n].flat;},mirror:()=>({k:+mirrorK.toFixed(2),threat:threatBehind()}),oils:()=>oils.map(o=>[Math.round(o.d),o.off,o.r]),
- intro:v=>{introForce=!!v;return introT;},fall:()=>{const r=racers[0];r.safeD=lapDist(r.distance);respawn(r);return !!r.rescue;},loisl:()=>({mode:loisl?.mode,vis:loisl?.g.visible,rescue:!!racers[0]?.rescue,fan:!!fanfare,light:lightState,bgm:bgm.current}),
+ intro:v=>{introForce=!!v;return introT;},fall:()=>{const r=racers[0];r.safeD=lapDist(r.distance);respawn(r);return !!r.rescue;},loisl:()=>({mode:loisl?.mode,vis:loisl?.g.visible,rescue:!!racers[0]?.rescue,fan:!!fanfare,light:lightState,bgm:bgm.current,pos:loisl&&loisl.g.position.toArray().map(Math.round),ndc:loisl&&loisl.g.position.clone().project(camera).toArray().map(v=>+v.toFixed(2)),lamps:loisl&&loisl.lamps.map(m=>m.color.getHexString()),lightVis:loisl&&loisl.light.visible,inWorld:!!loisl&&loisl.g.parent===world,cam:camera.position.toArray().map(Math.round)}),
  tsunami:()=>tsu&&{t0:tsu.t0,ph:tsu.ph,surf:tsu.surf},tsuAt:v=>{if(tsu){tsu.at=v<0?elapsed:v;tsu.t0=null;tsu.msg='';}return !!tsu;},
  bayice:()=>bayIce&&{n:bayIce.n,dol:bayIce.dol.length},
  pix:()=>domePix&&{deco:domePix.deco,clouds:domePix.clouds.length,birds:domePix.birds.length,sun:!!domePix.sun,sunPos:domePix.sun?domePix.sun.position.toArray().map(Math.round):null},

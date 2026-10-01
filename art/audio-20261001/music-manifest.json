@@ -1,0 +1,236 @@
+{
+  "date": "2026-10-01",
+  "generation": "local synthesis and offline remix only",
+  "provider_charges": 0,
+  "loop_tail_seconds": 2.2,
+  "tracks": {
+    "race": {
+      "source": "assets/audio/bgm_race.mp3",
+      "source_sha256": "d6b6e6a024bef0e2f7d38368fd3b59e5098a31c49d51f076fb48015797f2e0d6",
+      "asset": "assets/audio/drive/bgm_race.mp3",
+      "sha256": "c9aeaf1273a82172b21c2d5e713f82187d1d3f9b67685bd2a70181391a1b2b40",
+      "gain": 0.794919292134482,
+      "decoded": {
+        "peak": 0.7577798366546631,
+        "rms": 0.1202197374594746,
+        "frames": 3920418,
+        "seconds": 88.89836734693877
+      },
+      "tempo_ratio": 1.08,
+      "pitch_preserved": true,
+      "loop": "legacy crossfade"
+    },
+    "dome": {
+      "source": "assets/audio/bgm_dome.mp3",
+      "source_sha256": "8acc99a804f6b29c1eeced0b3249f251e307d462822b57e81675aa846348d8b0",
+      "asset": "assets/audio/drive/bgm_dome.mp3",
+      "sha256": "073c2700dee971c21a1bf58cc09140e29b3abf7bc9a1523d606c272c4dd421dc",
+      "gain": 0.9978782251029676,
+      "decoded": {
+        "peak": 0.7734873294830322,
+        "rms": 0.16145593387498638,
+        "frames": 2919420,
+        "seconds": 66.2
+      },
+      "bpm": 120,
+      "title": "Riesendom - Choral der Waechter",
+      "loopEnd": 64,
+      "loopTail": 2.2,
+      "head_correlation": 0.9998307135038326,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "space": {
+      "source": "assets/audio/bgm_space.mp3",
+      "source_sha256": "d33ba725b0746387e933d5bc0b625564ed020c75f731175a892a9b6de7a6cf91",
+      "asset": "assets/audio/drive/bgm_space.mp3",
+      "sha256": "d85872844d0b335b60313afabaec47c780c0bd2038ab9a41528d5cec0367f9df",
+      "gain": 0.9990426166542625,
+      "decoded": {
+        "peak": 0.5823593735694885,
+        "rms": 0.16143916282102694,
+        "frames": 3016744,
+        "seconds": 68.40689342403628
+      },
+      "bpm": 174,
+      "title": "Graben-Flug - Sturzflug",
+      "loopEnd": 66.20689342403628,
+      "loopTail": 2.2,
+      "head_correlation": 0.9988990986006243,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "polka": {
+      "source": "assets/audio/bgm_polka.mp3",
+      "source_sha256": "81b6ae9389f87e01b35ff89860f0f5bbc41642040d3e3961d52d7eb0338519d5",
+      "asset": "assets/audio/drive/bgm_polka.mp3",
+      "sha256": "01cc7ed1ceb48ccd86275b8bf5ee5906b90a419ba748a0af50b412cd6b79d176",
+      "gain": 0.9982895138051577,
+      "decoded": {
+        "peak": 0.6373071670532227,
+        "rms": 0.16146146988925766,
+        "frames": 3439335,
+        "seconds": 77.98945578231293
+      },
+      "bpm": 152,
+      "title": "Bierstrasse - Masskrug-Polka",
+      "loopEnd": 75.78945578231293,
+      "loopTail": 2.2,
+      "head_correlation": 0.9989241150011601,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "sunset": {
+      "source": "assets/audio/bgm_sunset.mp3",
+      "source_sha256": "6652f2fa4f9abce31a1c0564f2d35ba8f858ed5439f7c089fd9f1516525b3d71",
+      "asset": "assets/audio/drive/bgm_sunset.mp3",
+      "sha256": "677db56d97a1ac22a7467ad00a255840799a676dc2ea38f5986ce2727aeeee42",
+      "gain": 0.8938289910823571,
+      "decoded": {
+        "peak": 0.7361716032028198,
+        "rms": 0.1470631647732808,
+        "frames": 3920186,
+        "seconds": 88.89310657596371
+      },
+      "tempo_ratio": 1.08,
+      "pitch_preserved": true,
+      "loop": "legacy crossfade"
+    },
+    "night": {
+      "source": "assets/audio/bgm_night.mp3",
+      "source_sha256": "00476109a2c4ac6641ac561ec69fc4828b334cb5b8a2faac4ee3a25f12ab3897",
+      "asset": "assets/audio/drive/bgm_night.mp3",
+      "sha256": "cc1b2f438fb83986d1a327f374a53f5ad4f2ed0841ee77309416f15c664e6288",
+      "gain": 0.8225746652935119,
+      "decoded": {
+        "peak": 0.7430126667022705,
+        "rms": 0.13682602380465123,
+        "frames": 3920465,
+        "seconds": 88.89943310657597
+      },
+      "tempo_ratio": 1.08,
+      "pitch_preserved": true,
+      "loop": "legacy crossfade"
+    },
+    "gothic8": {
+      "source": "assets/audio/bgm_gothic8.mp3",
+      "source_sha256": "818d0c5b2bfe601c1222e07deb8dc2b9031f08702a6f017c3acff54b4d520c78",
+      "asset": "assets/audio/drive/bgm_gothic8.mp3",
+      "sha256": "b611da075cbe4087c1a7fbd200f3383323df39e7ca2544f6fa85f3cbe9d5a166",
+      "gain": 0.9982001240654717,
+      "decoded": {
+        "peak": 0.5981106758117676,
+        "rms": 0.16148982686738764,
+        "frames": 3194776,
+        "seconds": 72.44390022675736
+      },
+      "bpm": 164,
+      "title": "Geisterhaus - Kerzen im Nordturm",
+      "loopEnd": 70.24390022675738,
+      "loopTail": 2.2,
+      "head_correlation": 0.9986830242402074,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "beach": {
+      "source": "assets/audio/bgm_beach.mp3",
+      "source_sha256": "f5d944899f1a1c929e1a02dae18ea6daf6e6415b94537a9835e79809774513d9",
+      "asset": "assets/audio/drive/bgm_beach.mp3",
+      "sha256": "ee4743c4b291efd9e32a69068265d2182b6222f1b08935494814dda7f28efb9c",
+      "gain": 0.9988591894400592,
+      "decoded": {
+        "peak": 0.7395496368408203,
+        "rms": 0.1614822910366052,
+        "frames": 3778411,
+        "seconds": 85.67825396825397
+      },
+      "bpm": 138,
+      "title": "Schildkroeten-Bucht - Lagunen-Calypso",
+      "loopEnd": 83.47825396825397,
+      "loopTail": 2.2,
+      "head_correlation": 0.998417273238944,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "ice": {
+      "source": "assets/audio/bgm_ice.mp3",
+      "source_sha256": "9ce7d2dc46790cabcf382dd16413a3eb79a96f549dcdaa078f4801127eab986a",
+      "asset": "assets/audio/drive/bgm_ice.mp3",
+      "sha256": "ef72e0c24d016564c6fec02d8c2470623b965299f0acbbfe4981bb3feb9ced22",
+      "gain": 0.9985414597518373,
+      "decoded": {
+        "peak": 0.5725117921829224,
+        "rms": 0.16146218034629123,
+        "frames": 3016744,
+        "seconds": 68.40689342403628
+      },
+      "bpm": 174,
+      "title": "Eisstock-See - Walzer auf dem Eis",
+      "loopEnd": 66.20689342403628,
+      "loopTail": 2.2,
+      "head_correlation": 0.9990789737453104,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "choco": {
+      "source": "assets/audio/bgm_choco.mp3",
+      "source_sha256": "ba2b5227c2259a78736a6fad24660f18749ed1e6b135f25387b9c2906d3dc3d8",
+      "asset": "assets/audio/drive/bgm_choco.mp3",
+      "sha256": "21c3ad355e9c8a92b3d4488215036d0353c4d7b83bc7bd61b844c82aec09a5b6",
+      "gain": 0.998580034903325,
+      "decoded": {
+        "peak": 0.6454330682754517,
+        "rms": 0.1614742748372098,
+        "frames": 3576691,
+        "seconds": 81.10410430839002
+      },
+      "bpm": 146,
+      "title": "Schoko-Matsch - Schokoladen-Swing",
+      "loopEnd": 78.90410430839002,
+      "loopTail": 2.2,
+      "head_correlation": 0.9984792019609926,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "lava": {
+      "source": "assets/audio/bgm_lava.mp3",
+      "source_sha256": "758a4b1d57bfd0531b3f48d3e48312e7829ac1121a078c546810a10c1b0f471c",
+      "asset": "assets/audio/drive/bgm_lava.mp3",
+      "sha256": "db327986118bc65a7f4952dd3bd91292af8bf37cac42f1fa5d95791dbc8452a0",
+      "gain": 0.999803069688336,
+      "decoded": {
+        "peak": 0.5938700437545776,
+        "rms": 0.1614522288525037,
+        "frames": 2858063,
+        "seconds": 64.80868480725624
+      },
+      "bpm": 184,
+      "title": "Lava-Feste - Magma-Galopp",
+      "loopEnd": 62.60868480725624,
+      "loopTail": 2.2,
+      "head_correlation": 0.9988168330356222,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    },
+    "kirmes": {
+      "source": "assets/audio/bgm_kirmes.mp3",
+      "source_sha256": "710f10c21479aca5a3ddb9ecef877b3c195dfedf5d2246dc4b41910fc39d3a4c",
+      "asset": "assets/audio/drive/bgm_kirmes.mp3",
+      "sha256": "8e66203de7c24f4d8570c2d4f1c7cb3b65c40435d71773f0ab5fdf50b10bd0d9",
+      "gain": 0.998968633169003,
+      "decoded": {
+        "peak": 0.6687358021736145,
+        "rms": 0.16148404050644175,
+        "frames": 2858063,
+        "seconds": 64.80868480725624
+      },
+      "bpm": 184,
+      "title": "Magnet-Kirmes - Rummelwalzer",
+      "loopEnd": 62.60868480725624,
+      "loopTail": 2.2,
+      "head_correlation": 0.9994336264001175,
+      "composition_source": "art/r61/chiptune.mjs",
+      "composition_sha256": "bf346274645b54291c4512b0b14550c0bbaa524917dadbfcebb73331f6eb310b"
+    }
+  }
+}

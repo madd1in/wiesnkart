@@ -13,7 +13,7 @@ function harness(){
  class Context{constructor(){this.destination=new Node('destination');this.currentTime=1;this.sampleRate=1000;this.state='running';this.resumes=0;}resume(){this.resumes++;this.state='running';return Promise.resolve();}createGain(){return new Node('gain');}createBiquadFilter(){return new Node('filter');}createOscillator(){return new Node('oscillator');}createBufferSource(){return new Node('bufferSource');}createDynamicsCompressor(){return new Node('compressor');}createDelay(){return new Node('delay');}createMediaElementSource(){return new Node('media');}createBuffer(ch,len,sr){const data=Array.from({length:ch},()=>new Float32Array(len));return {sampleRate:sr,numberOfChannels:ch,length:len,duration:len/sr,getChannelData:i=>data[i]};}}
  class Media{constructor(src){this.src=src;this.currentTime=0;this.duration=96;this.volume=0;}addEventListener(){}play(){this.paused=false;return Promise.resolve();}pause(){this.paused=true;}load(){}}
  const context=vm.createContext({console,Math,Set,Audio:Media,window:{AudioContext:Context},ctx:null,state:'race',soundOn:true,performance:{now:()=>1000},addEventListener(){},fetch:()=>new Promise(()=>{}),setTimeout:(fn,ms)=>timers.push({fn,ms}),clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),courses:[{music:'race'}],selected:0,$:()=>({setAttribute(){}})});
- vm.runInContext(audio+'\nglobalThis.audioApi={audioInit,prepClip,playClip,sfxNoise,sfxTone,syncAudioMix,duckBgm,starTick,star:()=>starSrc,driftTick,drift:()=>driftSnd,draftTick,draft:()=>draftSnd,setAmbience,setSound,SFX,clipBuf,clipNorm,bgm,effectSources,get:()=>({ctx,sfxGain,effectsOut,worldGain,masterGain,voiceGain,raceFilter,duckLevel,ambSrc,ambLfo}),duck:v=>duckUntil=v};',context);
+ vm.runInContext(audio+'\nglobalThis.audioApi={audioInit,playBgm,stopBgm,setBgmRate,bgmTick,BGM_SRC,BGM_LOOP,BGM_XF,TRACK_GAIN,prepClip,playClip,sfxNoise,sfxTone,syncAudioMix,duckBgm,starTick,star:()=>starSrc,driftTick,drift:()=>driftSnd,draftTick,draft:()=>draftSnd,setAmbience,setSound,SFX,clipBuf,clipNorm,bgm,effectSources,get:()=>({ctx,sfxGain,effectsOut,worldGain,masterGain,voiceGain,raceFilter,duckLevel,ambSrc,ambLfo}),duck:v=>duckUntil=v};',context);
  const api=context.audioApi;api.audioInit();return {api,context,nodes,timers};
 }
 function reaches(node,target,seen=new Set()){if(node===target)return true;if(seen.has(node))return false;seen.add(node);return node.out.some(n=>reaches(n,target,seen));}
@@ -107,4 +107,54 @@ test('slipstream chiptune cues have distinct phrases, cooldowns and pause protec
  for(const src of api.effectSources)assert.ok(reaches(src,sfxGain));
  api.SFX.draftboost();assert.equal(api.effectSources.size,8);
  context.state='paused';api.syncAudioMix();api.SFX.draftready();api.SFX.draftboost();assert.equal(api.effectSources.size,0);
+});
+
+
+const settlePlayback=async()=>{for(let i=0;i<4;i++)await Promise.resolve();};
+
+test('every music track points at a real local MP3, the nine scored themes use the mastered driving mixes',()=>{
+ const {api}=harness();
+ const mixed=Object.keys(api.BGM_LOOP);
+ assert.equal(mixed.length,9);
+ for(const [key,src] of Object.entries(api.BGM_SRC)){
+  assert.equal(src.startsWith('drive/'),mixed.includes(key),key+' uses the driving mix only for scored themes');
+  const bytes=fs.readFileSync(new URL('./assets/audio/'+src,import.meta.url));
+  assert.ok(bytes.length>10000,key+' has rendered audio bytes');
+  assert.ok(bytes.subarray(0,3).toString()==='ID3'||bytes[0]===0xff,key+' is MP3 data');
+ }
+});
+
+test('scored music keeps its downbeat and level across loop and final-lap rate changes',async()=>{
+ const {api}=harness();api.playBgm('dome');await settlePlayback();api.setBgmRate(1.2);
+ const tr=api.bgm.tracks.dome,[a,b]=tr.els,end=api.BGM_LOOP.dome,xf=api.BGM_XF;
+ assert.ok(Number.isFinite(end)&&end>10);
+ a.duration=b.duration=end+xf;
+ a.currentTime=end-.01;api.bgmTick(2000);assert.notEqual(b.paused,false);
+ const base=tr.gains[0].gain.value;
+ a.currentTime=end+.24;api.bgmTick(2016);await settlePlayback();api.bgmTick(2032);
+ assert.equal(b.paused,false);assert.ok(Math.abs(b.currentTime-.24)<.002,'incoming head aligns with outgoing source phase');
+ a.currentTime=end+xf/2;b.currentTime=xf/2;api.bgmTick(2600);
+ assert.ok(Math.abs(tr.gains[0].gain.value+tr.gains[1].gain.value-base)<.0001,'identical loop overlap does not add loudness');
+ api.setBgmRate(1.32);a.currentTime=end+xf+.01;b.currentTime=xf+.01;api.bgmTick(3100);
+ assert.equal(tr.active,1);assert.equal(a.paused,true);assert.equal(b.playbackRate,1.32);
+ assert.equal(tr.gains[0].gain.value,0);assert.ok(tr.gains[1].gain.value>0);
+});
+
+test('a refused secondary music play keeps the audible source and its rate',async()=>{
+ const {api}=harness();api.playBgm('dome');await settlePlayback();api.setBgmRate(1.07);
+ const tr=api.bgm.tracks.dome,[a,b]=tr.els,end=api.BGM_LOOP.dome;
+ a.duration=b.duration=end+api.BGM_XF;b.play=()=>Promise.reject(new Error('media not ready'));
+ a.currentTime=end+.1;api.bgmTick(2200);await settlePlayback();api.bgmTick(2250);
+ assert.equal(tr.active,0);assert.ok(a.currentTime<end,'active source wraps to keep playing');assert.equal(a.playbackRate,1.07);
+ assert.ok(tr.gains[0].gain.value>0);assert.equal(tr.gains[1].gain.value,0);
+});
+
+test('a late music play promise cannot reactivate stopped music',async()=>{
+ const {api}=harness();api.playBgm('dome');await settlePlayback();
+ const tr=api.bgm.tracks.dome,[a,b]=tr.els;let resolvePlay;
+ b.play=()=>new Promise(resolve=>{resolvePlay=resolve;});
+ a.duration=b.duration=api.BGM_LOOP.dome+api.BGM_XF;
+ a.currentTime=api.BGM_LOOP.dome+.1;api.bgmTick(2300);assert.ok(resolvePlay);
+ api.stopBgm();resolvePlay();await settlePlayback();api.bgmTick(2400);
+ assert.equal(api.bgm.current,null);assert.ok(tr.els.every(el=>el.paused));assert.ok(tr.gains.every(g=>g.gain.value===0));
 });
