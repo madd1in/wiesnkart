@@ -6,6 +6,25 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 69 (01.10.2026): Wochenziele, Garagen-Vorschau, Münzregen, Fahrer-Brabbeln
+
+**Wochenziele** (`progress.mjs`, Tests): drei Aufgaben je Kalenderwoche, für alle gleich (z. B. „Gewinne 3 Rennen“,
+„Zünde 30 Drift-Turbos“, „Fahre 3 Online-Rennen“, „Fahre auf 4 verschiedenen Strecken“), Fortschritt über alle Rennen der
+Woche, je Ziel +80 XP. Wer alle drei schafft, bekommt den neuen Aufsatz **🏆 Wochen-Pokal** (Voxel). Karte unter der
+Tagesaufgabe – eingeklappt eine Zeile mit drei Punkten, aufgeklappt mit Fortschrittsbalken und Resttagen.
+
+**Garagen-Vorschau**: in der Fahrer-Karte steht jetzt das eigene Kart als gerendertes Bild – mit Fahrer, Farbe, Karosserie
+und Aufsatz, aktualisiert bei jeder Änderung.
+
+**Münzregen** (neues Item, eher für vorne): vier Münzen auf einmal (mehr Höchstgeschwindigkeit) und ein kleiner Schub,
+goldener Funkenregen, aufsteigende Münzklänge; die KI nutzt ihn, wenn sie wenige Münzen hat.
+
+**Klang**: die Fahrer **brabbeln** zu ihren Pixel-Sprechblasen – kurze Chiptune-Silben in eigener Tonhöhe je Figur (wütend
+tiefer, froh höher, Schreck steigend), online mit der Figur des Mitspielers. Dezente Klicks auf allen Menüknöpfen.
+
+**Pixel-Konfetti** auf dem Treppchen beim Zieleinlauf. Auf kleinen Bildschirmen blendet das einfache Menü die
+Online-Hinweiszeile aus (steht auch im Online-Fenster).
+
 ## Runde 68 (01.10.2026): Siegerkarte zum Teilen, Aufsätze in der Lobby, KI hält Bananen, Itemboxen ploppen auf
 
 **Siegerkarte teilen** (für mehr Spieler über Freunde): auf dem Ergebnis-Bildschirm erzeugt "📤 Siegerkarte teilen" ein

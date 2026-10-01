@@ -169,6 +169,7 @@ export const TOPPERS = [
   {id: 'brezn', n: 'Riesenbrezn', icon: '🥨', lvl: 6},
   {id: 'star', n: 'Pixel-Stern', icon: '⭐', onl: 10},
   {id: 'crown', n: 'Pixel-Krone', icon: '👑', crown: true},
+  {id: 'trophy', n: 'Wochen-Pokal', icon: '🏆', weekly: 1},
 ];
 export const topperById = id => TOPPERS.find(t => t.id === id) || null;
 /** me = {level, streakBest, onl, crown} */
@@ -178,10 +179,11 @@ export function topperUnlocked(t, me = {}) {
   if (t.streak && (me.streakBest || 0) < t.streak) return false;
   if (t.onl && (me.onl || 0) < t.onl) return false;
   if (t.crown && !me.crown) return false;
+  if (t.weekly && (me.weekly || 0) < t.weekly) return false;
   return true;
 }
 export function topperHint(t) {
-  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : '';
+  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : t.weekly ? 'Schaffe alle drei Wochenziele' : '';
 }
 /** Gewaehlter Aufsatz, falls freigeschaltet; ohne Wahl traegt man die Krone, sobald man sie hat */
 export function topperFor(choice, me = {}) {
@@ -194,3 +196,42 @@ export function topperFor(choice, me = {}) {
 export const LUCKY = [{xp: 30, w: 34}, {xp: 50, w: 30}, {xp: 80, w: 20}, {xp: 120, w: 11}, {xp: 250, w: 5}];
 export function luckyReward(rnd = Math.random) {let x = rnd() * LUCKY.reduce((a, q) => a + q.w, 0); for (const q of LUCKY) if ((x -= q.w) < 0) return q.xp; return LUCKY[0].xp;}
 export const luckyReady = (lastDay, today) => lastDay !== today;
+
+// R69: Wochenziele - drei Aufgaben je Kalenderwoche (fuer alle gleich, ohne Server), Fortschritt ueber mehrere Rennen.
+// Jedes geschaffte Ziel bringt WEEKLY_XP, alle drei schalten den Aufsatz "Wochen-Pokal" frei.
+export const WEEKLY_XP = 80;
+export const WEEKLY_POOL = [
+  {id: 'wins', t: 'Gewinne 3 Rennen', n: 3, inc: r => r.place === 1 ? 1 : 0},
+  {id: 'podium', t: 'Fahre 5-mal aufs Treppchen', n: 5, inc: r => r.place <= 3 ? 1 : 0},
+  {id: 'mt', t: 'Zünde 30 Drift-Turbos', n: 30, inc: r => mtAll(r.stats || {})},
+  {id: 'hits', t: 'Lande 15 Treffer', n: 15, inc: r => cnt(r.stats || {}, 'hitsDealt')},
+  {id: 'online', t: 'Fahre 3 Online-Rennen', n: 3, inc: r => r.online ? 1 : 0},
+  {id: 'clean', t: 'Fahre 6 saubere Runden', n: 6, inc: r => cnt(r.stats || {}, 'cleanLaps')},
+  {id: 'tricks', t: 'Schaffe 20 Tricks', n: 20, inc: r => cnt(r.stats || {}, 'tricks')},
+  {id: 'overtake', t: 'Überhole 40-mal', n: 40, inc: r => cnt(r.stats || {}, 'overtakes')},
+  {id: 'tracks', t: 'Fahre auf 4 verschiedenen Strecken', n: 4, track: true},
+];
+/** ISO-Kalenderwoche als Schluessel, z. B. "2026-W40" */
+export function weekKey(d = new Date()) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)), w = Math.ceil(((t - y0) / 864e5 + 1) / 7);
+  return `${t.getUTCFullYear()}-W${String(w).padStart(2, '0')}`;
+}
+export function weeklyGoals(week) {
+  let h = hash('wk-' + week); const pool = [...WEEKLY_POOL], out = [];
+  while (out.length < 3) {out.push(pool.splice(h % pool.length, 1)[0]); h = Math.imul(h ^ (h >>> 13), 2654435761) >>> 0;}
+  return out;
+}
+/** Rennen auf die Wochenziele buchen: liefert neuen Zustand, frisch geschaffte Ziele und ob jetzt alle drei geschafft sind */
+export function weeklyStep(st, week, r) {
+  const s = st && st.week === week ? {week, prog: {...st.prog}, done: [...st.done], tracks: [...(st.tracks || [])]} : {week, prog: {}, done: [], tracks: []};
+  const fresh = [];
+  for (const g of weeklyGoals(week)) {
+    if (s.done.includes(g.id)) continue;
+    if (g.track) {if (r.finished && Number.isInteger(r.track) && !s.tracks.includes(r.track)) s.tracks.push(r.track); s.prog[g.id] = s.tracks.length;}
+    else s.prog[g.id] = (s.prog[g.id] || 0) + (g.inc(r) || 0);
+    if (s.prog[g.id] >= g.n) {s.prog[g.id] = g.n; s.done.push(g.id); fresh.push(g);}
+  }
+  return {st: s, fresh, allDone: fresh.length > 0 && s.done.length === 3};
+}

@@ -80,3 +80,5 @@ test('R65: Brezn-Trio feuert dreimal, rote sucht den Naechsten, kreisende Brezn 
  const lead=itemWeights(1,8),mid=itemWeights(4,8);assert.ok(lead.fake>mid.fake&&lead.green3>0);assert.equal(lead.red3,0);assert.ok(mid.red3>0);});
 test('R66: XXL-Stachelpanzer gibt es nur im hinteren Feld',()=>{const a=racer(0,'A',0);a.item='spiky';assert.deepEqual(activate(a,[a]),{type:'spiky'});assert.equal(a.item,null);
  assert.equal(itemWeights(1,12).spiky,0);assert.equal(itemWeights(4,12).spiky,0);assert.ok(itemWeights(12,12).spiky>10);});
+test('R69: Muenzregen gibt vier Muenzen bis zur Obergrenze, eher fuer vorne',()=>{const a=racer(0,'A',0);a.item='coins';a.spores=3;assert.deepEqual(activate(a,[a]),{type:'coins',gained:4});assert.equal(a.spores,7);
+ a.item='coins';a.spores=9;assert.equal(activate(a,[a]).gained,1);assert.equal(a.spores,10);assert.ok(itemWeights(1,12).coins>itemWeights(12,12).coins);});

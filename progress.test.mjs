@@ -147,3 +147,19 @@ test('R66: Gluecksbrezn einmal am Tag, Belohnung aus der Tabelle', async () => {
   assert.deepEqual([...seen].sort((a, b) => a - b), LUCKY.map(q => q.xp));
   assert.ok(luckyReady('2026-09-30', '2026-10-01')); assert.ok(!luckyReady('2026-10-01', '2026-10-01'));
 });
+
+test('R69: Wochenziele - drei feste Ziele je Woche, Fortschritt ueber Rennen, Pokal fuer alle drei', async () => {
+  const {weekKey, weeklyGoals, weeklyStep, WEEKLY_POOL, topperById, topperUnlocked} = await import('./progress.mjs');
+  assert.equal(weekKey(new Date(2026, 9, 1)), '2026-W40'); assert.equal(weekKey(new Date(2027, 0, 1)), '2026-W53');
+  const g = weeklyGoals('2026-W40'); assert.equal(g.length, 3); assert.equal(new Set(g.map(x => x.id)).size, 3);
+  assert.deepEqual(weeklyGoals('2026-W40').map(x => x.id), g.map(x => x.id), 'fuer alle gleich');
+  const weeks = new Set(); for (let w = 1; w <= 30; w++) weeks.add(weeklyGoals(`2026-W${w}`).map(x => x.id).join()); assert.ok(weeks.size > 10, 'wechselt');
+  // eine Woche mit bekannten Zielen durchspielen: so lange gute Rennen fahren, bis alle drei geschafft sind
+  let st = null, all = false, fresh = 0;
+  for (let i = 0; i < 60 && !all; i++) {const res = weeklyStep(st, '2026-W40', {place: 1, finished: true, online: true, track: i % 12, stats: {mt: {mini: 3}, hitsDealt: 2, cleanLaps: 3, tricks: 4, overtakes: 6}}); st = res.st; fresh += res.fresh.length; all = res.allDone;}
+  assert.ok(all); assert.equal(fresh, 3); assert.equal(st.done.length, 3);
+  const again = weeklyStep(st, '2026-W40', {place: 1, finished: true, stats: {}}); assert.equal(again.fresh.length, 0); assert.ok(!again.allDone);
+  const next = weeklyStep(st, '2026-W41', {place: 9, finished: true, stats: {}}); assert.equal(next.st.done.length, 0, 'neue Woche, neues Glueck');
+  assert.ok(!topperUnlocked(topperById('trophy'), {})); assert.ok(topperUnlocked(topperById('trophy'), {weekly: 1}));
+  assert.ok(WEEKLY_POOL.every(q => q.n > 0 && q.t.length > 5));
+});

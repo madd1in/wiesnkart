@@ -11,7 +11,7 @@ import {navPick,navRepeat,isConsole} from './padnav.mjs';
 import {createDraftState,updateDraft} from './draft.mjs';
 import {WIZARD,inSection,castInterval,pickTarget,spellPos,stepSpell,spellHits} from './wizard.mjs';
 import {weatherPlan,calmPlan,weatherMix,weatherLook,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
-import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady} from './progress.mjs';
+import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady,weekKey,weeklyGoals,weeklyStep,WEEKLY_XP} from './progress.mjs';
 import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannonLane,missileAt} from './hazards.mjs';
 import {OW,pswitchMission,pswitchPress,pswitchCollect,pswitchTick,timeLeft,slalomMission,slalomPass,ringsMission,ringsHit,ringsLand,progressAdd} from './ow.mjs';
 import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRings} from './loop.mjs';
@@ -255,7 +255,7 @@ const KART_COLORS=[{c:0xff3b30,n:'Ruby / Rot'},{c:0xffc400,n:'Sunny / Gelb'},{c:
 const onlRaces=()=>store.get('prog',{}).onl||0;let crownMine=null;const hasCrown=()=>crownMine??(crownMine=!!store.get('prog',{}).crown);
 // R66: Aufsatz (Voxel-Kosmetik) - gewaehlt im Menue, freigeschaltet durch Stufe, Serie, Online-Rennen, Online-Sieg
 const TOPPER_IDS=new Set(TOPPERS.map(t=>t.id).filter(id=>id!=='none'));
-const topperMe=()=>({level:progLevel(),streakBest:store.get('streak',{}).best||0,onl:onlRaces(),crown:hasCrown()});
+const topperMe=()=>({level:progLevel(),streakBest:store.get('streak',{}).best||0,onl:onlRaces(),crown:hasCrown(),weekly:store.get('weeklyWins',0)});
 let topperMine;const myTopper=()=>topperMine!==undefined?topperMine:(topperMine=topperFor(store.get('topper',null),topperMe()));
 const topperOk=t=>typeof t==='string'&&TOPPER_IDS.has(t)?t:null;
 const progLevel=()=>levelOf(store.get('prog',{xp:0}).xp||0).level;
@@ -291,9 +291,9 @@ const TRACK_SCALE=1.35,ROAD_HALF=7.6,G=30,G_STICK=74,RAMP_LEN=6.2,RAMP_H=1.15,FA
 // Weltgroesse (R41): Rennstrecken liegen auf einer Insel mit 210 m Radius, die Open World ist groesser.
 // WK skaliert Insel, Meer, Streufelder und Kulisse; AK die Anzahl flaechig gestreuter Deko (hoechstens 4x).
 let WK=1,AK=1,hz=null;
-const ITEM_ICONS={spiky:'🦔',green3:'🟢',red3:'🔴',fake:'❓',boost:'⚡',triple:'⚡',shell:'🥨',banana:'🍌',shield:'🍺',bomb:'💣',mega:'💪',ink:'✒',cannon:'🧨',blue:'🔷'},ITEM_NAMES={spiky:'XXL-STACHELPANZER',green3:'BREZN-TRIO GRÜN',red3:'BREZN-TRIO ROT',fake:'FAKE-BLOCK',cannon:'BÖLLERSCHUSS',blue:'BLAUE BREZN',boost:'TURBO',triple:'DREIFACH-TURBO',shell:'SUCH-BREZN',banana:'BANANE',shield:'MASS BIER',bomb:'PILZBOMBE',storm:'GEWITTERWOLKE',mega:'RIESENWUCHS',ink:'TINTENPILZ'};
+const ITEM_ICONS={coins:'🪙',spiky:'🦔',green3:'🟢',red3:'🔴',fake:'❓',boost:'⚡',triple:'⚡',shell:'🥨',banana:'🍌',shield:'🍺',bomb:'💣',mega:'💪',ink:'✒',cannon:'🧨',blue:'🔷'},ITEM_NAMES={coins:'MÜNZREGEN',spiky:'XXL-STACHELPANZER',green3:'BREZN-TRIO GRÜN',red3:'BREZN-TRIO ROT',fake:'FAKE-BLOCK',cannon:'BÖLLERSCHUSS',blue:'BLAUE BREZN',boost:'TURBO',triple:'DREIFACH-TURBO',shell:'SUCH-BREZN',banana:'BANANE',shield:'MASS BIER',bomb:'PILZBOMBE',storm:'GEWITTERWOLKE',mega:'RIESENWUCHS',ink:'TINTENPILZ'};
 const ITEM_ART={storm:"<svg viewBox='0 0 48 48'><path d='M14 28a8 8 0 0 1 1-16 11 11 0 0 1 20 2 7 7 0 0 1-1 14z' fill='#5b4f86' stroke='#2b2346' stroke-width='3' stroke-linejoin='round'/><path d='M26 26l-7 10h6l-3 9 10-12h-6l3-7z' fill='#ffe27a' stroke='#b5760c' stroke-width='2' stroke-linejoin='round'/></svg>",empty:"<svg viewBox='0 0 48 48'><path d='M17 17a7 7 0 1 1 9.8 6.4c-1.9.9-2.8 2-2.8 4.1v2' fill='none' stroke='#d8e6dc' stroke-width='5' stroke-linecap='round'/><circle cx='24' cy='37' r='3.2' fill='#d8e6dc'/></svg>",boost:"<svg viewBox='0 0 48 48'><path d='M28 3 10 27h10l-3 18 21-26H27z' fill='#ffe27a' stroke='#b5760c' stroke-width='3' stroke-linejoin='round'/></svg>",triple:"<svg viewBox='0 0 48 48'><path d='M19 4 6 24h7l-2 14 14-18h-7z' fill='#ffe27a' stroke='#b5760c' stroke-width='2.6' stroke-linejoin='round'/><path d='M36 10 25 26h6l-2 12 12-16h-6z' fill='#fff0ad' stroke='#b5760c' stroke-width='2.6' stroke-linejoin='round'/></svg>",shell:"<svg viewBox='0 0 48 48'><path d='M24 40c-6-5-17-9-18-19-.7-7 4-13 10-13 5 0 8 4 8 9 0-5 3-9 8-9 6 0 10.7 6 10 13-1 10-12 14-18 19z' fill='none' stroke='#6e3514' stroke-width='10' stroke-linejoin='round'/><path d='M24 40c-6-5-17-9-18-19-.7-7 4-13 10-13 5 0 8 4 8 9 0-5 3-9 8-9 6 0 10.7 6 10 13-1 10-12 14-18 19z' fill='none' stroke='#c7702e' stroke-width='5.4' stroke-linejoin='round'/><path d='M13 33l22-13M35 33L13 20' stroke='#6e3514' stroke-width='9' stroke-linecap='round'/><path d='M13 33l22-13M35 33L13 20' stroke='#c7702e' stroke-width='4.6' stroke-linecap='round'/><g fill='#fffdf5'><rect x='9' y='14' width='2.4' height='2.4' rx='.6'/><rect x='20' y='11' width='2.4' height='2.4' rx='.6'/><rect x='33' y='12' width='2.4' height='2.4' rx='.6'/><rect x='38' y='22' width='2.4' height='2.4' rx='.6'/><rect x='23' y='24' width='2.4' height='2.4' rx='.6'/><rect x='15' y='30' width='2.4' height='2.4' rx='.6'/><rect x='30' y='31' width='2.4' height='2.4' rx='.6'/></g></svg>",banana:"<svg viewBox='0 0 48 48'><path d='M10 9c1 15 8 25 27 28-3 4-9 5-14 4C11 39 5 28 6 13z' fill='#ffe45c' stroke='#9a7a12' stroke-width='3' stroke-linejoin='round'/><path d='M8 9c-2-2-4-2-5 0' stroke='#6c5a2a' stroke-width='3.4' fill='none' stroke-linecap='round'/></svg>",shield:"<svg viewBox='0 0 48 48'><rect x='9' y='12' width='24' height='31' rx='4' fill='#ffc233' stroke='#6b4a0c' stroke-width='3'/><path d='M33 18h4a6 6 0 0 1 6 6v6a6 6 0 0 1-6 6h-4' fill='none' stroke='#6b4a0c' stroke-width='3.4'/><path d='M8 13c0-5 4-8 8-7 2-3 7-4 10-1 3-2 8-1 9 3 2 1 3 3 2 5z' fill='#fffdf4' stroke='#6b4a0c' stroke-width='2.6' stroke-linejoin='round'/><g fill='#fff3b0' opacity='.9'><circle cx='16' cy='24' r='1.6'/><circle cx='24' cy='32' r='1.3'/><circle cx='19' cy='37' r='1.1'/><circle cx='27' cy='22' r='1.2'/></g><path d='M14 17v22M21 17v22M28 17v22' stroke='#e89a10' stroke-width='1.6' opacity='.55'/></svg>",bomb:"<svg viewBox='0 0 48 48'><circle cx='21' cy='29' r='15' fill='#3b3546' stroke='#14101c' stroke-width='3'/><path d='M30 16c3-6 8-8 12-5' stroke='#a8764a' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M43 8l2-4 2 4-4 1z' fill='#ffb02e'/><circle cx='43.5' cy='10' r='3.6' fill='#ffd45c'/><ellipse cx='16' cy='24' rx='4' ry='2.6' fill='#6a6478' opacity='.8'/></svg>",mega:"<svg viewBox='0 0 48 48'><path d='M24 17C20 9 14 5.5 9 6.5c1 5.5 6.5 9.5 15 10.5z' fill='#4caf50' stroke='#1f6b2a' stroke-width='2.4' stroke-linejoin='round'/><path d='M24 17c4-8 10-11.5 15-10.5-1 5.5-6.5 9.5-15 10.5z' fill='#62c562' stroke='#1f6b2a' stroke-width='2.4' stroke-linejoin='round'/><path d='M24 17c-1-6 0-10 2-13.5' stroke='#1f6b2a' stroke-width='2.4' fill='none' stroke-linecap='round'/><path d='M13 23c0-4.5 4.5-7.5 11-7.5s11 3 11 7.5c0 8-5.5 16-11 23-5.5-7-11-15-11-23z' fill='#fff6f2' stroke='#8a3a4a' stroke-width='3' stroke-linejoin='round'/><path d='M13.6 21c1.6-3.4 5.4-5.5 10.4-5.5s8.8 2.1 10.4 5.5c-3.2 1.7-6.6 2.3-10.4 2.3s-7.2-.6-10.4-2.3z' fill='#ff7aa0'/><path d='M18 29h5M21 35h5' stroke='#d9a3ac' stroke-width='1.8' stroke-linecap='round'/><path d='M41 33V20M36.5 25l4.5-5.5 4.5 5.5' stroke='#ffd45c' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>",ink:"<svg viewBox='0 0 48 48'><rect x='21.5' y='28' width='5' height='17' rx='2.5' fill='#f4f1ea' stroke='#3a3440' stroke-width='2.2'/><path d='M24 3c7 0 11 8 11 18v6H13v-6C13 11 17 3 24 3z' fill='#f4f1ea' stroke='#3a3440' stroke-width='3' stroke-linejoin='round'/><path d='M17 12l3 2M27 9l3 2M20 19l3 2M28 17l3 2M16 24l3 1M26 24l3 1' stroke='#b9b2a6' stroke-width='2' stroke-linecap='round'/><path d='M13 26h22v3c0 2-1.5 4-2.7 2.2S31 34 29.6 31.5s-1.3 4.5-2.8 1.6-1.4 5-2.8 1.7-1.4 4-2.8.9-1.4 3.3-2.8.4-1.5 2-2.6 0-2.7 1.5-2.9-1z' fill='#15121c'/><path d='M18 40c0 3.4-3.4 3.4-3.4 0l1.7-4.4zM33.4 42c0 3.4-3.4 3.4-3.4 0l1.7-4.4z' fill='#15121c'/></svg>"};
-const ITEM_COL={spiky:'#9be07a',green3:'#6fe08a',red3:'#ff7a6a',fake:'#f6c23c',storm:'#b7a4ff',boost:'#ffd45c',triple:'#ffd45c',shell:'#f0b46a',banana:'#ffe45c',shield:'#ffc233',bomb:'#ff9a6a',mega:'#ff6b5a',ink:'#c9c2dc'};
+const ITEM_COL={coins:'#ffd23a',spiky:'#9be07a',green3:'#6fe08a',red3:'#ff7a6a',fake:'#f6c23c',storm:'#b7a4ff',boost:'#ffd45c',triple:'#ffd45c',shell:'#f0b46a',banana:'#ffe45c',shield:'#ffc233',bomb:'#ff9a6a',mega:'#ff6b5a',ink:'#c9c2dc'};
 const MT_COLORS={mini:0xffc72e,super:0xff6a1a,ultra:0x5ff2ff},MT_LABEL={mini:'FUNKEN-TURBO',super:'GLUT-TURBO',ultra:'BLITZ-TURBO'};
 
 // R57: neuer Standard - Sepp in Lederhosn im Fass-Kart; einmalig auch fuer bestehende Spielstaende, danach frei waehlbar
@@ -374,7 +374,7 @@ const persistentMats=new Set([cream,dark,white,gold,shieldMat,shieldRivalMat,fla
 // ---------------------------------------------------------------- GLB-Prototypen (Blender-MCP)
 const sharedGeo=new Set([flameGeo,shieldGeo]),sharedMat=new Set(),P={};
 // R65: Retro-Voxel-Modelle aus voxel.mjs (Brezn-Trio, Fake-Block, Pixel-Krone) - Geometrie einmal gebaut, danach geteilt
-const VOX_DEF={brezn_green:()=>breznModel('green'),brezn_red:()=>breznModel('red'),qfake:()=>qBlockModel(true),qreal:()=>qBlockModel(false),crown:()=>crownModel(),top_heart:()=>topperModel('heart'),top_mug:()=>topperModel('mug'),top_star:()=>topperModel('star'),top_brezn:()=>topperModel('brezn'),top_crown:()=>crownModel(),spiky:()=>spikyShellModel(6)},VOX_SIZE={brezn_green:.1,brezn_red:.1,qfake:.19,qreal:.19,crown:.13,top_heart:.12,top_mug:.12,top_star:.12,top_brezn:.09,top_crown:.13,spiky:.22},voxCache={};
+const VOX_DEF={brezn_green:()=>breznModel('green'),brezn_red:()=>breznModel('red'),qfake:()=>qBlockModel(true),qreal:()=>qBlockModel(false),crown:()=>crownModel(),top_heart:()=>topperModel('heart'),top_mug:()=>topperModel('mug'),top_star:()=>topperModel('star'),top_brezn:()=>topperModel('brezn'),top_crown:()=>crownModel(),top_trophy:()=>topperModel('trophy'),spiky:()=>spikyShellModel(6)},VOX_SIZE={brezn_green:.1,brezn_red:.1,qfake:.19,qreal:.19,crown:.13,top_heart:.12,top_mug:.12,top_star:.12,top_brezn:.09,top_crown:.13,top_trophy:.12,spiky:.22},voxCache={};
 const voxMat=new T.MeshLambertMaterial({vertexColors:true});persistentMats.add(voxMat);
 function voxGeo(k){if(voxCache[k])return voxCache[k];const m=VOX_DEF[k](),d=voxelMesh(m.vox,m.pal,VOX_SIZE[k]),g=new T.BufferGeometry();
  g.setAttribute('position',new T.BufferAttribute(d.positions,3));g.setAttribute('normal',new T.BufferAttribute(d.normals,3));g.setAttribute('color',new T.BufferAttribute(d.colors,3));g.setIndex(new T.BufferAttribute(d.indices,1));
@@ -3582,7 +3582,7 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
  steer=clamp(steer,-1,1);if(!dbg.noSmooth){r.aiSt=r.aiSt===undefined?steer:r.aiSt+(steer-r.aiSt)*Math.min(1,dt*14);steer=r.aiSt;}
  return {gas,brake,steer,drift};}
 function aiItems(r,order){if(TRAIL_ITEMS.has(r.item)&&!r.itemPending&&!r.trail)r.trail=r.item;if(r.cooldown>0||!r.item||r.itemPending)return;const pl=order.indexOf(r),ahead=order[pl-1],behind=order[pl+1],kap=Math.abs(trackAt(r.distance+20).kap);
- const use=r.item==='bomb'?ahead&&ahead.distance-r.distance>12&&ahead.distance-r.distance<45:r.item==='shell'?ahead&&ahead.distance-r.distance<70:r.item==='spiky'?ahead&&ahead.distance-r.distance<60:r.item==='banana'||r.item==='fake'?behind&&r.distance-behind.distance<35:r.item==='red3'?ahead&&ahead.distance-r.distance<70:r.item==='green3'?(ahead&&ahead.distance-r.distance<28&&Math.abs(ahead.offset-r.offset)<2.2)||(behind&&r.distance-behind.distance<14&&Math.abs(behind.offset-r.offset)<2.2&&(r.aiBack=true)):r.item==='mega'?(ahead&&ahead.distance-r.distance<30)||kap<1/120:r.item==='ink'?!!ahead:r.item==='cannon'?kap<1/60:r.item==='boost'||r.item==='triple'?kap<1/80&&!agrav.some(q=>{const a=wrapDiff(q.s,r.distance);return a>4&&a<55;}):true;
+ const use=r.item==='bomb'?ahead&&ahead.distance-r.distance>12&&ahead.distance-r.distance<45:r.item==='shell'?ahead&&ahead.distance-r.distance<70:r.item==='spiky'?ahead&&ahead.distance-r.distance<60:r.item==='coins'?(r.spores||0)<7:r.item==='banana'||r.item==='fake'?behind&&r.distance-behind.distance<35:r.item==='red3'?ahead&&ahead.distance-r.distance<70:r.item==='green3'?(ahead&&ahead.distance-r.distance<28&&Math.abs(ahead.offset-r.offset)<2.2)||(behind&&r.distance-behind.distance<14&&Math.abs(behind.offset-r.offset)<2.2&&(r.aiBack=true)):r.item==='mega'?(ahead&&ahead.distance-r.distance<30)||kap<1/120:r.item==='ink'?!!ahead:r.item==='cannon'?kap<1/60:r.item==='boost'||r.item==='triple'?kap<1/80&&!agrav.some(q=>{const a=wrapDiff(q.s,r.distance);return a>4&&a<55;}):true;
  if(use){useItem(r);r.cooldown=chargesFor(r.item)?1.2:2.5;}}
 
 // ---------------------------------------------------------------- Audio: Sprecher, SFX (ElevenLabs), Musik
@@ -3836,14 +3836,14 @@ function useItem(r){if(r.itemPending||(battle&&r.out))return null;if(r.id!==0)r.
  if(res.type==='shell'&&res.target!==undefined)racers[res.target].stun=prevStun[res.target];
  if(me&&(res.type==='boost'||res.type==='triple'))SFX.boost();else if(me&&SFX[res.type])SFX[res.type]();
  if((res.type==='shell'||res.type==='red3')&&arenaFor(r)){const q=arenaTarget(r,70,true);res.target=q?q.id:undefined;}
- if(res.type==='red3'){fireShell(r,res.target,'red');if(nearPlayer(r,60))SFX.throw();}if(res.type==='green3'){res.back=r.id===0?(held('ArrowDown')||held('KeyS')):!!r.aiBack;r.aiBack=false;fireGreen(r,res.back);}if(res.type==='fake')dropFake(r);if(res.type==='spiky')fireSpiky(r);
+ if(res.type==='red3'){fireShell(r,res.target,'red');if(nearPlayer(r,60))SFX.throw();}if(res.type==='green3'){res.back=r.id===0?(held('ArrowDown')||held('KeyS')):!!r.aiBack;r.aiBack=false;fireGreen(r,res.back);}if(res.type==='fake')dropFake(r);if(res.type==='spiky')fireSpiky(r);if(res.type==='coins')coinRain(r,res.gained||0);
  if(res.type==='cannon')startCannon(r);if(res.type==='blue')fireBlue(r,res.target);
  if(res.type==='banana')dropBanana(r);if(res.type==='shell')fireShell(r,res.target);if(res.type==='bomb')throwBomb(r);if(res.type==='storm')stormStrike(r,res.hit);
  if(res.type==='shield')emote(r,'love');
  if(res.type==='mega'){burst(r,0xff4a3d,16);if(!me&&Math.hypot(r.x-racers[0].x,r.z-racers[0].z)<60)SFX.mega();}
  if(res.type==='ink'){for(const id of res.targets)spawnInkcap(racers[id]);if(me)stats.inkBest=Math.max(stats.inkBest||0,res.targets.length);if(res.targets.includes(0)){inkSplash();SFX.ink();toast('TINTE! 🖋',1.1,'bad');}}
  if(net&&net.setup&&!r.net)netItem(r,res);
- if(me){coachLearn('item');if(res.type==='boost'||res.type==='triple')say('turbo');if(res.type==='shield')say('shield');if(res.type==='banana')say('banana');notice({spiky:'XXL-STACHELPANZER!',green3:'GRÜNE BREZN! ×'+(res.charges||0),red3:'ROTE BREZN! ×'+(res.charges||0),fake:'FAKE-BLOCK! 😈',boost:'TURBO!',triple:'TURBO ×'+(res.charges||0),shield:'MASS BIER – PROSIT!',banana:'BANANE!',shell:'SUCH-BREZN!',bomb:'PILZBOMBE!',storm:'GEWITTERWOLKE!',mega:'RIESENWUCHS!',cannon:'BÖLLERSCHUSS!',blue:'BLAUE BREZN!',ink:res.targets&&res.targets.length?'TINTE FÜR '+res.targets.length+'!':'TINTENPILZ!'}[res.type],.8);}
+ if(me){coachLearn('item');if(res.type==='boost'||res.type==='triple')say('turbo');if(res.type==='shield')say('shield');if(res.type==='banana')say('banana');notice({coins:'MÜNZREGEN! +'+(res.gained||0),spiky:'XXL-STACHELPANZER!',green3:'GRÜNE BREZN! ×'+(res.charges||0),red3:'ROTE BREZN! ×'+(res.charges||0),fake:'FAKE-BLOCK! 😈',boost:'TURBO!',triple:'TURBO ×'+(res.charges||0),shield:'MASS BIER – PROSIT!',banana:'BANANE!',shell:'SUCH-BREZN!',bomb:'PILZBOMBE!',storm:'GEWITTERWOLKE!',mega:'RIESENWUCHS!',cannon:'BÖLLERSCHUSS!',blue:'BLAUE BREZN!',ink:res.targets&&res.targets.length?'TINTE FÜR '+res.targets.length+'!':'TINTENPILZ!'}[res.type],.8);}
  return res;}
 const MAX_HAZARDS=14;
 // Gewitterwolke (R46): ueber jedem getroffenen Kart eine dunkle Wolke, ein Zickzack-Blitz faehrt herab (geteilte
@@ -3928,14 +3928,25 @@ function emoteMat(k){if(emoteMats[k])return emoteMats[k];const c=document.create
  for(const [x,y,col] of pixels(EMOTE_PIX[k],EMOTE_PAL))cell(x+3,y+2,'#'+col.toString(16).padStart(6,'0'));
  const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.magFilter=T.NearestFilter;t.minFilter=T.NearestFilter;t.generateMipmaps=false;
  const m=new T.SpriteMaterial({map:t,transparent:true,depthWrite:false});persistentMats.add(m);return emoteMats[k]=m;}
-function emote(r,k){if(!r?.mesh||!r.mesh.visible||(r.emoteCd||0)>elapsed||!nearPlayer(r,55))return;r.emoteCd=elapsed+2.2;
+function emote(r,k){if(!r?.mesh||!r.mesh.visible||(r.emoteCd||0)>elapsed||!nearPlayer(r,55))return;r.emoteCd=elapsed+2.2;babble(r,k);
  for(const e of emotes)if(e.r===r){e.sp.material=emoteMat(k);e.t=0;return;}
  const sp=new T.Sprite(emoteMat(k));sp.renderOrder=5;actors.add(sp);emotes.push({sp,r,t:0});}
+// R69: Fahrer-Brabbeln - kurze Chiptune-Silben in eigener Tonhoehe je Fahrer (wie Comic-Sprechblasen); wuetend tiefer, froh hoeher
+function babble(r,k){const pl=racers[0];if(!pl||!soundOn)return;const dist=Math.hypot(pl.x-r.x,pl.z-r.z);if(dist>40)return;
+ const drv=r.id===0?driverIndex:(r.drv??AI_DRIVERS?.[r.id]??r.id),base=250+((drv*53)%7)*42,mood={angry:.82,happy:1.15,shock:1.32,love:1.05}[k]||1,v=(r.id===0?.034:.026)*clamp(1-dist/40,.25,1),n=3+((r.id+drv)%2);
+ for(let i=0;i<n;i++){const f=base*mood*(.86+Math.random()*.34),up=k==='shock'?1.25:k==='angry'?.9:1.04;sfxTone(f,f*up,.055,'square',v,i*.075);}}
 function updateEmotes(dt){for(let i=emotes.length-1;i>=0;i--){const e=emotes[i];e.t+=dt;const p=e.r.mesh.position,top=(e.r.id===0?myTopper():e.r.topper)?.9:0;
  const s=e.t<.14?e.t/.14*1.25:e.t<.24?1.25-(e.t-.14)*2.5:e.t>1.35?Math.max(0,(1.65-e.t)/.3):1;e.sp.scale.set(1.5*s,1.5*s,1);e.sp.position.set(p.x,p.y+2.9+top+Math.sin(e.t*9)*.05,p.z);
  if(e.t>1.65||!e.r.mesh.parent){actors.remove(e.sp);emotes.splice(i,1);}}}
 // R66: "?"-Block zerspringt beim Einsammeln in Pixel-Splitter (Farben des Voxel-Blocks)
 function boxPop(b){const y=b.baseY;for(let i=0;i<22;i++){const a=Math.random()*TAU,sp=3+Math.random()*5;emit(b.x+Math.sin(a)*.5,y+Math.random()*.8,b.z+Math.cos(a)*.5,[0xf6c23c,0xf6c23c,0x8a5a10,0xffffff,0xffe89a][i%5],Math.sin(a)*sp,2.5+Math.random()*5,Math.cos(a)*sp,.55+Math.random()*.35);}}
+// R69: Pixel-Konfetti auf dem Treppchen (bunte Wuerfel schiessen hoch und rieseln)
+function confetti(r,n){const p=r.mesh.position,cols=[0xe8352e,0xffd23a,0x2f7fd8,0x3cc85a,0xff5fa8,0xffffff];for(let i=0;i<n;i++){const a=Math.random()*TAU,sp=2+Math.random()*5;
+ emit(p.x+Math.sin(a)*.6,p.y+1.6,p.z+Math.cos(a)*.6,cols[i%cols.length],Math.sin(a)*sp,7+Math.random()*7,Math.cos(a)*sp,1.4+Math.random()*.8);}}
+// R69: Muenzregen - goldene Funken regnen aufs Kart, Muenz-Klaenge steigen auf
+function coinRain(r,n){const p=r.mesh.position,me=r.id===0;if(me)stats.maxSpores=Math.max(stats.maxSpores||0,r.spores||0);
+ if(nearPlayer(r,60))for(let i=0;i<30;i++){const a=Math.random()*TAU;emit(p.x+Math.sin(a)*1.6,p.y+4+Math.random()*2,p.z+Math.cos(a)*1.6,i%3?0xffd23a:0xfff4b0,-Math.sin(a)*1.5,-2-Math.random()*2,-Math.cos(a)*1.5,.8);}
+ if(me)for(let i=0;i<Math.max(1,n);i++)setTimeout(()=>SFX.spore((r.spores||0)-n+i+1),i*90);}
 // R66: XXL-Stachelpanzer (Nutzerwunsch) - riesige stachelige Voxel-Kuppel, rollt schlingernd die Strecke entlang und walzt
 // jeden auf ihrer Spur um (bleibt nicht stehen, trifft jeden nur einmal); Mass Bier und Riesenwuchs halten stand
 function fireSpiky(r){const g=new T.Group(),m=voxObj('spiky');const bb=(m.geometry.boundingBox||(m.geometry.computeBoundingBox(),m.geometry.boundingBox));m.position.y=-bb.min.y-.1;g.add(m);actors.add(g);
@@ -3965,7 +3976,7 @@ function spikyHit(k,owner){const me=k.id===0,near=nearPlayer(k,70);
 const orbitFx=new Map(),topFx=new Map();
 // R65/R66: Aufsatz (Pixel-Krone, Lebkuchenherz ...) schwebt ueber dem Kart - online sehen ihn alle Mitspieler.
 // Offline tragen ein paar KI-Fahrer auch einen, damit man sieht, was es zu holen gibt.
-const AI_TOPS=['heart','mug','brezn','star','crown'];
+const AI_TOPS=['heart','mug','brezn','star','crown','trophy'];
 function topperTick(r,now){if(r.topper===undefined)r.topper=r.id!==0&&!(net&&net.setup)&&(r.id*7)%10<3?AI_TOPS[r.id%AI_TOPS.length]:null;
  const id=r.id===0?myTopper():r.topper,want=!!id&&!!r.mesh&&state!=='menu'&&!isTT();let c=topFx.get(r);
  if(c&&(!want||c.userData.top!==id)){c.visible=false;if(want){actors.remove(c);topFx.delete(r);c=null;}}
@@ -4361,7 +4372,7 @@ function end(){document.body.classList.remove('mirror');elapsed=racers[0].finish
  $('resultTitle').textContent=place===1?(rs.perfect?'Perfektes Rennen!':'Der Pokal gehört dir!'):place<=3?`Platz ${place} – aufs Treppchen!`:`Platz ${place}. Da geht noch was!`;
  $('resultTime').textContent=`${course.name} · ${ccName(cc)} · ${format(elapsed)}`;lastResult={place,n:order.length,track:course.name,icon:course.icon,cc:ccName(cc),time:format(elapsed),best:Number.isFinite(stats.bestLap)?format(stats.bestLap):'',stars:rs.stars,online:!!(net&&net.setup),name:net&&net.setup?myNetName():(DRIVERS[driverIndex]?.n||'Fahrer')};$('shareBtn').hidden=false;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<rs.stars?'on':''}">★</i>`).join('')+(rs.perfect?'<b>PERFEKT</b>':'');
- stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3)SFX.cheer();board.replaceChildren();board.classList.toggle('many',order.length>8);
+ stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3){SFX.cheer();confetti(racers[0],place===1?110:60);}board.replaceChildren();board.classList.toggle('many',order.length>8);
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
  const bestKey=`bestlap-${selected}`,oldBestLap=store.get(bestKey,Infinity),newBestLap=stats.bestLap<oldBestLap;if(newBestLap)store.set(bestKey,stats.bestLap);
  const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Saubere Runden',`${stats.cleanLaps||0} / ${LAPS}`],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
@@ -4373,6 +4384,10 @@ function end(){document.body.classList.remove('mirror');elapsed=racers[0].finish
  const topOpen0=new Set(TOPPERS.filter(t=>topperUnlocked(t,topperMe())).map(t=>t.id)),onl0=onlRaces(),crown0=hasCrown(),yday=dayKey(new Date(Date.now()-864e5)),stk=streakUpdate(store.get('streak',{}),dayKey(),yday);store.set('streak',{last:stk.last,days:stk.days,best:stk.best});
  showProgress(recordRace(store.get('prog',{xp:0,ach:[],done:[],won:[]}),{track:selected,cc,place,finished:true,stats:{...stats},mirror:raceMirror,assist:raceAssist,online:onl,humansBeaten,onlineFirst:onlFirst,streakDays:stk.fresh?stk.days:0}));
  if(stk.fresh&&stk.days>1)setTimeout(()=>toast(`🔥 WIESN-SERIE: ${stk.days} TAGE! +${streakXP(stk.days)} XP`,2,'good'),300);
+ {const wr=weeklyStep(store.get('weekly',null),weekKey(),{place,finished:true,online:onl,track:selected,stats:{...stats}});store.set('weekly',wr.st);
+  if(wr.fresh.length){const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});pr.xp=(pr.xp||0)+WEEKLY_XP*wr.fresh.length;store.set('prog',pr);
+   wr.fresh.forEach((g,i)=>setTimeout(()=>{toast(`📆 WOCHENZIEL: ${g.t} ✓ +${WEEKLY_XP} XP`,2.2,'good');SFX.bonus();},1800+i*1500));}
+  if(wr.allDone){store.set('weeklyWins',store.get('weeklyWins',0)+1);setTimeout(()=>{toast('🏆 ALLE WOCHENZIELE GESCHAFFT!',2.4,'good');SFX.crown();},1800+wr.fresh.length*1500);}}
  crownMine=null;topperMine=undefined;{const fresh=TOPPERS.filter(t=>!topOpen0.has(t.id)&&topperUnlocked(t,topperMe()));fresh.forEach((t,i)=>setTimeout(()=>{toast(`🎁 NEUER AUFSATZ: ${t.icon} ${t.n}`,2.4,'good');SFX.bonus();},2600+i*1400));if(fresh.length)menuToppers();}
  if(onl){const u=ONLINE_UNLOCKS.find(q=>q.n>onl0&&q.n<=onlRaces());if(u)setTimeout(()=>toast('🌐 FREIGESCHALTET: '+u.what,2.4,'good'),1400);if(onlFirst)setTimeout(()=>{toast(`🌐 ERSTES ONLINE-RENNEN HEUTE: +${ONLINE_DAILY_XP} XP`,2,'good');SFX.bonus();},500);crownMine=null;if(!crown0&&hasCrown()){racers[0].crown=true;setTimeout(()=>{toast('👑 PIXEL-KRONE! Alle sehen sie ab jetzt über deinem Kart',2.6,'good');SFX.crown();},2200);}}
  if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=gpPoints(i,order.length));addGpPoints(gp.points,order);$('resultEyebrow').textContent=`${gpName().toUpperCase()} ${ccName(cc).toUpperCase()} · RENNEN ${gp.race+1} / ${gpN()}`;
@@ -4435,7 +4450,7 @@ function hud(){if(state==='menu'||state==='ceremony'||!racers.length)return;cons
  {const on=rivalId!==null&&!!racers[rivalId];const tag=$('rivalTag');if(tag.hidden===on)tag.hidden=!on;
   if(on){const rv=racers[rivalId],ahead=rv.finishTime!==null&&p.finishTime===null||(rv.finishTime===null&&p.finishTime===null&&rv.distance>p.distance),t=(ahead?'▲ ':'▼ ')+rv.name.toUpperCase();if(HC.rv!==t){HC.rv=t;$('rivalName').textContent=t;tag.classList.toggle('ahead',ahead);}}}
  let key='empty',name='ITEM SAMMELN';
- if(roulette){const ks=['boost','shell','banana','shield','green3','bomb','storm','fake','mega','red3','spiky','ink'];key=ks[Math.floor(performance.now()/75)%ks.length];name='…';}
+ if(roulette){const ks=['boost','shell','banana','shield','green3','bomb','storm','fake','mega','red3','spiky','coins','ink'];key=ks[Math.floor(performance.now()/75)%ks.length];name='…';}
  else if(p.item){key=p.item;name=ITEM_NAMES[p.item];}
  const tag=key+(chargesFor(key)?p.charges:'');
  if(HC.art!==tag){HC.art=tag;const pic=itemThumbs[key];
@@ -4698,6 +4713,7 @@ function itemModel(key){const ex={depth:.32,bevelEnabled:true,bevelSize:.06,beve
  if(key==='green3'||key==='red3'){const g=new T.Group();[0,1,2].forEach(i=>{const m=voxObj(key==='red3'?'brezn_red':'brezn_green');const a=i*TAU/3+Math.PI/2;m.position.set(Math.cos(a)*.9,Math.sin(a)*.9,0);g.add(m);});return g;}
  if(key==='fake')return voxObj('qfake');
  if(key==='spiky')return voxObj('spiky');
+ if(key==='coins'){if(!P.coin)return null;const g=new T.Group();[[-.55,0,0],[.55,.1,.2],[0,.65,-.1]].forEach(([x,y,z],i)=>{const c=cloneProto(P.coin);c.position.set(x,y,z);c.rotation.y=i*.6;g.add(c);});return g;}
  if(key==='banana')return P.banana?cloneProto(P.banana):null;
  if(key==='shell')return P.shell?cloneProto(P.shell):null;
  if(key==='empty')return voxObj('qreal');
@@ -4717,7 +4733,7 @@ function buildItemThumbs(){if(!renderer||itemThumbs.done)return;
  const dl2=new T.DirectionalLight(0x9fc7ff,1.1);dl2.position.set(-3,1.5,-2);sc.add(dl2);
  const buf=new Uint8Array(S*S*4),oldC=new T.Color();renderer.getClearColor(oldC);const oldA=renderer.getClearAlpha();renderer.setClearColor(0x000000,0);
  const box=new T.Box3(),size=new T.Vector3(),mid=new T.Vector3();
- for(const key of ['empty','boost','triple','shell','banana','shield','bomb','storm','mega','ink','cannon','blue','green3','red3','fake','spiky']){
+ for(const key of ['empty','boost','triple','shell','banana','shield','bomb','storm','mega','ink','cannon','blue','green3','red3','fake','spiky','coins']){
   if(itemThumbs[key])continue;
   let g;try{g=itemModel(key);}catch(e){continue;}
   if(!g)continue;
@@ -4812,6 +4828,20 @@ function menuToppers(){const box=$('toppers');if(!box)return;const me=topperMe()
   b.onclick=()=>{if(!ok){toast(`🔒 ${t.n}: ${topperHint(t)}`,1.8);SFX.wrong();return;}store.set('topper',t.id);topperMine=undefined;SFX.select();toast(t.id==='none'?'Ohne Aufsatz':`${t.icon} ${t.n} – schwebt über deinem Kart`,1.4);menuToppers();};
   box.append(b);}}
 menuToppers();
+// R69: Garagen-Vorschau - das eigene Kart mit Fahrer, Farbe, Karosserie und Aufsatz als Bild in der Fahrer-Karte; neu gerendert,
+// sobald sich etwas aendert (oder ein Modell fertig geladen ist)
+let garageKey='',garageScene=null,garageCam=null;
+function garageTick(){if(state!=='menu'||!renderer||!P.kart||document.hidden)return;const dk=(DRIVERS[driverIndex]||DRIVERS[0]).k,key=[driverIndex,colorIndex,kartStyle,myTopper()||'',!!P[dk],!!P.kartwheel,!!P.kartbodies].join('|');if(key===garageKey)return;garageKey=key;
+ const W=360,H=220;if(!garageScene){garageScene=new T.Scene();garageScene.add(new T.HemisphereLight(0xffffff,0x5a6472,2.2));const dl=new T.DirectionalLight(0xfff2dc,2.6);dl.position.set(3,5,4);garageScene.add(dl);const d2=new T.DirectionalLight(0x9fc7ff,1.1);d2.position.set(-3,2,-3);garageScene.add(d2);
+  garageCam=new T.PerspectiveCamera(27,W/H,.1,60);garageCam.position.set(4.5,2.6,5.6);garageCam.lookAt(0,1.3,0);}
+ let k;try{k=kart(KART_COLORS[colorIndex].c,!!KART_COLORS[colorIndex].gold,driverIndex,kartStyle);}catch(e){return;}k.rotation.y=.45;garageScene.add(k);
+ const tid=myTopper();let top=null;if(tid){top=voxObj('top_'+tid);top.position.set(0,3.05,-.35);top.rotation.y=.6;garageScene.add(top);}
+ const rt=new T.WebGLRenderTarget(W,H,{samples:4});rt.texture.colorSpace=T.SRGBColorSpace;const buf=new Uint8Array(W*H*4),oc=new T.Color();renderer.getClearColor(oc);const oa=renderer.getClearAlpha();
+ renderer.setClearColor(0,0);renderer.setRenderTarget(rt);renderer.clear();renderer.render(garageScene,garageCam);renderer.readRenderTargetPixels(rt,0,0,W,H,buf);renderer.setRenderTarget(null);renderer.setClearColor(oc,oa);rt.dispose();
+ garageScene.remove(k);if(top)garageScene.remove(top);
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const q=cv.getContext('2d'),img=q.createImageData(W,H);for(let y=0;y<H;y++)img.data.set(buf.subarray((H-1-y)*W*4,(H-y)*W*4),y*W*4);q.putImageData(img,0,0);
+ const el=$('garage');if(el)el.src=cv.toDataURL('image/png');}
+setInterval(garageTick,450);
 // R66: Taegliche Gluecksbrezn - Pixel-Brezn im einfachen Menue, einmal am Tag aufbrechen
 function pixelCanvas(rows,pal,px=4){const w=Math.max(...rows.map(r=>r.length)),c=document.createElement('canvas');c.width=w*px;c.height=rows.length*px;const q=c.getContext('2d');
  for(const [x,y,col] of pixels(rows,pal)){q.fillStyle='#'+col.toString(16).padStart(6,'0');q.fillRect(x*px,y*px,px,px);}return c;}
@@ -4826,13 +4856,21 @@ function luckyOpen(){const b=$('lucky');if(!luckyReady(store.get('luckyDay',''),
  if(l1>l0)setTimeout(()=>{toast(`⬆ FAHRERSTUFE ${l1}!`,2,'good');playClip('s_c_levelup',sfxGain,.9);},1200);
  topperMine=undefined;setTimeout(()=>{b.classList.remove('open');refreshMenu();luckyRefresh();},900);}
 $('lucky').onclick=luckyOpen;luckyRefresh();
+// R69: Wochenziele-Karte (unter der Tagesaufgabe): eingeklappt eine Zeile mit drei Punkten, aufgeklappt Ziele mit Balken
+{const w=document.createElement('button');w.id='weekly';w.type='button';$('daily').after(w);}
+function weeklyRefresh(){const weeklyEl=$('weekly');if(!weeklyEl)return;const wk=weekKey(),st=store.get('weekly',null),s=st&&st.week===wk?st:{prog:{},done:[]},goals=weeklyGoals(wk),open=store.get('weeklyOpen',false),nd=s.done.length;
+ const now=new Date(),left=(7-((now.getDay()+6)%7));weeklyEl.classList.toggle('open',open);weeklyEl.classList.toggle('done',nd===3);
+ weeklyEl.innerHTML=`<span class="wk-head"><b>📆 WOCHENZIELE</b><i>${goals.map(g=>s.done.includes(g.id)?'●':'○').join('')}</i><em>${nd===3?'🏆 geschafft!':`noch ${left} ${left===1?'Tag':'Tage'} · +${WEEKLY_XP} XP je Ziel`}</em><u>${open?'▴':'▾'}</u></span>`+
+  (open?goals.map(g=>{const v=Math.min(g.n,s.prog[g.id]||0),ok=s.done.includes(g.id);return `<span class="wk-row${ok?' ok':''}"><small>${ok?'✓ ':''}${g.t}</small><s style="--p:${Math.round(v/g.n*100)}%"></s><small>${v}/${g.n}</small></span>`;}).join('')+`<span class="wk-foot">Alle drei: Aufsatz 🏆 Wochen-Pokal</span>`:'');}
+$('weekly').onclick=()=>{store.set('weeklyOpen',!store.get('weeklyOpen',false));SFX.select();weeklyRefresh();};weeklyRefresh();
 function menuSimple(on){document.body.classList.toggle('menu-simple',on);store.set('menuFull',!on);quickRefresh();}
 function pickMode(m){const b=document.querySelector(`#modes .mode[data-mode="${m}"]`);if(b&&mode!==m)b.click();}
-function quickRefresh(){menuToppers();luckyRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
+function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
  const onl=onlRaces(),nx=onlineNext(onl),first=store.get('onlDay','')!==dayKey();
  setText('qOnlineBadge',first?`+${ONLINE_DAILY_XP} XP heute`:`×${ONLINE_MUL} XP`);
  {const st=store.get('streak',{}),y=dayKey(new Date(Date.now()-864e5)),d=streakIfToday(st,dayKey(),y);setText('qStreak',st.last===dayKey()?`🔥 Wiesn-Serie: ${st.days} ${st.days===1?'Tag':'Tage'} – morgen wieder fahren!`:`🔥 Erstes Rennen heute: +${streakXP(d)} XP${d>1?` (Serie Tag ${d})`:''}`);}
  setText('qHint',nx?`🌐 Noch ${nx.n-onl} Online-Rennen bis zur ${nx.what}`:hasCrown()?'👑 Du trägst die Pixel-Krone – verteidige sie online!':'👑 Gewinne online gegen einen Menschen und hol dir die Pixel-Krone');}
+$('menu').addEventListener('pointerdown',e=>{const b=e.target.closest?.('button');if(b&&!b.matches('.q-btn,.q-more,.lucky,#weekly,#qBack,#start'))SFX.tick();});
 $('qOnline').onclick=()=>{SFX.select();pickMode('online');syncModeUi();$('start').click();};
 $('qRace').onclick=()=>{if(courseAt(selected)?.openWorld)selected=0;pickMode('single');gp=newGp(false);start();};
 $('qMore').onclick=()=>{SFX.select();menuSimple(false);$('menu').scrollTop=0;};
@@ -5397,7 +5435,7 @@ function netDropIn(peerId){const S=net.setup;if(!S||(state!=='race'&&state!=='co
 // Wer faehrt welchen Platz (nach Ein- und Ausstiegen): Namensschilder und Besitz der Karts nachziehen
 function netHumans(list){const p=list.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1),k:q.k?1:0,t:topperOk(q.t)}));
  net.setup.p=p;net.humans=new Map(p.map(q=>[q.s,q]));
- for(const r of racers){if(r.id===0)continue;const g=toGlobal(r.id,net.mySlot),h=net.humans.get(g);r.net=!!h||!net.host;r.topper=h?(h.t||(h.k?'crown':null)):null;r.name=h?h.n:(AI_NAMES[g]||'Bot');netTag(r,h?((r.topper?topperById(r.topper)?.icon+' ':'')+h.n):'');}}
+ for(const r of racers){if(r.id===0)continue;const g=toGlobal(r.id,net.mySlot),h=net.humans.get(g);r.net=!!h||!net.host;r.topper=h?(h.t||(h.k?'crown':null)):null;r.drv=h?h.d:undefined;r.name=h?h.n:(AI_NAMES[g]||'Bot');netTag(r,h?((r.topper?topperById(r.topper)?.icon+' ':'')+h.n):'');}}
 // ---------------------------------------------------------------- R55 Herzerl-Schlacht (Wiesnland online, auch mit Bots)
 // Jedes Kart traegt drei Lebkuchenherzen; schwere Treffer (Items, Stampfer, Blitz ...) kosten eins, wer keine mehr hat,
 // faehrt als Zuschauer weiter. Es gewinnt, wer zuletzt noch Herzen hat - nach 3 Minuten, wer die meisten hat.
