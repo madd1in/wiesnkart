@@ -6,6 +6,26 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 71 (01.10.2026): Klang je Strecke, STAGE-Titelkarte, Wiesn-Taler, minimales HUD, größere Schrift am Handy
+
+**Umgebungsklang je Strecke** (synthetisiert, kein Sample): Vögel auf der Pilz-Promenade, Grillen im Neon-Pilzwald, Wind und
+Falkenschrei im Sonnen-Canyon, Brummen, Knarzen und Eule im Geisterhaus, Brodeln und Knistern in der Lava-Feste, Raunen der
+Menge und Glocken auf Bierstraße und Magnet-Kirmes, Brummen und Piepsen im Graben-Flug, Wellen und Möwen in der
+Schildkröten-Bucht, kalter Wind und Glockenspiel am Eisstock-See, Orgel-Brummen im Riesendom, Blubbern im Schoko-Matsch.
+Läuft im Rennen, leiser in der Pause, aus im Menü.
+
+**STAGE-Titelkarte**: zum Rennstart schiebt sich auf jeder Strecke eine 16-Bit-Karte herein – Cup und Strecke (bzw. Grand
+Prix, Online, Zeitfahren), Streckenname, Art, Klasse und Fahrerzahl.
+
+**Wiesn-Taler**: drei große Goldmünzen je Strecke (rechter Rand, linker Rand, über einer Schanze). Jeder neue +40 XP, der
+Rekord (🪙 2/3) steht auf der Streckenkarte, schon gefundene schweben durchsichtig weiter; alle 36 geben den Erfolg *Talerkönig*.
+
+**Minimaleres HUD** (Nutzerwunsch): der Wetterbericht zeigt sich nur noch kurz zum Start und beim Rundenwechsel, das Item-Label
+und die Taste darunter entfallen, der Windschatten ist ein kleiner Balken.
+
+**Größere Schrift auf dem Handy** (Nutzerwunsch): Menü (Knöpfe, Hinweise, Strecken, Tages- und Wochenkarte, Aufsätze), Tipps,
+Ergebnis (Werte, XP, Erfolge), Online-Fenster und Titelkarte haben auf schmalen Bildschirmen größere Mindestgrößen.
+
 ## Runde 70 (01.10.2026): 16-BIT-Modus, Cheat-Code, versteckte Spielmodule, SOUND TEST (Retro-Hommagen und Easter Eggs)
 
 Nutzerwunsch "mehr Retro-16-Bit-Referenzen und Easter Eggs" – alles eigene Hommagen an die Konsolen-Ära, keine fremden Figuren.

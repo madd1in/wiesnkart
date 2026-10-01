@@ -5237,8 +5237,9 @@ function wxRestore(){const wasOn=!!wxBase;if(wxBase){if(scene.background===wxSky
  for(const o of wxRoot.children)o.visible=false;moon.material.color.setHex(0xffffff);wxUfo.userData.placed=false;wxUfo.userData.show=0;if(wxAud)wxAudio(0,0);const el=$('wxStrip');if(el)el.hidden=true;}
 function wxToggle(on){wxOn=on;store.set('weather',on);const b=$('pauseWx');if(b){b.textContent='Wetter: '+(on?'WECHSELHAFT':'AUS');b.setAttribute('aria-pressed',String(on));}
  if(state==='race'||state==='countdown'||state==='paused'){if(!on){const keep=wxRacePlan;wxRestore();wxRacePlan=keep;wxPlan=calmPlan(LAPS);if(stats)stats.wxRough=false;}else if(!isTT()&&!worldMode){const keep=wxRacePlan||weatherPlan(wxSeed,course.theme,LAPS),bg=scene.background;wxStart();wxRacePlan=keep;wxPlan=keep;wxActive=true;wxBase.bg=bg;wxStrip();}}}
-function wxStrip(){const el=$('wxStrip');if(!el)return;if(!wxActive){el.hidden=true;return;}const p=racers[0],cur=p?Math.min(LAPS-1,Math.max(0,lap(p,length)-1)):0,key=cur+'|'+wxSeed;if(key===wxStripKey&&!el.hidden)return;wxStripKey=key;
- const fc=forecast(wxPlan,course.theme);el.innerHTML=fc.map((f,i)=>`<i class="${i===cur?'on':i<cur?'past':''}">${f}</i>`).join('<b>›</b>');el.hidden=false;el.title='Wetterbericht: '+fc.join(' → ');}
+// R71: im minimalen HUD zeigt sich der Wetterbericht nur kurz (Start, Rundenwechsel), dann blendet er aus
+let wxPeekT=0;function wxStrip(){const el=$('wxStrip');if(!el)return;if(!wxActive){el.hidden=true;return;}const p=racers[0],cur=p?Math.min(LAPS-1,Math.max(0,lap(p,length)-1)):0,key=cur+'|'+wxSeed;if(key===wxStripKey&&!el.hidden)return;wxStripKey=key;
+ const fc=forecast(wxPlan,course.theme);el.innerHTML=fc.map((f,i)=>`<i class="${i===cur?'on':i<cur?'past':''}">${f}</i>`).join('<b>›</b>');el.hidden=false;el.title='Wetterbericht: '+fc.join(' → ');el.classList.add('peek');clearTimeout(wxPeekT);wxPeekT=setTimeout(()=>el.classList.remove('peek'),5500);}
 function wxTick(dt,now){const live=state==='race'||state==='countdown'||state==='paused'||state==='finished';
  if(!live){if(wxActive||wxBase)wxRestore();return;}if(!wxActive||!wxBase)return;const p=racers[0];if(!p)return;
  const prog=state==='countdown'?0:Math.max(0,p.distance/length),m=weatherMix(wxPlan,p.finishTime!==null?LAPS-.5:prog),L=weatherLook(wxBase.look,m),t=(now/1000)%600;wxM=m;
