@@ -237,3 +237,14 @@ const CART = [
   'GGGGGGGGGGGG',
 ];
 export function cartModel() {return {vox: voxels(extrude(CART, 3, 'G')), pal: {G: 0x9a9aa8, D: 0x6a6a78, L: 0xf4f4f8, R: 0xd8262e, W: 0xffd23a, B: 0xc07a34}};}
+
+// ---------------------------------------------------------------- R71: Wiesn-Taler (grosse Goldmuenze mit Brezn-Praegung)
+export function talerModel(R = 5) {
+  const vox = new Map(), emb = ['.B.B.', 'BBBBB', 'B.B.B', '.BBB.'];
+  for (let x = -R; x <= R; x++) for (let y = -R; y <= R; y++) {
+    const d = Math.hypot(x, y); if (d > R + .3) continue;
+    const rim = d > R - 1.2, e = emb[1 - y] && emb[1 - y][x + 2] === 'B';
+    for (let z = 0; z < 2; z++) vox.set(`${x + R},${y + R},${-z}`, rim ? 'D' : e ? 'E' : 'G');
+  }
+  return {vox, pal: {G: 0xffc83a, D: 0xc8901a, E: 0xfff4b0}};
+}

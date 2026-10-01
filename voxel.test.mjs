@@ -47,3 +47,10 @@ test('R67: Voxel-Deko je Thema baut sich', async () => {
   for (const kinds of Object.values(DECO_FOR)) for (const k of kinds) {const m = decoModel(k); assert.ok(m && m.vox.size > 20, k); const g = voxelMesh(m.vox, m.pal, .3); assert.ok(g.indices.length > 0, k);}
   assert.equal(decoModel('unbekannt'), null);
 });
+
+test('R71: Wiesn-Taler - runde Muenze mit Rand und Praegung', async () => {
+  const {talerModel} = await import('./voxel.mjs');
+  const m = talerModel(5), c = [...m.vox.values()];
+  assert.ok(c.includes('D') && c.includes('E') && c.includes('G'));
+  assert.ok(voxelMesh(m.vox, m.pal, .14).indices.length > 0);
+});
