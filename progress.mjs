@@ -115,6 +115,9 @@ export const ACH = [
   {id: 'netwin', n: 'Online-Champion', d: 'Gewinne online vor mindestens einem Menschen (Pixel-Krone!)', t: r => !!r.online && r.place === 1 && (r.humansBeaten || 0) >= 1},
   {id: 'net10', n: 'Stammgast', d: 'Fahre 10 Online-Rennen', t: (r, p) => (p.onl || 0) >= 10},
   {id: 'netbeat', n: 'Menschenkenner', d: 'Schlage online insgesamt 25 Menschen', t: (r, p) => (p.onlBeat || 0) >= 25},
+  // R70: Retro-Easter-Eggs (werden im Spiel direkt vergeben)
+  {id: 'cheat', n: 'Alte Schule', d: 'Ein gewisser Code im Menü …', t: () => false},
+  {id: 'modules', n: 'Modulsammler', d: 'Finde alle 12 versteckten Spielmodule', t: () => false},
   {id: 'halberd', n: 'Hellebarden-Tänzer', d: 'Riesendom, ohne vom Riesenwächter getroffen zu werden', t: r => r.track === 10 && r.finished && !cnt(r.stats, 'halberdHits')},
 ];
 export const achById = id => ACH.find(a => a.id === id);
@@ -170,6 +173,7 @@ export const TOPPERS = [
   {id: 'star', n: 'Pixel-Stern', icon: '⭐', onl: 10},
   {id: 'crown', n: 'Pixel-Krone', icon: '👑', crown: true},
   {id: 'trophy', n: 'Wochen-Pokal', icon: '🏆', weekly: 1},
+  {id: 'cart', n: 'Spielmodul', icon: '🎮', mods: 12},
 ];
 export const topperById = id => TOPPERS.find(t => t.id === id) || null;
 /** me = {level, streakBest, onl, crown} */
@@ -180,10 +184,11 @@ export function topperUnlocked(t, me = {}) {
   if (t.onl && (me.onl || 0) < t.onl) return false;
   if (t.crown && !me.crown) return false;
   if (t.weekly && (me.weekly || 0) < t.weekly) return false;
+  if (t.mods && (me.mods || 0) < t.mods) return false;
   return true;
 }
 export function topperHint(t) {
-  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : t.weekly ? 'Schaffe alle drei Wochenziele' : '';
+  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : t.weekly ? 'Schaffe alle drei Wochenziele' : t.mods ? 'Finde alle 12 versteckten Spielmodule' : '';
 }
 /** Gewaehlter Aufsatz, falls freigeschaltet; ohne Wahl traegt man die Krone, sobald man sie hat */
 export function topperFor(choice, me = {}) {

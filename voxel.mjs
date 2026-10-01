@@ -142,6 +142,7 @@ export function topperModel(id) {
   if (id === 'star') return {vox: voxels(extrude(STAR, 2)), pal: {Y: 0xffd23a, O: 0xff8a1a}};
   if (id === 'brezn') {const m = breznModel('green'); return {vox: m.vox, pal: {O: 0x6a3a14, B: 0xb8702e, s: 0xffffff}};}
   if (id === 'crown') return crownModel();
+  if (id === 'cart') return cartModel();
   if (id === 'trophy') return {vox: voxels(extrude(['.GGGGGGG.', 'GGHGGGG.G', 'G.HGGGG.G', 'GGHGGGGGG', '..GGGGG..', '...GGG...', '....G....', '...GGG...', '..DDDDD..', '..DDDDD..'], 3)), pal: {G: 0xffc83a, H: 0xfff4b0, D: 0x6a3a14}};
   return null;
 }
@@ -220,3 +221,19 @@ export function decoModel(kind) {
   return null;
 }
 export const DECO_FOR = {canyon: ['cactus'], ice: ['snowman'], beach: ['palm'], haunted: ['pumpkin'], forest: ['shroom'], night: ['shroom'], rainbow: ['mug'], fair: ['mug'], choco: ['lolly']};
+
+// ---------------------------------------------------------------- R70: Spielmodul (16-Bit-Hommage, eigener Entwurf: graues Modul mit Brezn-Etikett)
+const CART = [
+  '.GGGGGGGGGG.',
+  'GGDGGGGGGDGG',
+  'GLLLLLLLLLLG',
+  'GLRRRRRRRRLG',
+  'GLRWBBWBBWLG',
+  'GLRWBWBWBWLG',
+  'GLRRRRRRRRLG',
+  'GLLLLLLLLLLG',
+  'GGGGGGGGGGGG',
+  'GDGDGDGDGDGG',
+  'GGGGGGGGGGGG',
+];
+export function cartModel() {return {vox: voxels(extrude(CART, 3, 'G')), pal: {G: 0x9a9aa8, D: 0x6a6a78, L: 0xf4f4f8, R: 0xd8262e, W: 0xffd23a, B: 0xc07a34}};}

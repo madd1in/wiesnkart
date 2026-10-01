@@ -1665,3 +1665,25 @@ body #menu #weekly.done{background:linear-gradient(100deg,#fff6d6,#fff)}
 #menu #garage{display:block;width:220px;max-width:70%;aspect-ratio:360/220;height:auto;margin:-4px auto 4px;object-fit:contain;filter:drop-shadow(0 8px 6px #0003);pointer-events:none}
 #menu #garage:not([src]){display:none}
 @media (max-height:520px),(pointer:coarse) and (orientation:landscape){#menu #garage{width:150px}}
+
+/* R70: 16-BIT-Knopf wie CRT */
+body #menu #bitBtn{margin-top:6px;width:100%;transform:skewX(-10deg);border-radius:11px;background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font:italic 800 13px var(--wk-font);padding:5px 8px;cursor:pointer}
+body #menu #bitBtn.selected{background:linear-gradient(180deg,#7fe3ff,#2aa6d8);color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
+body #menu #bitBtn.selected{background:linear-gradient(180deg,#b48cff,#6a3cd8)}
+/* R70: SOUND TEST (Easter Egg, 5x auf den Titel) im 16-Bit-Stil */
+#soundTest{z-index:90;background:#000c}
+#soundTest .st-card{max-width:560px;max-height:86vh;overflow:auto;margin:auto;padding:18px 20px;border:4px solid #fff;border-radius:6px;background:#1a1040;color:#fff;font-family:'Courier New',monospace;box-shadow:0 0 0 4px #000,8px 8px 0 #000}
+#soundTest h2{margin:0;text-align:center;font:900 30px 'Courier New',monospace;letter-spacing:6px;color:#ffd23a;text-shadow:3px 3px 0 #d8262e}
+#soundTest .st-sub{margin:4px 0 10px;text-align:center;font-size:12px;color:#b8b0e8}
+#soundTest h3{margin:12px 0 6px;font:900 15px 'Courier New',monospace;letter-spacing:3px;color:#7fe3ff}
+#soundTest .st-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+#soundTest .st-list li{display:flex;align-items:center;gap:10px}
+#soundTest button{margin:0;padding:4px 8px;border:2px solid #fff;border-radius:3px;background:#2a1c6a;color:#fff;font:700 13px 'Courier New',monospace;cursor:pointer;width:auto;transform:none;box-shadow:none;-webkit-text-stroke:0;text-shadow:none}
+#soundTest button.on,#soundTest button:hover,#soundTest button.padf{background:#ffd23a;color:#1a1040}
+#soundTest .st-sfx{display:flex;flex-wrap:wrap;gap:4px}
+#soundTest .st-close{display:block;margin:14px auto 0;padding:6px 22px;background:#d8262e}
+body.bit16 #toast{letter-spacing:1px}
+/* R70: die (unsichtbare) Kopfleiste ueberdeckte im Menue den Titel - nur ihre Knoepfe fangen Klicks */
+body:not(.racing) header{pointer-events:none}
+body:not(.racing) header a,body:not(.racing) header button{pointer-events:auto}
+#soundTest .st-list li span{flex:1;text-align:left;color:#fff;font:700 14px 'Courier New',monospace;letter-spacing:.5px;opacity:1}

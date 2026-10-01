@@ -6,6 +6,26 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 70 (01.10.2026): 16-BIT-Modus, Cheat-Code, versteckte Spielmodule, SOUND TEST (Retro-Hommagen und Easter Eggs)
+
+Nutzerwunsch "mehr Retro-16-Bit-Referenzen und Easter Eggs" – alles eigene Hommagen an die Konsolen-Ära, keine fremden Figuren.
+
+**🎮 16-BIT-Modus** (Knopf unter Grafik, im Pausenmenü): die Szene wird in Konsolen-Auflösung gerendert (224 Zeilen), dann auf
+15-Bit-Farben (5 Bit je Kanal) mit 4×4-Bayer-Raster gebracht und pixelig hochskaliert; kombinierbar mit dem CRT-Look (dann
+wie am Röhrenfernseher). Dazu ein gedämpfter Klang mit kurzem Hall wie aus dem Soundchip. Auf schwachen Geräten sogar schneller.
+
+**Cheat-Code im Menü**: ↑↑↓↓←→←→ B A (Tastatur oder Controller) – schaltet den 16-BIT-Modus ein, die Lackierung
+„Konsolengrau“ frei und gibt den Erfolg *Alte Schule*.
+
+**Versteckte Spielmodule**: auf jeder der zwölf Strecken schwebt ein Voxel-Spielmodul (graues Modul mit Brezn-Etikett) über
+einer Sprungschanze – nur im Sprung erreichbar. Gefunden bleibt gefunden („🎮 SPIELMODUL GEFUNDEN! 3/12“); alle zwölf geben den
+Aufsatz **Spielmodul** und den Erfolg *Modulsammler*.
+
+**SOUND TEST**: fünfmal schnell auf den Titel tippen – alle 14 Chiptune-Stücke und viele Klänge zum Anhören, im 16-Bit-Stil.
+
+**Retro-Sprüche**: letzter Platz heißt jetzt „GAME OVER? NÖ – NOCHMAL!“, der Ladebildschirm bittet manchmal, das Modul nicht
+anzupusten. Fix: die unsichtbare Kopfleiste überdeckte im Menü den Titel.
+
 ## Runde 69 (01.10.2026): Wochenziele, Garagen-Vorschau, Münzregen, Fahrer-Brabbeln
 
 **Wochenziele** (`progress.mjs`, Tests): drei Aufgaben je Kalenderwoche, für alle gleich (z. B. „Gewinne 3 Rennen“,
