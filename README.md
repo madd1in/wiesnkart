@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 75 (02.10.2026): Fahrbahn mit abgefahrenen Reifenspuren
+
+- **Reifenspuren auf der Fahrbahn** (`roadWornTexture` in `game.js`): die Straßenfläche bekommt neben dem Farb-Sprengel zwei weiche, dunkle Fahrspur-Bänder bei einem Viertel und drei Viertel der Straßenbreite — wie eine abgefahrene Rennstrecke. Pro Strecken-Theme eine gecachte Textur (ein Canvas-Aufbau, danach kostenlos); Curbs, Mittellinie und Kantenstreifen bleiben unverändert. Verifiziert per Screenshot: subtil, kein Moiré.
+
 ## Runde 74 (02.10.2026): Scheinwerfer, Motor mit Gangwechseln, Tunnelhall, „Knapp vorbei“
 
 - **Scheinwerfer auf dunklen Strecken** (Geisterhaus, Bierstraße, Graben-Flug, Lava-Feste, Neon-Pilzwald): jedes Kart hat zwei

@@ -483,6 +483,9 @@ function skyTexture(top,bottom){return canvasTex(2,256,(q)=>{const g=q.createLin
 const speckCache=new Map();
 function speckleTexture(base,spot,density=1200,size=256){const key=[base,spot,density,size].join();let t=speckCache.get(key);if(!t){t=speckleTextureRaw(base,spot,density,size);speckCache.set(key,t);}return t;}
 function speckleTextureRaw(base,spot,density,size){return canvasTex(size,size,(q)=>{q.fillStyle=base;q.fillRect(0,0,size,size);for(let i=0;i<density;i++){q.globalAlpha=.12+Math.random()*.25;q.fillStyle=Math.random()<.55?spot:'#00000022';q.fillRect(Math.random()*size,Math.random()*size,2,2);}q.globalAlpha=1;},true);}
+// R75: Fahrbahn mit weichen dunklen Reifenspurbändern (abgefahrene Linien bei 1/4 und 3/4 Breite)
+const roadWornCache=new Map();
+function roadWornTexture(base,spot,density=900,size=256){const key=[base,spot,density,size].join();let t=roadWornCache.get(key);if(!t){t=canvasTex(size,size,(q)=>{q.fillStyle=base;q.fillRect(0,0,size,size);for(let i=0;i<density;i++){q.globalAlpha=.12+Math.random()*.25;q.fillStyle=Math.random()<.55?spot:'#00000022';q.fillRect(Math.random()*size,Math.random()*size,2,2);}q.globalAlpha=1;for(const cx of [.27,.73]){const w=.11*size,g=q.createLinearGradient(cx-w,0,cx+w,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.5,'rgba(0,0,0,.10)');g.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=g;q.fillRect(cx*size-w,0,2*w,size);}},true);roadWornCache.set(key,t);}return t;}
 function clearGroup(g,keep){if(keep&&keep.parent===g)g.remove(keep);const disposed=new Set();g.traverse(o=>{if(o.isInstancedMesh)o.dispose();if(o.isMesh||o.isPoints){if(o.geometry&&!sharedGeo.has(o.geometry))o.geometry.dispose();for(const m of [].concat(o.material)){if(m&&!persistentMats.has(m)&&!sharedMat.has(m)&&!disposed.has(m)){m.map?.dispose();m.emissiveMap?.dispose?.();m.dispose();disposed.add(m);}}}});g.clear();if(keep)g.add(keep);}
 const HC={};function setText(id,v){if(HC[id]!==v){HC[id]=v;const e=$(id);if(e){e.textContent=v;
  // Countdown und Einblendungen springen bei jedem neuen Text kurz auf (R41)
@@ -1072,7 +1075,7 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
   // R29: Deckkraft 60 % und Emission zurueckgenommen - 80 % war dem Nutzer noch zu dicht.
   const rbMat=stdMat({map:rb,emissive:0xffffff,emissiveMap:rb,emissiveIntensity:.55,roughness:.18,metalness:.05,transparent:true,opacity:.8,depthWrite:false,side:T.DoubleSide});
   rainbowTex=rb;stripSegs(0,15.2,.065,15.2,rbMat);}
- else stripSegs(0,15.2,.065,6,stdMat({map:speckleTexture(hex(theme.road),hex(theme.roadSpot),900),roughness:.9}));
+ else stripSegs(0,15.2,.065,6,stdMat({map:roadWornTexture(hex(theme.road),hex(theme.roadSpot),900),roughness:.9}));
  buildShoulder();if(!theme.space){const shM=stdMat({map:speckleTexture(hex(new T.Color(theme.road).lerp(new T.Color(0xffffff),.16).getHex()),hex(theme.roadSpot),900),roughness:.92}),edgeM=stdMat({color:theme.line?new T.Color(theme.line):0xffffff,roughness:.7,...(glow?{emissive:0xffffff,emissiveIntensity:.8}:{})});
   for(const side of [-1,1]){const A=side<0?SHT.L:SHT.R;let a=-1;for(let i=0;i<=SHT.n;i++){const on=i<SHT.n&&A[i];if(on&&a<0)a=i;else if(!on&&a>=0){const d0=a*SHT.ds,d1=i*SHT.ds,st=Math.max(2,Math.ceil((d1-d0)/1.6));addStrip(strip(d0,d1,side*9.9,2.7,.058,6,st),shM);addStrip(strip(d0,d1,side*10.95,.2,.07,6,st),edgeM,false);a=-1;}}}}
 const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);q.fillStyle=theme.curbB;q.fillRect(0,32,8,32);},true);curbTex.magFilter=T.NearestFilter;
@@ -1399,7 +1402,7 @@ function polyStripVar(pts,i0,i1,fn,lift,uvLen){const n=i1-i0+1,v=new Float32Arra
 function polyStrip(pts,i0,i1,center,width,lift,uvLen){const n=i1-i0+1,v=new Float32Array(n*6),uv=new Float32Array(n*4),idx=[];let acc=0;for(let i=0;i<n;i++){const p=pts[i0+i];if(i)acc+=Math.hypot(p.x-pts[i0+i-1].x,p.z-pts[i0+i-1].z);const lx=p.tz,lz=-p.tx;for(let s=0;s<2;s++){const o=center+(s?1:-1)*width/2;v.set([p.x+lx*o,p.y+lift,p.z+lz*o],(i*2+s)*3);uv.set([s,acc/uvLen],(i*2+s)*2);}if(i<n-1){const a=i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3);}}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(v,3));g.setAttribute('uv',new T.BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;}
 function buildForkVisuals(){if(!forks.length)return;const glow=theme.glow,po={polygonOffset:true,polygonOffsetFactor:3,polygonOffsetUnits:3};
- const edgeM=mat(theme.edge,{...po,...(glow?{emissive:theme.edge,emissiveIntensity:.35}:{})}),roadM=stdMat({map:speckleTexture(hex(theme.road),hex(theme.roadSpot),900),roughness:.9,...po});
+ const edgeM=mat(theme.edge,{...po,...(glow?{emissive:theme.edge,emissiveIntensity:.35}:{})}),roadM=stdMat({map:roadWornTexture(hex(theme.road),hex(theme.roadSpot),900),roughness:.9,...po});
  const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);q.fillStyle=theme.curbB;q.fillRect(0,32,8,32);},true);curbTex.magFilter=T.NearestFilter;const curbM=stdMat({map:curbTex,roughness:.7,...(glow?{emissive:0xffffff,emissiveMap:curbTex,emissiveIntensity:.9}:{})});
  for(const f of forks){const N=f.pts.length-1,s=f.side;let i0=0,i1=N;
   while(i0<N&&!forkEdges(f.pts[i0],s))i0++;while(i1>0&&!forkEdges(f.pts[i1],s))i1--;i0=Math.max(0,i0-1);i1=Math.min(N,i1+1);if(i1-i0<4)continue;
