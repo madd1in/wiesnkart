@@ -19,7 +19,7 @@ import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_S
 import {LB_TOP,ttBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
 import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
-import {CAM_VIEWS,camViewIndex,nextCamView,findCorners,noteAhead,noteLabel,lookAhead,TRAP_AT,trapCrossed,trapGrade} from './arcade.mjs';
+import {CAM_VIEWS,camViewIndex,nextCamView,TRAP_AT,trapCrossed,trapGrade} from './arcade.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
 import {autoNick} from './nick.mjs';
@@ -269,7 +269,7 @@ const progLevel=()=>levelOf(store.get('prog',{xp:0}).xp||0).level;
 const FLOW_MIN_R=38;
 const MIRROR_LVL=3;let mirrorOn=store.get('mirror',false),raceMirror=false;
 // R72 Arcade-Paket: Zustand (Funktionen weiter unten, Logik in arcade.mjs)
-let camView=camViewIndex(store.get('camView',0)),paceOn=store.get('pace',true)!==false;const arcade={notes:[],traps:[],lastD:null,key:'',pace:null,bannerT:0};
+let camView=camViewIndex(store.get('camView',0));const arcade={traps:[],lastD:null};
 // Jede Figur faehrt ihr eigenes Kart: Beschleunigung, Hoechsttempo, Grip, Lenkung und Bauform
 const DRIVERS=[
  {k:'driver',n:'Pilzi',i:'🍄',kart:'Sporenflitzer',acc:1,top:1,grip:1,turn:1,sc:[1,1,1],tip:'ausgewogen'},
@@ -486,7 +486,7 @@ function clearGroup(g,keep){if(keep&&keep.parent===g)g.remove(keep);const dispos
 const HC={};function setText(id,v){if(HC[id]!==v){HC[id]=v;const e=$(id);if(e){e.textContent=v;
  // Countdown und Einblendungen springen bei jedem neuen Text kurz auf (R41)
  if(id==='message'&&v){e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');}}}}
-function notice(text,duration=1.3){setText('message',text);noticeTimer=duration;}
+function notice(text,duration=1.3,big=false){setText('message',text);const el=$('message');if(el)el.classList.toggle('quiet',!big);noticeTimer=duration;}
 function toast(text,duration=1.4,cls=''){const el=$('toast');el.textContent=text;el.className='show '+cls;toastTimer=duration;}
 
 // ---------------------------------------------------------------- Strecke: Tabelle, Projektion, Hoehe
@@ -3248,26 +3248,22 @@ function buildCity(){cityN=null;const C=course.city;if(!C||!P.domecity)return;ci
   g.position.set(Math.cos(a)*rr,-62+(ring[i%ring.length]==='DC_Row'?40:0),Math.sin(a)*rr);g.rotation.y=Math.atan2(-g.position.x,-g.position.z);g.scale.setScalar(sc);
   g.traverse(q=>{if(q.isMesh)q.castShadow=false;});world.add(g);cityN.sky++;}}
 // ---------------------------------------------------------------- R72 Arcade-Paket (arcade.mjs)
-// Rallye-Automat: der Beifahrer sagt die naechste Kurve an (Richtung, Schaerfe 1-6, Meter), Kameraansichten wie am Automaten (Taste C).
+// Rallye-Automat: Kameraansichten wie am Automaten (Taste C). Die Beifahrer-Ansagen sind auf Nutzerwunsch wieder entfernt (zu viel Text).
 // Drift-Automat: dicker Reifenrauch im Drift, grosse Banner im Automaten-Look (LETZTE RUNDE).
 // Strassenrennen: Speed-Traps mit Blitz, Anzeige in km/h und Rekord je Strecke, Hoechstgeschwindigkeit im Ergebnis.
 const kmhOf=p=>Math.round(Math.abs(p.speed)*(p.czVis||1)*3.6);
 function camViewSync(){const b=$('pauseCam');if(b)b.textContent='Kamera: '+CAM_VIEWS[camView].name;}
 function cycleCamView(){camView=nextCamView(camView);store.set('camView',camView);camViewSync();toast('📷 '+CAM_VIEWS[camView].name,.9);}
-function paceToggle(on){paceOn=on;store.set('pace',on);const b=$('pauseCo');if(b){b.textContent='Beifahrer-Ansagen: '+(on?'AN':'AUS');b.setAttribute('aria-pressed',String(on));}if(!on)arcade.key='';}
-function arcBanner(title,sub='',cls='',dur=2){const el=$('arcBanner');if(!el)return;const b=el.querySelector('b'),sp=el.querySelector('span');el.hidden=true;el.className=cls;el.style.setProperty('--dur',dur+'s');
- b.textContent=title;sp.textContent=sub;sp.hidden=!sub;void el.offsetWidth;el.hidden=false;arcade.bannerT=dur;}
-function arcadeReset(){resetSmoke();arcade.lastD=null;arcade.key='';arcade.bannerT=0;const b=$('arcBanner');if(b)b.hidden=true;if(arcade.pace){arcade.pace.e.hidden=true;arcade.pace.hid=true;arcade.pace.key='';}}
+function arcadeReset(){resetSmoke();arcade.lastD=null;}
 // Blitzer: Torbogen mit Kamerakasten ueber der Strecke, zwei je Runde (am liebsten bei 31 % und 69 %), nur auf freien, flachen Stellen
-function buildArcade(){arcade.notes=[];arcade.traps=[];arcade.lastD=null;if(worldMode||course.openWorld||!(length>200))return;
- const ds=6,n=Math.floor(length/ds),heads=new Array(n);for(let i=0;i<n;i++){const tn=tanAt(i*ds);heads[i]=Math.atan2(tn.x,tn.z);}
- arcade.notes=findCorners(heads,ds);
+function straightAt(d){const h=x=>{const t=tanAt(lapDist(x));return Math.atan2(t.x,t.z);};return Math.abs(angleDiff(h(d+30),h(d-30)))<.14;}
+function buildArcade(){arcade.traps=[];arcade.lastD=null;if(worldMode||course.openWorld||!(length>200))return;
  const steel=new T.MeshStandardMaterial({color:0x3b4758,roughness:.5,metalness:.55}),dark=new T.MeshStandardMaterial({color:0x151b27,roughness:.6,metalness:.3});
  const stripes=canvasTex(256,32,(q,w,h)=>{q.fillStyle='#ffc83a';q.fillRect(0,0,w,h);q.fillStyle='#14264a';for(let x=-h;x<w+h;x+=44){q.beginPath();q.moveTo(x,h);q.lineTo(x+22,h);q.lineTo(x+22+h,0);q.lineTo(x+h,0);q.fill();}},true);stripes.repeat.set(5,1);
  const sign=canvasTex(512,128,(q,w,h)=>{q.fillStyle='#14264a';q.fillRect(0,0,w,h);q.fillStyle='#ffc83a';q.fillRect(8,8,w-16,h-16);q.fillStyle='#14264a';q.fillRect(14,14,w-28,h-28);
   q.fillStyle='#ffffff';q.textAlign='center';q.textBaseline='middle';q.font='900 italic 70px Rubik,"Trebuchet MS",sans-serif';q.fillText('SPEED TRAP',w/2,h/2+4);});
  TRAP_AT.forEach(f=>{let spot=null;
-  const okAt=(d,strict)=>{if(d<length*.08||d>length*.92)return false;if(strict&&noteAhead(arcade.notes,d,length,30))return false;return !!(decoSpot(d,-10.4,1.2)&&decoSpot(d,10.4,1.2));};
+  const okAt=(d,strict)=>{if(d<length*.08||d>length*.92)return false;if(strict&&!straightAt(d))return false;return !!(decoSpot(d,-10.4,1.2)&&decoSpot(d,10.4,1.2));};
   for(const strict of [true,false]){for(let k=0;k<=30&&spot===null;k++)for(const sg of k?[1,-1]:[0]){const d=lapDist(f*length+sg*k*9);if(okAt(d,strict)&&arcade.traps.every(t=>Math.abs(wrapDiff(t.d,d))>60)){spot=d;break;}}if(spot!==null)break;}
   if(spot===null)return;
   const s=sample(spot,0),g=new T.Group();g.position.copy(s.p);g.rotation.y=s.angle;world.add(g);
@@ -3284,28 +3280,14 @@ function buildArcade(){arcade.notes=[];arcade.traps=[];arcade.lastD=null;if(worl
 function speedTrap(t,kmh){if(kmh<20)return;const all=store.get('trap',{}),g=trapGrade(kmh,all[course.name]||0);
  if(g.record){all[course.name]=kmh;store.set('trap',all);}
  t.flash=.55;const f=$('trapFlash');if(f){f.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('on')));}
- arcBanner('SPEED TRAP',`${g.kmh} KM/H · ${g.text}`,g.cls,2.2);sfxTone(2600,1100,.16,'square',.05);sfxTone(1500,1500,.05,'square',.04,.14);
+ toast(`📸 ${g.kmh} km/h${g.record?' · Rekord':''}`,1.3);sfxTone(2600,1100,.16,'square',.05);sfxTone(1500,1500,.05,'square',.04,.14);
  if(stats)stats.traps=(stats.traps||0)+1;}
-function updatePace(p){let el=arcade.pace;
- if(!el){const e=$('paceNote');if(!e)return;el=arcade.pace={e,arrow:e.querySelector('i'),num:e.querySelector('b'),word:e.querySelector('span'),dist:e.querySelector('em'),then:e.querySelector('u'),key:'',hid:true};}
- const res=p&&paceOn&&!p.air&&!p.hpOn&&arcade.notes.length?noteAhead(arcade.notes,p.distance,length,lookAhead(p.speed)):null;
- if(!res){if(!el.hid){el.e.hidden=true;el.hid=true;el.key='';}return;}
- const n=res.note,lab=noteLabel(n,raceMirror),m=res.inside?0:Math.round(res.dist/5)*5,key=n.d+'|'+m+'|'+(res.inside?1:0);
- if(key===el.key)return;
- const fresh=!el.key.startsWith(n.d+'|');el.key=key;
- el.e.className='s'+n.sev+(res.inside?' inside':'');el.arrow.textContent=lab.arrow;el.num.textContent=String(n.sev);el.word.textContent=(lab.hairpin?'HAARNADEL ':'')+lab.word+(lab.long?' · LANG':'');
- el.dist.textContent=res.inside?'JETZT':m+' m';
- el.then.textContent=res.then?'dann '+noteLabel(res.then,raceMirror).arrow+' '+res.then.sev:'';
- if(el.hid){el.e.hidden=false;el.hid=false;}
- if(fresh&&n.sev<=3)sfxTone(1250,1250,.05,'square',.025);}
-function updateArcade(dt){if(arcade.bannerT>0){arcade.bannerT-=dt;if(arcade.bannerT<=0){const b=$('arcBanner');if(b)b.hidden=true;}}
- const p=racers[0];
- if(!p||state!=='race'||worldMode||introT>0){updatePace(null);arcade.lastD=null;return;}
+function updateArcade(dt){const p=racers[0];
+ if(!p||state!=='race'||worldMode||introT>0){arcade.lastD=null;return;}
  const k=kmhOf(p);if(stats&&k>(stats.topKmh||0))stats.topKmh=k;
  if(arcade.lastD!==null)for(const t of arcade.traps)if(trapCrossed(arcade.lastD,p.distance,t.d,length))speedTrap(t,k);
  arcade.lastD=p.distance;
- for(const t of arcade.traps)if(t.flash>0){t.flash=Math.max(0,t.flash-dt);t.lens.emissiveIntensity=.6+t.flash*9;}
- updatePace(p);}
+ for(const t of arcade.traps)if(t.flash>0){t.flash=Math.max(0,t.flash-dt);t.lens.emissiveIntensity=.6+t.flash*9;}}
 addEventListener('keydown',e=>{if(e.code!=='KeyC'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target?.closest?.('input,select,textarea'))return;if(state==='race'||state==='countdown')cycleCamView();});
 
 // ---------------------------------------------------------------- R61 Pixel-/Voxel-Gothic im Geisterhaus (assets/voxel.glb)
@@ -3944,11 +3926,11 @@ const FX_INTERVAL={boost:320,draftready:700,draftboost:650,bump:150,hit:150,drif
 for(const [name,ms] of Object.entries(FX_INTERVAL)){const play=SFX[name];SFX[name]=(...args)=>{const now=ctx?ctx.currentTime*1000:performance.now();if(!soundOn||state==='paused'||now-(fxPlayed[name]??-9999)<ms)return;fxPlayed[name]=now;return play(...args);};}
 // R61: eigene Chiptune-Stuecke je Strecke (art/r61/chiptune.mjs -> Blender-Mixdown), die alten drei bleiben fuer Pilz, Canyon, Neon
 // R65: eigene Chiptune-Stuecke auch fuer Menue, Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald und Lobby-Welt (art/r61/chiptune.mjs, ffmpeg-MP3)
-// R72: die neun Strecken-Stuecke laufen als lokal gemasterte Mixe (assets/audio/drive/, art/audio-20261001) mit exakt kopiertem Loop-Anfang
-const BGM_SRC={menu:'bgm_menu8.mp3',alm:'bgm_alm.mp3',canyon:'bgm_canyon.mp3',neon:'bgm_neon.mp3',lobby:'bgm_lobby.mp3',race:'bgm_race.mp3',gothic8:'drive/bgm_gothic8.mp3',polka:'drive/bgm_polka.mp3',space:'drive/bgm_space.mp3',beach:'drive/bgm_beach.mp3',ice:'drive/bgm_ice.mp3',dome:'drive/bgm_dome.mp3',choco:'drive/bgm_choco.mp3',lava:'drive/bgm_lava.mp3',kirmes:'drive/bgm_kirmes.mp3'},BGM_VOL=AUDIO_MIX.music,BGM_XF=2.2;
-const BGM_LOOP=Object.freeze({"gothic8":70.24390022675738,"polka":75.78945578231293,"space":66.20689342403628,"beach":83.47825396825397,"ice":66.20689342403628,"dome":64,"choco":78.90410430839002,"lava":62.60868480725624,"kirmes":62.60868480725624});
+// R72: dreizehn Stuecke (alle Strecken und die Lobby) laufen als lokal erzeugte, gemasterte Mixe (assets/audio/drive/, art/audio-20261002/music-v3.mjs) mit exakt kopiertem Loop-Anfang
+const BGM_SRC={menu:'bgm_menu8.mp3',alm:'drive/bgm_alm.mp3',canyon:'drive/bgm_canyon.mp3',neon:'drive/bgm_neon.mp3',lobby:'drive/bgm_lobby.mp3',race:'bgm_race.mp3',gothic8:'drive/bgm_gothic8.mp3',polka:'drive/bgm_polka.mp3',space:'drive/bgm_space.mp3',beach:'drive/bgm_beach.mp3',ice:'drive/bgm_ice.mp3',dome:'drive/bgm_dome.mp3',choco:'drive/bgm_choco.mp3',lava:'drive/bgm_lava.mp3',kirmes:'drive/bgm_kirmes.mp3'},BGM_VOL=AUDIO_MIX.music,BGM_XF=2.2;
+const BGM_LOOP=Object.freeze({"gothic8":70.24390022675738,"polka":75.78945578231293,"space":66.20689342403628,"beach":83.47825396825397,"ice":66.20689342403628,"dome":64,"choco":78.90410430839002,"lava":62.60868480725624,"kirmes":62.60868480725624,"alm":68.57142857142857,"canyon":73.84614512471656,"neon":83.47825396825397,"lobby":81.12675736961451});
 // Die gemasterten Mixe sind schon auf gleiche Lautheit gebracht, nur die uebrigen Stuecke brauchen ihre alten Pegel
-const TRACK_GAIN={menu:.75,alm:.65,canyon:.66,neon:.67,lobby:.72,race:1,gothic8:1,polka:1,space:1,beach:1,ice:1,dome:1,choco:1,lava:1,kirmes:1};
+const TRACK_GAIN={menu:.75,alm:1,canyon:1,neon:1,lobby:1,race:1,gothic8:1,polka:1,space:1,beach:1,ice:1,dome:1,choco:1,lava:1,kirmes:1};
 const bgm={current:null,ready:{},failed:{},tracks:{},rate:1};
 for(const [name,src] of Object.entries(BGM_SRC)){const els=[0,1].map(()=>{const a=new Audio('assets/audio/'+src);a.preload=name==='menu'?'auto':'metadata';a.volume=0;return a;});els[0].addEventListener('canplaythrough',()=>bgm.ready[name]=true);els[0].addEventListener('error',()=>bgm.failed[name]=true);bgm.tracks[name]={els,gains:null,active:0,xf:-1,xfReady:false,xfToken:0,t0:0};}
 const raceTrack=()=>{const m=courseAt(selected).music;return bgm.failed[m]?'race':m;};
@@ -4278,9 +4260,9 @@ function update(dt){
  const player=racers[0],ohGas=state==='countdown'&&oh.on&&oh.id!==null,gasHeld=held('ArrowUp')||held('KeyW')||ohGas;
  if(state==='countdown'){oh.hop=0;if(!worldReady){setText('message','');return;}if(net&&net.setup&&!net.go){netWaitGo();for(const r of racers)if(r.net)netDrive(r,dt);syncKartInstances();return;}
   if(introT>0){introT=Math.max(0,introT-dt);if(introT<=0)document.body.classList.remove('introcam');setLights(0);setText('message','');if(introT<=0){stopFanfare(.4);playBgm(raceTrack());setBgmRate(course.bgmRate||1);}syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<5);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
-  {const ln=countdown>2?1:countdown>1?2:countdown>0?3:4;if(ln!==lightState)SFX.count(ln===4);setLights(ln);}setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');
+  {const ln=countdown>2?1:countdown>1?2:countdown>0?3:4;if(ln!==lightState)SFX.count(ln===4);setLights(ln);}setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');$('message').classList.remove('quiet');
   if(engine&&ctx){const t=ctx.currentTime;aset(engine.o1.frequency,gasHeld?170:60,t,.08);aset(engine.o2.frequency,gasHeld?85:30,t,.08);aset(engine.f.frequency,gasHeld?1500:500,t,.1);aset(engine.g.gain,soundOn?.008:0,t,.1);}
-  if(countdown<=0){state='race';notice('O\'ZAPFT IS!',1.1);stats.lapStart=0;raceAssist=assistMode;player.lapDirty=false;if(isTT()){player.item='triple';player.charges=3;}
+  if(countdown<=0){state='race';notice('O\'ZAPFT IS!',1.1,true);stats.lapStart=0;raceAssist=assistMode;player.lapDirty=false;if(isTT()){player.item='triple';player.charges=3;}
    if(net?.setup?.take)netTakeOver();
    const fx=Math.sin(player.h),fz=Math.cos(player.h);
    if(gasHeld&&startPress>0&&startPress<=1.0){player.boost=Math.max(player.boost,1.5);player.vx=fx*16;player.vz=fz*16;SFX.rocket();say('rocket');toast('RAKETENSTART!',1.2,'good');stats.rocket++;burst(player,0xffa53d,20);}
@@ -4446,7 +4428,7 @@ function update(dt){
   for(const sp of spores)if(sp.cd<=0&&Math.abs(wrapDiff(r.distance,sp.d))<1.8&&Math.abs(r.offset-sp.off)<1.8&&Math.abs(r.y+.8+coasterH(sp.d)+(elems.length?elemH(sp.d):0)-sp.y)<2.3){sp.cd=10;if(r.spores<MAX_SPORES){r.spores++;if(me){stats.maxSpores=Math.max(stats.maxSpores,r.spores);SFX.spore(r.spores);if(r.spores===MAX_SPORES){say('spores');toast('VOLLE SPOREN-POWER!',1.2,'good');}}}}
   if(!isTT())for(const b of boxes){if(b.cooldown<=0&&!r.item&&!r.itemPending&&Math.abs(wrapDiff(r.distance,b.distance))<2.6&&Math.abs(r.offset-b.offset)<2.2&&Math.abs(r.y+1+coasterH(b.distance)+(elems.length?elemH(b.distance):0)-b.baseY)<3){b.cooldown=4;if(nearPlayer(r,70))boxPop(b);if(me){r.itemPending=true;roulette={t:.95,tick:0,final:rollItem(placeOf(r),racers.length)};}else{r.item=rollItem(placeOf(r),racers.length);r.charges=chargesFor(r.item);r.cooldown=1+Math.random()*2;}}}
   if(me&&!worldMode&&lap(r,length)>oldLap){const lt=elapsed-stats.lapStart,best=lt<stats.bestLap;stats.bestLap=Math.min(stats.bestLap,lt);stats.lapStart=elapsed;const isLast=lap(r,length)===LAPS,clean=lapClean(r);
-   toast(`RUNDE ${oldLap}: ${format(lt)}${best&&oldLap>1?' · BESTE RUNDE!':''}${clean?' · SAUBER ✓':''}`,2,best&&oldLap>1||clean?'good':'');if(isLast)arcBanner('FINAL LAP','Letzte Runde – gib alles!','final',2.4);else notice('RUNDE 2',1.5);say(isLast?'lastlap':'lap2');if(isLast){if(!playClip('s_finallap',sfxGain,.9))SFX.lap();setBgmRate((course.bgmRate||1)*1.07);}else SFX.lap();}
+   toast(`RUNDE ${oldLap}: ${format(lt)}${best&&oldLap>1?' · BESTE RUNDE!':''}${clean?' · SAUBER ✓':''}${isLast?' · LETZTE RUNDE!':''}`,2,best&&oldLap>1||clean?'good':'');say(isLast?'lastlap':'lap2');if(isLast){if(!playClip('s_finallap',sfxGain,.9))SFX.lap();setBgmRate((course.bgmRate||1)*1.07);}else SFX.lap();}
   if(finish(r,length,elapsed)&&me){const lt=elapsed-stats.lapStart;stats.bestLap=Math.min(stats.bestLap,lt);if(r.cleanFin===undefined)r.cleanFin=lapClean(r);planFireworks();}
   syncKart(r,dt);
   // Drift-Funken je Ladestufe (blau/orange/lila) an den Hinterraedern, Reifenspuren beim Rutschen
@@ -4574,7 +4556,7 @@ function end(){scapeStop();document.body.classList.remove('mirror');elapsed=race
  else{if(net&&net.setup&&place===1)lbWin();$('resultEyebrow').textContent=net&&net.setup?'ONLINE · ZIEL ERREICHT':'ZIEL ERREICHT';$('again').textContent=net&&net.setup?(net.setup.cyc?'⏳ Gleich zurück in die Lobby-Welt':'Zurück zur Lobby 🌐'):'Nochmal – schneller! ↻';order.forEach((r,i)=>{const li=document.createElement('li');if(r.id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${r.name}</span><span>${r.finishTime!==null?format(r.finishTime):'noch im Rennen'}</span>`;board.append(li);});}
  if(engine)engine.g.gain.value=0;let wasBest=false;const key=`best-${selected}-${cc}`,old=store.get(key,Infinity);if(elapsed<old&&place<=3){store.set(key,elapsed);wasBest=true;}
  const starKey=`stars-${selected}-${cc}`;if(rs.stars>store.get(starKey,0))store.set(starKey,rs.stars);refreshBest();
- if(wasBest&&!TEST){say('best');burst(racers[0],0xffe16a,36);notice('NEUE BESTZEIT!',2.6);}
+ if(wasBest&&!TEST){say('best');burst(racers[0],0xffe16a,36);notice('NEUE BESTZEIT!',2.6,true);}
  stopBgm();if(!playClip(place<=3?'s_c_win':'s_c_lose',sfxGain,.85)&&!playClip(place<=3?'s_jingle':'s_goodtry',sfxGain,.8))SFX.fanfare();finishMusicAt=performance.now()+(place<=3?6800:4800);if(!wasBest)setText('message','');}
 function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$('result').hidden=false;$('touch').hidden=true;showRidePhoto();if(ghost)ghost.mesh.visible=false;
  const m=medalOf(elapsed),key=`tt-${selected}`,old=store.get(key,Infinity),record=elapsed<old,prevMedal=store.get(`medal-${selected}`,3);
@@ -5386,7 +5368,7 @@ function wxTick(dt,now){const live=state==='race'||state==='countdown'||state===
  wxStrip();wxAudio(rain,Math.min(1,gust/2.6*((m.storm||0)+(m.sand||0))+(m.snow||0)*.25));}
 const wxOc=m=>Math.min(1,Math.max((m.clouds||0)*.45,(m.rain||0)*.75,m.storm||0));
 {const b=$('pauseWx');if(b){b.onclick=()=>wxToggle(!wxOn);b.textContent='Wetter: '+(wxOn?'WECHSELHAFT':'AUS');b.setAttribute('aria-pressed',String(wxOn));}}
-{const b=$('pauseCam');if(b){b.onclick=cycleCamView;camViewSync();}const c=$('pauseCo');if(c){c.onclick=()=>paceToggle(!paceOn);paceToggle(paceOn);}}
+{const b=$('pauseCam');if(b){b.onclick=cycleCamView;camViewSync();}}
 // ---------- Controller (R50): Gamepad-API mit Standard-Belegung (pad.mjs). Stick/Steuerkreuz lenken stufenlos,
 // A/RT Gas, B/LT Bremse, LB/RB Hops & Drift (in der Luft Trick), X/Y Item, START Pause, VIEW/SELECT zuruecksetzen.
 // Im Menue: links/rechts Strecke, hoch/runter Klasse, LB/RB Modus, A/START los, Y Erfolge; in Fenstern
@@ -6060,7 +6042,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  bgm:()=>{const tr=bgm.tracks[bgm.current];return {ready:bgm.ready,failed:bgm.failed,playing:bgm.current,rate:bgm.rate,master:masterGain?.gain.value,active:tr?.active,xf:tr?.xf,loopEnd:typeof BGM_LOOP!=='undefined'?BGM_LOOP[bgm.current]:null,elements:tr?.els.map((a,i)=>({time:a.currentTime,duration:a.duration,paused:a.paused,rate:a.playbackRate,src:a.src,gain:tr.gains?tr.gains[i].gain.value:a.volume})),tracks:Object.fromEntries(Object.entries(bgm.tracks).map(([k,v])=>[k,{src:v.els[0].src,duration:v.els[0].duration}]))};},
  bgmSeek:seconds=>{const tr=bgm.tracks[bgm.current];if(!tr||!Number.isFinite(seconds)||seconds<0)return false;tr.els[tr.active].currentTime=seconds;return true;},
  bgmRate:rate=>{if(Number.isFinite(rate)&&rate>.5&&rate<2)setBgmRate(rate);return bgm.rate;},
- arcade:()=>({notes:arcade.notes.map(n=>[Math.round(n.d),Math.round(n.len),+n.turn.toFixed(2),n.sev,n.dir,Math.round(n.radius)]),traps:arcade.traps.map(t=>Math.round(t.d)),camView,paceOn,length:Math.round(length),pace:arcade.pace&&!arcade.pace.e.hidden?arcade.pace.e.textContent:null,banner:!$('arcBanner').hidden}),
+ arcade:()=>({traps:arcade.traps.map(t=>Math.round(t.d)),camView,length:Math.round(length)}),
  arcCam:()=>{cycleCamView();return camView;},bubble:(i,t,e)=>{chatBubble(racers[i],t,!!e);return true;},emoteTest:(i,k)=>{const r=racers[i];if(!r)return false;r.emoteCd=0;emote(r,k);const e=emotes.find(q=>q.r===r);return e?{n:emotes.length,pos:e.sp.position.toArray().map(v=>+v.toFixed(1)),scale:e.sp.scale.x,vis:e.sp.visible,hasMap:!!e.sp.material.map,mapW:e.sp.material.map?.image?.width}:false;},
  feat:()=>({name:course.name,len:Math.round(length),loops:loops.length,hp:hpipes.length,co:coasters.length,ag:agrav.length,tu:tunnels.length,ra:raises.length,fk:forks.length,el:elems.length,ramps:ramps.length,gaps:gaps.length,pads:pads.length,rings:rings.length,zones:zones.length,spores:spores.length,swing:swingers.length}),
  chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g?q.g.position.toArray().map(v=>+v.toFixed(1)):'laser']),missiles:hz.missiles.length,lasers:hz.missiles.filter(m=>m.laser).length,waves:(hz.waves||[]).map(w=>w.on?1:0),ships:(hz.waves||[]).flatMap(w=>w.on?w.ships.filter(q=>q.g.visible&&q.d!==undefined).map(q=>[Math.round(wrapDiff(q.d,racers[0].distance)),Math.round(q.h)]):[]),turrets:hz.cannons.filter(c=>c.tur).length,fz:P.fortress===undefined?'pending':P.fortress?'ok':'failed',kb:!!P.kartbodies,drv:!!P.driver_sepp,laserAhead:hz.missiles.filter(m=>m.laser&&m.d!==undefined&&racers[0]).map(m=>Math.round(wrapDiff(m.d,racers[0].distance))),statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),

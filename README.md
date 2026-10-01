@@ -6,16 +6,19 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
-## Runde 72 (01.10.2026): Arcade-Paket, mehr Flow, ruhigere Bilder, größeres Handy-Menü
+## Runde 72 (01.10.2026): Kameras, Speed-Traps, mehr Flow, ruhigere Bilder, größeres Handy-Menü, treibendere Musik
 
 **Arcade-Paket** (`arcade.mjs`, getestet in `arcade.test.mjs`):
-- **Beifahrer-Ansagen** wie im Rallye-Automaten: aus der Mittellinie werden die Kurven berechnet (Richtung, Schärfe 1 = Haarnadel
-  bis 6 = sanft nach dem engsten Radius, „LANG“ ab 150 m, „dann …“ bei einer Folgekurve in Gegenrichtung). Im Spiegelmodus sind
-  links und rechts vertauscht. Pausenmenü: „Beifahrer-Ansagen: AN/AUS“.
 - **Kameraansichten** auf Taste C (und im Pausenmenü): Verfolger, Weit, Nah & Tief; wird gemerkt.
-- **Speed-Traps**: zwei Blitzer-Torbögen je Runde (auf freien, geraden Stellen), Foto-Blitz, Anzeige in km/h, Rekord je Strecke;
-  die Höchstgeschwindigkeit steht im Ergebnis.
-- **Reifenrauch** im Drift und Staub abseits der Straße, großes **FINAL-LAP-Banner** in der letzten Runde.
+- **Speed-Traps**: zwei Blitzer-Torbögen je Runde (auf freien, geraden Stellen), Foto-Blitz, kleine Zeile mit km/h, Rekord je
+  Strecke; die Höchstgeschwindigkeit steht im Ergebnis.
+- **Reifenrauch** im Drift und Staub abseits der Straße.
+- Die zuerst eingebauten **Beifahrer-Ansagen** und das **FINAL-LAP-Banner** sind auf Nutzerwunsch („zu viel Text“) wieder entfernt.
+
+**Weniger Text im Bild** (Nutzerwunsch): Meldungen (Toasts) und Hinweise sind jetzt kleine, durchsichtige Zeilen am unteren Rand statt
+großer Schrift mit dickem Rand in der Mitte. Gross bleiben nur der Countdown, „O’ZAPFT IS!“ und „NEUE BESTZEIT!“. „RUNDE 2“ und
+„LETZTE RUNDE“ stehen in der Rundenzeile statt als eigene Einblendung. Die STAGE-Titelkarte zum Start ist eine schmale, durchsichtige
+Zeile unten (vorher ein Kasten, der die Kamerafahrt verdeckte).
 
 **Flow und weniger Kram** (Nutzerwunsch „überladen, kein Flow“): der kleinste Kurvenradius der Mittellinie steigt von 24 auf 38 m
 (`FLOW_MIN_R`; das Geisterhaus behält 24, sonst findet der Looping keinen Platz). Die Rundenlängen schrumpfen dadurch um bis zu 8 %,
@@ -27,8 +30,6 @@ genau zur neuen Linienführung.
 - Die **Emojis über den Fahrern** (Wut, Freude, Schreck, Verliebt) sind keine Pixel-Sprechblasen mehr, sondern freie, hochauflösende,
   transparente Emojis; im Online-Chat dasselbe, Sprüche als dick umrandete Schrift ohne Blase.
 - Der **Teufel-Smiley** ist aus den Fake-Block-Meldungen („FAKE-BLOCK!“, „FAKE! REINGELEGT“) entfernt.
-- Die **STAGE-Titelkarte** verdeckte die Kamerafahrt: jetzt nur noch eine schmale, durchsichtige Zeile unten (Cup/Strecke und
-  Streckenname), ohne Kasten und ohne Hereinschieben. Auch die Fahrernamen und der Rivale in der Kamerafahrt sind klein und durchsichtig.
 - Der **Rückspiegel** ist deutlich kleiner und dünner gerahmt, leicht durchsichtig.
 - Die **Startampel des Luft-Loisl** ist größer, hängt höher in der Bildmitte, die Lampen haben einen Leuchtkranz, und der Loisl steht
   sofort an seinem Platz (vorher flog er in der Startphase erst von weit weg heran).
@@ -37,11 +38,15 @@ genau zur neuen Linienführung.
 **Handy-Menü im Hochformat:** nichts mehr unter 14–15 px (Tags, Knöpfe, Streckennamen, Tagesaufgabe, Wochenziele, Kartstil, Grafik),
 Strecken in zwei Spalten mit vollständig lesbaren Namen, der Knopf „Einfaches Menü“ liegt nicht mehr über dem Titel.
 
-**Fahrmusik:** die neun Strecken-Stücke (Geisterhaus, Bierstraße, Graben-Flug, Schildkröten-Bucht, Eisstock-See, Riesendom,
-Schoko-Matsch, Lava-Feste, Magnet-Kirmes) laufen als lokal gemasterte Mixe unter `assets/audio/drive/` mit exakt kopiertem
-Loop-Anfang (kein Takt-Sprung beim Wiederholen, gleiche Lautheit). Erzeugt ohne Anbieter-Kosten: `art/audio-20261001/driving-mix.mjs`
-und `master-mixes.py` (Manifest: `music-manifest.json`; die Skripte rechnen auch Rennen/Sonnenuntergang/Nacht, die seit R65 durch
-eigene Stücke ersetzt sind und nicht verwendet werden). Menü, Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald und Lobby behalten ihre R65-Stücke.
+**Musik „treibender und melodischer“** (Nutzerwunsch): dreizehn Stücke (die zwölf Strecken und die Lobby) werden von
+`art/audio-20261002/music-v3.mjs` neu ausgearbeitet, die Kompositionen aus `art/r61/chiptune.mjs` bleiben unverändert:
+Sidechain-Pumpen auf den Kick, Kick auf jedem Taktschlag mit Synkopen, Backbeat mit Klatschen, offene Hats auf den Gegenschlägen,
+Crash und Aufbau vor jedem Abschnittswechsel, pulsierender Bass mit Oktave und Leitton, Chorus-Verdopplung der Melodie,
+diatonische Gegenstimme im B-Teil und in der hohen Wiederholung, kleine Vorschlagnoten, mehr Arpeggios in Almwiese und Canyon.
+Die vier R65-Stücke (Pilz-Promenade, Sonnen-Canyon, Neon-Pilzwald, Lobby) laufen etwa 8 % schneller. Gemessen
+(`art/audio-20261002/analyze.py`): gegenüber der ersten R72-Fassung 1–7 Prozentpunkte mehr Tiefenanteil, etwas mehr Anschläge pro
+Sekunde und leicht größere Stereobreite, gegenüber den R65-Stücken bis zu 17 Prozentpunkte mehr Tiefenanteil, bei gleicher Lautheit. Master mit exakt kopiertem Loop-Anfang
+(`master-mixes.py`, Manifest `music-manifest.json`), lokal erzeugt, keine Anbieter-Kosten. Menü und Rückfall-Stück bleiben unverändert.
 
 ## Runde 71 (01.10.2026): Klang je Strecke, STAGE-Titelkarte, Wiesn-Taler, minimales HUD, größere Schrift am Handy
 

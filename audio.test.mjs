@@ -112,10 +112,10 @@ test('slipstream chiptune cues have distinct phrases, cooldowns and pause protec
 
 const settlePlayback=async()=>{for(let i=0;i<4;i++)await Promise.resolve();};
 
-test('every music track points at a real local MP3, the nine scored themes use the mastered driving mixes',()=>{
+test('every music track points at a real local MP3, the thirteen scored themes use the mastered driving mixes',()=>{
  const {api}=harness();
  const mixed=Object.keys(api.BGM_LOOP);
- assert.equal(mixed.length,9);
+ assert.equal(mixed.length,13);
  for(const [key,src] of Object.entries(api.BGM_SRC)){
   assert.equal(src.startsWith('drive/'),mixed.includes(key),key+' uses the driving mix only for scored themes');
   const bytes=fs.readFileSync(new URL('./assets/audio/'+src,import.meta.url));

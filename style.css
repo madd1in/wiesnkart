@@ -1746,41 +1746,10 @@ body.hudmin #raceTip{display:none!important}
  #coach span{font-size:14px}
 }
 
-/* R72 Kamerafahrt vor dem Start: Streckenname und Fahrernamen nur noch als schmale, durchsichtige Einblendung unten,
-   damit sie die Fahrt entlang der Startaufstellung nicht verdecken */
-body #toast.intro,body.hudmin #toast.intro,body.ow #toast.intro{top:auto;bottom:calc(7% + env(safe-area-inset-bottom,0px));padding:0;background:none;box-shadow:none;
-  font-size:14px;font-style:normal;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffffb8;-webkit-text-stroke:0;
-  text-shadow:0 1px 6px #000a;max-width:calc(100vw - 32px)}
-body.introcam #message{top:auto;bottom:calc(12% + env(safe-area-inset-bottom,0px));transform:translate(-50%,0);font-size:20px;font-style:normal;font-weight:700;letter-spacing:3px;
-  text-transform:uppercase;color:#ffffffc4;-webkit-text-stroke:0;text-shadow:0 1px 6px #000a;animation:none}
-
-/* R72 Arcade-Paket: Beifahrer-Ansage (Rallye-Automat-Stil), Banner im Automaten-Look, Speed-Trap-Blitz */
-#paceNote{position:absolute;left:50%;bottom:46px;transform:translateX(-50%) skewX(-8deg);display:flex;align-items:center;gap:10px;padding:5px 16px 6px 12px;border-radius:12px;
-  background:#0b1630c4;border:2px solid var(--pc,#ffd23f);box-shadow:0 8px 22px -10px #000c;font-family:var(--wk-font,sans-serif);font-weight:900;font-style:italic;color:#fff;pointer-events:none;white-space:nowrap;--pc:#ffd23f}
-#paceNote[hidden]{display:none}
-#paceNote i{font-style:normal;font-size:28px;line-height:1;color:var(--pc)}
-#paceNote b{font-size:38px;line-height:1;color:var(--pc);min-width:.7em;text-align:center}
-#paceNote span{font-size:16px;letter-spacing:1px}
-#paceNote em{font-style:normal;font-size:15px;opacity:.85;font-variant-numeric:tabular-nums;min-width:3.4em;text-align:right}
-#paceNote u{text-decoration:none;font-size:13px;opacity:.85;border-left:2px solid #fff4;padding-left:9px}
-#paceNote u:empty{display:none}
-#paceNote.s1,#paceNote.s2{--pc:#ff4a3d}#paceNote.s3,#paceNote.s4{--pc:#ff9a2e}#paceNote.s5,#paceNote.s6{--pc:#ffd23f}
-#paceNote.inside{box-shadow:0 0 0 2px var(--pc),0 8px 22px -10px #000c}
-#paceNote.inside em{opacity:.5}
-#arcBanner{position:fixed;left:0;right:0;top:23%;z-index:5;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;
-  animation:arcIn .34s cubic-bezier(.2,.9,.3,1) both,arcOut .3s ease-in calc(var(--dur,2s) - .3s) both}
-#arcBanner[hidden]{display:none}
-#arcBanner b{display:block;transform:skewX(-10deg);font:italic 900 clamp(24px,4.6vw,52px)/1 var(--wk-font,sans-serif);letter-spacing:2px;color:#fff;padding:.08em .9em .12em;
-  background:linear-gradient(90deg,#1f78d100,#1f78d1ee 16%,#1f78d1ee 84%,#1f78d100);text-shadow:0 4px 0 #14264a,0 0 18px #0006}
-#arcBanner span{transform:skewX(-10deg);font:italic 900 clamp(12px,1.9vw,19px)/1.1 var(--wk-font,sans-serif);letter-spacing:3px;color:#fff;padding:.14em 1.1em;background:#14264aa8;text-shadow:0 2px 0 #000a}
-#arcBanner.final b{background:linear-gradient(90deg,#d8262e00,#d8262eee 16%,#d8262eee 84%,#d8262e00)}
-#arcBanner.rec b{background:linear-gradient(90deg,#ffc83a00,#ffc83af2 16%,#ffc83af2 84%,#ffc83a00);color:#14264a;text-shadow:0 3px 0 #fff8}
-@keyframes arcIn{from{opacity:0;transform:translateX(-14%)}to{opacity:1;transform:none}}
-@keyframes arcOut{to{opacity:0;transform:translateX(10%)}}
+/* R72 Arcade-Paket: Speed-Trap-Blitz */
 #trapFlash{position:fixed;inset:0;z-index:6;background:#fff;opacity:0;pointer-events:none;transition:opacity .45s ease-out}
 #trapFlash.on{opacity:.5;transition:none}
-@media (prefers-reduced-motion:reduce){#arcBanner{animation:none}#trapFlash.on{opacity:.12}}
-@media (max-width:760px){#paceNote{bottom:calc(76px + env(safe-area-inset-bottom,0px));gap:7px;padding:4px 11px 5px 9px}#paceNote b{font-size:30px}#paceNote i{font-size:22px}#paceNote span{font-size:13px}}
+@media (prefers-reduced-motion:reduce){#trapFlash.on{opacity:.12}}
 
 /* R72 (Nutzerwunsch): die STAGE-Titelkarte verdeckte die Kamerafahrt - jetzt nur noch eine schmale, durchsichtige Zeile unten */
 #stage{top:auto;bottom:calc(7% + env(safe-area-inset-bottom,0px));min-width:0;padding:0;gap:4px;background:none;border:0;outline:0;box-shadow:none;
@@ -1810,3 +1779,13 @@ body.introcam #message{top:auto;bottom:calc(12% + env(safe-area-inset-bottom,0px
  body #menu #tracks .track{grid-column:auto!important;min-height:76px}
  body:not(.menu-simple) #menu .q-back{position:static;display:inline-block;margin:0 0 10px}
 }
+
+/* R72 (Nutzerwunsch "zu viele Texteinblendungen"): Meldungen und Hinweise sind kleine, durchsichtige Zeilen am unteren Rand,
+   nur Countdown, O'ZAPFT IS und neue Bestzeit bleiben gross */
+body #toast{top:auto!important;bottom:calc(8% + env(safe-area-inset-bottom,0px))!important;left:50%!important;padding:0!important;background:none!important;box-shadow:none!important;
+  font-size:15px!important;font-style:normal!important;font-weight:700!important;letter-spacing:2.5px!important;line-height:1.25!important;text-transform:uppercase;color:#ffffffe6!important;
+  -webkit-text-stroke:0!important;text-shadow:0 1px 6px #000b!important;max-width:calc(100vw - 32px)!important}
+body #toast.good{color:#a9ffc1!important}body #toast.bad{color:#ffc2b8!important}
+body #toast.mt-mini,body #toast.mt-super,body #toast.mt-ultra{color:#fff!important;box-shadow:none!important;text-shadow:0 1px 6px #000b!important}
+body #message.quiet{top:auto!important;bottom:calc(12% + env(safe-area-inset-bottom,0px));transform:translate(-50%,0);font-size:17px!important;font-style:normal;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:#ffffffd8;-webkit-text-stroke:0!important;text-shadow:0 1px 6px #000b!important;animation:none}
