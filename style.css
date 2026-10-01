@@ -1616,6 +1616,7 @@ body.menu-simple #menu .top-row{justify-content:center}
  box-shadow:0 4px 0 var(--wk-ink);cursor:pointer;text-align:left;animation:luckyWob 2.4s ease-in-out infinite}
 .lucky[hidden]{display:none}
 .lucky canvas{image-rendering:pixelated;width:60px;height:40px;flex:none;filter:drop-shadow(0 2px 0 #0004)}
+.lucky .lucky-ico{font-style:normal;font-size:36px;line-height:1;width:60px;text-align:center;flex:none;filter:drop-shadow(0 2px 0 #0004)}
 .lucky span{display:flex;flex-direction:column}
 .lucky b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:16px}
 .lucky small{font-weight:700;font-size:11.5px;color:#14264ab0}
@@ -1782,10 +1783,18 @@ body.hudmin #raceTip{display:none!important}
 
 /* R72 (Nutzerwunsch "zu viele Texteinblendungen"): Meldungen und Hinweise sind kleine, durchsichtige Zeilen am unteren Rand,
    nur Countdown, O'ZAPFT IS und neue Bestzeit bleiben gross */
-body #toast{top:auto!important;bottom:calc(8% + env(safe-area-inset-bottom,0px))!important;left:50%!important;padding:0!important;background:none!important;box-shadow:none!important;
+body #toast{top:auto!important;bottom:calc(14% + env(safe-area-inset-bottom,0px))!important;left:50%!important;padding:0!important;background:none!important;box-shadow:none!important;
   font-size:15px!important;font-style:normal!important;font-weight:700!important;letter-spacing:2.5px!important;line-height:1.25!important;text-transform:uppercase;color:#ffffffe6!important;
   -webkit-text-stroke:0!important;text-shadow:0 1px 6px #000b!important;max-width:calc(100vw - 32px)!important}
 body #toast.good{color:#a9ffc1!important}body #toast.bad{color:#ffc2b8!important}
 body #toast.mt-mini,body #toast.mt-super,body #toast.mt-ultra{color:#fff!important;box-shadow:none!important;text-shadow:0 1px 6px #000b!important}
-body #message.quiet{top:auto!important;bottom:calc(12% + env(safe-area-inset-bottom,0px));transform:translate(-50%,0);font-size:17px!important;font-style:normal;font-weight:700;letter-spacing:3px;
+body #message.quiet{top:auto!important;bottom:calc(19% + env(safe-area-inset-bottom,0px));transform:translate(-50%,0);font-size:17px!important;font-style:normal;font-weight:700;letter-spacing:3px;
   text-transform:uppercase;color:#ffffffd8;-webkit-text-stroke:0!important;text-shadow:0 1px 6px #000b!important;animation:none}
+@media (pointer:coarse) and (orientation:portrait),(max-width:760px) and (orientation:portrait){
+ body #toast{top:calc(96px + env(safe-area-inset-top,0px))!important;bottom:auto!important}
+ body #message.quiet{top:calc(124px + env(safe-area-inset-top,0px))!important;bottom:auto!important}
+}
+/* R73: "Strecke laedt" im Menue klein am unteren Rand statt mitten ueber den Knoepfen */
+body:not(.racing) #trackLoading{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:6px 14px;gap:8px;font-size:13px;
+  box-shadow:0 0 0 2px var(--wk-ink),0 3px 0 2px var(--wk-ink)}
+body:not(.racing) #trackLoading i{width:12px;height:12px;border-width:2px}

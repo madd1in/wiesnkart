@@ -4259,7 +4259,7 @@ function update(dt){
  timeWarpTick(racers[0],dt);
  const player=racers[0],ohGas=state==='countdown'&&oh.on&&oh.id!==null,gasHeld=held('ArrowUp')||held('KeyW')||ohGas;
  if(state==='countdown'){oh.hop=0;if(!worldReady){setText('message','');return;}if(net&&net.setup&&!net.go){netWaitGo();for(const r of racers)if(r.net)netDrive(r,dt);syncKartInstances();return;}
-  if(introT>0){introT=Math.max(0,introT-dt);if(introT<=0)document.body.classList.remove('introcam');setLights(0);setText('message','');if(introT<=0){stopFanfare(.4);playBgm(raceTrack());setBgmRate(course.bgmRate||1);}syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<5);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
+  if(introT>0){introT=Math.max(0,introT-dt);if(introT<=0)document.body.classList.remove('introcam');setLights(0);setText('message','');if(introT<=0){stopFanfare(.4);playBgm(raceTrack());setBgmRate(course.bgmRate||1);}syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<2);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
   {const ln=countdown>2?1:countdown>1?2:countdown>0?3:4;if(ln!==lightState)SFX.count(ln===4);setLights(ln);}setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');$('message').classList.remove('quiet');
   if(engine&&ctx){const t=ctx.currentTime;aset(engine.o1.frequency,gasHeld?170:60,t,.08);aset(engine.o2.frequency,gasHeld?85:30,t,.08);aset(engine.f.frequency,gasHeld?1500:500,t,.1);aset(engine.g.gain,soundOn?.008:0,t,.1);}
   if(countdown<=0){state='race';notice('O\'ZAPFT IS!',1.1,true);stats.lapStart=0;raceAssist=assistMode;player.lapDirty=false;if(isTT()){player.item='triple';player.charges=3;}
@@ -4536,6 +4536,8 @@ function end(){scapeStop();document.body.classList.remove('mirror');elapsed=race
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
  const bestKey=`bestlap-${selected}`,oldBestLap=store.get(bestKey,Infinity),newBestLap=stats.bestLap<oldBestLap;if(newBestLap)store.set(bestKey,stats.bestLap);
  const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Saubere Runden',`${stats.cleanLaps||0} / ${LAPS}`],['Höchstgeschwindigkeit',`${stats.topKmh||0} km/h`],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ // R73 (Nutzerwunsch "zu viel Text"): Kacheln, in denen nur Nullen stehen, fallen weg
+ for(let i=st.length-1;i>=2;i--)if(/^[0\s·/×x]*(km\/h)?$/.test(String(st[i][1]).replace(/\s+/g,' ').trim()))st.splice(i,1);
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  // Rivale und Tages-Herausforderung (R46) vor dem Verbuchen, damit XP und Erfolge sie sehen
  if(rivalId!==null){stats.rivalBeaten=rivalBeaten(order.map(r=>r.id),rivalId);$('resultStats').insertAdjacentHTML('beforeend',`<div class="rival ${stats.rivalBeaten?'won':'lost'}"><span>⚔ Rivale ${racers[rivalId].name}</span><b>${stats.rivalBeaten?'GESCHLAGEN ✓':'vor dir'}</b></div>`);}
@@ -4568,6 +4570,8 @@ function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$
  $('resultTime').textContent=`${format(elapsed)}${record?' · NEUER REKORD 👻':isFinite(old)?' · Rekord '+format(old):''}`;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<3-m?'on':''}">★</i>`).join('')+(m<prevMedal&&m<3?'<b>NEUE MEDAILLE</b>':'');
  const st=[['Beste Runde',format(stats.bestLap)],['Drift-Turbos',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra}`],['Tricks / Ringe',`${stats.tricks} / ${stats.rings}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`]]:[]),['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ // R73 (Nutzerwunsch "zu viel Text"): Kacheln, in denen nur Nullen stehen, fallen weg
+ for(let i=st.length-1;i>=2;i--)if(/^[0\s·/×x]*(km\/h)?$/.test(String(st[i][1]).replace(/\s+/g,' ').trim()))st.splice(i,1);
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  const board=$('leaderboard');board.replaceChildren();board.classList.remove('many');course.medals.forEach((t,i)=>{const li=document.createElement('li');if(i===m)li.className='me';li.innerHTML=`<span>${MEDALS[i]}</span><span>${elapsed<=t?'✓ geschafft':'noch '+(elapsed-t).toFixed(1)+' s'}</span><span>${format(t)}</span>`;board.append(li);});
  $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();{const b=$('lbBox');b.hidden=false;lbPanel(b,ttBoard(selected));}
@@ -5041,7 +5045,7 @@ setInterval(garageTick,450);
 function pixelCanvas(rows,pal,px=4){const w=Math.max(...rows.map(r=>r.length)),c=document.createElement('canvas');c.width=w*px;c.height=rows.length*px;const q=c.getContext('2d');
  for(const [x,y,col] of pixels(rows,pal)){q.fillStyle='#'+col.toString(16).padStart(6,'0');q.fillRect(x*px,y*px,px,px);}return c;}
 function luckyRefresh(){const b=$('lucky');if(!b)return;const ready=luckyReady(store.get('luckyDay',''),dayKey());b.hidden=!ready;
- if(ready&&!b.querySelector('canvas'))b.prepend(pixelCanvas(BREZN,{B:0xc07a34,s:0xffffff},4));}
+ if(ready&&!b.querySelector('.lucky-ico')){const i=document.createElement('i');i.className='lucky-ico';i.textContent='🥨';i.setAttribute('aria-hidden','true');b.prepend(i);}}
 function luckyOpen(){const b=$('lucky');if(!luckyReady(store.get('luckyDay',''),dayKey()))return;store.set('luckyDay',dayKey());
  const xp=luckyReward(),pr=store.get('prog',{xp:0,ach:[],done:[],won:[]}),l0=levelOf(pr.xp||0).level;pr.xp=(pr.xp||0)+xp;store.set('prog',pr);const l1=levelOf(pr.xp).level;
  b.classList.add('open');SFX.bonus();const r=b.getBoundingClientRect();

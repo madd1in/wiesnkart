@@ -6,6 +6,17 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 73 (02.10.2026): Feinschliff – weniger Überlappungen, weniger Text, schärfer
+
+Durchgespielt in der Browser-Vorschau (Rechner 1280×720 und Handy 375×812, Menü, Kamerafahrt, Rennen, Ergebnis). Gefunden und behoben:
+- **Kleine Meldungen** lagen beim Start über der Streckenzeile und am Handy über den Ein-Hand-Hinweisen: am Rechner stehen sie jetzt
+  oberhalb der Streckenzeile, am Handy im Hochformat oben unter der Rundenanzeige.
+- **Ein-Hand-Hinweise** am Handy nur noch in den ersten zwei Rennen (vorher fünf).
+- **Ergebnis**: Kacheln, in denen nur Nullen stehen (z. B. „Präzisionsflüge 0“, „Rempler / Stürze 0 / 0“), fallen weg; beste Runde,
+  saubere Runden und der Rivale bleiben immer stehen. Gilt auch fürs Zeitfahren.
+- **Glücksbrezn** im Menü: scharfes Brezn-Symbol statt der Pixel-Grafik.
+- **„Strecke lädt …“** im Menü: kleine Pille am unteren Rand statt mitten über den großen Knöpfen.
+
 ## Runde 72 (01.10.2026): Kameras, Speed-Traps, mehr Flow, ruhigere Bilder, größeres Handy-Menü, treibendere Musik
 
 **Arcade-Paket** (`arcade.mjs`, getestet in `arcade.test.mjs`):
