@@ -82,7 +82,10 @@ export function assignSlots(guests, prev = new Map()) {
 }
 
 // Zustands-Flags (Bitmaske)
-export const F = Object.freeze({drift: 1, driftR: 2, boost: 4, air: 8, stun: 16, shield: 32, mega: 64, shrink: 128, brake: 256, glide: 512, ink: 1024});
+export const F = Object.freeze({drift: 1, driftR: 2, boost: 4, air: 8, stun: 16, shield: 32, mega: 64, shrink: 128, brake: 256, glide: 512, ink: 1024, orb1: 2048, orb2: 4096, orbRed: 8192});
+// R66: kreisende Brezn (Brezn-Trio) - Anzahl 0..3 in zwei Bits, Farbe in einem; alte Clients ignorieren die Bits
+export const orbitFlags = r => {const n = (r.item === 'green3' || r.item === 'red3') && !r.itemPending ? Math.max(0, Math.min(3, r.charges | 0)) : 0; return n ? n * F.orb1 | (r.item === 'red3' ? F.orbRed : 0) : 0;};
+export const orbitOf = f => ({n: (f / F.orb1 | 0) & 3, red: !!(f & F.orbRed)});
 const r2 = v => Math.round(v * 100) / 100, r3 = v => Math.round(v * 1000) / 1000;
 
 /** Kart -> [Platz, x, y, z, Blickrichtung, Tempo, Streckenmeter, Querversatz, Flags, Drift-Stufe 0-3, Zielzeit oder -1,
@@ -99,6 +102,7 @@ export function packKart(r, slot, driftLvl = 0) {
   if (r.braking) f |= F.brake;
   if (r.gliding) f |= F.glide;
   if (r.ink > 0) f |= F.ink;
+  f |= orbitFlags(r);
   return [slot, r2(r.x), r2(r.y || 0), r2(r.z), r3(r.h), Math.round((r.speed || 0) * 10) / 10, r2(r.distance), r2(r.offset || 0), f, driftLvl | 0, r.finishTime == null ? -1 : r2(r.finishTime), Number.isFinite(r.hearts) ? r.hearts | 0 : -1];
 }
 export function unpackKart(a) {

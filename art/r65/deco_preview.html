@@ -1,0 +1,15 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>R67 Voxel-Deko</title>
+<style>html,body{margin:0;background:#8fd0ff;overflow:hidden}canvas{display:block}</style></head><body>
+<script type="module">
+// R67: Vorschau der Voxel-Deko je Streckenthema (voxel.mjs decoModel)
+import * as T from '../../vendor/three.module.js';
+import {voxelMesh, decoModel} from '../../voxel.mjs';
+const W = 1200, H = 480, r = new T.WebGLRenderer({antialias: true}); r.setSize(W, H); r.outputColorSpace = T.SRGBColorSpace; document.body.appendChild(r.domElement);
+const sc = new T.Scene(); sc.background = new T.Color(0x9fd4ff); const cam = new T.PerspectiveCamera(30, W / H, .1, 200); cam.position.set(0, 5, 26); cam.lookAt(0, 2.2, 0);
+sc.add(new T.HemisphereLight(0xffffff, 0x5a6472, 2.2)); const dl = new T.DirectionalLight(0xfff2dc, 2.4); dl.position.set(3, 6, 5); sc.add(dl);
+const gr = new T.Mesh(new T.PlaneGeometry(60, 20), new T.MeshLambertMaterial({color: 0x6ab04c})); gr.rotation.x = -Math.PI / 2; sc.add(gr);
+const mat = new T.MeshLambertMaterial({vertexColors: true});
+const kinds = ['cactus', 'snowman', 'palm', 'pumpkin', 'shroom', 'mug', 'lolly'], S = {cactus: .34, snowman: .26, palm: .36, pumpkin: .24, shroom: .3, mug: .3, lolly: .3};
+kinds.forEach((k, i) => {const m = decoModel(k), d = voxelMesh(m.vox, m.pal, S[k], {ground: true}), g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(d.positions, 3)); g.setAttribute('normal', new T.BufferAttribute(d.normals, 3)); g.setAttribute('color', new T.BufferAttribute(d.colors, 3)); g.setIndex(new T.BufferAttribute(d.indices, 1)); const o = new T.Mesh(g, mat); o.position.set(-15 + i * 5, 0, 0); o.rotation.y = .35; sc.add(o);});
+r.render(sc, cam); window.done = true;
+</script></body></html>

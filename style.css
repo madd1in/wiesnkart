@@ -1541,3 +1541,149 @@ body.tv #menu .menu-panel{margin-bottom:max(4vh,24px)}
 /* R63 Rueckspiegel: Rahmen um den eingeblendeten Rueckblick (das Bild zeichnet der Renderer darunter) */
 #mirror{position:fixed;z-index:12;pointer-events:none;border:4px solid #14264a;border-radius:14px;box-shadow:0 0 0 3px #fff,0 6px 18px #0008;transition:opacity .12s}
 #mirror b{position:absolute;left:50%;top:-30px;transform:translateX(-50%) skewX(-8deg);white-space:nowrap;font:italic 900 18px var(--wk-font,sans-serif);color:#ff4a3d;-webkit-text-stroke:4px #14264a;paint-order:stroke fill;animation:wkPulse 0.6s ease-in-out infinite}
+
+/* ===== R65: Einfaches Startmenue - zwei grosse Knoepfe, Fahrer, Tagesaufgabe; alles andere hinter "Alle Modi" ===== */
+#menu .quick,#menu .q-back{display:none}
+body.menu-simple #menu .quick{display:flex;flex-direction:column;gap:12px}
+body:not(.menu-simple) #menu .q-back{display:block;position:absolute;top:-4px;left:26px;z-index:5;margin:0;box-shadow:0 3px 0 var(--wk-ink);padding:5px 12px;border-radius:999px;border:2px solid var(--wk-ink);background:#fff;color:var(--wk-ink);font-family:var(--wk-font);font-weight:800;font-size:12.5px;cursor:pointer}
+body.menu-simple #menu #modes,body.menu-simple #menu #classes,body.menu-simple #menu #tracks,body.menu-simple #menu #cups,body.menu-simple #menu #start,body.menu-simple #menu .menu-brand .online-btn,
+body.menu-simple #menu .menu-picks .pick:not(:first-child),body.menu-simple #menu .menu-meta .controls,body.menu-simple #menu #trophies{display:none!important}
+body.menu-simple #menu{align-items:center;justify-content:center}
+body.menu-simple #menu .menu-panel{display:flex!important;flex-direction:column;gap:12px;width:min(480px,calc(100vw - 32px));max-width:480px;margin:auto;grid-template-areas:none}
+body.menu-simple #menu .menu-picks{display:block;padding:10px 12px}
+body.menu-simple #menu .menu-picks .pick:first-child{display:block}
+body.menu-simple #menu #drivers{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+body.menu-simple .menu-title{font-size:clamp(26px,6.5vw,40px)}
+.q-btn{position:relative;display:flex;align-items:center;gap:14px;width:100%;margin:0;padding:16px 20px;border-radius:20px;border:3px solid #fff;text-align:left;cursor:pointer;color:#fff;
+ transform:skewX(-6deg);box-shadow:0 0 0 3px var(--wk-ink),0 7px 0 3px var(--wk-ink),0 16px 30px -14px #0008;transition:transform .12s}
+.q-btn:hover,.q-btn.padf{transform:skewX(-6deg) translateY(-3px)}
+.q-btn:active{transform:skewX(-6deg) translateY(2px)}
+.q-btn>*{transform:skewX(6deg)}
+.q-btn i{font-style:normal;font-size:40px;line-height:1;filter:drop-shadow(0 3px 0 #0005)}
+.q-btn span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.q-btn b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:27px;letter-spacing:.4px;text-transform:uppercase;-webkit-text-stroke:5px var(--wk-ink);paint-order:stroke fill;line-height:1.05}
+.q-btn small{font-weight:800;font-size:13px;opacity:.95;text-shadow:0 1px 0 #0006}
+.q-online{background:linear-gradient(180deg,#4aa6ff,var(--wk-blue) 55%,#12509a);animation:wkPulse 1.8s ease-in-out infinite}
+.q-race{background:linear-gradient(180deg,#ff4a4a,var(--wk-red) 55%,var(--wk-red2))}
+.q-btn em{position:absolute;top:-12px;right:14px;padding:3px 10px 4px;border-radius:999px;background:var(--wk-yellow);color:var(--wk-ink);border:2.5px solid var(--wk-ink);
+ font-style:normal;font-family:var(--wk-font);font-weight:900;font-size:13px;letter-spacing:.3px;box-shadow:0 3px 0 var(--wk-ink);animation:qBadge 1.4s ease-in-out infinite}
+@keyframes qBadge{0%,100%{transform:skewX(6deg) rotate(-4deg) scale(1)}50%{transform:skewX(6deg) rotate(3deg) scale(1.08)}}
+.q-online.live{background:linear-gradient(180deg,#5fd88a,#1f9a4b)}
+.q-more{margin:2px 0 0;padding:10px 14px;border-radius:14px;border:2.5px dashed #14264a66;background:#ffffffb0;color:var(--wk-ink);font-family:var(--wk-font);font-weight:800;font-size:14px;cursor:pointer}
+.q-more:hover,.q-more.padf{background:#fff;border-style:solid}
+.q-hint{margin:0;text-align:center;font-size:12px;font-weight:700;color:#14264aa8}
+.q-hint:empty{display:none}
+@media (max-width:620px){.q-btn{padding:13px 16px;gap:11px}.q-btn i{font-size:32px}.q-btn b{font-size:22px;-webkit-text-stroke:4px var(--wk-ink)}.q-btn small{font-size:12px}}
+@media (pointer:coarse) and (orientation:landscape){
+ body.menu-simple #menu{padding:8px 76px 8px 12px}
+ body.menu-simple #menu .menu-panel{width:min(560px,calc(100vw - 110px));gap:7px;padding:10px 14px}
+ body.menu-simple #menu .quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+ body.menu-simple #menu .q-more,body.menu-simple #menu .q-hint{grid-column:1/-1}
+ .q-btn{padding:9px 12px;gap:8px}.q-btn i{font-size:26px}.q-btn b{font-size:17px;-webkit-text-stroke:3.5px var(--wk-ink)}.q-btn small{font-size:10.5px}
+ .q-more{padding:6px 10px;font-size:12px}
+ body.menu-simple #menu .menu-meta{display:none}
+}
+/* Online-Lackierungen: kleines Weltkugel-Zeichen am Farbtupfer */
+#menu #colors .swatch.onl{position:relative}
+#menu #colors .swatch.onl:before{content:'🌐';position:absolute;right:-5px;bottom:-5px;font-size:11px;line-height:1}
+/* R65: Online-Vorteile im Online-Fenster */
+#online .on-perks{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+#online .on-perks span{padding:4px 10px;border-radius:999px;background:#fff6d6;border:2px solid #14264a33;font-size:12px;font-weight:700;color:#14264a}
+#online .on-perks b{color:#d8262e}
+.q-streak{color:#c2410c}
+@media (max-height:520px){
+ body.menu-simple #menu .menu-panel{width:min(620px,calc(100vw - 110px));gap:7px;padding:10px 14px;max-height:calc(100vh - 16px);overflow:auto}
+ body.menu-simple #menu .quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+ body.menu-simple #menu .q-more,body.menu-simple #menu .q-hint{grid-column:1/-1}
+ body.menu-simple .menu-title{font-size:24px}body.menu-simple .menu-title em{display:inline}body.menu-simple #menu .menu-tag{display:none}
+ .q-btn{padding:9px 12px;gap:8px}.q-btn i{font-size:26px}.q-btn b{font-size:17px;-webkit-text-stroke:3.5px var(--wk-ink)}.q-btn small{font-size:10.5px}
+ .q-btn em{top:auto;bottom:-10px;right:10px;font-size:11px}
+ .q-more{padding:6px 10px;font-size:12px}
+ body.menu-simple #menu .menu-meta{display:none}
+}
+/* R66: Aufsatz-Wahl (Voxel-Kosmetik) in der Fahrer-Karte */
+#menu .top-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+#menu .top-row>small{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:10px;letter-spacing:1px;color:#14264a99}
+#menu #toppers{display:flex;gap:5px;flex-wrap:wrap}
+#menu #toppers button{width:34px;height:34px;margin:0;padding:0;border-radius:10px;border:2px solid #14264a33;background:#fff;font-size:17px;line-height:1;cursor:pointer;position:relative}
+#menu #toppers button.selected{border-color:var(--wk-ink);background:var(--wk-yellow);box-shadow:0 3px 0 var(--wk-ink)}
+#menu #toppers button.locked{filter:grayscale(1);opacity:.45}
+#menu #toppers button.locked:after{content:'🔒';position:absolute;right:-4px;bottom:-5px;font-size:10px;filter:none}
+body.menu-simple #menu .top-row{justify-content:center}
+@media (max-height:520px){#menu #toppers button{width:28px;height:28px;font-size:14px}#menu .top-row{margin-top:5px}}
+/* R66: Gluecksbrezn des Tages (Pixel-Brezn aus voxel.mjs, 2D gezeichnet) */
+.lucky{display:flex;align-items:center;gap:12px;margin:0;padding:8px 14px;border-radius:16px;border:2.5px solid var(--wk-ink);background:linear-gradient(100deg,#fff4c9,#ffe08a);color:var(--wk-ink);
+ box-shadow:0 4px 0 var(--wk-ink);cursor:pointer;text-align:left;animation:luckyWob 2.4s ease-in-out infinite}
+.lucky[hidden]{display:none}
+.lucky canvas{image-rendering:pixelated;width:60px;height:40px;flex:none;filter:drop-shadow(0 2px 0 #0004)}
+.lucky span{display:flex;flex-direction:column}
+.lucky b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:16px}
+.lucky small{font-weight:700;font-size:11.5px;color:#14264ab0}
+.lucky.open{animation:luckyPop .8s ease-out}
+.lucky.padf,.lucky:hover{transform:translateY(-2px)}
+@keyframes luckyWob{0%,86%,100%{transform:rotate(0)}89%{transform:rotate(-2.5deg)}92%{transform:rotate(2.5deg)}95%{transform:rotate(-1.5deg)}}
+@keyframes luckyPop{0%{transform:scale(1)}30%{transform:scale(1.08) rotate(-3deg)}60%{transform:scale(.96) rotate(2deg)}100%{transform:scale(1);opacity:.4}}
+.lucky-px{position:fixed;width:8px;height:8px;z-index:60;pointer-events:none;animation:luckyPx .9s cubic-bezier(.2,.7,.3,1) forwards;box-shadow:0 0 0 1px #14264a}
+@keyframes luckyPx{to{transform:translate(var(--dx),var(--dy)) rotate(90deg);opacity:0}}
+@media (max-height:520px){.lucky{grid-column:1/-1;padding:5px 10px}.lucky canvas{width:45px;height:30px}.lucky b{font-size:13px}.lucky small{font-size:10px}}
+/* R66: Hinweise (Gluecksbrezn, Aufsatz, gesperrt) auch im Menue ueber der Karte */
+body:not(.racing) #toast{z-index:70;top:auto;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:22px;-webkit-text-stroke:5px var(--wk-ink);max-width:92vw;white-space:normal;text-align:center}
+/* R66: Spitznamen wuerfeln */
+#online .on-name{position:relative}
+#online #onDice{margin:0 0 0 6px;padding:4px 8px;border-radius:10px;border:2px solid #14264a33;background:#fff;font-size:18px;line-height:1;cursor:pointer;vertical-align:middle;width:auto}
+#online #onDice:hover{transform:rotate(-12deg) scale(1.08)}
+/* R66: Fahrschule (Tipps im ersten Rennen) */
+#coach{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);z-index:8;display:flex;align-items:center;gap:10px;max-width:min(560px,92vw);
+ padding:9px 16px;border-radius:16px;background:#fffdf3;border:3px solid var(--wk-ink);box-shadow:0 5px 0 var(--wk-ink);color:var(--wk-ink);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none}
+#coach.on{opacity:1;transform:translate(-50%,0)}
+#coach b{flex:none;padding:3px 8px;border-radius:999px;background:var(--wk-yellow);font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:12px}
+#coach span{font-weight:800;font-size:15px;line-height:1.25}
+@media (max-width:620px){#coach{bottom:calc(210px + env(safe-area-inset-bottom,0px))}#coach span{font-size:13px}}
+@media (pointer:coarse) and (orientation:landscape){#coach{bottom:calc(120px + env(safe-area-inset-bottom,0px))}#coach span{font-size:12.5px}}
+/* R68: Siegerkarte teilen */
+#result .share-btn{display:block;margin:6px auto 4px;padding:7px 16px;border-radius:999px;border:2.5px solid var(--wk-ink);background:#fff;color:var(--wk-ink);font-family:var(--wk-font);font-weight:900;font-size:14px;box-shadow:0 3px 0 var(--wk-ink);cursor:pointer;width:auto}
+#result .share-btn[hidden]{display:none}
+#result .share-btn:hover{transform:translateY(-2px)}
+body #result .share-btn,body #result .share-btn b{-webkit-text-stroke:0;text-shadow:none;font-style:normal;letter-spacing:.2px;text-transform:none;transform:none;background:#fff;color:var(--wk-ink);animation:none;min-height:0;font-size:14px;width:auto}
+/* R69: Wochenziele-Karte */
+body #menu #weekly{display:flex;flex-direction:column;gap:5px;margin:0;padding:8px 12px;border-radius:16px;border:2.5px solid var(--wk-ink);background:linear-gradient(100deg,#eef6ff,#fff);color:var(--wk-ink);box-shadow:0 4px 0 var(--wk-ink);text-align:left;cursor:pointer;width:100%}
+body #menu #weekly .wk-head{display:flex;align-items:center;gap:8px}
+body #menu #weekly .wk-head b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:12px;letter-spacing:1px;color:#1f78d1}
+body #menu #weekly .wk-head i{font-style:normal;letter-spacing:2px;color:#1f9a4b;font-size:14px}
+body #menu #weekly .wk-head em{flex:1;font-style:normal;font-weight:700;font-size:11.5px;color:#14264aa8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body #menu #weekly .wk-head u{text-decoration:none;font-weight:900}
+body #menu #weekly .wk-row{display:grid;grid-template-columns:minmax(0,1fr) 90px 44px;align-items:center;gap:8px}
+body #menu #weekly .wk-row small{font-weight:800;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body #menu #weekly .wk-row small:last-child{text-align:right;color:#14264a99}
+body #menu #weekly .wk-row s{height:8px;border-radius:99px;background:linear-gradient(90deg,#34c46a var(--p),#14264a22 var(--p));text-decoration:none}
+body #menu #weekly .wk-row.ok small{color:#1f9a4b}
+body #menu #weekly .wk-foot{font-size:11px;font-weight:700;color:#14264a99}
+body #menu #weekly.done{background:linear-gradient(100deg,#fff6d6,#fff)}
+@media (max-height:520px){body #menu #weekly{padding:5px 10px;grid-column:1/-1}}
+@media (max-width:620px),(max-height:520px){body.menu-simple #menu #qHint{display:none}}
+/* R69: Garagen-Vorschau in der Fahrer-Karte */
+#menu #garage{display:block;width:220px;max-width:70%;aspect-ratio:360/220;height:auto;margin:-4px auto 4px;object-fit:contain;filter:drop-shadow(0 8px 6px #0003);pointer-events:none}
+#menu #garage:not([src]){display:none}
+@media (max-height:520px),(pointer:coarse) and (orientation:landscape){#menu #garage{width:150px}}
+
+/* R70: 16-BIT-Knopf wie CRT */
+body #menu #bitBtn{margin-top:6px;width:100%;transform:skewX(-10deg);border-radius:11px;background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font:italic 800 13px var(--wk-font);padding:5px 8px;cursor:pointer}
+body #menu #bitBtn.selected{background:linear-gradient(180deg,#7fe3ff,#2aa6d8);color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
+body #menu #bitBtn.selected{background:linear-gradient(180deg,#b48cff,#6a3cd8)}
+/* R70: SOUND TEST (Easter Egg, 5x auf den Titel) im 16-Bit-Stil */
+#soundTest{z-index:90;background:#000c}
+#soundTest .st-card{max-width:560px;max-height:86vh;overflow:auto;margin:auto;padding:18px 20px;border:4px solid #fff;border-radius:6px;background:#1a1040;color:#fff;font-family:'Courier New',monospace;box-shadow:0 0 0 4px #000,8px 8px 0 #000}
+#soundTest h2{margin:0;text-align:center;font:900 30px 'Courier New',monospace;letter-spacing:6px;color:#ffd23a;text-shadow:3px 3px 0 #d8262e}
+#soundTest .st-sub{margin:4px 0 10px;text-align:center;font-size:12px;color:#b8b0e8}
+#soundTest h3{margin:12px 0 6px;font:900 15px 'Courier New',monospace;letter-spacing:3px;color:#7fe3ff}
+#soundTest .st-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+#soundTest .st-list li{display:flex;align-items:center;gap:10px}
+#soundTest button{margin:0;padding:4px 8px;border:2px solid #fff;border-radius:3px;background:#2a1c6a;color:#fff;font:700 13px 'Courier New',monospace;cursor:pointer;width:auto;transform:none;box-shadow:none;-webkit-text-stroke:0;text-shadow:none}
+#soundTest button.on,#soundTest button:hover,#soundTest button.padf{background:#ffd23a;color:#1a1040}
+#soundTest .st-sfx{display:flex;flex-wrap:wrap;gap:4px}
+#soundTest .st-close{display:block;margin:14px auto 0;padding:6px 22px;background:#d8262e}
+body.bit16 #toast{letter-spacing:1px}
+/* R70: die (unsichtbare) Kopfleiste ueberdeckte im Menue den Titel - nur ihre Knoepfe fangen Klicks */
+body:not(.racing) header{pointer-events:none}
+body:not(.racing) header a,body:not(.racing) header button{pointer-events:auto}
+#soundTest .st-list li span{flex:1;text-align:left;color:#fff;font:700 14px 'Courier New',monospace;letter-spacing:.5px;opacity:1}

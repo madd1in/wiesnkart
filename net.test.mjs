@@ -97,3 +97,14 @@ test('buffer keeps order with equal arrival times and stays bounded', () => {
   assert.ok(b.s.length <= 24);
   for (let i = 1; i < b.s.length; i++) assert.ok(b.s[i].t > b.s[i - 1].t);
 });
+
+test('R66: kreisende Brezn reisen in den Kart-Flags mit', async () => {
+  const {orbitOf} = await import('./net.mjs');
+  const base = {x: 1, z: 2, h: 0, speed: 3, distance: 4, offset: 0};
+  let u = unpackKart(packKart({...base, item: 'red3', charges: 2}, 1));
+  assert.deepEqual(orbitOf(u.flags), {n: 2, red: true});
+  u = unpackKart(packKart({...base, item: 'green3', charges: 3, shield: 1}, 1));
+  assert.deepEqual(orbitOf(u.flags), {n: 3, red: false}); assert.ok(u.flags & F.shield);
+  assert.equal(orbitOf(unpackKart(packKart({...base, item: 'green3', charges: 1, itemPending: true}, 1)).flags).n, 0);
+  assert.equal(orbitOf(unpackKart(packKart({...base, item: 'banana'}, 1)).flags).n, 0);
+});

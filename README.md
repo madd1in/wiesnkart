@@ -6,6 +6,147 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 70 (01.10.2026): 16-BIT-Modus, Cheat-Code, versteckte Spielmodule, SOUND TEST (Retro-Hommagen und Easter Eggs)
+
+Nutzerwunsch "mehr Retro-16-Bit-Referenzen und Easter Eggs" – alles eigene Hommagen an die Konsolen-Ära, keine fremden Figuren.
+
+**🎮 16-BIT-Modus** (Knopf unter Grafik, im Pausenmenü): die Szene wird in Konsolen-Auflösung gerendert (224 Zeilen), dann auf
+15-Bit-Farben (5 Bit je Kanal) mit 4×4-Bayer-Raster gebracht und pixelig hochskaliert; kombinierbar mit dem CRT-Look (dann
+wie am Röhrenfernseher). Dazu ein gedämpfter Klang mit kurzem Hall wie aus dem Soundchip. Auf schwachen Geräten sogar schneller.
+
+**Cheat-Code im Menü**: ↑↑↓↓←→←→ B A (Tastatur oder Controller) – schaltet den 16-BIT-Modus ein, die Lackierung
+„Konsolengrau“ frei und gibt den Erfolg *Alte Schule*.
+
+**Versteckte Spielmodule**: auf jeder der zwölf Strecken schwebt ein Voxel-Spielmodul (graues Modul mit Brezn-Etikett) über
+einer Sprungschanze – nur im Sprung erreichbar. Gefunden bleibt gefunden („🎮 SPIELMODUL GEFUNDEN! 3/12“); alle zwölf geben den
+Aufsatz **Spielmodul** und den Erfolg *Modulsammler*.
+
+**SOUND TEST**: fünfmal schnell auf den Titel tippen – alle 14 Chiptune-Stücke und viele Klänge zum Anhören, im 16-Bit-Stil.
+
+**Retro-Sprüche**: letzter Platz heißt jetzt „GAME OVER? NÖ – NOCHMAL!“, der Ladebildschirm bittet manchmal, das Modul nicht
+anzupusten. Fix: die unsichtbare Kopfleiste überdeckte im Menü den Titel.
+
+## Runde 69 (01.10.2026): Wochenziele, Garagen-Vorschau, Münzregen, Fahrer-Brabbeln
+
+**Wochenziele** (`progress.mjs`, Tests): drei Aufgaben je Kalenderwoche, für alle gleich (z. B. „Gewinne 3 Rennen“,
+„Zünde 30 Drift-Turbos“, „Fahre 3 Online-Rennen“, „Fahre auf 4 verschiedenen Strecken“), Fortschritt über alle Rennen der
+Woche, je Ziel +80 XP. Wer alle drei schafft, bekommt den neuen Aufsatz **🏆 Wochen-Pokal** (Voxel). Karte unter der
+Tagesaufgabe – eingeklappt eine Zeile mit drei Punkten, aufgeklappt mit Fortschrittsbalken und Resttagen.
+
+**Garagen-Vorschau**: in der Fahrer-Karte steht jetzt das eigene Kart als gerendertes Bild – mit Fahrer, Farbe, Karosserie
+und Aufsatz, aktualisiert bei jeder Änderung.
+
+**Münzregen** (neues Item, eher für vorne): vier Münzen auf einmal (mehr Höchstgeschwindigkeit) und ein kleiner Schub,
+goldener Funkenregen, aufsteigende Münzklänge; die KI nutzt ihn, wenn sie wenige Münzen hat.
+
+**Klang**: die Fahrer **brabbeln** zu ihren Pixel-Sprechblasen – kurze Chiptune-Silben in eigener Tonhöhe je Figur (wütend
+tiefer, froh höher, Schreck steigend), online mit der Figur des Mitspielers. Dezente Klicks auf allen Menüknöpfen.
+
+**Pixel-Konfetti** auf dem Treppchen beim Zieleinlauf. Auf kleinen Bildschirmen blendet das einfache Menü die
+Online-Hinweiszeile aus (steht auch im Online-Fenster).
+
+## Runde 68 (01.10.2026): Siegerkarte zum Teilen, Aufsätze in der Lobby, KI hält Bananen, Itemboxen ploppen auf
+
+**Siegerkarte teilen** (für mehr Spieler über Freunde): auf dem Ergebnis-Bildschirm erzeugt "📤 Siegerkarte teilen" ein
+Hochformat-Bild im Pixel-Look – Platz, Sterne, Strecke, Klasse, Zeit, beste Runde, Name bzw. Spitzname, Aufsatz und Link zum
+Spiel. Auf dem Handy über das Teilen-Menü, sonst als PNG-Download.
+
+**Online**: Aufsätze erscheinen in der Spielerliste der Lobby und im Namensschild über den Karts der Mitspieler.
+
+**KI hält Bananen und Fake-Blöcke hinter sich** (sichtbar), bis sie sie ablegt – eine Such-Brezn von hinten prallt daran ab.
+
+**Itemboxen** ploppen nach dem Einsammeln federnd wieder auf, statt schlagartig da zu sein.
+
+## Runde 67 (01.10.2026): Lebendigere Fahrer, Voxel-Deko an den Strecken, Items halten und nach hinten werfen
+
+**Fahrer** (Nutzerwunsch "grafisch an den Fahrermodellen feilen"): **Pixel-Sprechblasen** über den Köpfen – wütend nach einem
+Dreher, froh nach einem gelandeten Treffer oder beim Überholen, Schreck vor dem XXL-Stachelpanzer, Herz beim Maß Bier. Die
+Fahrer **drehen sich zum Kart neben sich** (auch zu dem, der dicht auffährt).
+
+**Strecken**: **Retro-Voxel-Deko am Rand** je Thema (`voxel.mjs` decoModel): Kakteen im Sonnen-Canyon, Schneemänner am
+Eisstock-See, Palmen in der Schildkröten-Bucht, Kürbisse im Geisterhaus, Fliegenpilze auf Pilz-Promenade und im Neon-Pilzwald,
+Maßkrüge auf Bierstraße und Magnet-Kirmes, Lollis im Schoko-Matsch – instanziert, fest verteilt, nur an freien Plätzen.
+**Reifenspuren** liegen länger, es gibt mehr davon, Farbe je Untergrund (Eis hell, Sand/Schoko braun), auch beim Dreher.
+
+**Gameplay**: **Item hinter sich halten** – Leertaste / Item-Blase / X gedrückt halten: Banane oder Fake-Block hängen hinten am
+Kart und **fangen eine Brezn von hinten ab**; loslassen legt ab (kurz tippen wie bisher, nach 10 s automatisch). **Grüne Brezn
+nach hinten werfen**: dabei Bremse (↓/S) halten – auch die KI wirft nach hinten, wenn einer dicht auffährt. Die Fahrschule
+erklärt das Halten, sobald man eine Banane hat; zwischen zwei Tipps liegen mindestens 18 s.
+
+## Runde 66 (01.10.2026): XXL-Stachelpanzer, Voxel-Aufsätze, Glücksbrezn, Auto-Spitznamen, Fahrschule, 8-Bit-Jingles
+
+**XXL-Stachelpanzer** (Nutzerwunsch, eigener Entwurf, `voxel.mjs`): eine riesige stachelige Voxel-Kuppel rollt schlingernd die
+Strecke entlang und **walzt jeden auf ihrer Spur um** (bleibt nicht stehen, trifft jeden einmal, schleudert hoch). Maß Bier und
+Riesenwuchs halten stand, kreisende Brezn opfern sich. In der Arena prallt er am Rand ab. Nur im hinteren Feld, Rückspiegel
+warnt, eigene Chip-Klänge (Grollen, Walzen-Krach), online und KI.
+
+**Voxel-Aufsätze** (Kosmetik über dem Kart, `progress.mjs` TOPPERS): Lebkuchenherz (Stufe 3), Maßkrug (3 Tage Wiesn-Serie),
+Riesenbrezn (Stufe 6), Pixel-Stern (10 Online-Rennen), Pixel-Krone (Online-Sieg). Wahl in der Fahrer-Karte (auch im einfachen
+Menü), gesperrte zeigen, wie man sie bekommt; **online sehen alle Mitspieler deinen Aufsatz**. Ein paar KI-Fahrer tragen auch
+einen. Nah an der Kamera werden fremde Aufsätze ausgeblendet.
+
+**Glücksbrezn des Tages**: einmal am Tag im Menü aufbrechen – 30 bis 250 XP (Pixel-Brezn, Pixel-Konfetti, Chip-Klang).
+
+**Automatische Spitznamen online** (Nutzerwunsch, `nick.mjs`): wer keinen Namen eingibt, fährt als „TurboBrezn42“,
+„DriftFuchs76“ … – einmal vergeben und gemerkt, 🎲 würfelt einen neuen.
+
+**Fahrschule**: Tipps im ersten Rennen nur, wenn sie gebraucht werden (kein Gas nach dem Start, erste Kurve ohne Drift-Turbo,
+Item ungenutzt), passend zu Tastatur, Touch oder Controller; gelernt = nie wieder.
+
+**Online**: kreisende Brezn reisen in den Kart-Flags mit (alte Clients ignorieren sie); Brezn-Treffer prüft jeder für seine
+eigenen Karts. Arena-Items um Brezn-Trio, Fake-Block erweitert.
+
+**8-Bit-Jingles** für Sieg/Treppchen und „Nochmal!“ (eigene Kompositionen statt der alten Samples), „?“-Blöcke zerspringen beim
+Einsammeln in Pixel-Splitter.
+
+## Runde 65 (01.10.2026): Einfaches Startmenü, Online-Anreize, Brezn-Trio, Fake-Block, Pixel-Itemboxen, neue Chiptune-Musik
+
+**Einfaches Startmenü** (Nutzerwunsch "Menü am Anfang zu abschreckend und komplex"): beim Start nur noch zwei große Knöpfe
+**🌐 Online fahren** und **🏁 Schnelles Rennen** (zuletzt gewählte Strecke und Klasse), darunter Fahrerwahl und Tagesaufgabe.
+Modi, Strecken, Kart, Lenkhilfe und Grafik liegen hinter **☰ Alle Modi, Strecken & Einstellungen**; "← Einfaches Menü" führt
+zurück. Wer das volle Menü aufmacht, bekommt es beim nächsten Besuch wieder. Controller: A startet online.
+
+**Mehr Anreize für Online** (`progress.mjs`, Tests): Online-Rennen zählen **doppelt** (×2 XP), **+20 XP je geschlagenem
+Menschen**, **+100 XP fürs erste Online-Rennen des Tages**. Drei **Lackierungen nur online** (Wiesn Blau-Weiß nach 1, Lebkuchen
+nach 3, Pixel-Pink nach 5 Online-Rennen, 🌐 am Farbtupfer). Der erste Online-Sieg vor einem Menschen bringt die
+**Pixel-Krone** (Voxel), die ab dann über dem eigenen Kart schwebt – online sehen sie alle Mitspieler. Neue Erfolge
+*Wiesn-Gesellig*, *Online-Champion*, *Stammgast* (10 Online-Rennen), *Menschenkenner* (25 Menschen geschlagen). Der
+Online-Knopf zeigt den Bonus ("+100 XP heute" / "×2 XP") und die Zahl der Spieler online; das Online-Fenster listet alle Vorteile.
+
+**Wiesn-Serie** (Streak): wer an aufeinanderfolgenden Tagen fährt, bekommt beim ersten Rennen des Tages +15 XP je Serientag
+(bis Tag 7); das Menü zeigt den Stand.
+
+**Brezn-Trio** (Nutzerwunsch "3 um den Fahrer rotierende grüne/rote Panzer"): drei Pixel-Brezn kreisen ums Kart. Sie fangen
+Bananen, Fake-Blöcke und Such-Brezn ab (je eine Brezn), wer sie streift, dreht sich. Jeder Item-Druck feuert eine:
+**grün** fährt stur geradeaus die Spur entlang und trifft den Ersten, den sie erwischt (auch den Werfer), **rot** sucht den
+Nächsten vor einem. Online synchronisiert, KI nutzt beide.
+
+**Fake-Fragezeichen-Block** (Nutzerwunsch): sieht aus wie eine Itembox, nur mit kopfstehendem "¿" – wer reinfährt, rutscht
+wie auf einer Bananenschale ("FAKE! REINGELEGT 😈"). Die Hälfte der KI-Fahrer fällt drauf rein.
+
+**Retro-Voxel-Pixel-Assets** (`voxel.mjs`, Tests): kleiner Voxel-Baukasten zur Laufzeit (ASCII-Pixelkarten → nur
+Außenflächen, 8-Bit-Flächenlicht) – Brezn grün/rot, Pixel-"?"-Block, Fake-Block, Pixel-Krone. Die **Itemboxen sind jetzt
+Pixel-"?"-Blöcke**, auch im HUD.
+
+**Chiptune** – neue eigene Stücke (`art/r61/chiptune.mjs`, MP3 per ffmpeg, Lautheit angeglichen): Menü *Wiesn-Ouvertüre*,
+Pilz-Promenade *Almwiesen-Galopp*, Sonnen-Canyon *Wüstenritt*, Neon-Pilzwald *Leuchtpilz-Beat*, Lobby-Welt/Kotzhügel
+*Festzelt-Boogie* – damit läuft überall eigene 8-Bit-Musik. Neue Chip-Effekte (`art/r65/make_sfx.mjs`): Brezn-Wurf,
+Fake-Block (Kichern und Zerplatzen), Dreher, Flunder und Zurückploppen, Rückspiegel-Piep, Pixel-Krone-Fanfare, Online-Bonus,
+Menü-Klick, Wusch, Landung, Platschen, falsche Richtung.
+
+### Ideen für mehr Spieler (nächste Runden)
+
+- **Wochen-Cup online**: jede Woche ein fester Cup mit Online-Bestenliste und Pokal fürs Profil.
+- **Freunde-Bonus**: wer über den eigenen Einladungslink kommt, bringt beiden beim ersten gemeinsamen Rennen Extra-XP.
+- **Saison-Pass "Wiesn-Saison"**: kostenlose Belohnungsstufen (Hupen, Reifenspuren, Pixel-Hüte) über 4 Wochen.
+- **Geister-Duelle**: Zeitfahr-Geister von Freunden per Link teilen und schlagen.
+- **Emotes und Hupen** im Rennen (schon im Chat vorhanden) als schnelle Pad-Tasten, freischaltbar.
+- **Zuschauer-Modus** in der Lobby-Welt: laufendes Rennen live aus der Luft-Loisl-Kamera verfolgen.
+- **Clans / Festzelte**: Teams mit gemeinsamer Punktzahl pro Woche, Zeltfahne über dem Kart.
+- **Tägliche Glücksbrezn**: einmal am Tag ein kleines Zufallsgeschenk (Lackierung, Hupe, XP).
+- **Kurze Einstiegs-Tour**: 30-Sekunden-Übungsrunde beim ersten Start, die Drift, Hopsen und Items zeigt.
+- **Teilbare Siegerbilder**: On-Ride-Foto mit Platz und Zeit als Bild zum Teilen.
+
 ## Runde 64 (30.09.2026): Riesendom mit Retro-Pixel-Charme, Klaenge fuer Dreher und Flunder, Haenger-Suche
 
 **Riesendom mit leichtem Retro-Pixel-Voxel-Charme** (Nutzerwunsch, `art/r64/create_voxdome.py`): ein grosser Pixel-
