@@ -6,6 +6,18 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 68 (01.10.2026): Siegerkarte zum Teilen, Aufsätze in der Lobby, KI hält Bananen, Itemboxen ploppen auf
+
+**Siegerkarte teilen** (für mehr Spieler über Freunde): auf dem Ergebnis-Bildschirm erzeugt "📤 Siegerkarte teilen" ein
+Hochformat-Bild im Pixel-Look – Platz, Sterne, Strecke, Klasse, Zeit, beste Runde, Name bzw. Spitzname, Aufsatz und Link zum
+Spiel. Auf dem Handy über das Teilen-Menü, sonst als PNG-Download.
+
+**Online**: Aufsätze erscheinen in der Spielerliste der Lobby und im Namensschild über den Karts der Mitspieler.
+
+**KI hält Bananen und Fake-Blöcke hinter sich** (sichtbar), bis sie sie ablegt – eine Such-Brezn von hinten prallt daran ab.
+
+**Itemboxen** ploppen nach dem Einsammeln federnd wieder auf, statt schlagartig da zu sein.
+
 ## Runde 67 (01.10.2026): Lebendigere Fahrer, Voxel-Deko an den Strecken, Items halten und nach hinten werfen
 
 **Fahrer** (Nutzerwunsch "grafisch an den Fahrermodellen feilen"): **Pixel-Sprechblasen** über den Köpfen – wütend nach einem

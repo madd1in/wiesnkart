@@ -1207,7 +1207,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  {const lm=label('?','#ed6350','#fff9df',128,128),geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(new Float32Array(boxes.length*3),3));boxQ=new T.Points(geo,new T.PointsMaterial({map:lm.map,size:1.1,transparent:true,depthWrite:false}));boxQ.frustumCulled=false;world.add(boxQ);lm.dispose();}
  bm('boxes');}
 // Neues Rennen auf derselben Strecke: Welt bleibt stehen, nur Fahrer & Zustand werden zurueckgesetzt (kein Ruckler beim Start)
-function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();emotes.length=0;{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
+function resetRace(){ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();trailFx.clear();emotes.length=0;{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
  for(let i=0;i<SKIDS;i++){skids[i].life=0;skidMesh.setMatrixAt(i,_zeroM);}skidMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<SPARKS;i++){sparkPool[i].life=0;sparkMesh.setMatrixAt(i,_zeroM);}sparkMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<PUFFS;i++){puffPool[i].life=0;puffMesh.setMatrixAt(i,_zeroM);}puffMesh.instanceMatrix.needsUpdate=true;
  for(const b of boxes)b.cooldown=0;for(const s of spores)s.cd=0;for(const r of rings)r.flash=0;for(const p of pads)p.squash=0;lightState=-2;setLights(0);
  placeRacers();drawMap();}
@@ -3581,7 +3581,7 @@ function aiInput(r,dt){const sk=r.skill,sp=Math.max(0,r.speed),look=5+sp*.38;
  // R54: Lenkeinschlag leicht glaetten (Zeitkonstante ~70 ms) - im Pulk zuckte die KI sonst bei jedem Schubser
  steer=clamp(steer,-1,1);if(!dbg.noSmooth){r.aiSt=r.aiSt===undefined?steer:r.aiSt+(steer-r.aiSt)*Math.min(1,dt*14);steer=r.aiSt;}
  return {gas,brake,steer,drift};}
-function aiItems(r,order){if(r.cooldown>0||!r.item||r.itemPending)return;const pl=order.indexOf(r),ahead=order[pl-1],behind=order[pl+1],kap=Math.abs(trackAt(r.distance+20).kap);
+function aiItems(r,order){if(TRAIL_ITEMS.has(r.item)&&!r.itemPending&&!r.trail)r.trail=r.item;if(r.cooldown>0||!r.item||r.itemPending)return;const pl=order.indexOf(r),ahead=order[pl-1],behind=order[pl+1],kap=Math.abs(trackAt(r.distance+20).kap);
  const use=r.item==='bomb'?ahead&&ahead.distance-r.distance>12&&ahead.distance-r.distance<45:r.item==='shell'?ahead&&ahead.distance-r.distance<70:r.item==='spiky'?ahead&&ahead.distance-r.distance<60:r.item==='banana'||r.item==='fake'?behind&&r.distance-behind.distance<35:r.item==='red3'?ahead&&ahead.distance-r.distance<70:r.item==='green3'?(ahead&&ahead.distance-r.distance<28&&Math.abs(ahead.offset-r.offset)<2.2)||(behind&&r.distance-behind.distance<14&&Math.abs(behind.offset-r.offset)<2.2&&(r.aiBack=true)):r.item==='mega'?(ahead&&ahead.distance-r.distance<30)||kap<1/120:r.item==='ink'?!!ahead:r.item==='cannon'?kap<1/60:r.item==='boost'||r.item==='triple'?kap<1/80&&!agrav.some(q=>{const a=wrapDiff(q.s,r.distance);return a>4&&a<55;}):true;
  if(use){useItem(r);r.cooldown=chargesFor(r.item)?1.2:2.5;}}
 
@@ -3813,7 +3813,7 @@ function splitSharedMaterials(root){
   const mats=[].concat(o.material).map(m=>{const keep=sharedMat.has(m)||persistentMats.has(m);if(!m||!plain.has(m)||!inst.has(m)||m.isShaderMaterial||!keep)return m;
    let alt=MAT_SPLIT.get(m);if(!alt){alt=m.clone();alt.name=m.name;alt.onBeforeCompile=m.onBeforeCompile;alt.customProgramCacheKey=m.customProgramCacheKey;MAT_SPLIT.set(m,alt);sharedMat.add(alt);persistentMats.add(alt);}ch=true;return alt;});
   if(ch)o.material=Array.isArray(o.material)?mats:mats[0];});}
-function start(){wxRestore();blues=[];introT=(introForce||(!TEST&&!(net&&net.setup)))&&!worldMode?INTRO_S:0;introPrev=null;if(loisl)loisl.mode='';if(tsu){tsu.t0=null;tsu.msg='';tsu.at=course.tsunami?.at??44;}if(!(net&&net.setup&&net.setup.b))battleStop();setTimeout(()=>{if(worldMode&&!net&&mode==='world'&&state==='countdown'&&!battle)battleStart();},0);if(gp.active)selected=gp.list?gp.list[gp.race]:gp.race;worldMode=isOW(mode)&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
+function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introForce||(!TEST&&!(net&&net.setup)))&&!worldMode?INTRO_S:0;introPrev=null;if(loisl)loisl.mode='';if(tsu){tsu.t0=null;tsu.msg='';tsu.at=course.tsunami?.at??44;}if(!(net&&net.setup&&net.setup.b))battleStop();setTimeout(()=>{if(worldMode&&!net&&mode==='world'&&state==='countdown'&&!battle)battleStart();},0);if(gp.active)selected=gp.list?gp.list[gp.race]:gp.race;worldMode=isOW(mode)&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=!(net&&net.setup)&&mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
@@ -3823,14 +3823,16 @@ let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$
 function use(){if(state!=='race')return;useItem(racers[0]);}
 // R67: Item hinter sich halten - Taste gedrueckt halten: Banane/Fake-Block haengen hinten am Kart und fangen einen Treffer ab,
 // loslassen legt sie ab (kurzes Tippen wie bisher). Nach 10 s wird automatisch abgelegt.
-const TRAIL_ITEMS=new Set(['banana','fake']);let trailFx=null;
+const TRAIL_ITEMS=new Set(['banana','fake']),trailFx=new Map();
 function itemDown(){if(state!=='race')return;const p=racers[0];if(p&&TRAIL_ITEMS.has(p.item)&&!p.itemPending&&!p.trail){p.trail=p.item;p.trailT=elapsed;SFX.select();return;}use();}
 function itemUp(){const p=racers[0];if(!p?.trail)return;p.trail=null;if(state==='race'&&TRAIL_ITEMS.has(p.item))use();}
 function trailTick(){const p=racers[0];if(p?.trail&&(state!=='race'||!TRAIL_ITEMS.has(p.item)||elapsed-p.trailT>10)){if(state==='race'&&TRAIL_ITEMS.has(p.item)&&elapsed-p.trailT>10){p.trail=null;use();}else p.trail=null;}
- const want=p?.trail;if(trailFx&&(!want||trailFx.userData.k!==want||!trailFx.parent)){if(trailFx.parent)actors.remove(trailFx);trailFx=null;}if(!want)return;
- if(!trailFx){trailFx=new T.Group();trailFx.userData.k=want;const m=want==='fake'?voxObj('qfake'):P.banana?cloneProto(P.banana):voxObj('qfake');if(want!=='fake')m.scale.setScalar(.95);else m.scale.setScalar(.55);trailFx.add(m);actors.add(trailFx);}
- const mp=p.mesh.position;trailFx.position.set(mp.x-Math.sin(p.h)*2.7,mp.y+.08+Math.abs(Math.sin(elapsed*9))*.08,mp.z-Math.cos(p.h)*2.4);trailFx.rotation.y=p.h+Math.sin(elapsed*6)*.2;}
-function useItem(r){if(r.itemPending||(battle&&r.out))return null;const prevStun=racers.map(x=>x.stun),res=activate(r,racers);if(!res)return null;const me=r.id===0;
+ // Anzeige fuer alle Karts in der Naehe (die KI haelt ihre Banane auch hinter sich, bis sie sie ablegt)
+ for(const r of racers){const want=r.trail&&TRAIL_ITEMS.has(r.item)&&state!=='menu'&&nearPlayer(r,60)?r.trail:null;let fx=trailFx.get(r);
+  if(fx&&(!want||fx.userData.k!==want||!fx.parent)){if(fx.parent)actors.remove(fx);trailFx.delete(r);fx=null;}if(!want)continue;
+  if(!fx){fx=new T.Group();fx.userData.k=want;const m=want==='fake'?voxObj('qfake'):P.banana?cloneProto(P.banana):voxObj('qfake');m.scale.setScalar(want==='fake'?.55:.95);fx.add(m);actors.add(fx);trailFx.set(r,fx);}
+  const mp=r.mesh.position;fx.position.set(mp.x-Math.sin(r.h)*2.7,mp.y+.08+Math.abs(Math.sin(elapsed*9+r.id))*.08,mp.z-Math.cos(r.h)*2.7);fx.rotation.y=r.h+Math.sin(elapsed*6+r.id)*.2;}}
+function useItem(r){if(r.itemPending||(battle&&r.out))return null;if(r.id!==0)r.trail=null;const prevStun=racers.map(x=>x.stun),res=activate(r,racers);if(!res)return null;const me=r.id===0;
  if(res.type==='shell'&&res.target!==undefined)racers[res.target].stun=prevStun[res.target];
  if(me&&(res.type==='boost'||res.type==='triple'))SFX.boost();else if(me&&SFX[res.type])SFX[res.type]();
  if((res.type==='shell'||res.type==='red3')&&arenaFor(r)){const q=arenaTarget(r,70,true);res.target=q?q.id:undefined;}
@@ -4357,7 +4359,7 @@ function showProgress(res){store.set('prog',res.prog);const el=$('resultProg');i
 function end(){document.body.classList.remove('mirror');elapsed=racers[0].finishTime??elapsed;qualityRaceEnd();if(isTT())return endTT();state='finished';keys.clear();roulette=null;SFX.hum(false);burst(racers[0],0xffd452,26);burst(racers[0],0xed6350,16);burst(racers[0],0x55bdb2,16);
  $('result').hidden=false;$('lbBox').hidden=true;$('touch').hidden=true;showRidePhoto();const order=ranking(racers),place=order.indexOf(racers[0])+1,board=$('leaderboard'),rs=raceStars(place,stats.hitsTaken);
  $('resultTitle').textContent=place===1?(rs.perfect?'Perfektes Rennen!':'Der Pokal gehört dir!'):place<=3?`Platz ${place} – aufs Treppchen!`:`Platz ${place}. Da geht noch was!`;
- $('resultTime').textContent=`${course.name} · ${ccName(cc)} · ${format(elapsed)}`;
+ $('resultTime').textContent=`${course.name} · ${ccName(cc)} · ${format(elapsed)}`;lastResult={place,n:order.length,track:course.name,icon:course.icon,cc:ccName(cc),time:format(elapsed),best:Number.isFinite(stats.bestLap)?format(stats.bestLap):'',stars:rs.stars,online:!!(net&&net.setup),name:net&&net.setup?myNetName():(DRIVERS[driverIndex]?.n||'Fahrer')};$('shareBtn').hidden=false;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<rs.stars?'on':''}">★</i>`).join('')+(rs.perfect?'<b>PERFEKT</b>':'');
  stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3)SFX.cheer();board.replaceChildren();board.classList.toggle('many',order.length>8);
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
@@ -4592,7 +4594,9 @@ function animateWorld(dt,now){wxTick(dt,now);updateLoisl(dt);updateDizzy(now);up
  if(elemFx)updateElems(dt,now);
  // Energie-Kristalle: langsame Eigendrehung und Schwebe-Bob
  for(let i=0;i<crystals.length;i++){const c=crystals[i];c.m.rotation.y+=dt*.6;c.m.position.y=c.base+Math.sin(now*.0012+c.ph)*.5;}
- if(!dbg.noBoxes&&boxInst.length&&boxQ){const qa=boxQ.geometry.attributes.position.array;_e.set(0,now*.001,0);_q.setFromEuler(_e);boxes.forEach((b,i)=>{b.cooldown=Math.max(0,b.cooldown-dt);const vis=b.cooldown<=0,y=b.baseY+Math.sin(now*.003+b.distance)*.2;_m.compose(_v.set(b.x,y,b.z),_q,_s.setScalar(vis?1.05:0));for(const im of boxInst)im.setMatrixAt(i,_m);qa[i*3]=b.x;qa[i*3+1]=vis?y+1.3:-999;qa[i*3+2]=b.z;});for(const im of boxInst)im.instanceMatrix.needsUpdate=true;boxQ.geometry.attributes.position.needsUpdate=true;boxQ.visible=false;}
+ if(!dbg.noBoxes&&boxInst.length&&boxQ){const qa=boxQ.geometry.attributes.position.array;_e.set(0,now*.001,0);_q.setFromEuler(_e);boxes.forEach((b,i)=>{b.cooldown=Math.max(0,b.cooldown-dt);const vis=b.cooldown<=0,y=b.baseY+Math.sin(now*.003+b.distance)*.2;
+   // R67: nach dem Einsammeln federnd wieder aufploppen statt schlagartig da zu sein
+   if(!vis)b.hid=true;else if(b.hid){b.hid=false;b.popT=now;}const pt=b.popT?(now-b.popT)/380:1,pk=pt>=1?1:1+2.7*Math.pow(pt-1,3)+1.7*Math.pow(pt-1,2);_m.compose(_v.set(b.x,y,b.z),_q,_s.setScalar(vis?1.05*Math.max(0,pk):0));for(const im of boxInst)im.setMatrixAt(i,_m);qa[i*3]=b.x;qa[i*3+1]=vis?y+1.3:-999;qa[i*3+2]=b.z;});for(const im of boxInst)im.instanceMatrix.needsUpdate=true;boxQ.geometry.attributes.position.needsUpdate=true;boxQ.visible=false;}
  {let dirty=false;for(let i=0;i<SPARKS;i++){const s=sparkPool[i];if(s.life<=0)continue;s.life-=dt;s.vy-=dt*8;s.x+=s.vx*dt;s.y+=s.vy*dt;s.z+=s.vz*dt;if(s.life>0){const k=s.life*2;_m.makeScale(k,k,k).setPosition(s.x,s.y,s.z);sparkMesh.setMatrixAt(i,_m);}else sparkMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)sparkMesh.instanceMatrix.needsUpdate=true;
  {let dirty=false;for(let i=0;i<CONFETTI;i++){const c=confettiPool[i];if(c.life<=0)continue;c.life-=dt;c.ph+=c.rv*dt;c.x+=Math.sin(c.ph*.6)*c.sw*dt;c.y+=c.vy*dt;if(c.life>0){_e.set(c.ph*.4,c.ph,0);_q.setFromEuler(_e);_m.compose(_v.set(c.x,c.y,c.z),_q,_s.set(1,1,1));confettiMesh.setMatrixAt(i,_m);}else confettiMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)confettiMesh.instanceMatrix.needsUpdate=true;}
   dirty=false;for(let i=0;i<PUFFS;i++){const p=puffPool[i];if(p.life<=0)continue;p.life-=dt;p.vy+=dt*1.1;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;if(p.life>0){const k=(1+(.75-p.life)*1.8)*Math.min(1,p.life*3);_m.makeScale(k,k,k).setPosition(p.x,p.y,p.z);puffMesh.setMatrixAt(i,_m);}else puffMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)puffMesh.instanceMatrix.needsUpdate=true;
@@ -4834,6 +4838,27 @@ $('qRace').onclick=()=>{if(courseAt(selected)?.openWorld)selected=0;pickMode('si
 $('qMore').onclick=()=>{SFX.select();menuSimple(false);$('menu').scrollTop=0;};
 $('qBack').onclick=()=>{SFX.select();menuSimple(true);};
 menuSimple(TEST?false:!store.get('menuFull',false));
+// R68: Pixel-Siegerkarte zum Teilen (Bild mit Platz, Strecke, Zeit, Pixel-Brezn und Link) - teilt per Share-Menue oder laedt herunter
+let lastResult=null;
+function shareCard(R){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const q=c.getContext('2d'),F="'Rubik','Baloo 2','Trebuchet MS',Arial,sans-serif";
+ const g=q.createLinearGradient(0,0,0,H);g.addColorStop(0,'#62c9ff');g.addColorStop(.62,'#bfe8ff');g.addColorStop(.62,'#6ab04c');g.addColorStop(1,'#3f8a36');q.fillStyle=g;q.fillRect(0,0,W,H);
+ for(let x=0;x<W;x+=60)for(const y of [0,H-60]){q.fillStyle=((x/60+(y?1:0))%2)?'#1f78d1':'#ffffff';q.fillRect(x,y,60,60);}                 // Rauten-Rand
+ const pix=(rows,pal,px,ox,oy)=>{for(const [x,y,col] of pixels(rows,pal)){q.fillStyle='#'+col.toString(16).padStart(6,'0');q.fillRect(ox+x*px,oy+y*px,px,px);}};
+ pix(BREZN,{B:0xc07a34,s:0xffffff},22,W/2-165,150);
+ const txt=(t,y,size,fill,stroke=14)=>{q.font=`italic 900 ${size}px ${F}`;q.textAlign='center';q.lineJoin='round';q.lineWidth=stroke;q.strokeStyle='#14264a';q.strokeText(t,W/2,y);q.fillStyle=fill;q.fillText(t,W/2,y);};
+ txt('SUPPA LEDERHOSN KARTS',110,56,'#ffffff',10);
+ txt(R.place===1?'SIEG!':`PLATZ ${R.place}`,560,R.place===1?210:170,R.place===1?'#ffc83a':R.place<=3?'#ffffff':'#ffe0d0',24);
+ txt(`von ${R.n}${R.online?' · 🌐 ONLINE':''}`,640,48,'#ffffff',10);
+ txt('★'.repeat(R.stars)+'☆'.repeat(3-R.stars),740,96,'#ffc83a',12);
+ txt(`${R.icon||''} ${R.track}`,860,64,'#ffffff',12);txt(`${R.cc} · Zeit ${R.time}${R.best?' · Runde '+R.best:''}`,940,44,'#ffffff',10);
+ txt(R.name,1060,70,'#ffc83a',12);
+ const tp=topperById(myTopper());if(tp&&tp.id!=='none')txt(tp.icon+' '+tp.n,1130,40,'#ffffff',9);
+ txt('Fahr mit! → madd1in.github.io/wiesnkart',1240,40,'#ffffff',9);
+ return new Promise(res=>c.toBlob(b=>res(b),'image/png'));}
+async function shareResult(){if(!lastResult)return;SFX.select();const blob=await shareCard(lastResult);if(!blob)return;const file=new File([blob],'wiesnkart-ergebnis.png',{type:'image/png'}),text=`${lastResult.place===1?'Sieg':'Platz '+lastResult.place} auf ${lastResult.track} in Suppa Lederhosn Karts! Fahr mit: https://madd1in.github.io/wiesnkart/`;
+ try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],text});return;}}catch(e){if(e?.name==='AbortError')return;}
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);toast('📸 Siegerkarte gespeichert',1.6,'good');}
+$('shareBtn').onclick=shareResult;
 $('again').onclick=nextAfterResult;$('home').onclick=home;$('quit').onclick=home;$('pause').onclick=pause;$('resume').onclick=pause;$('sound').onclick=setSound;
 $('cerAgain').onclick=()=>{gp=newGp(true);start();};syncModeUi();$('cerHome').onclick=home;
 $('item').onclick=use;$('titem').onpointerdown=e=>{e.preventDefault();itemDown();};$('titem').onpointerup=$('titem').onpointercancel=$('titem').onpointerleave=()=>itemUp();
@@ -5254,7 +5279,7 @@ async function netOpen(code,host,quick,pub){netLeave(true);netMsg('Verbinde …'
   if(net.host){if(String(peerId)<String(net.selfId)){net.host=false;net.hostId=peerId;net.slots=new Map();toast('Offene Runde gefunden – du steigst ein',1.6,'good');
     net.A.hello.send({n:myNetName(),d:driverIndex,c:colorIndex,k:hasCrown()?1:0,t:myTopper(),v:NET_VER},{target:peerId}).catch(()=>{});}else return;}
   if(net.quickT){clearTimeout(net.quickT);net.quickT=0;}net.hostId=peerId;
-  net.lobby={p:d.p.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1)})),w:d.w==='race'?'race':'world',t:clampInt(d.t,0,courses.length-1),cc:[50,100,150].includes(d.cc)?d.cc:100};
+  net.lobby={p:d.p.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1),tp:topperOk(q.t)||(q.k?'crown':null)})),w:d.w==='race'?'race':'world',t:clampInt(d.t,0,courses.length-1),cc:[50,100,150].includes(d.cc)?d.cc:100};
   net.lobby.st=d.st==='race'||d.st==='world'?d.st:'menu';
   const mine=net.lobby.p.find(q=>q.id===net.selfId);net.mySlot=mine?mine.s:-1;netMsg(mine?'Verbunden!':'Raum ist voll – du schaust zu.');netRenderLobby();
   // Warte-Kampf: der Raum faehrt gerade ein Rennen, fuer uns ist kein Platz frei (kein Setup kommt) - bis dahin kaempfen
@@ -5372,7 +5397,7 @@ function netDropIn(peerId){const S=net.setup;if(!S||(state!=='race'&&state!=='co
 // Wer faehrt welchen Platz (nach Ein- und Ausstiegen): Namensschilder und Besitz der Karts nachziehen
 function netHumans(list){const p=list.slice(0,MAX_PLAYERS).map(q=>({id:String(q.id),s:clampInt(q.s,0,MAX_PLAYERS-1),n:cleanName(q.n)||'Gast',d:clampInt(q.d,0,DRIVERS.length-1),c:clampInt(q.c,0,KART_COLORS.length-1),k:q.k?1:0,t:topperOk(q.t)}));
  net.setup.p=p;net.humans=new Map(p.map(q=>[q.s,q]));
- for(const r of racers){if(r.id===0)continue;const g=toGlobal(r.id,net.mySlot),h=net.humans.get(g);r.net=!!h||!net.host;r.topper=h?(h.t||(h.k?'crown':null)):null;r.name=h?h.n:(AI_NAMES[g]||'Bot');netTag(r,h?h.n:'');}}
+ for(const r of racers){if(r.id===0)continue;const g=toGlobal(r.id,net.mySlot),h=net.humans.get(g);r.net=!!h||!net.host;r.topper=h?(h.t||(h.k?'crown':null)):null;r.name=h?h.n:(AI_NAMES[g]||'Bot');netTag(r,h?((r.topper?topperById(r.topper)?.icon+' ':'')+h.n):'');}}
 // ---------------------------------------------------------------- R55 Herzerl-Schlacht (Wiesnland online, auch mit Bots)
 // Jedes Kart traegt drei Lebkuchenherzen; schwere Treffer (Items, Stampfer, Blitz ...) kosten eins, wer keine mehr hat,
 // faehrt als Zuschauer weiter. Es gewinnt, wer zuletzt noch Herzen hat - nach 3 Minuten, wer die meisten hat.
@@ -5661,7 +5686,7 @@ function netRenderLobby(){const box=$('online');if(!box)return;const inRoom=!!ne
  $('onlineBtn')?.classList.add('live');$('onCodeShow').textContent=net.code;const L=net.lobby,list=$('onPlayers');list.replaceChildren();
  const ps=L?L.p:[{id:net.selfId,s:0,n:myNetName(),d:driverIndex,c:colorIndex}];
  for(let s=0;s<MAX_PLAYERS;s++){const q=ps.find(x=>x.s===s),li=document.createElement('li');
-  if(q){li.className=q.id===net.selfId?'me':'';const ic=document.createElement('i');ic.textContent=DRIVERS[q.d]?.i||'🙂';const b=document.createElement('b');b.textContent=q.n;const em=document.createElement('em');em.textContent=s===0?'Host':q.id===net.selfId?'Du':'';li.append(ic,b,em);}
+  if(q){li.className=q.id===net.selfId?'me':'';const ic=document.createElement('i');ic.textContent=DRIVERS[q.d]?.i||'🙂';const b=document.createElement('b');const tpi=topperById(q.id===net.selfId?myTopper():(q.tp||q.t))?.icon;b.textContent=(tpi&&tpi!=='✖'?tpi+' ':'')+q.n;const em=document.createElement('em');em.textContent=s===0?'Host':q.id===net.selfId?'Du':'';li.append(ic,b,em);}
   else{li.className='bot';li.textContent='🤖 '+(AI_NAMES[s]||'Bot');}list.append(li);}
  $('onHost').hidden=!net.host;$('onWait').hidden=net.host;
  if(net.host){document.querySelectorAll('#onWhat button').forEach(b=>b.classList.toggle('selected',b.dataset.w===net.what));const tr=$('onTrack');if(!tr.options.length)courses.forEach((c,i)=>tr.add(new Option(c.name,String(i))));tr.value=String(net.track);tr.disabled=net.what!=='race';$('onClass').value=String(cc);$('onClass').disabled=net.what!=='race';}

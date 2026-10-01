@@ -1640,3 +1640,8 @@ body:not(.racing) #toast{z-index:70;top:auto;bottom:calc(18px + env(safe-area-in
 #coach span{font-weight:800;font-size:15px;line-height:1.25}
 @media (max-width:620px){#coach{bottom:calc(210px + env(safe-area-inset-bottom,0px))}#coach span{font-size:13px}}
 @media (pointer:coarse) and (orientation:landscape){#coach{bottom:calc(120px + env(safe-area-inset-bottom,0px))}#coach span{font-size:12.5px}}
+/* R68: Siegerkarte teilen */
+#result .share-btn{display:block;margin:6px auto 4px;padding:7px 16px;border-radius:999px;border:2.5px solid var(--wk-ink);background:#fff;color:var(--wk-ink);font-family:var(--wk-font);font-weight:900;font-size:14px;box-shadow:0 3px 0 var(--wk-ink);cursor:pointer;width:auto}
+#result .share-btn[hidden]{display:none}
+#result .share-btn:hover{transform:translateY(-2px)}
+body #result .share-btn,body #result .share-btn b{-webkit-text-stroke:0;text-shadow:none;font-style:normal;letter-spacing:.2px;text-transform:none;transform:none;background:#fff;color:var(--wk-ink);animation:none;min-height:0;font-size:14px;width:auto}
