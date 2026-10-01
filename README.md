@@ -6,6 +6,17 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 74 (02.10.2026): Scheinwerfer, Motor mit Gangwechseln, Tunnelhall, „Knapp vorbei“
+
+- **Scheinwerfer auf dunklen Strecken** (Geisterhaus, Bierstraße, Graben-Flug, Lava-Feste, Neon-Pilzwald): jedes Kart hat zwei
+  Leuchtpunkte mit Halo vorn und wirft einen warmen, weichen Lichtfleck auf die Fahrbahn.
+- **Motor mit Gangwechseln** (`motor.mjs`, Tests): statt eines Tons, der mit dem Tempo einfach steigt, dreht der Motor in sechs
+  Gängen hoch und fällt beim Hochschalten hörbar ab, mit kurzem Auskuppeln; in der Luft heult er auf, beim Turbo klingt er heller.
+- **Tunnelhall** auch für Motor, Reifen und Umgebung (vorher nur für Effekte).
+- **„Knapp vorbei“** (neue Idee, `arcade.mjs`, Tests): wer einen Gegner mit rund einem Meter Luft und Tempo überholt, ohne zu rempeln,
+  bekommt einen kleinen Schub, einen Luftzug und ein paar Funken – ohne Texteinblendung. Steht im Ergebnis, wenn es passiert ist.
+- **Weniger Text**: bei jedem Platzgewinn erscheint keine „▲ PLATZ“-Zeile mehr (Platzanzeige, Klang und Emoji reichen).
+
 ## Runde 73 (02.10.2026): Feinschliff – weniger Überlappungen, weniger Text, schärfer
 
 Durchgespielt in der Browser-Vorschau (Rechner 1280×720 und Handy 375×812, Menü, Kamerafahrt, Rennen, Ergebnis). Gefunden und behoben:

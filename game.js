@@ -19,7 +19,8 @@ import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_S
 import {LB_TOP,ttBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
 import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
-import {CAM_VIEWS,camViewIndex,nextCamView,TRAP_AT,trapCrossed,trapGrade} from './arcade.mjs';
+import {CAM_VIEWS,camViewIndex,nextCamView,TRAP_AT,trapCrossed,trapGrade,NEAR,nearMiss} from './arcade.mjs';
+import {engineNote,shiftedUp} from './motor.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
 import {autoNick} from './nick.mjs';
@@ -3254,7 +3255,7 @@ function buildCity(){cityN=null;const C=course.city;if(!C||!P.domecity)return;ci
 const kmhOf=p=>Math.round(Math.abs(p.speed)*(p.czVis||1)*3.6);
 function camViewSync(){const b=$('pauseCam');if(b)b.textContent='Kamera: '+CAM_VIEWS[camView].name;}
 function cycleCamView(){camView=nextCamView(camView);store.set('camView',camView);camViewSync();toast('📷 '+CAM_VIEWS[camView].name,.9);}
-function arcadeReset(){resetSmoke();arcade.lastD=null;}
+function arcadeReset(){resetSmoke();arcade.lastD=null;arcade.nmT=0;arcade.bumps=0;arcade.bumpT=-9;}
 // Blitzer: Torbogen mit Kamerakasten ueber der Strecke, zwei je Runde (am liebsten bei 31 % und 69 %), nur auf freien, flachen Stellen
 function straightAt(d){const h=x=>{const t=tanAt(lapDist(x));return Math.atan2(t.x,t.z);};return Math.abs(angleDiff(h(d+30),h(d-30)))<.14;}
 function buildArcade(){arcade.traps=[];arcade.lastD=null;if(worldMode||course.openWorld||!(length>200))return;
@@ -3277,6 +3278,15 @@ function buildArcade(){arcade.traps=[];arcade.lastD=null;if(worldMode||course.op
   const lp=add(new T.CylinderGeometry(.42,.5,.5,14),lens,0,8.4,-.95);lp.rotation.x=Math.PI/2;
   g.traverse(o=>{if(o.isMesh)o.castShadow=true;});
   arcade.traps.push({d:spot,flash:0,lens});});}
+// R74 Scheinwerfer auf dunklen Strecken: zwei Leuchtpunkte mit Halo vorn und ein weicher Lichtfleck auf der Fahrbahn
+const DARK_THEMES=new Set(['haunted','rainbow','fortress','lava','night']);
+function headTex(){if(headTex.t)return headTex.t;headTex.t=canvasTex(128,128,(q,w,h)=>{const g=q.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2);g.addColorStop(0,'#ffffffff');g.addColorStop(.35,'#ffffff80');g.addColorStop(1,'#ffffff00');q.fillStyle=g;q.fillRect(0,0,w,h);});return headTex.t;}
+function addHeadlights(r){const u=r.mesh.userData;if(u.head){u.head.visible=true;return;}const g=new T.Group(),tex=headTex();
+ const lampM=new T.MeshBasicMaterial({color:0xfff4cf,toneMapped:false}),halo=new T.SpriteMaterial({map:tex,color:0xfff0c0,transparent:true,opacity:.75,blending:T.AdditiveBlending,depthWrite:false});
+ for(const x of [-.42,.42]){const l=new T.Mesh(new T.SphereGeometry(.09,10,8),lampM);l.position.set(x,.55,1.05);g.add(l);const s=new T.Sprite(halo);s.position.set(x,.55,1.12);s.scale.setScalar(.9);g.add(s);}
+ const pool=new T.Mesh(new T.PlaneGeometry(3.4,7.5),new T.MeshBasicMaterial({map:tex,color:0xffe2a8,transparent:true,opacity:.4,blending:T.AdditiveBlending,depthWrite:false}));pool.rotation.x=-Math.PI/2;pool.position.set(0,.1,5.4);pool.renderOrder=2;g.add(pool);
+ r.mesh.add(g);u.head=g;}
+function syncHeadlights(){const on=!!course&&DARK_THEMES.has(course.theme)&&!worldMode;for(const r of racers){const u=r.mesh?.userData;if(!u)continue;if(on)addHeadlights(r);else if(u.head)u.head.visible=false;}}
 function speedTrap(t,kmh){if(kmh<20)return;const all=store.get('trap',{}),g=trapGrade(kmh,all[course.name]||0);
  if(g.record){all[course.name]=kmh;store.set('trap',all);}
  t.flash=.55;const f=$('trapFlash');if(f){f.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('on')));}
@@ -3285,6 +3295,12 @@ function speedTrap(t,kmh){if(kmh<20)return;const all=store.get('trap',{}),g=trap
 function updateArcade(dt){const p=racers[0];
  if(!p||state!=='race'||worldMode||introT>0){arcade.lastD=null;return;}
  const k=kmhOf(p);if(stats&&k>(stats.topKmh||0))stats.topKmh=k;
+ // R74 Knapp vorbei: wer ganz nah und schnell ueberholt (ohne zu rempeln), bekommt einen kleinen Schub, einen Luftzug und Funken - ohne Text
+ if(stats&&stats.bumps!==arcade.bumps){arcade.bumps=stats.bumps;arcade.bumpT=elapsed;}
+ for(const r of racers){if(r===p||r.finishTime!==null||!r.mesh?.visible){r.nmGap=undefined;continue;}const gap=p.distance-r.distance;
+  if(!battle&&!p.air&&!(p.stun>0)&&elapsed>3&&elapsed>(arcade.nmT||0)&&elapsed-(arcade.bumpT??-9)>.5&&nearMiss(r.nmGap,gap,p.offset-r.offset,p.speed)){
+   arcade.nmT=elapsed+NEAR.cooldown;p.boost=Math.max(p.boost||0,NEAR.boost);SFX.whoosh?.();burst(p,0xcfeeff,10);if(stats)stats.nearMiss=(stats.nearMiss||0)+1;}
+  r.nmGap=gap;}
  if(arcade.lastD!==null)for(const t of arcade.traps)if(trapCrossed(arcade.lastD,p.distance,t.d,length))speedTrap(t,k);
  arcade.lastD=p.distance;
  for(const t of arcade.traps)if(t.flash>0){t.flash=Math.max(0,t.flash-dt);t.lens.emissiveIntensity=.6+t.flash*9;}}
@@ -3765,7 +3781,7 @@ function audioInit(){if(ctx){if(ctx.state==='suspended')ctx.resume().catch(()=>{
  // Hallweg: im Tunnel wird er aufgezogen
  echoSend=ctx.createGain();echoSend.gain.value=0;const dl=ctx.createDelay(.6),fb=ctx.createGain(),lp=ctx.createBiquadFilter();
  dl.delayTime.value=.165;fb.gain.value=.22;lp.type='lowpass';lp.frequency.value=2200;
- const wet=ctx.createGain();wet.gain.value=.28;comp.connect(echoSend);echoSend.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(wet);wet.connect(effectsOut);buildRaceFilter();decodeClips();}
+ const wet=ctx.createGain();wet.gain.value=.28;comp.connect(echoSend);worldGain.connect(echoSend);echoSend.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(wet);wet.connect(effectsOut);buildRaceFilter();decodeClips();}
 let noiseBuf=null;
 // Dauerklang der Lavawelt: gefiltertes Rauschen mit langsam atmender Lautstaerke
 // R71: Umgebungsklang je Strecke - synthetisiert (gefiltertes Rauschen als Bett, leise Brummtoene, zufaellige Ereignisse):
@@ -3976,7 +3992,7 @@ function splitSharedMaterials(root){
 function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introForce||(!TEST&&!(net&&net.setup)))&&!worldMode?INTRO_S:0;introPrev=null;if(loisl){loisl.mode='';loisl.snap=true;}if(tsu){tsu.t0=null;tsu.msg='';tsu.at=course.tsunami?.at??44;}if(!(net&&net.setup&&net.setup.b))battleStop();setTimeout(()=>{if(worldMode&&!net&&mode==='world'&&state==='countdown'&&!battle)battleStart();},0);if(gp.active)selected=gp.list?gp.list[gp.race]:gp.race;worldMode=isOW(mode)&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=!(net&&net.setup)&&mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
- document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();scapeStart(course.openWorld?'forest':course.theme);stageCard();talerReset();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
+ document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();scapeStart(course.openWorld?'forest':course.theme);stageCard();talerReset();syncHeadlights();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
  splitSharedMaterials(scene);if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
 function home(){scapeStop();if(menuMode==='online'&&mode!=='online'){mode='online';setTimeout(()=>{syncModeUi();refreshMenu();syncModeUi();},0);}wxRestore();battleStop();document.body.classList.remove('mirror','ow');raceMirror=false;owPortalHide();setAmbience(false);gp.active=false;state='menu';keys.clear();buildCourse();for(const id of ['hud','touch','pause','pausePanel','result','ceremony'])$(id).hidden=true;$('menu').hidden=false;setText('message','');document.body.classList.remove('racing','cer');if(engine)engine.g.gain.value=0;SFX.hum(false);stopVoice();finishMusicAt=0;playBgm('menu');refreshMenu();}
 let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$('pausePanel').hidden=true;}else if(state==='race'||state==='countdown'){beforePause=state;state='paused';keys.clear();$('pausePanel').hidden=false;stopVoice();}if(engine)engine.g.gain.value=soundOn&&state==='race'?.011:0;}
@@ -4484,12 +4500,12 @@ function update(dt){
  if(battle&&arenaOn())for(const r of racers)if(!r.net&&(!battle.open||r.fighter))arenaWall(r);
  updateShots(dt);updateBombs(dt);updateInk(dt);updateOrbits(dt);coachTick(dt);updateEmotes(dt);trailTick();modTick(dt);scapeTick(dt);talerTick(dt);
  const newOrder=ranking(racers),place=newOrder.indexOf(player)+1;
- if(place<lastPlace&&elapsed>2&&!battle){stats.overtakes+=lastPlace-place;SFX.overtake();if(place<=3||Math.random()<.35)emote(racers[0],'happy');toast(`▲ PLATZ ${place}`,.9,'good');}
+ if(place<lastPlace&&elapsed>2&&!battle){stats.overtakes+=lastPlace-place;SFX.overtake();if(place<=3||Math.random()<.35)emote(racers[0],'happy');}
  if(place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
  // Falsche Richtung
  // R52: im Wiesnland gibt es keine falsche Richtung - dort faehrt man, wohin man will (Nutzerhinweis: staendige Anzeige)
  const tan=tanAt(player.distance),fdot=Math.sin(player.h)*tan.x+Math.cos(player.h)*tan.z;wrongT=!worldMode&&fdot<-.35&&Math.abs(player.speed)>4?wrongT+dt:0;if(wrongT>1&&noticeTimer<=0){notice('↺ UMDREHEN!',1);SFX.wrong();}if(loisl&&state==='race'){if(wrongT>.8&&loisl.mode!=='rescue')loislMode('wrong');else if(wrongT===0&&loisl.mode==='wrong')loislMode('away');}
- if(engine&&ctx){const t=ctx.currentTime,sp=Math.abs(player.speed);aset(engine.o1.frequency,55+sp*5.2+(player.air?50:0)+(player.boost>0?30:0),t,.06);aset(engine.o2.frequency,28+sp*2.6,t,.06);aset(engine.f.frequency,480+sp*36,t,.08);aset(engine.g.gain,soundOn?.011:0,t,.09);aset(engine.noise.gain,soundOn&&(player.driftDir||Math.abs(player.slide)>2.5)&&sp>8&&!player.air?.045:0,t,.07);aset(engine.bp.frequency,player.driftDir?1100+player.drift*260:900,t,.1);if(raceFilter)aset(raceFilter.frequency,Math.min(20000,3000+sp*430)*(1-.85*(elemFx?elemFx.uw:0)),t,.18);}
+ if(engine&&ctx){const t=ctx.currentTime,sp=Math.abs(player.speed),en=engineNote(sp,{air:player.air,boost:player.boost>0});if(shiftedUp(engine.gear,en.gear)&&state==='race')engine.shiftT=t+.07;engine.gear=en.gear;const dip=t<(engine.shiftT||0);aset(engine.o1.frequency,en.f1,t,dip?.02:.06);aset(engine.o2.frequency,en.f2,t,dip?.02:.06);aset(engine.f.frequency,dip?en.cutoff*.6:en.cutoff,t,.05);aset(engine.g.gain,soundOn?(dip?.004:.011):0,t,dip?.015:.09);aset(engine.noise.gain,soundOn&&(player.driftDir||Math.abs(player.slide)>2.5)&&sp>8&&!player.air?.045:0,t,.07);aset(engine.bp.frequency,player.driftDir?1100+player.drift*260:900,t,.1);if(raceFilter)aset(raceFilter.frequency,Math.min(20000,3000+sp*430)*(1-.85*(elemFx?elemFx.uw:0)),t,.18);}
  syncKartInstances();if(player.finishTime!==null)end();}
 
 // Direkt nach dem Rendern im selben Takt auslesen: ohne preserveDrawingBuffer ist das Bild danach weg.
@@ -4535,7 +4551,7 @@ function end(){scapeStop();document.body.classList.remove('mirror');elapsed=race
  stopVoice();say(place===1?'win':place<=3?'podium':'finish');if(place<=3){SFX.cheer();confetti(racers[0],place===1?110:60);}board.replaceChildren();board.classList.toggle('many',order.length>8);
  // Statistik: macht sichtbar, womit man das Rennen gewonnen (oder verloren) hat
  const bestKey=`bestlap-${selected}`,oldBestLap=store.get(bestKey,Infinity),newBestLap=stats.bestLap<oldBestLap;if(newBestLap)store.set(bestKey,stats.bestLap);
- const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Saubere Runden',`${stats.cleanLaps||0} / ${LAPS}`],['Höchstgeschwindigkeit',`${stats.topKmh||0} km/h`],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
+ const st=[['Beste Runde',format(stats.bestLap)+(newBestLap?' ★ NEU':'')],['Saubere Runden',`${stats.cleanLaps||0} / ${LAPS}`],['Höchstgeschwindigkeit',`${stats.topKmh||0} km/h`],['Drift-Turbos · beste Combo',`${stats.mt.mini} · ${stats.mt.super} · ${stats.mt.ultra} · ×${stats.maxCombo||0}`],['Tricks · Ringe · Windschatten',`${stats.tricks} · ${stats.rings} · ${stats.drafts}`],['Präzisionsflüge',stats.precisionRings||0],...(coasters.length?[['Airtime · Achterbahn',`${stats.airtime||0} · ${stats.coasters||0}`]]:[]),...(hpipes.length?[['Halfpipe · Airs · Tricks',`${stats.hpAirs||0} · ${stats.hpTricks||0}`+(stats.hpBest>=1?` · ${stats.hpBest.toFixed(1).replace('.',',')} m`:'')]]:[]),['Überholt',stats.overtakes],['Knapp vorbei',stats.nearMiss||0],['Treffer gelandet / kassiert',`${stats.hitsDealt} / ${stats.hitsTaken}`],['Rempler / Stürze',`${stats.bumps} / ${stats.falls}`]];
  // R73 (Nutzerwunsch "zu viel Text"): Kacheln, in denen nur Nullen stehen, fallen weg
  for(let i=st.length-1;i>=2;i--)if(/^[0\s·/×x]*(km\/h)?$/.test(String(st[i][1]).replace(/\s+/g,' ').trim()))st.splice(i,1);
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');

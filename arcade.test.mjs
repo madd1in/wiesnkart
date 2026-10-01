@@ -38,3 +38,14 @@ test('Speed-Trap-Urteil: erste Messung, Rekord, kein Rekord', () => {
   assert.equal(no.record, false);
   assert.equal(no.text, 'REKORD 160');
 });
+
+test('Knapp vorbei: nur beim Ueberholen, nah dran, mit Tempo und ohne Sprung', async () => {
+  const {nearMiss, NEAR} = await import('./arcade.mjs');
+  assert.equal(nearMiss(-.4, .3, 1.2, 30), true);
+  assert.equal(nearMiss(-.4, .3, 3.5, 30), false, 'zu weit daneben');
+  assert.equal(nearMiss(-.4, .3, 1.2, 10), false, 'zu langsam');
+  assert.equal(nearMiss(.3, -.4, 1.2, 30), false, 'ueberholt worden');
+  assert.equal(nearMiss(-20, 15, 1.2, 30), false, 'Sprung');
+  assert.equal(nearMiss(undefined, .3, 1.2, 30), false);
+  assert.ok(NEAR.boost > 0 && NEAR.boost < 1);
+});

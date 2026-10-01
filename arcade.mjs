@@ -43,3 +43,16 @@ export function trapGrade(kmh, best) {
   if (v > best) return {kmh: v, record: true, text: 'NEUER REKORD', cls: 'rec'};
   return {kmh: v, record: false, text: `REKORD ${Math.round(best)}`, cls: ''};
 }
+
+// ---------------------------------------------------------------- Knapp vorbei (R74): Ueberholen auf Tuchfuehlung gibt einen kleinen Schub
+export const NEAR = {lateral: 3, minSpeed: 16, boost: .45, cooldown: 1.2};   // Querabstand Mitte zu Mitte: 3 m heisst rund ein Meter Luft zwischen den Karts
+
+/**
+ * Hat der Spieler einen Gegner gerade knapp ueberholt?
+ * gapPrev/gap: Spieler minus Gegner in Streckenmetern (vorher/jetzt), lateral: Querabstand in Metern, speed: Spielertempo.
+ * Spruenge (Zuruecksetzen, Rundennaht) zaehlen nicht.
+ */
+export function nearMiss(gapPrev, gap, lateral, speed) {
+  return Number.isFinite(gapPrev) && Number.isFinite(gap) && gapPrev < 0 && gap >= 0 && gap - gapPrev < 6 &&
+    Math.abs(lateral) < NEAR.lateral && Math.abs(speed) >= NEAR.minSpeed;
+}
