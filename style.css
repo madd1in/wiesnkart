@@ -1745,3 +1745,24 @@ body.hudmin #raceTip{display:none!important}
  body #menu #assist button,body #menu #gfx button{font-size:12px}
  #coach span{font-size:14px}
 }
+/* R72: Event-Runden */
+#evBanner{position:fixed;left:50%;top:22%;z-index:31;display:none;flex-direction:column;align-items:center;gap:2px;padding:8px 20px 10px;background:#1a1040f0;border:4px solid #ffd23a;outline:4px solid #14264a;box-shadow:6px 6px 0 #000a;
+ color:#fff;font-family:'Courier New',monospace;text-align:center;pointer-events:none;transform:translateX(-50%)}
+#evBanner.on{display:flex;animation:evPop 3.4s steps(1,end) forwards,evIn .35s steps(5)}
+@keyframes evIn{from{transform:translateX(-50%) scale(.2)}to{transform:translateX(-50%) scale(1)}}
+@keyframes evPop{0%,92%{opacity:1}100%{opacity:0}}
+#evBanner small{font-weight:900;font-size:12px;letter-spacing:3px;color:#7fe3ff}
+#evBanner b{font:900 clamp(20px,4.5vw,30px) 'Courier New',monospace;color:#ffd23a;text-shadow:3px 3px 0 #d8262e}
+#evBanner span{font-weight:700;font-size:13px}
+#evTag{font-size:18px;line-height:1;margin-left:6px;filter:drop-shadow(0 2px 0 #0006);animation:evTagB 1.2s ease-in-out infinite}
+#evTag[hidden]{display:none}
+@keyframes evTagB{50%{transform:scale(1.18)}}
+@media (max-width:620px){#evBanner span{font-size:14px}}
+/* R72: Fotomodus */
+body.photo #hud,body.photo #message,body.photo #toast,body.photo #touch,body.photo header,body.photo #coach,body.photo #stage,body.photo #evBanner,body.photo #chatDock{display:none!important}
+#photoUi{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 12px;border-radius:16px;background:#15133acc;color:#fff;max-width:94vw}
+#photoUi[hidden]{display:none}
+#photoUi span{font-size:12.5px;font-weight:700;opacity:.9;text-align:center}
+#photoUi div{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+#photoUi button{margin:0;padding:7px 12px;border-radius:12px;border:2px solid #fff;background:#ffffff22;color:#fff;font-weight:900;font-size:15px;cursor:pointer;width:auto;transform:none;box-shadow:none}
+#photoUi button.shot{background:#d8262e}
