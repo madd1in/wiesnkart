@@ -117,6 +117,7 @@ export const ACH = [
   {id: 'netbeat', n: 'Menschenkenner', d: 'Schlage online insgesamt 25 Menschen', t: (r, p) => (p.onlBeat || 0) >= 25},
   // R70: Retro-Easter-Eggs (werden im Spiel direkt vergeben)
   {id: 'cheat', n: 'Alte Schule', d: 'Ein gewisser Code im Menü …', t: () => false},
+  {id: 'taler', n: 'Talerkönig', d: 'Finde alle 36 Wiesn-Taler (drei je Strecke)', t: () => false},
   {id: 'modules', n: 'Modulsammler', d: 'Finde alle 12 versteckten Spielmodule', t: () => false},
   {id: 'halberd', n: 'Hellebarden-Tänzer', d: 'Riesendom, ohne vom Riesenwächter getroffen zu werden', t: r => r.track === 10 && r.finished && !cnt(r.stats, 'halberdHits')},
 ];

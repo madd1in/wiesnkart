@@ -1687,3 +1687,61 @@ body.bit16 #toast{letter-spacing:1px}
 body:not(.racing) header{pointer-events:none}
 body:not(.racing) header a,body:not(.racing) header button{pointer-events:auto}
 #soundTest .st-list li span{flex:1;text-align:left;color:#fff;font:700 14px 'Courier New',monospace;letter-spacing:.5px;opacity:1}
+/* R71: 16-Bit-Titelkarte zum Rennstart */
+#stage{position:fixed;left:50%;top:11%;z-index:30;transform:translate(-160vw,0);display:none;flex-direction:column;align-items:center;gap:4px;min-width:min(520px,90vw);padding:12px 22px 14px;
+ background:#1a1040f0;border:4px solid #fff;outline:4px solid #14264a;box-shadow:8px 8px 0 #000a;color:#fff;font-family:'Courier New',monospace;text-align:center;pointer-events:none}
+#stage.in{display:flex;animation:stageIn .55s steps(7) forwards}
+#stage.out{animation:stageOut .5s steps(6) forwards}
+@keyframes stageIn{from{transform:translate(-160vw,0)}to{transform:translate(-50%,0)}}
+@keyframes stageOut{from{transform:translate(-50%,0)}to{transform:translate(110vw,0)}}
+#stage small{font-weight:900;font-size:13px;letter-spacing:3px;color:#7fe3ff}
+#stage b{font:900 clamp(22px,5vw,38px) 'Courier New',monospace;letter-spacing:3px;color:#ffd23a;text-shadow:3px 3px 0 #d8262e,6px 6px 0 #000}
+#stage span{font-weight:700;font-size:13px;color:#d8d0ff}
+#stage i{font-style:normal;font-weight:900;font-size:12px;letter-spacing:2px;color:#fff;background:#d8262e;padding:2px 10px;margin-top:4px}
+@media (pointer:coarse) and (orientation:landscape){#stage{top:14%;padding:8px 16px}}
+/* R71: Wiesn-Taler-Rekord auf der Streckenkarte */
+#menu #tracks .track em.taler{position:absolute;top:7px;right:30px;z-index:3;font-size:11px;font-weight:900;font-style:normal;line-height:1;padding:2px 5px;border-radius:999px;background:#14264acc;color:#ffd23a}
+#menu #tracks .track em.taler:empty{display:none}
+
+/* ===== R71: minimaleres Ingame-HUD (Nutzerwunsch) ===== */
+body.hudmin #wxStrip{transition:opacity .5s;opacity:0;pointer-events:none}
+body.hudmin #wxStrip.peek{opacity:1}
+body.hudmin #itemName,body.hudmin #item kbd{display:none!important}
+body.hudmin #draftHud{width:auto;min-width:0;padding:3px 8px;gap:5px;background:#15133a8c;border-color:#ffffff40}
+body.hudmin #draftHud #draftTitle,body.hudmin #draftHud #draftHint{display:none}
+body.hudmin #draftHud #draftMeter{width:70px}
+body.hudmin #draftHud.ready{border-color:#7fffe8;box-shadow:0 0 12px #7fffe8aa}
+body.hudmin #raceTip{display:none!important}
+
+/* ===== R71: groessere Schrift auf dem Handy (Nutzerwunsch "im Handy-Modus Schrift zu klein") ===== */
+@media (max-width:620px){
+ body #menu .menu-tag{font-size:13px}
+ .q-btn small{font-size:13.5px}
+ .q-hint{font-size:13.5px}
+ .q-more{font-size:15px}
+ .lucky b{font-size:17px}.lucky small{font-size:13px}
+ body #menu #daily small{font-size:12px}body #menu #daily b{font-size:16px}body #menu #daily em{font-size:13px}
+ body #menu #weekly .wk-head b{font-size:13px}body #menu #weekly .wk-head em{font-size:12.5px}body #menu #weekly .wk-row small{font-size:13.5px}body #menu #weekly .wk-row{grid-template-columns:minmax(0,1fr) 70px 46px}
+ #menu .top-row>small,body #menu .pick>small{font-size:12px}
+ #menu #toppers button{width:38px;height:38px;font-size:19px}
+ body #menu #tracks .track b{font-size:13px}
+ body #menu .seg button b{font-size:15px}
+ body #menu .ach-btn{font-size:14px}
+ #coach span{font-size:15px}#coach b{font-size:13px}
+ body:not(.racing) #toast{font-size:21px}
+ #result h2{font-size:30px}#result #resultTime{font-size:15px}
+ #resultStats span{font-size:11.5px!important}#resultStats b{font-size:17px!important}
+ #resultProg .xp-parts span{font-size:13px}#resultProg .xp-head{font-size:15px}
+ .ach-new .ach b{font-size:15px}.ach-new .ach small{font-size:12.5px}
+ #online .on-sub{font-size:14px}#online .on-perks span{font-size:13px}#online label,#online .on-rooms b{font-size:15px}
+ #achPanel #achList small{font-size:12.5px}
+ #stage small,#stage span,#stage i{font-size:13px}
+}
+@media (pointer:coarse) and (orientation:landscape){
+ body #menu .seg button b{font-size:13px}
+ body #menu #tracks .track b{font-size:12px}
+ .q-btn small{font-size:12px}.q-more{font-size:13.5px}
+ body #menu #daily b{font-size:14px}body #menu #daily em{font-size:11.5px}
+ body #menu #assist button,body #menu #gfx button{font-size:12px}
+ #coach span{font-size:14px}
+}
