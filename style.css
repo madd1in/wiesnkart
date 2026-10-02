@@ -1802,3 +1802,6 @@ body #message.quiet{top:auto!important;bottom:calc(19% + env(safe-area-inset-bot
 body:not(.racing) #trackLoading{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:6px 14px;gap:8px;font-size:13px;
   box-shadow:0 0 0 2px var(--wk-ink),0 3px 0 2px var(--wk-ink)}
 body:not(.racing) #trackLoading i{width:12px;height:12px;border-width:2px}
+/* R82: dezente Tempo-Vignette - Raender dunkeln bei hohem Tempo leicht ab */
+#speedVin{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .25s linear;background:radial-gradient(ellipse at center,transparent 52%,rgba(12,16,38,.55) 100%);z-index:3}
+#hud[hidden]~#speedVin{opacity:0!important}

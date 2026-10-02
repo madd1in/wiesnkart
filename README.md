@@ -6,6 +6,13 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 82 (02.10.2026): Wind-Rauschen, Auspuff-Puff beim Schalten, Tempo-Vignette
+
+- **Wind-Rauschen** (`windSnd` in `game.js`): ein leiser Wind, dessen Lautstärke quadratisch mit dem Tempo anschwillt (bis Tempo 62 km/h-Äquivalent) und dessen Tiefpass höher wird — in der Abfahrt hört man die Geschwindigkeit. Läuft im bestehenden Rausch-Puffer, eine Quelle, ein Filter, ein Gain; im Menü und nach dem Rennen stumm.
+- **Auspuff-Puff beim Hochschalten**: genau im Moment, in dem der Motor (R74) einen Gang hochschaltet, pustet ein kleiner dunkler Rauch-Puff aus dem Heck — Sound und Bild schlagen im selben Takt. Nutzt den bestehenden Rauch-Pool.
+- **Tempo-Vignette** (`#speedVin`): ab 30 Einheiten Tempo dunkeln die Bildränder sanft ab (maximal dezent), das Zentrum bleibt klar — Speed-Gefühl ohne Bewegungsunschärfe. Reines CSS-Overlay ohne Shader; sobald das HUD verschwindet (Menü, Ergebnis), ist sie aus.
+- Verifizert per Screenshots (Vignette bei Tempo subtil, im Ergebnis sauber aus) und fehlerfreier Konsole; 214 Tests grün.
+
 ## Runde 81 (02.10.2026): Konfetti beim Startschuss und Handy-Summen
 
 - **Konfetti-Regen beim „O'ZAPFT IS!"** (Countdown-Block in `game.js`): im Moment des Startschusses regnen rund 70 Konfetti-Partikel in Wiesn-Farben (Rot, Weiß, Blau, Gold) über der Startaufstellung herab — im bestehenden Funken-Pool, kein neues Objekt, nach zwei Sekunden verflogen. Auf dem Handy summt das Gerät kurz (60 ms Vibration, wo der Browser es unterstützt). Verifizert per Screenshot genau im GO-Moment: festlich, nicht überladen.
