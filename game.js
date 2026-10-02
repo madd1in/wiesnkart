@@ -1085,6 +1085,8 @@ function buildWorld(){mapBase=null;bprof.length=0;bprofT=performance.now();world
 const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);q.fillStyle=theme.curbB;q.fillRect(0,32,8,32);},true);curbTex.magFilter=T.NearestFilter;
  const curbMat=stdMat({map:curbTex,roughness:.7,...(glow?{emissive:0xffffff,emissiveMap:curbTex,emissiveIntensity:.9}:{})});for(const off of [-8.2,8.2])stripSegs(off,.8,.13,8,curbMat);
  const dashTex=canvasTex(8,32,(q)=>{q.fillStyle=theme.line;q.fillRect(0,0,8,16);},true);stripSegs(0,.22,.075,8,stdMat({map:dashTex,alphaTest:.5,roughness:.8,...(glow?{emissive:0xffffff,emissiveMap:dashTex,emissiveIntensity:1}:{})}),false);
+ // R78: dezente Startboxen am Startgitter (8 Plaetze im 2er-Raster, wie die Startaufstellung)
+ {const bt=canvasTex(64,64,(q)=>{q.strokeStyle='rgba(255,255,255,.5)';q.lineWidth=4;q.strokeRect(8,8,48,48);});const bg=new T.PlaneGeometry(2.4,3.4).rotateX(-Math.PI/2),bim=new T.InstancedMesh(bg,new T.MeshBasicMaterial({map:bt,transparent:true,depthWrite:false}),8);bim.renderOrder=1;const M4=new T.Matrix4(),Q4=new T.Quaternion(),V4=new T.Vector3(),S4=new T.Vector3(1,1,1),UP4=new T.Vector3(0,1,0);let bi=0;for(let row=0;row<4;row++)for(const off of [3.3,-3.3]){const d=-(9+row*7.5),sm=sample(d,off);Q4.setFromAxisAngle(UP4,sm.angle);V4.set(sm.p.x,groundAt(d,off).y+.03,sm.p.z);M4.compose(V4,Q4,S4);bim.setMatrixAt(bi++,M4);}bim.instanceMatrix.needsUpdate=true;world.add(bim);}
  const skirtMat=stdMat({map:speckleTexture(hex(theme.skirt),hex(theme.grassSpot),1800),roughness:1,side:T.DoubleSide});
  if(!theme.space){skirt(-1,skirtMat);skirt(1,skirtMat);}
  // Im Weltall ist die Bahn seit R28 die Glasbahn selbst (DoubleSide, halbtransparent) -

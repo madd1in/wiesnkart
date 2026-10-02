@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 78 (02.10.2026): Dezente Startboxen am Startgitter
+
+- **Startboxen** (Straßenbau in `game.js`): an den acht Gitterplätzen der Startaufstellung (zwei Spalten ±3,3 m, Reihen im 7,5-m-Abstand — exakt das Raster der Startaufstellung) liegen jetzt dünne weiße Box-Umrandungen auf der Fahrbahn, mit der Streckenrichtung ausgerichtet. Ein InstancedMesh (ein Draw-Call), halbtransparent, keine Kollision. Bei mehr als acht Fahrern (Dreier-Raster online) stehen die hinteren Boxen leer — verschmerzbar. Verifiziert per Screenshot nach dem Start: Karts stehen in den Boxen, dezent, kein Flackern.
+
 ## Runde 77 (02.10.2026): Staub in Untergrundfarbe
 
 - **Staub abseits der Straße** (`dustColOf` in `game.js`): der Staub, den Karts im Gelände aufwirbeln, ist jetzt in der Untergrundfarbe der Strecke getönt (aus dem Theme abgeleitet und leicht aufgehellt) — sandfarben im Sonnen-Canyon, grünlich auf der Wiese, braun im Schoko-Matsch — statt immer gleichem Grau-Beige. Der Reifenqualm beim Drift auf der Straße bleibt weißlich. Eine Farbberechnung pro Theme (gecacht), pro Partikel nichts zusätzlich. Verifizert per Offroad-Screenshot im Canyon.
