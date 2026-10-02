@@ -6,6 +6,11 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 79 (02.10.2026): Arcade-480-Look — Optik à la Jahrtausendwende
+
+- **Arcade-480-Look** (`dcSet`/`dcRender` in `game.js`, Knopf „💿 ARCADE 480" neben CRT und 16-BIT): Die Szene wird in rund 480 Zeilen (Hochformat 512 Pixel breit) gerendert und **bilinear weich** hochskaliert — nicht pixelig wie der 16-BIT-Modus, sondern samtig wie eine Konsole der Jahrtausendwende. Dazu kräftigere Farben (Sättigung ×1,24, leichter Kontrast-Hub) und ein hauchfeines 2×2-Dithering gegen Farbbänderung. Mit dem Röhren-Look (CRT) kombinierbar; schaltet den 16-BIT-Modus gegenseitig aus (und umgekehrt). Kein Klang-Effekt. Einstellung wird gemerkt. Nebenwirkung: durch die niedrigere Renderauflösung läuft das Spiel auf schwachen Rechnern sogar etwas flüssiger.
+- Verifizert per Screenshots mit/ohne Filter und Menü-Ansicht: weich+satt vs. knackig-scharf, Knopf konsistent gestylt.
+
 ## Runde 78 (02.10.2026): Dezente Startboxen am Startgitter
 
 - **Startboxen** (Straßenbau in `game.js`): an den acht Gitterplätzen der Startaufstellung (zwei Spalten ±3,3 m, Reihen im 7,5-m-Abstand — exakt das Raster der Startaufstellung) liegen jetzt dünne weiße Box-Umrandungen auf der Fahrbahn, mit der Streckenrichtung ausgerichtet. Ein InstancedMesh (ein Draw-Call), halbtransparent, keine Kollision. Bei mehr als acht Fahrern (Dreier-Raster online) stehen die hinteren Boxen leer — verschmerzbar. Verifiziert per Screenshot nach dem Start: Karts stehen in den Boxen, dezent, kein Flackern.

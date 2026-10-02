@@ -4898,15 +4898,44 @@ function bitAudio(){if(!ctx||!masterGain)return;try{masterGain.disconnect();}cat
  if(!bitFx){const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=6800;lp.Q.value=.4;const dl=ctx.createDelay(.5);dl.delayTime.value=.16;const fb=ctx.createGain();fb.gain.value=.28;const wet=ctx.createGain();wet.gain.value=.22;
   lp.connect(ctx.destination);lp.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(ctx.destination);bitFx=lp;}
  masterGain.connect(bitFx);}
-function bitSet(on){bitOn=!!on;store.set('bit16',bitOn);document.body.classList.toggle('bit16',bitOn);bitAudio();
+function bitSet(on){bitOn=!!on;if(on&&dcOn)dcSet(false);store.set('bit16',bitOn);document.body.classList.toggle('bit16',bitOn);bitAudio();
  for(const [id,txt] of [['bitBtn',null],['pauseBit','16-BIT-Modus: ']]){const b=$(id);if(!b)continue;b.setAttribute('aria-pressed',String(bitOn));b.classList.toggle('selected',bitOn);if(txt)b.textContent=txt+(bitOn?'AN':'AUS');}}
-function crtRender(){if(bitOn){bitRender();return;}if(!crtOn){renderer.render(scene,camera);return;}const c=crtInit();renderer.getDrawingBufferSize(_crtV);
+// R79: Arcade-480-Look (Dreamcast-artig) - Szene in 480 Zeilen rendern, weich (bilinear) hochskalieren,
+// Farben kraeftiger (Sattigung + Kontrast) und hauchfeines 2x2-Dither gegen Banding. Kein Klang-Effekt.
+let dcOn=store.get('dc',false),dc=null;
+function dcInit(){if(dc)return dc;const rt=new T.WebGLRenderTarget(4,4,{type:T.HalfFloatType,minFilter:T.LinearFilter,magFilter:T.LinearFilter});
+ const u={tD:{value:rt.texture},low:{value:new T.Vector2(4,4)},fin:{value:1}};
+ const m=new T.ShaderMaterial({uniforms:u,depthTest:false,depthWrite:false,toneMapped:true,
+  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
+  fragmentShader:`uniform sampler2D tD;uniform vec2 low;uniform float fin;varying vec2 vUv;
+   float b2(vec2 p){return mod(2.*p.x+3.*p.y,4.);}
+   vec3 toS(vec3 c){return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(.0031308,c));}
+   vec3 toL(vec3 c){return mix(c/12.92,pow((c+.055)/1.055,vec3(2.4)),step(.04045,c));}
+   void main(){vec3 c=texture2D(tD,vUv).rgb;gl_FragColor=vec4(c,1.);
+    #include <tonemapping_fragment>
+    vec3 s=toS(clamp(gl_FragColor.rgb,0.,1.));
+    float l=dot(s,vec3(.2126,.7152,.0722));s=mix(vec3(l),s,1.24);s=clamp(s*1.05-.018,0.,1.);
+    s+=((b2(floor(vUv*low)))/4.-.375)*.012;s=clamp(s,0.,1.);
+    gl_FragColor=vec4(fin>.5?s:toL(s),1.);}`});
+ const sc=new T.Scene(),q=new T.Mesh(new T.PlaneGeometry(2,2),m);q.frustumCulled=false;sc.add(q);
+ dc={rt,u,scene:sc,cam:new T.OrthographicCamera(-1,1,1,-1,0,1)};return dc;}
+function dcRender(){const d=dcInit();renderer.getDrawingBufferSize(_crtV);const asp=_crtV.x/Math.max(1,_crtV.y);
+ let lw,lh;if(asp>=1){lh=480;lw=Math.round(480*asp);}else{lw=512;lh=Math.round(512/asp);}
+ if(d.rt.width!==lw||d.rt.height!==lh)d.rt.setSize(lw,lh);d.u.low.value.set(lw,lh);
+ renderer.setRenderTarget(d.rt);renderer.render(scene,camera);
+ if(crtOn){const c=crtInit();if(c.rt.width!==_crtV.x||c.rt.height!==_crtV.y)c.rt.setSize(_crtV.x,_crtV.y);d.u.fin.value=0;renderer.setRenderTarget(c.rt);renderer.render(d.scene,d.cam);renderer.setRenderTarget(null);
+  c.u.res.value.copy(_crtV);c.u.time.value=performance.now()/1000;renderer.render(c.scene,c.cam);}
+ else{d.u.fin.value=1;renderer.setRenderTarget(null);renderer.render(d.scene,d.cam);}}
+function dcSet(on){dcOn=!!on;if(on&&bitOn)bitSet(false);store.set('dc',dcOn);
+ for(const [id,txt] of [['dcBtn',null],['pauseDc','Arcade-480-Look: ']]){const b=$(id);if(!b)continue;b.setAttribute('aria-pressed',String(dcOn));b.classList.toggle('selected',dcOn);if(txt)b.textContent=txt+(dcOn?'AN':'AUS');}}
+function crtRender(){if(bitOn){bitRender();return;}if(dcOn){dcRender();return;}if(!crtOn){renderer.render(scene,camera);return;}const c=crtInit();renderer.getDrawingBufferSize(_crtV);
  if(c.rt.width!==_crtV.x||c.rt.height!==_crtV.y)c.rt.setSize(_crtV.x,_crtV.y);
  renderer.setRenderTarget(c.rt);renderer.render(scene,camera);renderer.setRenderTarget(null);c.u.res.value.copy(_crtV);c.u.time.value=performance.now()/1000;renderer.render(c.scene,c.cam);}
 function crtSet(on){crtOn=!!on;store.set('crt',crtOn);document.body.classList.toggle('crt',crtOn);
  for(const [id,txt] of [['crtBtn',null],['pauseCrt','Röhren-Look (CRT): ']]){const b=$(id);if(!b)continue;b.setAttribute('aria-pressed',String(crtOn));b.classList.toggle('selected',crtOn);if(txt)b.textContent=txt+(crtOn?'AN':'AUS');}}
 {const b=$('bitBtn');if(b)b.onclick=()=>{bitSet(!bitOn);toast(bitOn?'🎮 16-BIT-Modus an':'16-BIT-Modus aus',1.1);SFX.select();};const pb=$('pauseBit');if(pb)pb.onclick=()=>bitSet(!bitOn);bitSet(bitOn);}
 {const b=$('crtBtn');if(b)b.onclick=()=>{crtSet(!crtOn);toast(crtOn?'📺 Röhren-Look an':'Röhren-Look aus',1.1);};const pb=$('pauseCrt');if(pb)pb.onclick=()=>crtSet(!crtOn);crtSet(crtOn);}
+{const b=$('dcBtn');if(b)b.onclick=()=>{dcSet(!dcOn);toast(dcOn?'💿 Arcade-480-Look an':'💿 Arcade-480-Look aus',1.1);SFX.select();};const pb=$('pauseDc');if(pb)pb.onclick=()=>dcSet(!dcOn);dcSet(dcOn);}
 function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}addEventListener('resize',resize);
 addEventListener('error',e=>{try{const el=$('error');el.hidden=false;el.textContent='Darsteller abgestürzt — bitte neu laden. ('+e.message+')';console.error(e.error||e.message);}catch{}});
 
@@ -6095,7 +6124,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  pix:()=>domePix&&{deco:domePix.deco,clouds:domePix.clouds.length,birds:domePix.birds.length,sun:!!domePix.sun,sunPos:domePix.sun?domePix.sun.position.toArray().map(Math.round):null},
  city:()=>cityN,
  vox:()=>vox&&{candles:vox.candles.map(c=>[Math.round(c.d),c.off,c.broke?1:0]),bats:vox.bats.length,ghosts:vox.ghosts.length,deco:vox.deco,moon:!!vox.moon},
- crt:v=>{if(v!==undefined)crtSet(v);return crtOn;},bit16:v=>{if(v!==undefined)bitSet(v);return bitOn;},taler:()=>talerSpots.map(t=>[Math.round(t.d),+t.y.toFixed(1),t.got]),mod:()=>modSpot&&{d:modSpot.d,off:modSpot.off,x:modSpot.x,y:modSpot.y,z:modSpot.z,got:modSpot.got},
+ crt:v=>{if(v!==undefined)crtSet(v);return crtOn;},bit16:v=>{if(v!==undefined)bitSet(v);return bitOn;},dc:v=>{if(v!==undefined)dcSet(v);return dcOn;},taler:()=>talerSpots.map(t=>[Math.round(t.d),+t.y.toFixed(1),t.got]),mod:()=>modSpot&&{d:modSpot.d,off:modSpot.off,x:modSpot.x,y:modSpot.y,z:modSpot.z,got:modSpot.got},
  choco:()=>choco&&{mud:choco.mud.map(p=>[Math.round(p.d0),Math.round(p.len),p.off,p.hw]),bould:choco.bould.map(b=>[Math.round(b.d),b.st?.phase||'-',+(b.off||0).toFixed(1)]),deco:choco.deco},
  r60:()=>r60&&{surf:r60.surf.map(z=>({s:Math.round(z.s),span:Math.round(z.span),side:z.side,front:z.front?+z.front.off.toFixed(1):null})),tide:r60.tide&&{lvl:+r60.tide.lvl.toFixed(2),flooded:r60.tide.flooded,state:r60.tide.state,fork:Math.round(r60.tide.f.dA)},
   crabs:r60.crabs.map(c=>[Math.round(c.d),+c.off.toFixed(1)]),turtles:r60.turtles.length,ice:r60.ice.map(z=>[Math.round(z.s),Math.round(z.span)]),curls:r60.curls.map(c=>[Math.round(c.d),+c.off.toFixed(1)]),blocks:r60.blocks.map(b=>b.broke===null?1:0),

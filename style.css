@@ -1671,6 +1671,10 @@ body #menu #weekly.done{background:linear-gradient(100deg,#fff6d6,#fff)}
 body #menu #bitBtn{margin-top:6px;width:100%;transform:skewX(-10deg);border-radius:11px;background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font:italic 800 13px var(--wk-font);padding:5px 8px;cursor:pointer}
 body #menu #bitBtn.selected{background:linear-gradient(180deg,#7fe3ff,#2aa6d8);color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
 body #menu #bitBtn.selected{background:linear-gradient(180deg,#b48cff,#6a3cd8)}
+/* R79: Arcade-480-Look (Dreamcast-artig) - eigener Knopf, orange gewaehlt */
+body #menu #dcBtn{margin-top:6px;width:100%;transform:skewX(-10deg);border-radius:11px;background:#fff;color:var(--wk-ink);border:2.5px solid #15133a26;box-shadow:0 3px 0 #15133a33;font:italic 800 13px var(--wk-font);padding:5px 8px;cursor:pointer}
+body #menu #dcBtn.selected{background:linear-gradient(180deg,#7fe3ff,#2aa6d8);color:#fff;border-color:#fff;box-shadow:0 0 0 2.5px var(--wk-ink),0 4px 0 2px var(--wk-ink);-webkit-text-stroke:3px var(--wk-ink);paint-order:stroke fill}
+body #menu #dcBtn.selected{background:linear-gradient(180deg,#ffb45a,#e86a1a)}
 /* R70: SOUND TEST (Easter Egg, 5x auf den Titel) im 16-Bit-Stil */
 #soundTest{z-index:90;background:#000c}
 #soundTest .st-card{max-width:560px;max-height:86vh;overflow:auto;margin:auto;padding:18px 20px;border:4px solid #fff;border-radius:6px;background:#1a1040;color:#fff;font-family:'Courier New',monospace;box-shadow:0 0 0 4px #000,8px 8px 0 #000}
@@ -1771,7 +1775,7 @@ body.hudmin #raceTip{display:none!important}
  body #menu .q-back{font-size:16px!important;padding:10px 14px}
  body #menu .track i,body #menu .track b{font-size:16px!important}
  body #menu .pick small,body #menu .top-row small,body #menu #daily small,body #menu #achBtnLvl{font-size:14px!important;letter-spacing:1.5px}
- body #menu #kstyle button,body #menu #assist button,body #menu #gfx button,body #menu #crtBtn,body #menu #bitBtn{font-size:15px!important;padding:9px 12px;min-height:40px}
+ body #menu #kstyle button,body #menu #assist button,body #menu #gfx button,body #menu #crtBtn,body #menu #bitBtn,body #menu #dcBtn{font-size:15px!important;padding:9px 12px;min-height:40px}
  body #menu #daily em,body #menu .wk-head b,body #menu .wk-head em{font-size:15px!important}
  body #menu .wk-head u,body #menu .wk-head i,body #menu #daily u,body #menu #achBtn{font-size:16px!important}
  body #menu #ctrlMode,body #menu #ctrlMode .pre{font-size:15px!important}
