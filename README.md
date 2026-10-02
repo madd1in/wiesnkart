@@ -6,6 +6,11 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 76 (02.10.2026): Turbolicht und Bremslicht am Kart-Heck
+
+- **Turbolicht** (`syncKartInstances` in `game.js`): solange ein Kart im Turbo ist (`r.boost`), leuchtet hinten ein orange-gelbes, leicht pulsierendes Licht — bei allen Fahrern, auch online sichtbar, wenn auch nur im eigenen Browser berechnet.
+- **Bremslicht**: hält der lokale Spieler die Bremse/Rückwärts-Taste bei Tempo, leuchtet ein kleines rotes Hecklicht. Beide Lichter sind additive, halbtransparente Flächen als Kinder des Kart-Meshs (folgen Position und Kurs automatisch), nur im Rennen sichtbar. Verifiziert per Screenshots: dezent, plausibel, keine Artefakte.
+
 ## Runde 75 (02.10.2026): Fahrbahn mit abgefahrenen Reifenspuren
 
 - **Reifenspuren auf der Fahrbahn** (`roadWornTexture` in `game.js`): die Straßenfläche bekommt neben dem Farb-Sprengel zwei weiche, dunkle Fahrspur-Bänder bei einem Viertel und drei Viertel der Straßenbreite — wie eine abgefahrene Rennstrecke. Pro Strecken-Theme eine gecachte Textur (ein Canvas-Aufbau, danach kostenlos); Curbs, Mittellinie und Kantenstreifen bleiben unverändert. Verifiziert per Screenshot: subtil, kein Moiré.

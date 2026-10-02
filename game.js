@@ -884,6 +884,10 @@ function kartVirtual(color,slot){const g=new T.Group(),wheels=[];for(const [x,y,
  const paint=(list,i)=>{for(const p of list)if(p.paint){p.im.setColorAt(i,_col.setHex(color));p.im.instanceColor.needsUpdate=true;}};
  const bm=kartInst.bmap[slot];if(bm)paint(bm.g.meshes,bm.i);const dm=kartInst.dmap[slot];if(dm)paint(dm.g.meshes,dm.i);return g;}
 function syncKartInstances(){if(!kartInst)return;for(const r of racers){const u=r.mesh.userData;if(u.slot===undefined)continue;r.mesh.updateMatrixWorld(true);const i=u.slot;
+ // R76: Turbolicht (orange, pulsiert) und Bremslicht (rot, nur lokaler Fahrer) am Kart-Heck
+ if(!u.tail){const mk=(c,w,h)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:c,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide}));r.mesh.add(m);return m;};u.tail=mk(0xffa53d,.44,.2);u.tail.position.set(0,.42,-1.02);u.brk=mk(0xff2222,.4,.16);u.brk.position.set(0,.28,-1.04);}
+ u.tail.visible=state==='race'&&r.boost>0;if(u.tail.visible)u.tail.scale.setScalar(1+Math.sin(elapsed*22+r.id)*.12);
+ u.brk.visible=state==='race'&&r===racers[0]&&r.speed>2&&(held('ArrowDown')||held('KeyS'));
   const bm=kartInst.bmap[i];if(bm)for(const p of bm.g.meshes)p.im.setMatrixAt(bm.i,r.mesh.matrixWorld);const dm=kartInst.dmap[i];if(dm)for(const p of dm.g.meshes)p.im.setMatrixAt(dm.i,u.parts.driver.matrixWorld);u.parts.wheels.forEach((w,k)=>{for(const p of kartInst.wheel)p.im.setMatrixAt(i*4+k,w.wh.matrixWorld);});}
  for(const p of kartInst.wheel)p.im.instanceMatrix.needsUpdate=true;
  for(const gr of kartInst.groups.concat(kartInst.bodies))for(const p of gr.meshes)p.im.instanceMatrix.needsUpdate=true;}
