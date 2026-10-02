@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 81 (02.10.2026): Konfetti beim Startschuss und Handy-Summen
+
+- **Konfetti-Regen beim „O'ZAPFT IS!"** (Countdown-Block in `game.js`): im Moment des Startschusses regnen rund 70 Konfetti-Partikel in Wiesn-Farben (Rot, Weiß, Blau, Gold) über der Startaufstellung herab — im bestehenden Funken-Pool, kein neues Objekt, nach zwei Sekunden verflogen. Auf dem Handy summt das Gerät kurz (60 ms Vibration, wo der Browser es unterstützt). Verifizert per Screenshot genau im GO-Moment: festlich, nicht überladen.
+
 ## Runde 80 (02.10.2026): Challenge-Textbox aus dem Bild entfernt
 
 - **Weniger Text beim Fahren** (Nutzerwunsch): die Box oben rechts, die beim Durchfahren von Blitzer-, Tempo-, Drift- und Sprung-Challenges aufploppte (Symbol, Name, live Wert, Sterne, Rekordzeile — z. B. „Kurvenhang" an der fünften Kurve der Wiesnland-Runde), erscheint nicht mehr. Die Challenges selbst laufen unverändert weiter: gemessen, mit Sternen bewertet, Rekorde und XP gespeichert, im Ergebnis angezeigt; der kleine Zähler oben links („🏁 Challenges ★ x/y") bleibt. Nur die Einblendung mitten im Bild ist stillgelegt (in `chPop` abschaltbar). Verifizert per Testfahrt durch eine Drift-Zone: Messung aktiv, Box bleibt zu.

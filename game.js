@@ -4289,6 +4289,8 @@ function update(dt){
  if(state==='countdown'){oh.hop=0;if(!worldReady){setText('message','');return;}if(net&&net.setup&&!net.go){netWaitGo();for(const r of racers)if(r.net)netDrive(r,dt);syncKartInstances();return;}
   if(introT>0){introT=Math.max(0,introT-dt);if(introT<=0)document.body.classList.remove('introcam');setLights(0);setText('message','');if(introT<=0){stopFanfare(.4);playBgm(raceTrack());setBgmRate(course.bgmRate||1);}syncKartInstances();return;}ohHint(oh.on&&store.get('ohHints',0)<2);const prev=Math.ceil(countdown);countdown-=dt;if(gasHeld){if(startPress<0)startPress=countdown;}else startPress=-1;
   {const ln=countdown>2?1:countdown>1?2:countdown>0?3:4;if(ln!==lightState)SFX.count(ln===4);setLights(ln);}setText('message',countdown>0?String(Math.ceil(countdown)):'O\'ZAPFT IS!');$('message').classList.remove('quiet');
+  // R81: Konfetti-Regen beim Startschuss (einmalig, Wiesn-Farben) + kurzes Handy-Summen
+  if(prev>0&&countdown<=0){for(let k=0;k<70;k++){const ca=Math.random()*TAU,crr=Math.random()*6;emit(player.x+Math.cos(ca)*crr,(player.y||0)+7+Math.random()*2.5,player.z+Math.sin(ca)*crr,[0xff3b5c,0xffffff,0x2aa6d8,0xffd45c][k%4],(Math.random()-.5)*5,-.5+Math.random()*2.5,(Math.random()-.5)*5,1.3+Math.random()*.7);}try{navigator.vibrate&&navigator.vibrate(60);}catch{}}
   if(engine&&ctx){const t=ctx.currentTime;aset(engine.o1.frequency,gasHeld?170:60,t,.08);aset(engine.o2.frequency,gasHeld?85:30,t,.08);aset(engine.f.frequency,gasHeld?1500:500,t,.1);aset(engine.g.gain,soundOn?.008:0,t,.1);}
   if(countdown<=0){state='race';notice('O\'ZAPFT IS!',1.1,true);stats.lapStart=0;raceAssist=assistMode;player.lapDirty=false;if(isTT()){player.item='triple';player.charges=3;}
    if(net?.setup?.take)netTakeOver();
