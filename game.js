@@ -3268,6 +3268,8 @@ function arcadeReset(){resetSmoke();arcade.lastD=null;arcade.nmT=0;arcade.bumps=
 // Blitzer: Torbogen mit Kamerakasten ueber der Strecke, zwei je Runde (am liebsten bei 31 % und 69 %), nur auf freien, flachen Stellen
 function straightAt(d){const h=x=>{const t=tanAt(lapDist(x));return Math.atan2(t.x,t.z);};return Math.abs(angleDiff(h(d+30),h(d-30)))<.14;}
 function buildArcade(){arcade.traps=[];arcade.lastD=null;if(worldMode||course.openWorld||!(length>200))return;
+ /* R85: Speed-Traps (Blitzer-Torbögen, Foto-Blitz, km/h-Zeile) auf Nutzerwunsch entfernt; die Hoechstgeschwindigkeit im Ergebnis bleibt. */
+ return;
  const steel=new T.MeshStandardMaterial({color:0x3b4758,roughness:.5,metalness:.55}),dark=new T.MeshStandardMaterial({color:0x151b27,roughness:.6,metalness:.3});
  const stripes=canvasTex(256,32,(q,w,h)=>{q.fillStyle='#ffc83a';q.fillRect(0,0,w,h);q.fillStyle='#14264a';for(let x=-h;x<w+h;x+=44){q.beginPath();q.moveTo(x,h);q.lineTo(x+22,h);q.lineTo(x+22+h,0);q.lineTo(x+h,0);q.fill();}},true);stripes.repeat.set(5,1);
  const sign=canvasTex(512,128,(q,w,h)=>{q.fillStyle='#14264a';q.fillRect(0,0,w,h);q.fillStyle='#ffc83a';q.fillRect(8,8,w-16,h-16);q.fillStyle='#14264a';q.fillRect(14,14,w-28,h-28);

@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 85 (03.10.2026): Speed-Traps entfernt
+
+- **Blitzer-Torbögen raus** (Nutzerwunsch): die zwei Foto-Blitzer je Runde (Torbögen am Straßenrand, Blitz, km/h-Zeile, Blitzer-Rekord) erscheinen nicht mehr — `buildArcade` baut sie nicht mehr, damit fliegen auch Blitz, Zeile und Rekord-Meldung ersatzlos. Die **Höchstgeschwindigkeit im Ergebnis** bleibt als normale Statistik. 214 Tests grün.
+
 ## Runde 84 (03.10.2026): Konfetti bei neuer Bestzeit
 
 - **Konfetti-Regen zur Bestzeit** (in `game.js`, Finish-Bereich): zusammen mit dem „NEUE BESTZEIT!"-Ruf und den Gold-Funken regnen jetzt 60 Konfetti-Partikel in Gold, Weiß, Blau und Rot über dem Kart — dasselbe Bild wie beim Startschuss (R81), im bestehenden Funken-Pool, einmalig verflogen. Passt zum Siegerfoto-Modus (R80-Vorarbeit). 214 Tests grün.
