@@ -4765,7 +4765,7 @@ function updateCamera(dt,snap=false){const portrait=camera.aspect<.9;
  if(shake>0){shake=Math.max(0,shake-dt);const sk=shake*calmK();camera.position.x+=(Math.random()-.5)*sk*.9;camera.position.y+=(Math.random()-.5)*sk*.7;}
  setFov((portrait?74:62)+CAM_VIEWS[camView].fov+(p.boost>0?10:0)+clamp(Math.abs(p.speed)-24,0,16)*.35+(p.czFloatS>.05?6:0),dt,snap);}
 function setFov(target,dt,snap){camFov=snap?target:camFov+(target-camFov)*Math.min(1,dt*6);if(Math.abs(camera.fov-camFov)>.01){camera.fov=camFov;camera.updateProjectionMatrix();}}
-function adaptQuality(fps){if(gfxMode!=='auto'||(state!=='race'&&state!=='countdown')||fps>=50||quality.level>=5)return;quality.level++;
+function adaptQuality(fps,spikes){if(gfxMode!=='auto'||(state!=='race'&&state!=='countdown')||(fps>=50&&!(spikes>=4))||quality.level>=5)return;quality.level++;
  // R44: mitten im Rennen nur Aufloesung, Schattenkarte und Schattenrhythmus - nie Schatten oder Material umschalten
  quality.dprCap=Math.max(.7,quality.dprCap-(quality.level<=2?.15:.1));
  if(quality.level===1&&!LITE){sun.shadow.mapSize.set(512,512);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
@@ -4839,7 +4839,7 @@ const fpsEl=new URLSearchParams(location.search).has('fps')?Object.assign(docume
 function loop(now){requestAnimationFrame(loop);if(dbg.manual)return;padPoll(now);if(net)netTick(now);chatBubbleTick();const dt=Math.min((now-last)/1000||.016,.05);last=now;
  if(finishMusicAt&&now>finishMusicAt){finishMusicAt=0;if(state==='finished'||state==='ceremony')playBgm('menu');}
  if(fpsEl){fpsN++;if(now-fpsT>500){fpsEl.textContent=`${Math.round(fpsN*1000/(now-fpsT))} fps · ${LITE?'Leicht':'Voll'} · ${renderer.getPixelRatio().toFixed(2)}x · ${renderer.info.render.calls} DC`;fpsN=0;fpsT=now;}}
- quality.fpsFrames++;if(state==='race'){quality.raceFrames=(quality.raceFrames||0)+1;quality.raceSec=(quality.raceSec||0)+dt;}if(quality.fpsStart&&now-quality.fpsStart>1200){adaptQuality(quality.fpsFrames*1000/(now-quality.fpsStart));quality.fpsFrames=0;quality.fpsStart=now;}else if(!quality.fpsStart)quality.fpsStart=now;
+ quality.fpsFrames++;if(dt>.05)quality.spikes=(quality.spikes||0)+1;/* R83: Einzelradausreisser zaehlen (Online: Relay/Peer-Batches ruckeln trotz guter Durchschnitts-Bildrate) */if(state==='race'){quality.raceFrames=(quality.raceFrames||0)+1;quality.raceSec=(quality.raceSec||0)+dt;}if(quality.fpsStart&&now-quality.fpsStart>1200){adaptQuality(quality.fpsFrames*1000/(now-quality.fpsStart),quality.spikes||0);quality.fpsFrames=0;quality.spikes=0;quality.fpsStart=now;}else if(!quality.fpsStart)quality.fpsStart=now;
  frameStep(dt,now);}
 const prof={upd:0,anim:0,hud:0,ren:0,n:0};
 function frameStep(dt,now){if(dbg.freeze)return;frame++;

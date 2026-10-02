@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 83 (03.10.2026): Framedrops im Online-Modus — adaptive Qualität erkennt Ausreißer
+
+- **Spike-Erkennung in der Bildraten-Anpassung** (Nutzerbericht „zu viele Framedrops im Online-Modus"): die automatische Qualität regelte bisher nur nach, wenn die *Durchschnitts*-Bildrate unter 50 fiel. Im Online-Modus ruckelt es aber in *einzelnen* Frames (Verarbeitung von Relay- und Peer-Nachrichtenbatches auf schwachen Rechnern), während der Durchschnitt gut bleibt — die Anpassung schlief durch. Jetzt zählt sie Frames über 50 ms pro 1,2-Sekunden-Fenster; ab vier Ausreißern regelt sie eine Stufe herunter (Auflösungs-Deckel, Schattenkarte, Schattenrhythmus — wie bisher, nie Materialwechsel mitten im Rennen). Wirkt in jedem Modus, trifft aber genau das Online-Muster. Verifizert im Testlauf: Level 0 → 5, Pixel-Verhältnis 1,0 → 0,7, Schattenwiederholung 1 → 2, keine Konsolen-Fehler; 214 Tests grün.
+
 ## Runde 82 (02.10.2026): Wind-Rauschen, Auspuff-Puff beim Schalten, Tempo-Vignette
 
 - **Wind-Rauschen** (`windSnd` in `game.js`): ein leiser Wind, dessen Lautstärke quadratisch mit dem Tempo anschwillt (bis Tempo 62 km/h-Äquivalent) und dessen Tiefpass höher wird — in der Abfahrt hört man die Geschwindigkeit. Läuft im bestehenden Rausch-Puffer, eine Quelle, ein Filter, ein Gain; im Menü und nach dem Rennen stumm.
