@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 80 (02.10.2026): Challenge-Textbox aus dem Bild entfernt
+
+- **Weniger Text beim Fahren** (Nutzerwunsch): die Box oben rechts, die beim Durchfahren von Blitzer-, Tempo-, Drift- und Sprung-Challenges aufploppte (Symbol, Name, live Wert, Sterne, Rekordzeile — z. B. „Kurvenhang" an der fünften Kurve der Wiesnland-Runde), erscheint nicht mehr. Die Challenges selbst laufen unverändert weiter: gemessen, mit Sternen bewertet, Rekorde und XP gespeichert, im Ergebnis angezeigt; der kleine Zähler oben links („🏁 Challenges ★ x/y") bleibt. Nur die Einblendung mitten im Bild ist stillgelegt (in `chPop` abschaltbar). Verifizert per Testfahrt durch eine Drift-Zone: Messung aktiv, Box bleibt zu.
+
 ## Runde 79 (02.10.2026): Arcade-480-Look — Optik à la Jahrtausendwende
 
 - **Arcade-480-Look** (`dcSet`/`dcRender` in `game.js`, Knopf „💿 ARCADE 480" neben CRT und 16-BIT): Die Szene wird in rund 480 Zeilen (Hochformat 512 Pixel breit) gerendert und **bilinear weich** hochskaliert — nicht pixelig wie der 16-BIT-Modus, sondern samtig wie eine Konsole der Jahrtausendwende. Dazu kräftigere Farben (Sättigung ×1,24, leichter Kontrast-Hub) und ein hauchfeines 2×2-Dithering gegen Farbbänderung. Mit dem Röhren-Look (CRT) kombinierbar; schaltet den 16-BIT-Modus gegenseitig aus (und umgekehrt). Kein Klang-Effekt. Einstellung wird gemerkt. Nebenwirkung: durch die niedrigere Renderauflösung läuft das Spiel auf schwachen Rechnern sogar etwas flüssiger.

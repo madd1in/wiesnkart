@@ -1847,8 +1847,8 @@ function chTick(dt){if(!owCh||!owCh.list.length)return;const p=racers[0];if(!p||
  const J=owCh.jump;if(!J.c){if(p.air)for(const c of owCh.list)if(c.kind==='jump'){const a=wrapDiff(d,c.d);if(a>-3&&a<10&&Math.abs(p.offset-c.rp.off)<c.rp.w){J.c=c;J.air=false;break;}}}
  if(J.c){const v=jumpStep(J,dt,!!p.air,p.x,p.z,.3);if(v!==null){chResult(J.c,v);J.c=null;}else if(!p.air&&!J.air)J.c=null;}}
 // Einblendung oben rechts unter der Karte: Symbol, Name, Wert, Sterne, Rekordzeile
-let chPopT=0;
-function chPop(kind,name,val,stars,sub,dur){const el=$('chPop');if(!el)return;el.hidden=false;el.dataset.kind=kind;setText('chIcon',CH[kind].icon);setText('chName',name);setText('chVal',val);
+let chPopT=0,chPopOn=false;/* R80: Challenge-Textbox im Bild stillgelegt (Nutzerwunsch: weniger Text). Messung, Sterne, Rekorde und XP laufen weiter, das Ergebnis zeigt sie wie bisher. */
+function chPop(kind,name,val,stars,sub,dur){if(!chPopOn)return;const el=$('chPop');if(!el)return;el.hidden=false;el.dataset.kind=kind;setText('chIcon',CH[kind].icon);setText('chName',name);setText('chVal',val);
  setText('chStars','★'.repeat(stars)+'☆'.repeat(3-stars));setText('chRec',sub||'');chPopT=Math.max(chPopT,performance.now()+dur*1000);}
 setInterval(()=>{const el=$('chPop');if(el&&!el.hidden&&performance.now()>chPopT)el.hidden=true;},250);
 function chHud(){const el=$('owCh');if(el&&owCh)el.textContent=`🏁 Challenges ★ ${chStarsTotal()}/${owCh.total}`;}
