@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 84 (03.10.2026): Konfetti bei neuer Bestzeit
+
+- **Konfetti-Regen zur Bestzeit** (in `game.js`, Finish-Bereich): zusammen mit dem „NEUE BESTZEIT!"-Ruf und den Gold-Funken regnen jetzt 60 Konfetti-Partikel in Gold, Weiß, Blau und Rot über dem Kart — dasselbe Bild wie beim Startschuss (R81), im bestehenden Funken-Pool, einmalig verflogen. Passt zum Siegerfoto-Modus (R80-Vorarbeit). 214 Tests grün.
+
 ## Runde 83 (03.10.2026): Framedrops im Online-Modus — adaptive Qualität erkennt Ausreißer
 
 - **Spike-Erkennung in der Bildraten-Anpassung** (Nutzerbericht „zu viele Framedrops im Online-Modus"): die automatische Qualität regelte bisher nur nach, wenn die *Durchschnitts*-Bildrate unter 50 fiel. Im Online-Modus ruckelt es aber in *einzelnen* Frames (Verarbeitung von Relay- und Peer-Nachrichtenbatches auf schwachen Rechnern), während der Durchschnitt gut bleibt — die Anpassung schlief durch. Jetzt zählt sie Frames über 50 ms pro 1,2-Sekunden-Fenster; ab vier Ausreißern regelt sie eine Stufe herunter (Auflösungs-Deckel, Schattenkarte, Schattenrhythmus — wie bisher, nie Materialwechsel mitten im Rennen). Wirkt in jedem Modus, trifft aber genau das Online-Muster. Verifizert im Testlauf: Level 0 → 5, Pixel-Verhältnis 1,0 → 0,7, Schattenwiederholung 1 → 2, keine Konsolen-Fehler; 214 Tests grün.
