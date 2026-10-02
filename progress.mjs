@@ -10,7 +10,7 @@ export const RIVAL_XP = 25, DAILY_XP = 60;
 // (kein Gras, keine Wand, kein Absturz) bringt CLEAN_XP.
 export const ASSIST_BONUS = {aus: .25, leicht: .1}, CLEAN_XP = 20;
 // R65: Anreize fuer Online-Rennen - doppelte Rennpunkte, Bonus je geschlagenem Menschen, erstes Online-Rennen des Tages
-export const ONLINE_MUL = 2, HUMAN_XP = 20, ONLINE_DAILY_XP = 100;
+export const ONLINE_MUL = 3, HUMAN_XP = 30, ONLINE_DAILY_XP = 150;/* R86: staerkere Online-Anreize (Engagement) */
 // Online-Freischaltungen (Anzahl Online-Rennen): Lackierungen und die Pixel-Krone (erster Online-Sieg gegen einen Menschen)
 export const ONLINE_UNLOCKS = [
   {n: 1, what: 'Lackierung „Wiesn Blau-Weiß“'},

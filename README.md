@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 86 (03.10.2026): Staerkere Online-Anreize
+
+- **Online-Belohnungen erhoeht** (Engagement): XP-Multiplikator je Online-Rennen ×2 → **×3**, Sieg-Prämie je geschlagenem Menschen 20 → **30 XP**, Bonus fürs erste Online-Rennen des Tages 100 → **150 XP**. Online-Lackierungen und Pixel-Krone rücken damit deutlich naeher — der Fortschrittsbalken im Online-Panel („noch N Rennen") macht den Anreiz sichtbar. 214 Tests gruen.
+
 ## Runde 85 (03.10.2026): Speed-Traps entfernt
 
 - **Blitzer-Torbögen raus** (Nutzerwunsch): die zwei Foto-Blitzer je Runde (Torbögen am Straßenrand, Blitz, km/h-Zeile, Blitzer-Rekord) erscheinen nicht mehr — `buildArcade` baut sie nicht mehr, damit fliegen auch Blitz, Zeile und Rekord-Meldung ersatzlos. Die **Höchstgeschwindigkeit im Ergebnis** bleibt als normale Statistik. 214 Tests grün.
