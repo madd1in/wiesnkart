@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 77 (02.10.2026): Staub in Untergrundfarbe
+
+- **Staub abseits der Straße** (`dustColOf` in `game.js`): der Staub, den Karts im Gelände aufwirbeln, ist jetzt in der Untergrundfarbe der Strecke getönt (aus dem Theme abgeleitet und leicht aufgehellt) — sandfarben im Sonnen-Canyon, grünlich auf der Wiese, braun im Schoko-Matsch — statt immer gleichem Grau-Beige. Der Reifenqualm beim Drift auf der Straße bleibt weißlich. Eine Farbberechnung pro Theme (gecacht), pro Partikel nichts zusätzlich. Verifizert per Offroad-Screenshot im Canyon.
+
 ## Runde 76 (02.10.2026): Turbolicht und Bremslicht am Kart-Heck
 
 - **Turbolicht** (`syncKartInstances` in `game.js`): solange ein Kart im Turbo ist (`r.boost`), leuchtet hinten ein orange-gelbes, leicht pulsierendes Licht — bei allen Fahrern, auch online sichtbar, wenn auch nur im eigenen Browser berechnet.

@@ -3468,6 +3468,9 @@ const PUFFS=40,puffMesh=fxMesh(puffGeo,new T.MeshBasicMaterial({color:0xffffff,t
 function dropPuff(r,color=0xdfe8e8){const i=puffIdx++%PUFFS,p=puffPool[i],s=Math.sin(r.h),c=Math.cos(r.h);p.x=r.x-s*1.4;p.y=(r.y||0)+.5;p.z=r.z-c*1.4;p.vx=-s*2+(Math.random()-.5);p.vy=.9;p.vz=-c*2+(Math.random()-.5);p.life=.75;puffMesh.setColorAt(i,_col.setHex(color));puffMesh.instanceColor.needsUpdate=true;}
 // R72 Reifenrauch (Drift) und Staub abseits der Strasse: groessere, weiche Wolken als die kleinen Puffs
 const SMOKES=70,smokeMesh=fxMesh(new T.SphereGeometry(.34,8,6),new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.3,depthWrite:false}),SMOKES),smokePool=Array.from({length:SMOKES},()=>({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1}));let smokeIdx=0;sharedGeo.add(smokeMesh.geometry);
+// R77: Staub abseits der Strasse in Untergrundfarbe (Wiese gruenlich, Canyon sandfarben, Schoko braun) statt Einheitsgrau
+const dustColCache=new Map();
+function dustColOf(){const g=theme&&theme.grass;if(!g)return 0xb9a173;if(!dustColCache.has(g))dustColCache.set(g,new T.Color(g).lerp(new T.Color(0xffffff),.28).getHex());return dustColCache.get(g);}
 function dropSmoke(x,y,z,vx,vz,color=0xeef2f5,life=.85){const i=smokeIdx++%SMOKES,q=smokePool[i];q.x=x;q.y=y;q.z=z;q.vx=vx;q.vy=.7+Math.random()*.5;q.vz=vz;q.life=q.max=life;smokeMesh.setColorAt(i,_col.setHex(color));smokeMesh.instanceColor.needsUpdate=true;}
 function updateSmoke(dt){let dirty=false;for(let i=0;i<SMOKES;i++){const q=smokePool[i];if(q.life<=0)continue;q.life-=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;q.vx*=1-dt*1.6;q.vz*=1-dt*1.6;
   if(q.life>0){const u=1-q.life/q.max,k=(.6+u*2.6)*Math.min(1,q.life*4);_m.makeScale(k,k,k).setPosition(q.x,q.y,q.z);smokeMesh.setMatrixAt(i,_m);}else smokeMesh.setMatrixAt(i,_zeroM);dirty=true;}if(dirty)smokeMesh.instanceMatrix.needsUpdate=true;}
@@ -4456,7 +4459,7 @@ function update(dt){
   syncKart(r,dt);
   // Drift-Funken je Ladestufe (blau/orange/lila) an den Hinterraedern, Reifenspuren beim Rutschen
   const sx=Math.sin(r.h),cz=Math.cos(r.h);
-  if(!r.air&&Math.abs(r.speed)>11&&nearPlayer(r,60)){if((r.driftDir||Math.abs(r.slide)>3)&&frame%2===0){const dust=offroad;for(const side of [-1,1])dropSmoke(r.x-sx*1.05+cz*side*.85,(r.y||0)+.25,r.z-cz*1.05-sx*side*.85,-sx*1.4+(Math.random()-.5)*1.6,-cz*1.4+(Math.random()-.5)*1.6,dust?0xb9a173:0xeef2f5,dust?1.1:.85);}else if(offroad&&frame%3===0)dropSmoke(r.x-sx*1.2,(r.y||0)+.2,r.z-cz*1.2,-sx*1.8+(Math.random()-.5)*1.4,-cz*1.8+(Math.random()-.5)*1.4,0xb9a173,.9);}
+  if(!r.air&&Math.abs(r.speed)>11&&nearPlayer(r,60)){if((r.driftDir||Math.abs(r.slide)>3)&&frame%2===0){const dust=offroad;for(const side of [-1,1])dropSmoke(r.x-sx*1.05+cz*side*.85,(r.y||0)+.25,r.z-cz*1.05-sx*side*.85,-sx*1.4+(Math.random()-.5)*1.6,-cz*1.4+(Math.random()-.5)*1.6,dust?dustColOf():0xeef2f5,dust?1.1:.85);}else if(offroad&&frame%3===0)dropSmoke(r.x-sx*1.2,(r.y||0)+.2,r.z-cz*1.2,-sx*1.8+(Math.random()-.5)*1.4,-cz*1.8+(Math.random()-.5)*1.4,dustColOf(),.9);}
   if(r.driftDir&&!r.air&&frame%2===0&&nearPlayer(r,90)){const lvl=miniTurbo(r.drift)?.[2]||null;if(lvl)for(const side of [-1,1])emit(r.x-sx*1.3+cz*side*.9,r.y+.25,r.z-cz*1.3-sx*side*.9,MT_COLORS[lvl],-sx*3+(Math.random()-.5)*3,1.5+Math.random()*2,-cz*3+(Math.random()-.5)*3,.3);}
   // Reifenspuren liegen flach am Boden - an der Halfpipe-Wand landeten sie sonst hinter der Pipe im Gras (R52)
   if(!r.air&&!(r.hpOn&&Math.abs(r.offset)>HP.flat-.6)&&(r.driftDir||Math.abs(r.slide)>2.2||(r.spinO>0&&Math.abs(r.speed)>3))&&(Math.abs(r.speed)>8||r.spinO>0)&&frame%3===0&&nearPlayer(r,70))for(const side of [-1,1])dropSkid(r.x-sx*.9+cz*side*.85,r.y,r.z-cz*.9-sx*side*.85,r.h);
