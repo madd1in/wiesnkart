@@ -21,9 +21,12 @@ export const lbSerial = ev => JSON.stringify([0, ev.pubkey, ev.created_at, ev.ki
 export const lbFilter = (board, limit = 500) => ({kinds: [LB_KIND], '#d': [lbTag(board)], limit});
 
 /** Antworten der Relays auswerten: nur gueltige Eintraege dieser Liste, je Schluessel der neueste, sortiert.
- *  Zeiten ausserhalb [minTime, maxTime] fliegen raus (minTime schuetzt vor offensichtlich gefaelschten Zeiten). */
+ *  Zeiten ausserhalb [minTime, maxTime] fliegen raus (minTime schuetzt vor offensichtlich gefaelschten Zeiten).
+ *  R93: Eintraege duerfen einen gepackten Geist (g, s. ghostshare.mjs, base64url, hoechstens 10 kB) mitbringen -
+ *  nur Zeichenvorrat und Laenge werden hier geprueft, entpackt und gefahren wird im Spiel. */
 export function lbParse(events, board, {minTime = 0, maxTime = 900, drivers = 64} = {}) {
   const tag = lbTag(board), wins = board === 'wins', best = new Map();
+  const cleanGhost = g => (typeof g === 'string' && g.length > 8 && g.length <= 10000 && /^[A-Za-z0-9_-]+$/.test(g)) ? g : undefined;
   for (const ev of Array.isArray(events) ? events : []) {
     if (!ev || ev.kind !== LB_KIND || typeof ev.pubkey !== 'string' || !/^[0-9a-f]{64}$/.test(ev.pubkey) || !Number.isFinite(ev.created_at)) continue;
     if (!Array.isArray(ev.tags) || !ev.tags.some(t => Array.isArray(t) && t[0] === 'd' && t[1] === tag)) continue;
@@ -32,7 +35,7 @@ export function lbParse(events, board, {minTime = 0, maxTime = 900, drivers = 64
     const n = cleanLbName(c.n) || 'Gast', d = Number.isInteger(c.d) && c.d >= 0 && c.d < drivers ? c.d : 0;
     let e;
     if (wins) {const w = Math.floor(Number(c.w)); if (!(w >= 1 && w <= 1e5)) continue; e = {pubkey: ev.pubkey, n, d, w, at: ev.created_at};}
-    else {const t = Number(c.t); if (!Number.isFinite(t) || t < minTime || t > maxTime) continue; e = {pubkey: ev.pubkey, n, d, t: Math.round(t * 1000) / 1000, at: ev.created_at};}
+    else {const t = Number(c.t); if (!Number.isFinite(t) || t < minTime || t > maxTime) continue; e = {pubkey: ev.pubkey, n, d, t: Math.round(t * 1000) / 1000, at: ev.created_at, g: cleanGhost(c.g)};}
     const old = best.get(ev.pubkey);
     if (!old || ev.created_at > old.at) best.set(ev.pubkey, e);          // ersetzbar: der neueste Eintrag zaehlt
   }

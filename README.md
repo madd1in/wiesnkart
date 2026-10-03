@@ -6,6 +6,10 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 93 (03.10.2026): Gegen den Weltbesten fahren
+
+**Geister reisen in der Weltrangliste mit** (`lb.mjs` mit Tests, `ghostshare.mjs` von R92): Trägt jemand im Zeitfahren seine Zeit in die Weltrangliste ein, hängt das Spiel automatisch den eigenen Geist als kompaktes Fragment an das Liste-Ereignis (höchstens 8 kB; die Relays prüfen weiter die Signatur, das Spiel prüft Zeichen und Länge). In der Liste bekommt jede Zeile mit Geist einen kleinen **👻-Knopf** — ein Tipp und das Zeitfahren gegen genau diesen Geist startet sofort: Name und Zielzeit im Start-Hinweis, schlagen gibt Fanfare und räumt den Geist ab. Damit wird aus der Bestenliste ein spielbarer Wettkampf: Zeit eintragen, Weltbesten antippen, hinterherjagen. Vorhandene Einträge ohne Geist bleiben unverändert lesbar. 230 Tests grün; im Testlauf rendert die Liste zwei Zeilen (Knopf nur am Geist-Eintrag) und der Knopf startet das Zeitfahren auf der richtigen Strecke.
+
 ## Runde 92 (03.10.2026): Geist-Duelle per Link
 
 **Zeitfahr-Geist verschicken und schlagen lassen** (`ghostshare.mjs`, Tests): Im Zeitfahr-Ergebnis gibt es unter der Weltrangliste den Knopf **„👻 Geist zum Duell verschicken"** — er baut einen Link mit der eigenen besten Runde (Teilen-Menü, sonst Kopieren). Öffnet jemand den Link, startet das Spiel direkt das Zeitfahren auf der Strecke gegen diesen Geist: Er ist in der Farbe des Absenders unterwegs, der Start-Hinweis nennt Namen und Zielzeit, geschlagen wird mit Fanfare, Konfetti und einem Zähler im Profil — danach fährt man wieder gegen den eigenen Geist. Bleibt man hinter ihm, steht Name, Zeit und Rückstand in der Ergebniszeile.

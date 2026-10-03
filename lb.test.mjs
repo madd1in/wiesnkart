@@ -37,3 +37,17 @@ test('R87 Wochen-Cup-Board: wc:< Woche, Gesamtzeiten steigen wie im Zeitfahren',
  assert.deepEqual(list.map(e=>[e.n,e.t]),[['Sepp',490],['Mitzi',502.25]]);
  assert.equal(lbRank(list,K('a')),1);assert.ok(lbBetter(B,488,490));assert.ok(lbBetter(B,488,null));
 });
+test('R93 Weltbesten-Geist: gepackter Geist reist mit, Muell und Riesen fallen raus',()=>{
+ const B=ttBoard(0),g='AS0B8wgAOAU2BTAFLAUkBToELgQiBDIDJAM0AiQCMgEgARAA';   // Zeichen wie ein echter Pack
+ const list=lbParse([
+  ev(K('a'),B,{n:'Weltbester',d:2,t:98,g},20),
+  ev(K('b'),B,{n:'OhneGeist',d:1,t:99},20),
+  ev(K('c'),B,{n:'Kaputt',d:1,t:97,g:'!!!'},20),                 // falsche Zeichen -> kein Geist
+  ev(K('d'),B,{n:'ZuGross',d:1,t:96,g:'A'.repeat(10001)},20)],   // zu lang -> kein Geist
+  B,{minTime:60});
+ assert.equal(list.length,4);
+ assert.equal(list.find(e=>e.n==='Weltbester').g,g);
+ assert.equal(list.find(e=>e.n==='OhneGeist').g,undefined);
+ assert.equal(list.find(e=>e.n==='Kaputt').g,undefined);
+ assert.equal(list.find(e=>e.n==='ZuGross').g,undefined);
+});

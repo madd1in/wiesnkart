@@ -6161,14 +6161,25 @@ function lbRender(ol,board,list){ol.replaceChildren();const me=store.get('lbPub'
  if(!list)return note('Bestenliste gerade nicht erreichbar – später nochmal.');if(!list.length)return note('Noch keine Einträge – trag dich als Erste(r) ein!');
  const rank=me?lbRank(list,me):0,rows=list.slice(0,LB_TOP).map((e,i)=>[i,e]);if(rank>LB_TOP)rows.push([rank-1,list[rank-1]]);
  for(const [i,e] of rows){const li=document.createElement('li');if(e.pubkey===me)li.className='me';const a=document.createElement('span'),b=document.createElement('span'),c=document.createElement('span');
-  a.textContent=(i+1)+'.';b.textContent=`${DRIVERS[e.d]?.i||''} ${e.n}`;c.textContent=lbFmt(board,e);li.append(a,b,c);ol.append(li);}}
+  a.textContent=(i+1)+'.';b.textContent=`${DRIVERS[e.d]?.i||''} ${e.n}`;c.textContent=lbFmt(board,e);li.append(a,b,c);
+  if(e.g){const du=document.createElement('button');du.type='button';du.className='lb-duel';du.textContent='👻';du.title=`Gegen ${e.n}s Geist fahren`;du.setAttribute('aria-label',`Gegen ${e.n}s Geist fahren`);du.onclick=()=>lbDuel(board,e);li.append(du);}   // R93
+  ol.append(li);}}
+// R93: aus der Weltrangliste direkt gegen einen fremden Geist fahren (Zeitfahren startet sofort)
+function lbDuel(board,e){const m=/^tt:(\d+)$/.exec(board),ti=m?+m[1]:-1;if(ti<0||ti>=courses.length)return;
+ const data=unpackGhost(e.g);if(!data){toast('👻 Geist unlesbar',2,'bad');return;}
+ store.set(`ghostShare-${ti}`,{...data,color:KART_COLORS[(e.d*3)%KART_COLORS.length].c,driver:e.d,time:e.t,name:e.n});
+ SFX.select();pickMode('tt');selected=ti;syncTrackButtons();buildCourse();gp=newGp(false);start();SFX.spook();}
 // Liste, Eintragen-Knopf und Hinweis in einem Kasten (.lb-list, .lb-post, .lb-hint, optional .lb-name)
 async function lbPanel(root,board){const ol=root.querySelector('.lb-list'),btn=root.querySelector('.lb-post'),hint=root.querySelector('.lb-hint'),nm=root.querySelector('.lb-name');root.dataset.board=board;
  const v=lbMine(board),sent=store.get('lbSent-'+board,null),bad=board!=='wins'&&v!==null&&v<lbOpts(board).minTime,fresh=lbBetter(board,v,sent);
  const say=()=>{hint.textContent=v===null?(board==='wins'?'Gewinne online gegen Freunde (Rennen oder Kotzhügel Fight), dann kannst du dich eintragen.':board.startsWith('wc:')?'Fahr diese Woche den Wochen-Cup zu Ende (Grand Prix über vier Strecken), dann kannst du deine Gesamtzeit eintragen.':'Fahr hier ein Zeitfahren, dann kannst du dich eintragen.'):`Eintragen speichert „${myNetName()}“ und ${board==='wins'?'deine Siege':'deine Zeit'} öffentlich (Nostr-Relays, ohne Anmeldung).`;};
  if(nm){nm.value=store.get('netName','');nm.oninput=()=>{store.set('netName',cleanName(nm.value));say();};}
  btn.hidden=v===null||bad;btn.disabled=!fresh;btn.textContent=!fresh?'✓ Dein Eintrag ist aktuell':board==='wins'?`🌍 Meine ${v} ${v===1?'Sieg':'Siege'} eintragen`:board.startsWith('wc:')?`🌍 Meine Cup-Gesamtzeit ${format(v)} eintragen`:`🌍 Meine Bestzeit ${format(v)} eintragen`;say();
- btn.onclick=async()=>{btn.disabled=true;btn.textContent='trägt ein …';let ok=0;try{ok=await lbPublish(board,board==='wins'?{n:myNetName(),w:v,d:driverIndex}:{n:myNetName(),t:v,d:driverIndex});}catch(e){ok=0;}
+ btn.onclick=async()=>{btn.disabled=true;btn.textContent='trägt ein …';let ok=0;
+  // R93: Zeitfahren-Eintraege nehmen den eigenen Geist mit (hoechstens 8 kB), damit jeder aus der Liste dagegen fahren kann
+  const tt=/^tt:(\d+)$/.exec(board);let gf;
+  if(tt){const own=store.get(`ghost-${+tt[1]}`,null);try{gf=packGhost(own);}catch(e){}if(gf&&gf.length>8000)gf=undefined;}
+  try{ok=await lbPublish(board,board==='wins'?{n:myNetName(),w:v,d:driverIndex}:{n:myNetName(),t:v,d:driverIndex,...(gf?{g:gf}:{})});}catch(e){ok=0;}
   if(ok){store.set('lbSent-'+board,v);toast('🌍 Eingetragen!',1.4,'good');lbPanel(root,board);}else{btn.disabled=false;btn.textContent='Hat nicht geklappt – nochmal?';}};
  ol.replaceChildren();{const li=document.createElement('li');li.className='lb-note';li.textContent=TEST?'(Testmodus: keine Abfrage)':'lädt …';ol.append(li);}if(TEST)return;
  const list=await lbFetch(board);if(root.dataset.board===board)lbRender(ol,board,list);}
