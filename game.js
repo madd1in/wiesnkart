@@ -19,6 +19,7 @@ import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_S
 import {LB_TOP,ttBoard,wcBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
 import {EMOJIS,QUICK,HORNS,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
+import {packGhost,unpackGhost,ghostLink,parseGhostLink} from './ghostshare.mjs';
 import {CAM_VIEWS,camViewIndex,nextCamView,TRAP_AT,trapCrossed,trapGrade,NEAR,nearMiss} from './arcade.mjs';
 import {engineNote,shiftedUp} from './motor.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById,weekCup} from './cups.mjs';
@@ -1308,8 +1309,11 @@ const isTT=()=>mode==='tt'&&!gp.active;
 const gpN=()=>gp.list?gp.list.length:courses.length,gpName=()=>cupById(gp.cup||'alle').name;
 const newGp=on=>on?{active:true,race:0,points:{},cup:gpCup,list:cupTracks(gpCup,courses.length)}:{active:false,race:0,points:{}};
 let ghost=null,rec=null;
-function setupGhost(){ghost=null;rec=null;if(!isTT())return;rec={x:[],y:[],z:[],h:[],d:[],next:0};const data=store.get(`ghost-${selected}`,null);if(!data||!data.x||!data.x.length)return;
- const g=kart(data.color??0xffffff,false,data.driver??0);g.traverse(o=>{if(!o.isMesh)return;o.castShadow=false;o.material=[].concat(o.material).map(m=>{const c=m.clone();c.transparent=true;c.opacity=.36;c.depthWrite=false;return c;})[0];});actors.add(g);ghost={mesh:g,data,dist:0};}
+function setupGhost(){ghost=null;rec=null;if(!isTT())return;rec={x:[],y:[],z:[],h:[],d:[],next:0};
+ // R92 Geist-Duell: ein geteilter Geist hat Vorrang vor dem eigenen - bis er geschlagen ist
+ const shared=store.get(`ghostShare-${selected}`,null),data=(shared&&shared.x&&shared.x.length)?shared:store.get(`ghost-${selected}`,null);
+ if(!data||!data.x||!data.x.length)return;
+ const g=kart(data.color??0xffffff,false,data.driver??0);g.traverse(o=>{if(!o.isMesh)return;o.castShadow=false;o.material=[].concat(o.material).map(m=>{const c=m.clone();c.transparent=true;c.opacity=.36;c.depthWrite=false;return c;})[0];});actors.add(g);ghost={mesh:g,data,dist:0,duel:shared?{time:shared.time,name:shared.name||'Fahrer'}:null};}
 function recordGhost(p){if(!rec||elapsed<rec.next)return;rec.next+=.1;rec.x.push(Math.round(p.x*10));rec.y.push(Math.round(p.y*10));rec.z.push(Math.round(p.z*10));rec.h.push(Math.round(p.h*100));rec.d.push(Math.round(p.distance*10));}
 function updateGhost(){if(!ghost)return;const D=ghost.data,f=elapsed/.1,i=Math.floor(f),n=D.x.length;if(state!=='race'||i>=n-1){ghost.mesh.visible=state==='countdown';if(i>=n-1)ghost.dist=Infinity;return;}
  const k=f-i,L=a=>(a[i]+(a[i+1]-a[i])*k)/10;ghost.mesh.visible=true;ghost.mesh.position.set(L(D.x),L(D.y)+.1,L(D.z));ghost.mesh.rotation.set(0,(D.h[i]+(D.h[i+1]-D.h[i])*k)/100,0);ghost.dist=L(D.d);}
@@ -4039,7 +4043,7 @@ function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introFor
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=!(net&&net.setup)&&mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();scapeStart(course.openWorld?'forest':course.theme);stageCard();talerReset();syncHeadlights();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
- splitSharedMaterials(scene);if(SOFT_GL&&!softNoted){softNoted=true;toast('⚙ Ohne Grafikkarte am Laufen – Auflösung gedrosselt, damit die Fahrt flutscht',3,'');}if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
+ splitSharedMaterials(scene);if(SOFT_GL&&!softNoted){softNoted=true;toast('⚙ Ohne Grafikkarte am Laufen – Auflösung gedrosselt, damit die Fahrt flutscht',3,'');}if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast(ghost.duel?`👻 GEIST-DUELL gegen ${ghost.duel.name} – schlag ${format(ghost.duel.time)}!`:'👻 Dein Geist fährt mit – schlag ihn!',ghost.duel?2.8:2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
 function home(){scapeStop();if(menuMode==='online'&&mode!=='online'){mode='online';setTimeout(()=>{syncModeUi();refreshMenu();syncModeUi();},0);}wxRestore();battleStop();document.body.classList.remove('mirror','ow');raceMirror=false;owPortalHide();setAmbience(false);gp.active=false;state='menu';keys.clear();buildCourse();for(const id of ['hud','touch','pause','pausePanel','result','ceremony'])$(id).hidden=true;$('menu').hidden=false;setText('message','');document.body.classList.remove('racing','cer');if(engine)engine.g.gain.value=0;SFX.hum(false);stopVoice();finishMusicAt=0;playBgm('menu');refreshMenu();}
 let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$('pausePanel').hidden=true;}else if(state==='race'||state==='countdown'){beforePause=state;state='paused';keys.clear();$('pausePanel').hidden=false;stopVoice();}if(engine)engine.g.gain.value=soundOn&&state==='race'?.011:0;}
 function use(){if(state!=='race')return;useItem(racers[0]);}
@@ -4599,7 +4603,7 @@ function showProgress(res){store.set('prog',res.prog);const el=$('resultProg');i
  const fill=$('xpFill');setTimeout(()=>{if(res.levelUp){fill.style.width='100%';setTimeout(()=>{setText('xpLvl',String(lv1.level));fill.style.transition='none';fill.style.width='0%';void fill.offsetWidth;fill.style.transition='';fill.style.width=Math.round(lv1.into/lv1.need*100)+'%';playClip('s_c_levelup',sfxGain,.9);},700);}else fill.style.width=Math.round(lv1.into/lv1.need*100)+'%';},450);
  if(res.fresh.length)setTimeout(()=>playClip('s_c_unlock',sfxGain,.8),res.levelUp?1600:900);}
 function end(){scapeStop();document.body.classList.remove('mirror');elapsed=racers[0].finishTime??elapsed;qualityRaceEnd();if(isTT())return endTT();state='finished';keys.clear();roulette=null;SFX.hum(false);burst(racers[0],0xffd452,26);burst(racers[0],0xed6350,16);burst(racers[0],0x55bdb2,16);
- $('result').hidden=false;$('lbBox').hidden=true;$('touch').hidden=true;showRidePhoto();const order=ranking(racers),place=order.indexOf(racers[0])+1,board=$('leaderboard'),rs=raceStars(place,stats.hitsTaken);
+ $('result').hidden=false;$('lbBox').hidden=true;$('ghostShare').hidden=true;$('touch').hidden=true;showRidePhoto();const order=ranking(racers),place=order.indexOf(racers[0])+1,board=$('leaderboard'),rs=raceStars(place,stats.hitsTaken);
  $('resultTitle').textContent=place===1?(rs.perfect?'Perfektes Rennen!':'Der Pokal gehört dir!'):place<=3?`Platz ${place} – aufs Treppchen!`:place===order.length?'GAME OVER? NÖ – NOCHMAL!':`Platz ${place}. Da geht noch was!`;
  $('resultTime').textContent=`${course.name} · ${ccName(cc)} · ${format(elapsed)}`;lastResult={place,n:order.length,track:course.name,icon:course.icon,cc:ccName(cc),time:format(elapsed),best:Number.isFinite(stats.bestLap)?format(stats.bestLap):'',stars:rs.stars,online:!!(net&&net.setup),name:net&&net.setup?myNetName():(DRIVERS[driverIndex]?.n||'Fahrer')};$('shareBtn').hidden=false;
  $('resultStars').innerHTML=[0,1,2].map(i=>`<i class="${i<rs.stars?'on':''}">★</i>`).join('')+(rs.perfect?'<b>PERFEKT</b>':'');
@@ -4646,6 +4650,12 @@ function endTT(){state='finished';keys.clear();roulette=null;const p=racers[0];$
  $('resultStats').innerHTML=st.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
  const board=$('leaderboard');board.replaceChildren();board.classList.remove('many');course.medals.forEach((t,i)=>{const li=document.createElement('li');if(i===m)li.className='me';li.innerHTML=`<span>${MEDALS[i]}</span><span>${elapsed<=t?'✓ geschafft':'noch '+(elapsed-t).toFixed(1)+' s'}</span><span>${format(t)}</span>`;board.append(li);});
  $('again').textContent=record?'Gegen den neuen Geist ↻':'Nochmal versuchen ↻';refreshBest();{const b=$('lbBox');b.hidden=false;lbPanel(b,ttBoard(selected));}
+ // R92 Geist-Duell: gegen den geteilten Geist gewonnen? Sonst steht der Rückstand im Ergebnis
+ {const du=ghost?.duel,btn=$('ghostShare');
+  if(du){if(elapsed<du.time){store.set('ghostDuelWins',store.get('ghostDuelWins',0)+1);store.set(`ghostShare-${selected}`,null);
+    setTimeout(()=>{toast(`👻 GEIST GESCHLAGEN! ${du.name} ist history 🔥`,3,'good');SFX.crown();confetti(racers[0],90);},700);}
+   else $('resultTime').textContent+=`  ·  👻 ${du.name}: ${format(du.time)} (${(elapsed-du.time).toFixed(1)} s dahinter)`;}
+  const own=store.get(`ghost-${selected}`,null);if(btn){btn.hidden=!own||!own.x||!own.x.length;}}
  stopVoice();say(record?'best':'finish');if(m<3)SFX.cheer();if(engine)engine.g.gain.value=0;stopBgm();if(!playClip(m<3?'s_c_win':'s_c_lose',sfxGain,.85)&&!playClip(m<3?'s_jingle':'s_goodtry',sfxGain,.8))SFX.fanfare();finishMusicAt=performance.now()+(m<3?6800:4800);setText('message','');}
 function nextAfterResult(){if(net&&net.setup&&net.setup.cyc){toast('⏳ Gleich geht es zurück in die Lobby-Welt …',1.8);return;}if(net&&net.setup){if(net.host&&net.pub)net.autoT=Math.min(net.autoT||0,performance.now()+4000);home();openOnline();return;}if(gp.active){if(gp.race<gpN()-1){gp.race++;start();}else ceremony();}else start();}
 
@@ -5225,6 +5235,23 @@ async function shareResult(){if(!lastResult)return;SFX.select();const blob=await
  try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],text});return;}}catch(e){if(e?.name==='AbortError')return;}
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);toast('📸 Siegerkarte gespeichert',1.6,'good');}
 $('shareBtn').onclick=shareResult;
+// R92 Geist-Duell: eigenen besten Geist als Link rausgeben - Empfaenger faehrt direkt dagegen (g=-Hash)
+$('ghostShare').onclick=async()=>{const own=store.get(`ghost-${selected}`,null),frag=packGhost(own);if(!frag){toast('Erst eine Runde fahren, dann den Geist verschicken 🧟',2);return;}
+ const part=ghostLink({track:selected,time:own.time||ghostTimeOf(own),driver:driverIndex,color:KART_COLORS[colorIndex].c,name:myNetName(),frag});
+ if(!part){toast('Geist passt nicht in den Link – Runde zu lang',2);return;}
+ const url=`${location.origin}${location.pathname}#g=${part}`,text=`👻 Schlag meine Runde auf ${course.name}: ${format(own.time)}! `;
+ SFX.select();
+ try{if(navigator.canShare?.({url})||navigator.share){await navigator.share({title:'Geist-Duell',text,url});return;}}catch(e){if(e?.name==='AbortError')return;}
+ try{await navigator.clipboard.writeText(url);toast('👻 Geist-Link kopiert – verschick ihn!',2.4,'good');}
+ catch(e){toast('Link konnte nicht kopiert werden',2,'bad');}};
+const ghostTimeOf=d=>Math.max(0,((d?.x?.length||0)-1)/10);
+// R92 Empfang: ein #g=-Link legt den fremden Geist ab und startet das Zeitfahren direkt dagegen
+function ghostDuelInit(){let part=null;try{part=new URLSearchParams(location.hash.slice(1)).get('g');}catch(e){}if(!part)return;
+ const L=parseGhostLink(part),data=L&&L.track<courses.length?unpackGhost(L.frag):null;
+ if(!L||!data){toast('👻 Geist-Link unlesbar',2.4,'bad');return;}
+ store.set(`ghostShare-${L.track}`,{...data,color:L.color,driver:L.driver,time:L.time,name:L.name});
+ try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}   // Link verbraucht: F5 startet kein zweites Duell
+ pickMode('tt');selected=L.track;syncTrackButtons();buildCourse();gp=newGp(false);start();SFX.spook();}
 $('again').onclick=nextAfterResult;$('home').onclick=home;$('quit').onclick=home;$('pause').onclick=pause;$('resume').onclick=pause;$('sound').onclick=setSound;
 $('cerAgain').onclick=()=>{gp=newGp(true);start();};syncModeUi();$('cerHome').onclick=home;
 $('item').onclick=use;$('titem').onpointerdown=e=>{e.preventDefault();itemDown();};$('titem').onpointerup=$('titem').onpointercancel=$('titem').onpointerleave=()=>itemUp();
@@ -5619,7 +5646,7 @@ const protoRecovery=createPrototypeRecovery(PROTO_FILES,P,()=>{
 const protoAll=Promise.all(PROTO_FILES.map(loadProto));
 protoAll.then(()=>{protoRecovery.settle();
  try{buildItemThumbs();}catch(e){console.error('itemThumbs',e);}try{driverThumbs();}catch(e){console.error('driverThumbs',e);}});
-Promise.race([protoAll,new Promise(r=>setTimeout(r,9000))]).finally(()=>{protoRecovery.snapshot();try{applyGfx();}catch(e){}buildCourse();resize();refreshMenu();try{driverThumbs();}catch(e){}try{buildItemThumbs();}catch(e){console.error('itemThumbs0',e);}readyPromise.then(()=>{updateCamera(1/60,true);try{renderer.render(scene,camera);}catch(e){}
+Promise.race([protoAll,new Promise(r=>setTimeout(r,9000))]).finally(()=>{protoRecovery.snapshot();try{applyGfx();}catch(e){}buildCourse();resize();refreshMenu();ghostDuelInit();try{driverThumbs();}catch(e){}try{buildItemThumbs();}catch(e){console.error('itemThumbs0',e);}readyPromise.then(()=>{updateCamera(1/60,true);try{renderer.render(scene,camera);}catch(e){}
  requestAnimationFrame(()=>{playBgm('menu');const l=$('loader');l.classList.add('done');setTimeout(()=>l.hidden=true,600);requestAnimationFrame(loop);setInterval(prebuildTick,900);
   // Grossbauten nachladen und die betroffenen Strecken neu bauen lassen
   Promise.all(LATE_FILES.map(loadProto)).then(()=>{for(let i=0;i<courses.length;i++){const hzC=courses[i].choco||courses[i].voxel||courses[i].city||courses[i].pixel||courses[i].bay2||courses[i].ice2||courses[i].stampers||courses[i].pipes||courses[i].cannons||courses[i].lasers||courses[i].lab||courses[i].gothic2||courses[i].eggs||courses[i].landmarks||courses[i].wiesn||courses[i].train||courses[i].towers||courses[i].cows||courses[i].beatgates||courses[i].hands||courses[i].lowgrav||courses[i].meteors||courses[i].theme==='lava'||courses[i].theme==='forest';if(!hzC&&courses[i].mansion===undefined&&courses[i].castle===undefined&&!(courses[i].builds||[]).length&&!(courses[i].coaster||[]).length)continue;if(i===builtSel){if(state==='menu')buildCourse(true);else worldDirty=true;}else disposeCourse(i);}
