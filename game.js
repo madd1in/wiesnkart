@@ -334,13 +334,27 @@ const TV_SYS=isConsole(navigator.userAgent,location.search);
 const liteFor=g=>g==='low'||(g==='auto'&&(coarseInput||TV_SYS||store.get('gfxAuto',0)>=3)),LITE=liteFor(store.get('gfx','auto')),DENS=LITE?.5:1;
 
 // ---------------------------------------------------------------- Renderer & Szene
-let renderer;try{renderer=new T.WebGLRenderer({canvas:$('game'),antialias:!coarseInput});}catch(e){$('error').hidden=false;$('error').textContent='Dein Browser benötigt WebGL für dieses 3D-Spiel. Bitte Hardwarebeschleunigung aktivieren und die Seite neu laden.';throw e;}
+// R89 (Nutzerbericht Xbox/Edge): WebGL2 ist Pflicht (three r165). Vor dem Renderer den Kontext selbst holen und
+// die Faelle sauber unterscheiden - die alte Karte forderte Xbox-Spieler zur "Hardwarebeschleunigung" auf, die es
+// auf der Konsole als Schalter nicht gibt. Ohne Antialias wird es noch einmal versucht (kantige Treiber legen bei
+// MSAA komplett still), Software-Rendering (SwiftShader & Co.) wird erkannt und unten gedrosselt.
+const GL_ERR={
+ none:'Dein Browser stellt kein WebGL bereit. Am Rechner: Einstellungen → System → „Hardwarebeschleunigung aktivieren, wenn verfügbar“ einschalten und den Browser neu starten.'+
+  (TV_SYS?' Auf der Xbox: Edge ganz beenden (Menütaste ☰ → Schließen, nicht nur minimieren) und neu öffnen, notfalls die Konsole neu starten – hängt die Grafik von Edge fest, hilft fast immer ein Neustart der App.':''),
+ w1:'Dieses Spiel braucht WebGL 2 – dein Browser bietet nur die alte WebGL 1 an. Browser bzw. Edge auf der Konsole aktualisieren und neu starten; am Rechner zusätzlich die Hardwarebeschleunigung einschalten.'};
+let renderer=null,gl=null,SOFT_GL=false,softNoted=false;
+const glCard=(msg)=>{$('error').hidden=false;$('error').innerHTML=`<h2 style="margin:0 0 10px;font-size:26px">Oh je – kein 3D möglich</h2><p style="margin:0 0 14px;font-size:15px">${msg}</p><button type="button" onclick="location.reload()" style="font:inherit;font-weight:800;padding:10px 18px">🔄 Erneut versuchen</button>`;};
+try{gl=$('game').getContext('webgl2',{antialias:!coarseInput,alpha:false,powerPreference:'high-performance'})||$('game').getContext('webgl2',{antialias:false,alpha:false});}catch(e){}
+if(!gl){let w1=null;try{w1=$('game').getContext('webgl');}catch(e){}glCard(w1?GL_ERR.w1:GL_ERR.none);throw new Error(w1?'webgl1 only':'no webgl');}
+{const dbg=gl.getExtension('WEBGL_debug_renderer_info');const gpu=dbg?String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)||''):'';
+ SOFT_GL=/swiftshader|software|llvmpipe|basic render/i.test(gpu);}
+try{renderer=new T.WebGLRenderer({canvas:$('game'),context:gl});}catch(e){glCard('Der 3D-Kontext ist da, aber der Renderer startet nicht – vermutlich steckt die Grafik gerade fest oder zu viele 3D-Tabs sind offen. Tabs schließen, App neu starten und erneut versuchen.');throw e;}
 // Shaderfehler nur im Testmodus pruefen: getProgramInfoLog wartet sonst bei jeder Neukompilierung auf den Treiber
 if(renderer)renderer.debug.checkShaderErrors=TEST;
-renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap));renderer.shadowMap.enabled=!LITE;renderer.shadowMap.type=T.PCFShadowMap;if(coarseInput)renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap,SOFT_GL?.72:9));renderer.shadowMap.enabled=!LITE&&!SOFT_GL;renderer.shadowMap.type=T.PCFShadowMap;if(coarseInput)renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
 const scene=new T.Scene(),camera=new T.PerspectiveCamera(62,innerWidth/innerHeight,.25,900),worldRoot=new T.Group(),actors=new T.Group();let world=new T.Group();scene.add(worldRoot,actors);worldRoot.add(world);
 const hemi=new T.HemisphereLight(0xffffff,0x587540,2);scene.add(hemi);
-const sun=new T.DirectionalLight(0xfff7db,3);sun.castShadow=!LITE;sun.shadow.mapSize.set(coarseInput?512:768,coarseInput?512:768);Object.assign(sun.shadow.camera,{left:-48,right:48,top:48,bottom:-48,near:1,far:360});sun.shadow.bias=-.0006;scene.add(sun,sun.target);
+const sun=new T.DirectionalLight(0xfff7db,3);sun.castShadow=!LITE&&!SOFT_GL;sun.shadow.mapSize.set(coarseInput?512:768,coarseInput?512:768);Object.assign(sun.shadow.camera,{left:-48,right:48,top:48,bottom:-48,near:1,far:360});sun.shadow.bias=-.0006;scene.add(sun,sun.target);
 const headlight=new T.PointLight(0xfff0d8,0,30,1.4);if(!LITE)scene.add(headlight);
 const fill=new T.DirectionalLight(0xbfd4ff,.45);fill.position.set(-60,40,-90);scene.add(fill);
 const shaderTime={value:0};
@@ -1229,7 +1243,7 @@ const curbTex=canvasTex(8,64,(q)=>{q.fillStyle=theme.curbA;q.fillRect(0,0,8,32);
  {const lm=label('?','#ed6350','#fff9df',128,128),geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(new Float32Array(boxes.length*3),3));boxQ=new T.Points(geo,new T.PointsMaterial({map:lm.map,size:1.1,transparent:true,depthWrite:false}));boxQ.frustumCulled=false;world.add(boxQ);lm.dispose();}
  bm('boxes');}
 // Neues Rennen auf derselben Strecke: Welt bleibt stehen, nur Fahrer & Zustand werden zurueckgesetzt (kein Ruckler beim Start)
-function resetRace(){arcadeReset();ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();trailFx.clear();emotes.length=0;{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
+function resetRace(){arcadeReset();ridePhoto=null;photoPending=false;clearGroup(actors,kartsG);orbitFx.clear();topFx.clear();trailFx.clear();{const th=course?.theme;skidMesh.material.color.setHex(th==='ice'?0xdff2ff:th==='canyon'||th==='beach'?0x6e4a2a:th==='choco'?0x2e1a0c:0x14181f);skidMesh.material.opacity=th==='ice'?.5:.36;}hazards=[];shots=[];bombs=[];stormFx=[];fworks=[];for(const sh of shocks){sh.t=9;sh.m.visible=false;}roulette=null;cer=null;shake=0;lastPlace=8;leadAt=-99;wrongT=0;
  for(let i=0;i<SKIDS;i++){skids[i].life=0;skidMesh.setMatrixAt(i,_zeroM);}skidMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<SPARKS;i++){sparkPool[i].life=0;sparkMesh.setMatrixAt(i,_zeroM);}sparkMesh.instanceMatrix.needsUpdate=true;for(let i=0;i<PUFFS;i++){puffPool[i].life=0;puffMesh.setMatrixAt(i,_zeroM);}puffMesh.instanceMatrix.needsUpdate=true;
  for(const b of boxes)b.cooldown=0;for(const s of spores)s.cd=0;for(const r of rings)r.flash=0;for(const p of pads)p.squash=0;lightState=-2;setLights(0);
  placeRacers();drawMap();}
@@ -4017,7 +4031,7 @@ function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introFor
  for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=!(net&&net.setup)&&mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();scapeStart(course.openWorld?'forest':course.theme);stageCard();talerReset();syncHeadlights();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
- splitSharedMaterials(scene);if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
+ splitSharedMaterials(scene);if(SOFT_GL&&!softNoted){softNoted=true;toast('⚙ Ohne Grafikkarte am Laufen – Auflösung gedrosselt, damit die Fahrt flutscht',3,'');}if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast('👻 Dein Geist fährt mit – schlag ihn!',2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
 function home(){scapeStop();if(menuMode==='online'&&mode!=='online'){mode='online';setTimeout(()=>{syncModeUi();refreshMenu();syncModeUi();},0);}wxRestore();battleStop();document.body.classList.remove('mirror','ow');raceMirror=false;owPortalHide();setAmbience(false);gp.active=false;state='menu';keys.clear();buildCourse();for(const id of ['hud','touch','pause','pausePanel','result','ceremony'])$(id).hidden=true;$('menu').hidden=false;setText('message','');document.body.classList.remove('racing','cer');if(engine)engine.g.gain.value=0;SFX.hum(false);stopVoice();finishMusicAt=0;playBgm('menu');refreshMenu();}
 let beforePause='race';function pause(){if(state==='paused'){state=beforePause;$('pausePanel').hidden=true;}else if(state==='race'||state==='countdown'){beforePause=state;state='paused';keys.clear();$('pausePanel').hidden=false;stopVoice();}if(engine)engine.g.gain.value=soundOn&&state==='race'?.011:0;}
 function use(){if(state!=='race')return;useItem(racers[0]);}
@@ -4120,23 +4134,13 @@ function coachTick(dt){const el=$('coach');if(coachT>0){coachT-=dt;if(coachT<=0&
  if(c.item!=='ok'){coachHold=pl.item&&!pl.itemPending?coachHold+dt:0;if(coachHold>2.5)coachShow('item');}
  else if(c.hold!=='ok'&&TRAIL_ITEMS.has(pl.item)&&!pl.itemPending){if(pl.trail)coachLearn('hold');else coachShow('hold');}}
 // R67: Pixel-Sprechblasen ueber den Fahrern (getroffen: wuetend, Treffer gelandet/ueberholt/Ziel: froh, Riesenpanzer: Schreck)
-const emoteMats={},emotes=[];
-// R72 (Nutzerwunsch "zu pixelig, hochaufloesend, transparent, ohne Sprechblase"): freie Emoji statt Pixel-Sprechblase, gross gezeichnet und mit Mipmaps verkleinert
-const EMOTE_GLYPH={happy:'😄',angry:'😡',shock:'😱',love:'😍'};
-function emoteMat(k){if(emoteMats[k])return emoteMats[k];const c=document.createElement('canvas');c.width=c.height=256;const q=c.getContext('2d');
- q.textAlign='center';q.textBaseline='middle';q.font='196px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';q.shadowColor='rgba(8,16,40,.4)';q.shadowBlur=16;q.shadowOffsetY=6;q.fillText(EMOTE_GLYPH[k]||'🙂',128,134);
- const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;
- const m=new T.SpriteMaterial({map:t,transparent:true,depthWrite:false});persistentMats.add(m);return emoteMats[k]=m;}
-function emote(r,k){if(!r?.mesh||!r.mesh.visible||(r.emoteCd||0)>elapsed||!nearPlayer(r,55))return;r.emoteCd=elapsed+2.2;babble(r,k);
- for(const e of emotes)if(e.r===r){e.sp.material=emoteMat(k);e.t=0;return;}
- const sp=new T.Sprite(emoteMat(k));sp.renderOrder=5;actors.add(sp);emotes.push({sp,r,t:0});}
+// R89 (Nutzerwunsch "Smileys behindern nur die Sicht im Rennen"): keine Emoji-Sprites mehr ueber den Karts.
+// Die Fahrer brabbeln ihre Laune weiter (babble unten), das Bild bleibt frei; Online-Chat-Sprechblasen bleiben.
+function emote(r,k){if(!r?.mesh||!r.mesh.visible||(r.emoteCd||0)>elapsed||!nearPlayer(r,55))return;r.emoteCd=elapsed+2.2;babble(r,k);}
 // R69: Fahrer-Brabbeln - kurze Chiptune-Silben in eigener Tonhoehe je Fahrer (wie Comic-Sprechblasen); wuetend tiefer, froh hoeher
 function babble(r,k){const pl=racers[0];if(!pl||!soundOn)return;const dist=Math.hypot(pl.x-r.x,pl.z-r.z);if(dist>40)return;
  const drv=r.id===0?driverIndex:(r.drv??AI_DRIVERS?.[r.id]??r.id),base=250+((drv*53)%7)*42,mood={angry:.82,happy:1.15,shock:1.32,love:1.05}[k]||1,v=(r.id===0?.034:.026)*clamp(1-dist/40,.25,1),n=3+((r.id+drv)%2);
  for(let i=0;i<n;i++){const f=base*mood*(.86+Math.random()*.34),up=k==='shock'?1.25:k==='angry'?.9:1.04;sfxTone(f,f*up,.055,'square',v,i*.075);}}
-function updateEmotes(dt){for(let i=emotes.length-1;i>=0;i--){const e=emotes[i];e.t+=dt;const p=e.r.mesh.position,top=(e.r.id===0?myTopper():e.r.topper)?.9:0;
- const s=e.t<.14?e.t/.14*1.25:e.t<.24?1.25-(e.t-.14)*2.5:e.t>1.35?Math.max(0,(1.65-e.t)/.3):1;e.sp.scale.set(1.5*s,1.5*s,1);e.sp.position.set(p.x,p.y+2.9+top+Math.sin(e.t*9)*.05,p.z);
- if(e.t>1.65||!e.r.mesh.parent){actors.remove(e.sp);emotes.splice(i,1);}}}
 // R66: "?"-Block zerspringt beim Einsammeln in Pixel-Splitter (Farben des Voxel-Blocks)
 function boxPop(b){const y=b.baseY;for(let i=0;i<22;i++){const a=Math.random()*TAU,sp=3+Math.random()*5;emit(b.x+Math.sin(a)*.5,y+Math.random()*.8,b.z+Math.cos(a)*.5,[0xf6c23c,0xf6c23c,0x8a5a10,0xffffff,0xffe89a][i%5],Math.sin(a)*sp,2.5+Math.random()*5,Math.cos(a)*sp,.55+Math.random()*.35);}}
 // R69: Pixel-Konfetti auf dem Treppchen (bunte Wuerfel schiessen hoch und rieseln)
@@ -4524,7 +4528,7 @@ function update(dt){
    else if((a.id===0||b.id===0)&&rel>6){SFX.bump(clamp(rel/25,.2,.8));shake=Math.max(shake,.15);}}}
  // R57: Arena-Wand auch nach den Rempeleien - sonst schoben Kollisionen Bots ueber den Rand, wo der Boden fehlte
  if(battle&&arenaOn())for(const r of racers)if(!r.net&&(!battle.open||r.fighter))arenaWall(r);
- updateShots(dt);updateBombs(dt);updateInk(dt);updateOrbits(dt);coachTick(dt);updateEmotes(dt);trailTick();modTick(dt);scapeTick(dt);talerTick(dt);
+ updateShots(dt);updateBombs(dt);updateInk(dt);updateOrbits(dt);coachTick(dt);trailTick();modTick(dt);scapeTick(dt);talerTick(dt);
  const newOrder=ranking(racers),place=newOrder.indexOf(player)+1;
  if(place<lastPlace&&elapsed>2&&!battle){stats.overtakes+=lastPlace-place;SFX.overtake();if(place<=3||Math.random()<.35)emote(racers[0],'happy');}
  if(place===1&&lastPlace>1&&elapsed>8&&elapsed-leadAt>15){leadAt=elapsed;say('lead');}lastPlace=place;
@@ -4790,7 +4794,7 @@ function adaptQuality(fps,spikes){if(gfxMode!=='auto'||(state!=='race'&&state!==
  quality.dprCap=Math.max(.7,quality.dprCap-(quality.level<=2?.15:.1));
  if(quality.level===1&&!LITE){sun.shadow.mapSize.set(512,512);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
  if(quality.level===2)shadowEvery=2;
- renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap));resize();
+ renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap,SOFT_GL?.72:9));resize();
  if(store.get('gfxAuto',0)<Math.min(quality.level,3))store.set('gfxAuto',Math.min(quality.level,3));}
 // Laeuft ein ganzes Rennen fluessig (ueber 58 fps), darf die naechste Sitzung eine Stufe hoeher starten
 function qualityRaceEnd(){if(gfxMode!=='auto'||!quality.raceFrames)return;const fps=quality.raceFrames/Math.max(1,quality.raceSec);const l=store.get('gfxAuto',0);if(fps>58&&l>0)store.set('gfxAuto',l-1);quality.raceFrames=0;quality.raceSec=0;}
@@ -4800,7 +4804,7 @@ let gfxMode=store.get('gfx','auto');
 // Feste Stufen: Aufloesung, Schattenkarte, Schattenrhythmus. 'auto' startet hoch und regelt bei Bedarf herunter.
 function applyGfx(){const m=gfxMode;
  if(m==='low'||LITE){const lr=store.get('gfxAuto',0);quality.level=m==='low'?3:lr;quality.dprCap=m==='low'?.85:Math.max(.9,1.5-.15*lr);shadowEvery=1;renderer.shadowMap.enabled=false;sun.castShadow=false;}
- else{renderer.shadowMap.enabled=true;sun.castShadow=true;
+ else{renderer.shadowMap.enabled=!SOFT_GL;sun.castShadow=!SOFT_GL;   // R89: Software-Rendering (SwiftShader) bleibt ohne Schatten
   if(m==='mid'){quality.level=2;quality.dprCap=1;shadowEvery=2;sun.shadow.mapSize.set(512,512);}
   // Touch-Geraete (Handy) starten sparsamer: volle Aufloesung kostet dort am meisten Bildrate (R39)
   else{quality.level=coarseInput?1:0;quality.dprCap=coarseInput?1:1.25;shadowEvery=coarseInput?2:1;sun.shadow.mapSize.set(coarseInput?512:768,coarseInput?512:768);
@@ -4810,7 +4814,7 @@ function applyGfx(){const m=gfxMode;
   if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
  renderer.shadowMap.autoUpdate=shadowEvery<=1&&!coarseInput;
  scene.traverse(o=>{if(o.isMesh)for(const mm of [].concat(o.material))if(mm)mm.needsUpdate=true;});
- renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap));resize();}
+ renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap,SOFT_GL?.72:9));resize();}
 function animateWorld(dt,now){wxTick(dt,now);updateLoisl(dt);updateDizzy(now);updateRival();if(stormFx.length)updateStorm(dt);
  // Energiewaende der Anti-Grav-Zonen atmen leicht - macht das Magnetfeld lebendig
  for(let i=0;i<agravWalls.length;i++)agravWalls[i].opacity=.24+.08*Math.sin(now*.0022+i*1.3);
@@ -6154,7 +6158,7 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  bgmSeek:seconds=>{const tr=bgm.tracks[bgm.current];if(!tr||!Number.isFinite(seconds)||seconds<0)return false;tr.els[tr.active].currentTime=seconds;return true;},
  bgmRate:rate=>{if(Number.isFinite(rate)&&rate>.5&&rate<2)setBgmRate(rate);return bgm.rate;},
  arcade:()=>({traps:arcade.traps.map(t=>Math.round(t.d)),camView,length:Math.round(length)}),
- arcCam:()=>{cycleCamView();return camView;},bubble:(i,t,e)=>{chatBubble(racers[i],t,!!e);return true;},emoteTest:(i,k)=>{const r=racers[i];if(!r)return false;r.emoteCd=0;emote(r,k);const e=emotes.find(q=>q.r===r);return e?{n:emotes.length,pos:e.sp.position.toArray().map(v=>+v.toFixed(1)),scale:e.sp.scale.x,vis:e.sp.visible,hasMap:!!e.sp.material.map,mapW:e.sp.material.map?.image?.width}:false;},
+ arcCam:()=>{cycleCamView();return camView;},bubble:(i,t,e)=>{chatBubble(racers[i],t,!!e);return true;},
  feat:()=>({name:course.name,len:Math.round(length),loops:loops.length,hp:hpipes.length,co:coasters.length,ag:agrav.length,tu:tunnels.length,ra:raises.length,fk:forks.length,el:elems.length,ramps:ramps.length,gaps:gaps.length,pads:pads.length,rings:rings.length,zones:zones.length,spores:spores.length,swing:swingers.length}),
  chr:()=>chr&&{cows:chr.cows.map(c=>[Math.round(c.x),Math.round(c.z),Math.round(c.d)]),gates:chr.gates.map(g=>Math.round(g.d)),hands:chr.hands.map(h=>[Math.round(h.x),Math.round(h.z),+h.up.toFixed(2),Math.round(h.d)]),mets:chr.mets.map(m=>[Math.round(m.x),Math.round(m.z),Math.round(m.d)])},desert:()=>desert&&{tw:desert.twisters.map(q=>[Math.round(q.x),Math.round(q.z),Math.round(q.dd||q.d)]),pits:desert.pits.map(q=>[Math.round(q.x),Math.round(q.z),q.r,Math.round(q.d)])},train:()=>trainFx&&{len:Math.round(trainFx.len),cross:trainFx.crossings.map(c=>Math.round(c.d)),loco:[+trainFx.cars[0].x.toFixed(1),+trainFx.cars[0].z.toFixed(1)]},lm:()=>!!P.landmarks,hz:()=>hz&&{stampers:hz.stampers.map(q=>[Math.round(q.d),q.off,q.g.position.toArray().map(v=>+v.toFixed(1))]),plants:hz.plants.map(q=>[Math.round(q.d),q.side,+q.x.toFixed(1),+q.y.toFixed(1),+q.z.toFixed(1)]),cannons:hz.cannons.map(q=>[Math.round(q.d),q.g?q.g.position.toArray().map(v=>+v.toFixed(1)):'laser']),missiles:hz.missiles.length,lasers:hz.missiles.filter(m=>m.laser).length,waves:(hz.waves||[]).map(w=>w.on?1:0),ships:(hz.waves||[]).flatMap(w=>w.on?w.ships.filter(q=>q.g.visible&&q.d!==undefined).map(q=>[Math.round(wrapDiff(q.d,racers[0].distance)),Math.round(q.h)]):[]),turrets:hz.cannons.filter(c=>c.tur).length,fz:P.fortress===undefined?'pending':P.fortress?'ok':'failed',kb:!!P.kartbodies,drv:!!P.driver_sepp,laserAhead:hz.missiles.filter(m=>m.laser&&m.d!==undefined&&racers[0]).map(m=>Math.round(wrapDiff(m.d,racers[0].distance))),statues:swingers.filter(q=>q.statue).map(q=>q.statue.position.toArray().map(v=>+v.toFixed(1))),loaded:!!P.hazards},jumps:()=>({ramps:ramps.map(r=>[+r.start.toFixed(1),+r.end.toFixed(1),r.gap?1:0,+r.off.toFixed(1)]),gaps:gaps.map(g=>[+g.start.toFixed(1),+g.end.toFixed(1)]),length}),items:()=>({hazards:hazards.length,shots:shots.length,ramps:ramps.length,pads:pads.length,rings:rings.length,spores:spores.length,swingers:swingers.length,gaps:gaps.length,obstacles:[...obsGrid.values()].reduce((a,c)=>a+c.length,0),crowd:crowd?crowd.fans.length:0,protos:Object.fromEntries(PROTO_FILES.map(n=>[n,!!P[n]]))}),
  saveGhost:()=>{try{localStorage.setItem('mr-ghost-'+selected,JSON.stringify({...rec,next:undefined,color:0xffffff}));}catch{}return rec&&rec.x.length;},ghost:()=>ghost&&{n:ghost.data.x.length,dist:ghost.dist,visible:ghost.mesh.visible},medalOf:t=>medalOf(t),aiUse:(id,item)=>{racers[id].item=item;racers[id].charges=chargesFor(item);return useItem(racers[id]);},racers:()=>racers,world:()=>({ramps,pads,rings,spores,gaps,swingers}),keys,

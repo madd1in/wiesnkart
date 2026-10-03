@@ -6,6 +6,16 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 89 (03.10.2026): WebGL-Diagnose für die Xbox, Software-Rendering gebremst, Smileys aus dem Rennen
+
+**Wenn die 3D-Grafik gar nicht kommt** (Nutzerbericht: „Edge auf der Xbox meckert wegen Hardwarebeschleunigung und WebGL, ist aber aktiviert"): Das Spiel holt den WebGL-2-Kontext jetzt selbst und unterscheidet die Fälle — gar kein WebGL, nur altes WebGL 1, oder Kontext da aber Renderer scheitert — und zeigt je nachdem konkrete Hilfe statt des alten Plakats, das Xbox-Spieler aufforderte, die Hardwarebeschleunigung einzuschalten (die es auf der Konsole als Schalter nicht gibt). Auf der Xbox steht jetzt der richtige Weg dabei: Edge ganz beenden (Menütaste ☰ → Schließen) und neu öffnen, notfalls Konsole neu starten — hängt die Grafik von Edge fest, hilft fast immer der App-Neustart. Dazu ein „Erneut versuchen"-Knopf direkt auf der Karte. Scheitert der erste Kontext mit Antialias, wird es ohne einen zweiten Versuch probiert (manche Treiber legen bei MSAA still).
+
+**Software-Rendering erkannt und gebremst** (R89): Läuft der Kontext nur über die CPU (SwiftShader & Co. — auf der Xbox die Ursache für „ruckelig und zerknackt", wenn Edge die Grafikkarte nicht hergibt), drosselt das Spiel die Bildauflösung auf 0,72 und schaltet die Schatten ganz aus; einmal pro Rennen erscheint ein kurzer Hinweis. Ein richtiger Grafikchip läuft unverändert.
+
+**Keine Emoji-Smileys mehr im Rennen** (Nutzerwunsch „die behindern nur die Sicht"): Die Emotions-Sprites über den Karts (Wut, Freude, Schreck, Verliebt — R67/R72) sind ersatzlos entfernt; die Fahrer brabbeln ihre Laune weiter (R69-Klänge), und die Online-Chat-Sprechblasen bleiben — nur das Bild ist frei. Sprite-Maschine, Materialcache und Aktualisierungsschleife des Systems sind raus (ein Zeichenauftrag weniger pro Frame).
+
+Verifiziert im Testlauf: ohne WebGL-Flags zeigt die Karte den neuen Text mit Knopf; mit erzwungenem SwiftShader läuft das Rennen mit 0,72-facher Auflösung und ohne Schatten; nach einem erzwungenen Dreher liegen null Emoji-Sprites in der Szene; normaler Modul unverändert (Schatten an, Auflösung 1). 224 Tests grün.
+
 ## Runde 88 (03.10.2026): Xbox-Fixes, Glockenspiel zur letzten Runde, Straßenrand begrünt
 
 **Xbox/Edge auf der Konsole** (Nutzerbericht: „Online ruckelig, Grafik nicht gescheit dargestellt, Knöpfe wie ,Nächste Runde' mit dem Controller nicht erreichbar"):
