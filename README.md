@@ -6,6 +6,22 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 91 (03.10.2026): Xbox-Fix – schwarze Strecke
+
+**Schwarze Strecke und Grasnarbe auf der Xbox (Nutzerbericht)**: R89 übergab dem Renderer einen selbst gebauten WebGL-Kontext mit eigenen Attributen (`alpha:false`, `powerPreference:'high-performance'`) — auf Edge/Xbox wurde damit die Welt schwarz (auf Rechnern fiel es nicht auf). Der Renderer baut seinen Kontext jetzt wieder selbst mit den bewährten three-Attributen (three probiert bei zickigen Treibern von Haus aus noch einmal ohne Attribute); die bessere Fehlerkarte mit Diagnose, Xbox-Hinweisen und „Erneut versuchen"-Knopf bleibt (Diagnose über einen separaren Probe-Canvas), ebenso die Software-Rendering-Drossel. Neu: `?diag=1` zeigt die gemeldete Grafikkarte als Meldung — falls auf der Konsole wieder etwas seltsam aussieht, sagt ein Screenshot der Zeile sofort, was Edge dort meldet. 225 Tests grün; TV-Modus und Fehlerkarten-Fälle im Testlauf geprüft.
+
+## Runde 90 (03.10.2026): Hupe statt Smileys, Feinschliff
+
+**Hupe im Rennen** (`art/r90/make_horn.mjs`, eigene Klaenge im 8-Bit-Synthesizer): Nachdem die Emoji-Smileys raus sind (R89), kommt der Gruss zurueck - als Klang, der die Sicht nicht verdeckt. **Taste H** oder **Item-Knopf ohne Item in der Hand** (SPACE, Pad X, Touch-Item-Knopf) hupt; jeder Druck zaehlt weiter: Partyhupe (Luftroetscher mit Flatterzunge), Rummel-Hupe (zweitoenige Trompete), Fahrrad-Klingel (zwei helle Dings). Auch im Countdown und in der Lobby-Welt. **Online** laeuft die Hupe als `{h}` ueber das Chat-Protokoll an alle (mit Drossel, nur als Index - `chat.mjs` mit Tests); sie klingt bei jedem aus dem Kart des Huependen, leiser mit dem Abstand, ohne Sprechblase - nur eine Zeile im Chatverlauf. Fehlt der Klang noch, greift ein Zwei-Ton-Synthesefehler.
+
+- **Hupen dekodieren zuerst** (`decodeClips`): die Klangerzeugung ist absichtlich nacheinander; Spieler-Eingaben wie die Hupe stehen jetzt am Anfang der Schlange (vorher wartete sie hinter 90 Clips).
+- **Lade-Pille mit Streckennamen**: „🛸 Graben-Flug laedt …" statt „Strecke laedt …".
+- **Wochen-Cup-Karte zuerst**: das Event der Woche steht ueber der Tagesaufgabe (volles Menue und einfaches Menue).
+- **GP-Gesamtzeit in der Siegerehrung**: unter der Tabelle steht „Gesamtzeit ueber 4 Rennen: 12:34.5" (die Rundenzeiten sammelt das Spiel seit R87).
+- **Pad-Fokus scrollt mittig**: Der gelbe Fokusrahmen bringt seinen Knopf immer voll ins Bild (`block:'center'`).
+
+Verifiziert im Testlauf: Hupe tönt per Taste H und per Item-Knopf ohne Item, ohne die Item-Nutzung zu stören; Chat packt `{h:1}` zu „Rummel-Hupe" und wirft ungueltige Nummern raus; die drei Klaenge liegen nach zwei Sekunden bereit; Menue-Reihenfolge Wochen-Cup vor Tagesaufgabe; Siegerehrung zeigt die Gesamtzeit und scrollt die Knoepfe erreichbar; 225 Tests gruen.
+
 ## Runde 89 (03.10.2026): WebGL-Diagnose für die Xbox, Software-Rendering gebremst, Smileys aus dem Rennen
 
 **Wenn die 3D-Grafik gar nicht kommt** (Nutzerbericht: „Edge auf der Xbox meckert wegen Hardwarebeschleunigung und WebGL, ist aber aktiviert"): Das Spiel holt den WebGL-2-Kontext jetzt selbst und unterscheidet die Fälle — gar kein WebGL, nur altes WebGL 1, oder Kontext da aber Renderer scheitert — und zeigt je nachdem konkrete Hilfe statt des alten Plakats, das Xbox-Spieler aufforderte, die Hardwarebeschleunigung einzuschalten (die es auf der Konsole als Schalter nicht gibt). Auf der Xbox steht jetzt der richtige Weg dabei: Edge ganz beenden (Menütaste ☰ → Schließen) und neu öffnen, notfalls Konsole neu starten — hängt die Grafik von Edge fest, hilft fast immer der App-Neustart. Dazu ein „Erneut versuchen"-Knopf direkt auf der Karte. Scheitert der erste Kontext mit Antialias, wird es ohne einen zweiten Versuch probiert (manche Treiber legen bei MSAA still).

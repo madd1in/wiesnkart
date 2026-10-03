@@ -18,7 +18,7 @@ import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRing
 import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_SECS,LOBBY_SOLO_SECS,LOBBY_GO_SECS,voteTally,lobbyReturnAt,battleHit,battleResult,makeCode,normCode,toLocal,toGlobal,assignSlots,packKart,unpackKart,F as NF,snapBuf,pushSnap,sampleSnap} from './net.mjs';
 import {LB_TOP,ttBoard,wcBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
-import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
+import {EMOJIS,QUICK,HORNS,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
 import {CAM_VIEWS,camViewIndex,nextCamView,TRAP_AT,trapCrossed,trapGrade,NEAR,nearMiss} from './arcade.mjs';
 import {engineNote,shiftedUp} from './motor.mjs';
 import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById,weekCup} from './cups.mjs';
@@ -334,21 +334,26 @@ const TV_SYS=isConsole(navigator.userAgent,location.search);
 const liteFor=g=>g==='low'||(g==='auto'&&(coarseInput||TV_SYS||store.get('gfxAuto',0)>=3)),LITE=liteFor(store.get('gfx','auto')),DENS=LITE?.5:1;
 
 // ---------------------------------------------------------------- Renderer & Szene
-// R89 (Nutzerbericht Xbox/Edge): WebGL2 ist Pflicht (three r165). Vor dem Renderer den Kontext selbst holen und
-// die Faelle sauber unterscheiden - die alte Karte forderte Xbox-Spieler zur "Hardwarebeschleunigung" auf, die es
-// auf der Konsole als Schalter nicht gibt. Ohne Antialias wird es noch einmal versucht (kantige Treiber legen bei
-// MSAA komplett still), Software-Rendering (SwiftShader & Co.) wird erkannt und unten gedrosselt.
+// R89/R91 (Nutzerberichte Xbox/Edge): WebGL2 ist Pflicht (three r165). Der Renderer baut seinen Kontext wieder
+// SELBST mit den bewaehrten three-Attributen (R89 uebergab einen eigenen Kontext - auf der Xbox wurde damit die
+// Strecke schwarz; three probiert bei zickigen Treibern von sich aus ohne Attribute noch einmal). Die bessere
+// Fehlerkarte bleibt: nur noch bei echtem Versagen, mit sauberer Diagnose ueber einen separaten Probe-Canvas und
+// Xbox-gerechten Hinweisen samt „Erneut versuchen"-Knopf. Software-Rendering (SwiftShader & Co.) wird ueber den
+// Renderer-Kontext erkannt und unten gedrosselt.
 const GL_ERR={
  none:'Dein Browser stellt kein WebGL bereit. Am Rechner: Einstellungen → System → „Hardwarebeschleunigung aktivieren, wenn verfügbar“ einschalten und den Browser neu starten.'+
   (TV_SYS?' Auf der Xbox: Edge ganz beenden (Menütaste ☰ → Schließen, nicht nur minimieren) und neu öffnen, notfalls die Konsole neu starten – hängt die Grafik von Edge fest, hilft fast immer ein Neustart der App.':''),
  w1:'Dieses Spiel braucht WebGL 2 – dein Browser bietet nur die alte WebGL 1 an. Browser bzw. Edge auf der Konsole aktualisieren und neu starten; am Rechner zusätzlich die Hardwarebeschleunigung einschalten.'};
-let renderer=null,gl=null,SOFT_GL=false,softNoted=false;
+let renderer=null,SOFT_GL=false,softNoted=false;
 const glCard=(msg)=>{$('error').hidden=false;$('error').innerHTML=`<h2 style="margin:0 0 10px;font-size:26px">Oh je – kein 3D möglich</h2><p style="margin:0 0 14px;font-size:15px">${msg}</p><button type="button" onclick="location.reload()" style="font:inherit;font-weight:800;padding:10px 18px">🔄 Erneut versuchen</button>`;};
-try{gl=$('game').getContext('webgl2',{antialias:!coarseInput,alpha:false,powerPreference:'high-performance'})||$('game').getContext('webgl2',{antialias:false,alpha:false});}catch(e){}
-if(!gl){let w1=null;try{w1=$('game').getContext('webgl');}catch(e){}glCard(w1?GL_ERR.w1:GL_ERR.none);throw new Error(w1?'webgl1 only':'no webgl');}
-{const dbg=gl.getExtension('WEBGL_debug_renderer_info');const gpu=dbg?String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)||''):'';
- SOFT_GL=/swiftshader|software|llvmpipe|basic render/i.test(gpu);}
-try{renderer=new T.WebGLRenderer({canvas:$('game'),context:gl});}catch(e){glCard('Der 3D-Kontext ist da, aber der Renderer startet nicht – vermutlich steckt die Grafik gerade fest oder zu viele 3D-Tabs sind offen. Tabs schließen, App neu starten und erneut versuchen.');throw e;}
+try{renderer=new T.WebGLRenderer({canvas:$('game'),antialias:!coarseInput});}
+catch(e){
+ const probe=document.createElement('canvas');let has2=false;try{has2=!!probe.getContext('webgl2');}catch(_){}
+ glCard(has2?'Der 3D-Kontext ist da, aber der Renderer startet nicht – vermutlich steckt die Grafik gerade fest oder zu viele 3D-Tabs sind offen. App neu starten und erneut versuchen.':GL_ERR.none);
+ throw e;}
+{const gl2=renderer.getContext(),dbg=gl2.getExtension('WEBGL_debug_renderer_info');const gpu=dbg?String(gl2.getParameter(dbg.UNMASKED_RENDERER_WEBGL)||''):'';
+ SOFT_GL=/swiftshader|software|llvmpipe|basic render/i.test(gpu);
+ if(new URLSearchParams(location.search).has('diag'))setTimeout(()=>toast('🔍 Grafik: '+(gpu||'unbekannt')+(SOFT_GL?' (Software)':'')+' · '+renderer.capabilities.maxTextureSize+'px max',6),1200);}
 // Shaderfehler nur im Testmodus pruefen: getProgramInfoLog wartet sonst bei jeder Neukompilierung auf den Treiber
 if(renderer)renderer.debug.checkShaderErrors=TEST;
 renderer.setPixelRatio(Math.min(devicePixelRatio,quality.dprCap,SOFT_GL?.72:9));renderer.shadowMap.enabled=!LITE&&!SOFT_GL;renderer.shadowMap.type=T.PCFShadowMap;if(coarseInput)renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
@@ -1263,6 +1268,7 @@ function initTextures(root){const seen=new Set();root.traverse(o=>{if(!o.materia
 function warmup(){const tmp=new T.Group(),add=o=>{o.traverse(c=>{c.visible=true;c.frustumCulled=false;});tmp.add(o);};add(new T.Mesh(flameGeo,flameMat));add(new T.Mesh(shieldGeo,shieldMat));add(bombMesh());add(new T.Mesh(shockGeo,shocks[0].m.material));if(P.banana)add(cloneProto(P.banana));if(P.shell)add(cloneProto(P.shell));if(P.ghost)add(cloneProto(P.ghost));
  tmp.position.copy(camera.position);scene.add(tmp);const tok=++buildToken;let p;const sky0=[stars.visible,moon.visible,sunGlow.visible];stars.visible=moon.visible=sunGlow.visible=true;showHidden(world,()=>showHidden(wxRoot,()=>{try{p=renderer.compileAsync(scene,camera);}catch(e){p=Promise.resolve();}}));[stars.visible,moon.visible,sunGlow.visible]=sky0;scene.remove(tmp);initTextures(world);
  worldReady=false;world.visible=false;actors.visible=false;$('trackLoading').hidden=false;
+ setText('trackLoadingTxt',(course.icon?course.icon+' ':'')+course.name+' lädt …');   // R90: Pille sagt welche Strecke
  readyPromise=Promise.race([p,new Promise(r=>setTimeout(r,8000))]).then(()=>{if(tok!==buildToken)return;worldReady=true;actors.visible=true;startReveal();$('trackLoading').hidden=true;});}
 
 // Rivale (R46): rotes Schild ueber seinem Kart, Anzeige im HUD, Bonus im Ergebnis
@@ -3743,14 +3749,14 @@ addEventListener('keydown',e=>{if(introT>.3&&!e.repeat){introT=.3;stopFanfare(.1
 // R54: 'shield' (sagte noch "Sternenschild") und 'welcome' (alter Spielname) sind stumm, bis neue Aufnahmen da sind
 const VOICE={start:'Auf die Plätze — fertig — los!',lap2:'Runde zwei',lastlap:'Letzte Runde!',turbo:'Turbo!',hit:'Volltreffer!',ouch:'Autsch!',banana:'Banane gelegt!',lead:'Du führst!',win:'Erster Platz!',podium:'Aufs Treppchen!',finish:'Im Ziel!',best:'Neue Bestzeit!',rocket:'Raketenstart!',early:'Zu früh!',trick:'Super Trick!',spores:'Volle Sporen-Power!',gpnext:'Weiter zum nächsten Rennen!',gpwin:'Grand-Prix-Sieger!',gppodium:'Aufs Grand-Prix-Treppchen!',gpfinish:'Grand Prix beendet!',coaster:'Super-Achterbahn!',launch:'Magnet-Katapult!'};
 const VIP=new Set(['start','lap2','lastlap','win','podium','finish','best','gpnext','gpwin','gppodium','gpfinish']);
-const SFX_MAX={c_win:5.2,c_lose:3.4,pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,c_glock:4.6,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
+const SFX_MAX={c_win:5.2,c_lose:3.4,pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,c_glock:4.6,c_horn0:1,c_horn1:1.2,c_horn2:1.1,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
 // Musik bleibt das Fundament. Kurze Hinweise liegen darueber, Kollisionen und Jubel dahinter.
 const AUDIO_MIX={effects:.78,voice:.95,music:.49,world:.82};
-const SFX_RMS={c_star:.085,hit:.095,bump:.075,drift:.075,cheer:.075,boost:.105,rocket:.105,ramp:.095,spore:.09,jingle:.14,goodtry:.12,finallap:.115,c_glock:.115,launch:.11};
+const SFX_RMS={c_star:.085,hit:.095,bump:.075,drift:.075,cheer:.075,boost:.105,rocket:.105,ramp:.095,spore:.09,jingle:.14,goodtry:.12,finallap:.115,c_glock:.115,c_horn0:.1,c_horn1:.1,c_horn2:.095,launch:.11};
 const CLIPS={};for(const k of Object.keys(VOICE))CLIPS['v_'+k]='assets/audio/voice/'+k+'.mp3';for(const k of Object.keys(SFX_MAX))CLIPS['s_'+k]='assets/audio/sfx/'+k+'.mp3';
 // R44: selbst synthetisierte Chiptune-Effekte (art/r44/make_chiptune.mjs) haben Vorrang vor den Samples
 const CHIP=['coin','item','lap','mt1','mt2','mt3','boost','hit','bump','slip','trick','ring','rocket','beep','go','cheer','whirl','sand','whistle','bell','moo','grab','meteor','boom','thunder','levelup','unlock','star','mega','shrink','squash','ink','megaloop','sun',
- 'throw','fake','fakepop','spin','flat','unflat','warn','crown','select','whoosh','land','splash','wrong','bonus','spiky','crush','win','lose','glock'];for(const k of CHIP)CLIPS['s_c_'+k]='assets/audio/sfx/chip/'+k+'.wav';
+ 'throw','fake','fakepop','spin','flat','unflat','warn','crown','select','whoosh','land','splash','wrong','bonus','spiky','crush','win','lose','glock','horn0','horn1','horn2'];for(const k of CHIP)CLIPS['s_c_'+k]='assets/audio/sfx/chip/'+k+'.wav';
 const clipData={},clipBuf={},clipFail={},clipNorm={},clipPlayed={},effectSources=new Set();let echoSend=null,ambSrc=null,ambGain=null,ambLfo=null,voiceGain=null,sfxGain=null,effectsOut=null,voiceSrc=null,voiceKey=null,voiceQueue=null,pendingVoice=null,duckUntil=0,ducked=false,engine=null,raceFilter=null,masterGain=null,worldGain=null,mixMuted=false,duckLevel=1,duckTick=0;
 for(const [k,url] of Object.entries(CLIPS))clipData[k]=fetch(url).then(r=>{if(!r.ok)throw new Error(url);return r.arrayBuffer();}).catch(()=>{clipFail[k]=true;return null;});
 const LOOP_CLIPS=new Set(['s_c_star','s_c_megaloop']);
@@ -3760,8 +3766,10 @@ function prepClip(k,b){if(LOOP_CLIPS.has(k)){let sum=0,n=0,peak=0;for(let c=0;c<
  const target=k.startsWith('v_')?.16:(SFX_RMS[k.slice(2)]||.11);
  // Spitzen begrenzen, statt leise Dateien samt Rauschen beliebig hochzuziehen.
  clipNorm[k]=Math.min(2.5,target/Math.max(Math.sqrt(sum/Math.max(1,n)),1e-4),.82/Math.max(peak,1e-4));return out;}
-// Nacheinander dekodieren (kleine Pausen), damit der Start nicht an vielen gleichzeitigen Audio-Jobs haengt
-async function decodeClips(){for(const k of Object.keys(CLIPS)){try{const ab=await clipData[k];if(ab){const b=await ctx.decodeAudioData(ab);clipBuf[k]=prepClip(k,b);if(pendingVoice&&'v_'+pendingVoice.key===k&&performance.now()-pendingVoice.t<900){const key=pendingVoice.key;pendingVoice=null;say(key);}}}catch(e){clipFail[k]=true;}await new Promise(r=>setTimeout(r,12));}}
+// Nacheinander dekodieren (kleine Pausen), damit der Start nicht an vielen gleichzeitigen Audio-Jobs haengt;
+// R90: die Hupe zuerst - sie ist Spieler-Eingabe und muss sofort da sein, nicht erst nach dem ganzen Rest
+const CLIP_PRIO=new Set(['s_c_horn0','s_c_horn1','s_c_horn2']);
+async function decodeClips(){const keys=Object.keys(CLIPS).sort((a,b)=>(CLIP_PRIO.has(b)?1:0)-(CLIP_PRIO.has(a)?1:0));for(const k of keys){try{const ab=await clipData[k];if(ab){const b=await ctx.decodeAudioData(ab);clipBuf[k]=prepClip(k,b);if(pendingVoice&&'v_'+pendingVoice.key===k&&performance.now()-pendingVoice.t<900){const key=pendingVoice.key;pendingVoice=null;say(key);}}}catch(e){clipFail[k]=true;}await new Promise(r=>setTimeout(r,12));}}
 function trackEffect(src){effectSources.add(src);src.onended=()=>{effectSources.delete(src);src.disconnect();};return src;}
 function playClip(k,bus,vol=1,rate=1){const b=clipBuf[k],fx=k.startsWith('s_');if(!soundOn||!b||!ctx||(fx&&state==='paused'))return null;
  const t=ctx.currentTime;if(fx&&((t-(clipPlayed[k]??-99))<.09||effectSources.size>=18))return true;
@@ -4038,8 +4046,19 @@ function use(){if(state!=='race')return;useItem(racers[0]);}
 // R67: Item hinter sich halten - Taste gedrueckt halten: Banane/Fake-Block haengen hinten am Kart und fangen einen Treffer ab,
 // loslassen legt sie ab (kurzes Tippen wie bisher). Nach 10 s wird automatisch abgelegt.
 const TRAIL_ITEMS=new Set(['banana','fake']),trailFx=new Map();
-function itemDown(){if(state!=='race')return;const p=racers[0];if(p&&TRAIL_ITEMS.has(p.item)&&!p.itemPending&&!p.trail){p.trail=p.item;p.trailT=elapsed;SFX.select();return;}use();}
+function itemDown(){if(state!=='race')return;const p=racers[0];
+ if(p&&!p.item&&!p.trail&&!roulette){hornMine();return;}   // R90: ohne Item in der Hand hupt der Knopf
+ if(p&&TRAIL_ITEMS.has(p.item)&&!p.itemPending&&!p.trail){p.trail=p.item;p.trailT=elapsed;SFX.select();return;}use();}
 function itemUp(){const p=racers[0];if(!p?.trail)return;p.trail=null;if(state==='race'&&TRAIL_ITEMS.has(p.item))use();}
+// R90 Hupe: klanglicher Gruss im Rennen (Nutzerwunsch: keine Smileys mehr im Bild) - Taste H oder Item-Knopf ohne
+// Item; jede Hupe zaehlt weiter (Partyhupe, Rummel-Hupe, Fahrrad-Klingel). Online laeuft sie als {h} ueber den
+// Chat an alle (mit Drossel), die Lautstaerke faellt mit dem Abstand zum hupenden Kart.
+let hornNext=0;
+function hornPlay(id,h){const r=racers[id];if(!r?.mesh)return;const pl=racers[0],d=pl&&pl!==r?Math.hypot(pl.x-r.x,pl.z-r.z):0;
+ const v=id===0?.8:clamp(1-d/48,.12,.62);
+ if(!playClip('s_c_horn'+h,sfxGain,v)){sfxTone(698,698,.1,'square',.045*v);setTimeout(()=>sfxTone(932,932,.13,'square',.045*v),115);}}
+function hornMine(){const r=racers[0];if(!r||state!=='race'&&state!=='countdown')return;if((r.hornCd||0)>elapsed)return;r.hornCd=elapsed+1.1;
+ if(net&&net.setup)chatSend({h:hornNext});else hornPlay(0,hornNext);hornNext=(hornNext+1)%HORNS.length;}
 function trailTick(){const p=racers[0];if(p?.trail&&(state!=='race'||!TRAIL_ITEMS.has(p.item)||elapsed-p.trailT>10)){if(state==='race'&&TRAIL_ITEMS.has(p.item)&&elapsed-p.trailT>10){p.trail=null;use();}else p.trail=null;}
  // Anzeige fuer alle Karts in der Naehe (die KI haelt ihre Banane auch hinter sich, bis sie sie ablegt)
  for(const r of racers){const want=r.trail&&TRAIL_ITEMS.has(r.item)&&state!=='menu'&&nearPlayer(r,60)?r.trail:null;let fx=trailFx.get(r);
@@ -4644,6 +4663,8 @@ function ceremony(){scapeStop();state='ceremony';worldDirty=true;clearGroup(acto
  $('cerTitle').textContent=mine===1?`${gpName()}-Sieger ${ccName(cc)}! 🏆`:mine<=3?`Platz ${mine} im ${gpName()} ${ccName(cc)}!`:`${gpName()} beendet – Platz ${mine}`;
  $('cerUnlock').textContent=unlock||(mine===1&&cc<150?`Nächste Herausforderung: Klasse ${ccName(cc===50?100:150)}`:mine>1?'Hol dir Gold – drifte die Kurven sauberer!':'');
  const board=$('cerBoard');board.replaceChildren();board.classList.toggle('many',racers.length>8);standings.forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${['🥇','🥈','🥉'][i]||(i+1)+'.'}</span><span>${racers[id].name}</span><span>${gp.points[id]} P</span>`;board.append(li);});
+ // R90: Gesamtzeit ueber alle GP-Rennen unter der Tabelle (Rundenzahlen sammelt end() seit R87)
+ {const tt=$('cerTotal');if(tt){const list=gp.times||[];tt.textContent=list.length===gpN()&&list.every(Number.isFinite)?`Gesamtzeit über ${gpN()} Rennen: ${format(list.reduce((a,b)=>a+b,0))}`:'';}}
  // R87 Wochen-Cup: passt der gefahrene Cup zur aktuellen Woche, zaehlt die Gesamtzeit und der Pokal ins Profil; Bestenliste darunter
  {const wcBox=$('cerWc');if(wcBox){const wc=weekCup(weekKey()),on=gp.cup===wc.cup&&cc===wc.cc;wcBox.hidden=!on;
   if(on){const list=gp.times||[],total=list.length===gpN()&&list.every(Number.isFinite)?+list.reduce((a,b)=>a+b,0).toFixed(3):null;
@@ -5153,7 +5174,7 @@ function weeklyRefresh(){const weeklyEl=$('weekly');if(!weeklyEl)return;const wk
 $('weekly').onclick=()=>{store.set('weeklyOpen',!store.get('weeklyOpen',false));SFX.select();weeklyRefresh();};weeklyRefresh();
 // R87 Wochen-Cup-Karte (unter den Wochenzielen): diese Woche derselbe Cup und dieselbe Klasse fuer alle, Gesamtzeit
 // kommt auf die Online-Bestenliste, einmal gefahren zaehlt der Pokal fuer immer. Antippen startet direkt.
-{const c=document.createElement('button');c.id='wcup';c.type='button';$('weekly').after(c);}
+{const c=document.createElement('button');c.id='wcup';c.type='button';$('daily').before(c);}
 function wcRefresh(){const el=$('wcup');if(!el)return;const wc=weekCup(weekKey()),cup=cupById(wc.cup),best=store.get('wc-'+wc.week,Infinity),done=isFinite(best),n=store.get('wcCups',[]).length,now=new Date(),left=7-((now.getDay()+6)%7);
  el.classList.toggle('done',done);
  el.innerHTML=`<i>🏆</i><span><small>WOCHEN-CUP ${wc.week.slice(-3)}${n?` · ×${n} gefahren`:''}</small><b>${cup.icon} ${cup.name}</b><em>${ccName(wc.cc)} · 4 Rennen${done?` · deine Zeit ${format(best)}`:` · noch ${left} ${left===1?'Tag':'Tage'}`}</em></span><u>${done?'↻':'▶'}</u>`;}
@@ -5214,7 +5235,7 @@ function cheatStep(k){if(state!=='menu')return false;cheatIdx=k===CHEAT[cheatIdx
  store.set('cheat',true);bitSet(true);grantAch('cheat');refreshMenu();playClip('s_c_levelup',sfxGain,.9);flashScreen?.(.35);
  toast('🎮 CHEAT AKTIVIERT! 16-BIT-MODUS + LACKIERUNG „KONSOLENGRAU“',3,'good');return true;}
 addEventListener('keydown',e=>{const ck={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',KeyB:'b',KeyA:'a'}[e.code];if(ck&&!e.repeat&&!e.target?.closest?.('input,select,textarea'))cheatStep(ck);});
-addEventListener('keydown',e=>{if(e.target?.closest?.('input,select,textarea'))return;if(padHints)padUi(false);if(e.code==='Enter'&&worldMode&&owPortalAt&&state==='race'){owEnterTrack(owPortalAt.ti);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space')itemDown();if(e.code==='Escape'||e.code==='KeyP')pause();if(e.code==='KeyR'&&state==='race'){racers[0].safeD=lapDist(racers[0].distance);respawn(racers[0]);}if(e.code==='Enter'&&state==='menu')$('start').click();}});
+addEventListener('keydown',e=>{if(e.target?.closest?.('input,select,textarea'))return;if(padHints)padUi(false);if(e.code==='Enter'&&worldMode&&owPortalAt&&state==='race'){owEnterTrack(owPortalAt.ti);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space')itemDown();if(e.code==='KeyH')hornMine();if(e.code==='Escape'||e.code==='KeyP')pause();if(e.code==='KeyR'&&state==='race'){racers[0].safeD=lapDist(racers[0].distance);respawn(racers[0]);}if(e.code==='Enter'&&state==='menu')$('start').click();}});
 addEventListener('keyup',e=>{keys.delete(e.code);if(e.code==='Space')itemUp();});addEventListener('blur',()=>{keys.clear();touchPtr.clear();touchRefresh();if(state==='race'||state==='countdown')pause();});
 // ---------- Wetter & Tageszeit (R50): wechseln von Runde zu Runde (weather.mjs). Plan je Rennen, Ueberblendung an der
 // Ziellinie, Licht, Himmel und Nebel aus dem Thema gemischt. Regen, Schnee, Sand, Asche und Gluehwuermchen sind
@@ -5474,7 +5495,7 @@ const wxOc=m=>Math.min(1,Math.max((m.clouds||0)*.45,(m.rain||0)*.75,m.storm||0))
 // A/RT Gas, B/LT Bremse, LB/RB Hops & Drift (in der Luft Trick), X/Y Item, START Pause, VIEW/SELECT zuruecksetzen.
 // Im Menue: links/rechts Strecke, hoch/runter Klasse, LB/RB Modus, A/START los, Y Erfolge; in Fenstern
 // hoch/runter waehlen, A bestaetigen, B zurueck. Rumpeln bei Treffern, Turbos und harten Landungen.
-const PAD_TXT={tip:'Stick lenken · A/RT Gas · B/LT Bremse · LB/RB Hops & Drift · in der Luft = Trick · X Item · START Pause · VIEW Zurücksetzen',
+const PAD_TXT={tip:'Stick lenken · A/RT Gas · B/LT Bremse · LB/RB Hops & Drift · in der Luft = Trick · X Item · ohne Item X = Hupe · START Pause · VIEW Zurücksetzen',
  menu:'🎮 Steuerkreuz/Stick wählen · Ⓐ OK · Ⓑ zurück · LB/RB Modus · ☰ Start · Ⓧ Röhren-Look'};const padOrig={};
 function padUi(on){if(padHints===on)return;padHints=on;if(on)$('tvHint')?.remove();document.body.classList.toggle('pad',on);
  for(const [sel,key] of [['#raceTip','tip'],['#menu .controls','menu']]){const el=document.querySelector(sel);if(!el)continue;if(on){if(padOrig[key]===undefined)padOrig[key]=el.innerHTML;el.textContent=PAD_TXT[key];}else if(padOrig[key]!==undefined)el.innerHTML=padOrig[key];}
@@ -5488,7 +5509,7 @@ const padModalIds=['achPanel','pausePanel','result','ceremony','online'],PAD_BAC
 if(TV_SYS){document.body.classList.add('tv');const h=document.createElement('div');h.id='tvHint';h.innerHTML='🎮 Controller in Edge auf der Xbox: <b>Menü-Taste ☰ gedrückt halten</b> → „Spielsteuerung verwenden“ – dann läuft alles übers Pad';document.body.append(h);}
 function padRoot(){const m=padModal();return m||(state==='menu'?$('menu'):null);}
 function padFocusables(root){return [...root.querySelectorAll('button,input,select')].filter(b=>!b.disabled&&!b.closest('[hidden]')&&b.getClientRects().length&&getComputedStyle(b).visibility!=='hidden');}
-function padMark(el){if(pad.focusEl&&pad.focusEl!==el)pad.focusEl.classList.remove('padf');pad.focusEl=el||null;if(!el)return;el.classList.add('padf');try{el.focus({preventScroll:true});}catch(e){}el.scrollIntoView?.({block:'nearest',inline:'nearest'});}
+function padMark(el){if(pad.focusEl&&pad.focusEl!==el)pad.focusEl.classList.remove('padf');pad.focusEl=el||null;if(!el)return;el.classList.add('padf');try{el.focus({preventScroll:true});}catch(e){}el.scrollIntoView?.({block:'center',inline:'nearest'});}
 function padPress(el){if(!el)return;if(el.tagName==='SELECT'){const n=el.options.length;if(n){el.selectedIndex=(el.selectedIndex+1)%n;el.dispatchEvent(new Event('change',{bubbles:true}));}return;}if(el.tagName==='INPUT'){el.focus();return;}el.click();}
 function padNavStep(root,dir){const els=padFocusables(root);if(!els.length)return;const cur=pad.focusEl&&els.includes(pad.focusEl)?pad.focusEl:null;
  if(!cur){const st=root.id==='menu'?(document.body.classList.contains('menu-simple')?$('qOnline'):$('start')):els.find(e=>e.tagName==='BUTTON');padMark(els.includes(st)?st:els[0]);SFX.tick();return;}
@@ -5976,8 +5997,9 @@ function chatSend(msg){if(!net)return false;const p=packChat(msg);if(!p)return f
 function netRecvChat(d,peerId){if(!net)return;let L=chatLim.get(peerId);if(!L)chatLim.set(peerId,L=chatLimiter());if(!L.ok(performance.now()))return;const m=unpackChat(d);if(m)chatShow(peerId,m,false);}
 function chatShow(peerId,m,mine){const name=chatName(peerId);pushLog(chatLog,{name,text:m.text,kind:m.kind,mine,t:performance.now()});renderChat();
  if(!mine&&soundOn&&ctx)sfxTone(1320,1560,.06,'triangle',.03);
- // Sprechblase ueber dem Kart des Absenders (Emoji gross, Text gekuerzt)
+ // Sprechblase ueber dem Kart des Absenders (Emoji gross, Text gekuerzt); Hupen nur als Klang (R90)
  let id=-1;if(mine)id=0;else if(net?.setup)for(const [g,h] of net.humans)if(h.id===peerId)id=toLocal(g,net.mySlot);
+ if(m.kind==='horn'){if(racers[id])hornPlay(id,m.h);return;}
  const r=racers[id];if(r&&(state==='race'||state==='countdown'||state==='finished'))chatBubble(r,m.kind==='emoji'?m.text:(Array.from(m.text).length>22?Array.from(m.text).slice(0,21).join('')+'…':m.text),m.kind==='emoji');}
 function chatSys(text,send){pushLog(chatLog,{sys:true,text,t:performance.now()});renderChat();if(send&&net)net.A.chat.send({t:text}).catch(()=>{});}
 // Verlauf: im Spiel die letzten Zeilen (verblassen nach 9 s), im Online-Fenster alles - nur als Text eingesetzt, nie als HTML

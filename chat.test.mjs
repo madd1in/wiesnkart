@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CHAT_MAX, CHAT_KEEP, EMOJIS, QUICK, cleanChat, packChat, unpackChat, chatLimiter, pushLog} from './chat.mjs';
+import {CHAT_MAX, CHAT_KEEP, EMOJIS, QUICK, HORNS, cleanChat, packChat, unpackChat, chatLimiter, pushLog} from './chat.mjs';
 
 test('chat text is cleaned: control, zero-width and bidi characters go, whitespace collapses', () => {
   assert.equal(cleanChat('  Servus\n\tzusammen  '), 'Servus zusammen');
@@ -43,6 +43,14 @@ test('limiter: burst, window and minimum gap', () => {
   assert.ok(L.ok(300));
   assert.ok(!L.ok(500), 'burst used up');
   assert.ok(L.ok(1100), 'window moved on');
+});
+test('R90 Hupen: als Index verpackt, ungueltige Nummern fallen durch', () => {
+  assert.deepEqual(packChat({h: 0}), {h: 0});
+  assert.deepEqual(unpackChat({h: 2}), {kind: 'horn', text: '📢 ' + HORNS[2], h: 2});
+  assert.equal(packChat({h: HORNS.length}), null);
+  assert.equal(packChat({h: -1}), null);
+  assert.equal(packChat({h: '0'}), null);
+  assert.equal(unpackChat({h: 99}), null);
 });
 test('log keeps the newest CHAT_KEEP entries', () => {
   const log = [];
