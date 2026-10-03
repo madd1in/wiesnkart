@@ -6,6 +6,19 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 88 (03.10.2026): Xbox-Fixes, Glockenspiel zur letzten Runde, Straßenrand begrünt
+
+**Xbox/Edge auf der Konsole** (Nutzerbericht: „Online ruckelig, Grafik nicht gescheit dargestellt, Knöpfe wie ,Nächste Runde' mit dem Controller nicht erreichbar"):
+- **Auto-Grafik startet leicht** (`TV_SYS` in `game.js`): Edge auf der Xbox meldet sich nicht als Touch-Gerät, das Spiel startete dort mit voller PBR-Pipeline (768er-Schatten, Pixel-Verhältnis bis 1,25) — gerade online (Lobby-Welt, acht Fahrer) zu viel. Im Auto-Modus gilt die Konsole jetzt wie das Handy: Lambert-Material, keine Schatten, halbe Streudeko. Wer die Leistung herausholen will, wählt wie bisher fest „Mittel".
+- **Controller erreicht jeden Haupt-Knopf** (`PAD_GO`/`padPrimary`): Öffnet sich ein Fenster — Ergebnis, Siegerehrung, Pause, Online-Raum —, steht sein Haupt-Knopf sofort im gelben Fokus, A genügt. Zuvor lag der erste Fokus im Ergebnis auf „Siegerkarte teilen" (A öffnete die Teilen-Abfrage statt des nächsten Rennens) und „Nächstes Rennen" war erst nach Umherschalten erreichbar. Im Online-Raum ist der Haupt-Knopf je Sicht „Los geht's für alle" (Host), „Schnell online" oder „Raum verlassen".
+- **TV-Bedienung** (`body.tv` in `style.css`): Fenster, Knöpfe und Listen im Fernseh-Modus deutlich größer für drei Meter Abstand; das teure Hintergrund-Blur der Fenster ist auf der Konsole aus.
+
+**Glockenspiel zur letzten Runde** (`art/r88/make_glock.mjs`, eigener Klang, kein Sample): Beim Start der letzten Runde läutet eine kurze eigene Carillon-Melodie — jeder Schlag aus Glockenton, inharmonischem Teilton (2,756f wie bei echten Glocken), Oktave tiefer und Anschlag-Nadel im 8-Bit-Synthesizer — über der ohnehin um 7 % schneller laufenden Musik. Im SOUND TEST als „GLOCK" probehörbar; Rückfallkette wie üblich: altes Finallap-Sample, dann Syntheklang.
+
+**Straßenrand-Lücken geschlossen** (zweiter Pass in `buildGrass`): Zusätzlich zur Zufalls-Streuung legt ein gleichmäßiges Band alle 8 m je Straßenseite Büschel direkt neben die Fahrbahn (leicht verwackelt, im Leicht-Modus doppelter Takt). Vorher hatten je Strecke 19–75 % der Randmeter kein einziges Büschel direkt neben der Bahn (Pilz-Promenade 75 %, Neon-Pilzwald 61 %, Bierstraße 53 %). Sprunglöcher, Brücken, Tunnel und Abzweige sperren wie bisher; Zonen prüft das Band geometrisch (Welt-Abstand zur Feature-Mitte) statt pauschal über Straßendistanz — ein Zelt auf der einen Seite sperrt die andere nicht mehr mit. Auf freien Abschnitten ist der Rand damit nahezu lückenlos (Sonnen-Canyon unter 5 % Rest, Schoko-Matsch rund 1 %), an Strukturen bleibt er wie beabsichtigt kahl. Läuft in den bestehenden Instanz-Pools der Büschel (ein paar hundert Instanzen je Strecke).
+
+Verifiziert im Testlauf mit Fake-Gamepad und Vorher/Nachher-Bildern aus identischer Kamera (Vorher aus einem Worktree des R87-Stands): Ergebnis öffnet mit Fokus auf dem Weiter-Knopf, A startet das nächste Rennen; Siegerehrung fokussiert „Neuer Grand Prix"; letzte Runde läutet (Musikrate 0,90 → 0,96) mit geladenem 4,2-s-Glockenclip; TV-Modus startet ohne Schatten und ohne Konsolen-Fehler; die Vogelperspektiven zeigen das Band beidseitig, kein Gras auf Asphalt, Wasser oder in Strukturen. 224 Tests grün.
+
 ## Runde 87 (03.10.2026): Wochen-Cup online
 
 - **Wochen-Cup** (`weekCup` in `cups.mjs`, Tests): jede Kalenderwoche für alle Spieler derselbe Vierer-Cup in derselben Klasse, ohne Server — aus dem ISO-Wochenschlüssel gehasht (W40: 💝 Lebkuchen-Cup · Locker). Die neue goldene **Menükarte „🏆 WOCHEN-CUP"** (zwischen Tagesaufgabe/Wochenzielen und Startknopf, auch im einfachen Menü) zeigt Cup, Klasse und die Resttage der Woche und startet den Grand Prix direkt. Nach dem Nachsehen passt die Karte („×N gefahren", „deine Zeit").

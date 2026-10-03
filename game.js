@@ -327,7 +327,11 @@ const coarseInput=matchMedia('(pointer:coarse)').matches||(TEST&&new URLSearchPa
 // Leicht-Modus (R44) fuer Handys, "Sparsam" und Geraete, die frueher bis zur untersten Stufe herunterregeln mussten:
 // Lambert statt PBR-Material, keine Schatten, kein Scheinwerfer-Punktlicht, halbe Streudeko. Wird nur beim Start
 // festgelegt - Materialtyp oder Schatten mitten im Rennen umzuschalten kompiliert jeden Shader neu (Ruckeln in Runde 1).
-const liteFor=g=>g==='low'||(g==='auto'&&(coarseInput||store.get('gfxAuto',0)>=3)),LITE=liteFor(store.get('gfx','auto')),DENS=LITE?.5:1;
+// R88: Auch die Konsole (Xbox/Edge, ?tv=1) startet im Auto-Modus leicht - Edge dort kannte kein pointer:coarse,
+// startete mit voller PBR-Pipeline und ruckelte (Nutzerbericht), obwohl die Hardware es hergibt, sobald manuell
+// eine feste Grafikstufe gewaehlt wird, gilt weiterhin die.
+const TV_SYS=isConsole(navigator.userAgent,location.search);
+const liteFor=g=>g==='low'||(g==='auto'&&(coarseInput||TV_SYS||store.get('gfxAuto',0)>=3)),LITE=liteFor(store.get('gfx','auto')),DENS=LITE?.5:1;
 
 // ---------------------------------------------------------------- Renderer & Szene
 let renderer;try{renderer=new T.WebGLRenderer({canvas:$('game'),antialias:!coarseInput});}catch(e){$('error').hidden=false;$('error').textContent='Dein Browser benötigt WebGL für dieses 3D-Spiel. Bitte Hardwarebeschleunigung aktivieren und die Seite neu laden.';throw e;}
@@ -2055,6 +2059,12 @@ function buildGrass(random){if(course.theme==='fortress'||course.theme==='ice')r
   sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime;')
    .replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nvec3 gp=instanceMatrix[3].xyz;float sw=sin(uTime*1.7+gp.x*.11+gp.z*.15)*.22+sin(uTime*3.1+gp.z*.23)*.08;transformed.x+=sw*transformed.y;transformed.z+=sw*.55*transformed.y;\n#endif');};
  for(let i=0;i<1450*DENS;i++){const d=random()*length,side=random()<.5?-1:1,off=side*(11.8+Math.pow(random(),1.6)*14);if(inGap(d)||inZone(d,20)||forkRoadNear(d,off,7.5)||inBridge(d)||inTunnel(d))continue;const s=samplePos(d,off,_sp),y=Math.max(0,s.y-(Math.abs(off)-8.9)/1.5);const key=Math.floor(s.x/120)+','+Math.floor(s.z/120);let c=cells.get(key);if(!c)cells.set(key,c=[]);c.push([s.x,y,s.z,.7+random()*.9,random()*TAU]);}
+ // R88 Strassenrand-Luecken: zusaetzlich ein gleichmaessiges Band direkt neben der Fahrbahn (alle 8 m je Seite,
+ // leicht verwackelt) - die Zufalls-Streuung liess sonst lange kahl Strassenabschnitte (auf manchen Strecken
+ // drei Viertel der Meter ohne Bueschel neben der Bahn). Sperrregeln: Sprung-Luecken, Bruecken, Tunnel, Abzweige
+ // und Zonen - letztere geometrisch (Welt-Abstand zur Feature-Mitte statt des pauschalen inZone-Deckels, der
+ // fuer Gras beide Strassenseiten wegsperren wuerde, auch wo nur eine Seite ein Feature hat).
+ for(let d=9;d<length;d+=8/DENS)for(const side of [-1,1]){const off=side*(11.3+(random()-.5)*2.2);if(inGap(d)||forkRoadNear(d,off,7.5)||inBridge(d)||inTunnel(d))continue;const s=samplePos(d,off,_sp);if(zones.some(z=>Number.isFinite(z.x)&&Math.hypot(s.x-z.x,s.z-z.z)<z.r+2))continue;const y=Math.max(0,s.y-(Math.abs(off)-8.9)/1.5);const key=Math.floor(s.x/120)+','+Math.floor(s.z/120);let c=cells.get(key);if(!c)cells.set(key,c=[]);c.push([s.x,y,s.z,.75+random()*.7,random()*TAU]);}
  for(const list of cells.values()){const im=new T.InstancedMesh(geo,matG,list.length);list.forEach(([x,y,z,sc,ry],i)=>{_e.set(0,ry,0);_q.setFromEuler(_e);_m.compose(_v.set(x,y,z),_q,_s.set(sc,sc*(.8+((i*37)%7)/14),sc));im.setMatrixAt(i,_m);});im.castShadow=false;im.receiveShadow=true;world.add(im);}}
 // Riesenrad (R38, Blender): Wahrzeichen der Magnet-Kirmes. Eine GLB, drei Teile ueber die
 // Materialnamen: Gestell (gebacken), Rad (WheelPaint/WheelLights, dreht um die Nabe in 24 m Hoehe)
@@ -3719,14 +3729,14 @@ addEventListener('keydown',e=>{if(introT>.3&&!e.repeat){introT=.3;stopFanfare(.1
 // R54: 'shield' (sagte noch "Sternenschild") und 'welcome' (alter Spielname) sind stumm, bis neue Aufnahmen da sind
 const VOICE={start:'Auf die Plätze — fertig — los!',lap2:'Runde zwei',lastlap:'Letzte Runde!',turbo:'Turbo!',hit:'Volltreffer!',ouch:'Autsch!',banana:'Banane gelegt!',lead:'Du führst!',win:'Erster Platz!',podium:'Aufs Treppchen!',finish:'Im Ziel!',best:'Neue Bestzeit!',rocket:'Raketenstart!',early:'Zu früh!',trick:'Super Trick!',spores:'Volle Sporen-Power!',gpnext:'Weiter zum nächsten Rennen!',gpwin:'Grand-Prix-Sieger!',gppodium:'Aufs Grand-Prix-Treppchen!',gpfinish:'Grand Prix beendet!',coaster:'Super-Achterbahn!',launch:'Magnet-Katapult!'};
 const VIP=new Set(['start','lap2','lastlap','win','podium','finish','best','gpnext','gpwin','gppodium','gpfinish']);
-const SFX_MAX={c_win:5.2,c_lose:3.4,pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
+const SFX_MAX={c_win:5.2,c_lose:3.4,pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,c_glock:4.6,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
 // Musik bleibt das Fundament. Kurze Hinweise liegen darueber, Kollisionen und Jubel dahinter.
 const AUDIO_MIX={effects:.78,voice:.95,music:.49,world:.82};
-const SFX_RMS={c_star:.085,hit:.095,bump:.075,drift:.075,cheer:.075,boost:.105,rocket:.105,ramp:.095,spore:.09,jingle:.14,goodtry:.12,finallap:.115,launch:.11};
+const SFX_RMS={c_star:.085,hit:.095,bump:.075,drift:.075,cheer:.075,boost:.105,rocket:.105,ramp:.095,spore:.09,jingle:.14,goodtry:.12,finallap:.115,c_glock:.115,launch:.11};
 const CLIPS={};for(const k of Object.keys(VOICE))CLIPS['v_'+k]='assets/audio/voice/'+k+'.mp3';for(const k of Object.keys(SFX_MAX))CLIPS['s_'+k]='assets/audio/sfx/'+k+'.mp3';
 // R44: selbst synthetisierte Chiptune-Effekte (art/r44/make_chiptune.mjs) haben Vorrang vor den Samples
 const CHIP=['coin','item','lap','mt1','mt2','mt3','boost','hit','bump','slip','trick','ring','rocket','beep','go','cheer','whirl','sand','whistle','bell','moo','grab','meteor','boom','thunder','levelup','unlock','star','mega','shrink','squash','ink','megaloop','sun',
- 'throw','fake','fakepop','spin','flat','unflat','warn','crown','select','whoosh','land','splash','wrong','bonus','spiky','crush','win','lose'];for(const k of CHIP)CLIPS['s_c_'+k]='assets/audio/sfx/chip/'+k+'.wav';
+ 'throw','fake','fakepop','spin','flat','unflat','warn','crown','select','whoosh','land','splash','wrong','bonus','spiky','crush','win','lose','glock'];for(const k of CHIP)CLIPS['s_c_'+k]='assets/audio/sfx/chip/'+k+'.wav';
 const clipData={},clipBuf={},clipFail={},clipNorm={},clipPlayed={},effectSources=new Set();let echoSend=null,ambSrc=null,ambGain=null,ambLfo=null,voiceGain=null,sfxGain=null,effectsOut=null,voiceSrc=null,voiceKey=null,voiceQueue=null,pendingVoice=null,duckUntil=0,ducked=false,engine=null,raceFilter=null,masterGain=null,worldGain=null,mixMuted=false,duckLevel=1,duckTick=0;
 for(const [k,url] of Object.entries(CLIPS))clipData[k]=fetch(url).then(r=>{if(!r.ok)throw new Error(url);return r.arrayBuffer();}).catch(()=>{clipFail[k]=true;return null;});
 const LOOP_CLIPS=new Set(['s_c_star','s_c_megaloop']);
@@ -4460,7 +4470,7 @@ function update(dt){
   for(const sp of spores)if(sp.cd<=0&&Math.abs(wrapDiff(r.distance,sp.d))<1.8&&Math.abs(r.offset-sp.off)<1.8&&Math.abs(r.y+.8+coasterH(sp.d)+(elems.length?elemH(sp.d):0)-sp.y)<2.3){sp.cd=10;if(r.spores<MAX_SPORES){r.spores++;if(me){stats.maxSpores=Math.max(stats.maxSpores,r.spores);SFX.spore(r.spores);if(r.spores===MAX_SPORES){say('spores');toast('VOLLE SPOREN-POWER!',1.2,'good');}}}}
   if(!isTT())for(const b of boxes){if(b.cooldown<=0&&!r.item&&!r.itemPending&&Math.abs(wrapDiff(r.distance,b.distance))<2.6&&Math.abs(r.offset-b.offset)<2.2&&Math.abs(r.y+1+coasterH(b.distance)+(elems.length?elemH(b.distance):0)-b.baseY)<3){b.cooldown=4;if(nearPlayer(r,70))boxPop(b);if(me){r.itemPending=true;roulette={t:.95,tick:0,final:rollItem(placeOf(r),racers.length)};}else{r.item=rollItem(placeOf(r),racers.length);r.charges=chargesFor(r.item);r.cooldown=1+Math.random()*2;}}}
   if(me&&!worldMode&&lap(r,length)>oldLap){const lt=elapsed-stats.lapStart,best=lt<stats.bestLap;stats.bestLap=Math.min(stats.bestLap,lt);stats.lapStart=elapsed;const isLast=lap(r,length)===LAPS,clean=lapClean(r);
-   toast(`RUNDE ${oldLap}: ${format(lt)}${best&&oldLap>1?' · BESTE RUNDE!':''}${clean?' · SAUBER ✓':''}${isLast?' · LETZTE RUNDE!':''}`,2,best&&oldLap>1||clean?'good':'');say(isLast?'lastlap':'lap2');if(isLast){if(!playClip('s_finallap',sfxGain,.9))SFX.lap();setBgmRate((course.bgmRate||1)*1.07);}else SFX.lap();}
+   toast(`RUNDE ${oldLap}: ${format(lt)}${best&&oldLap>1?' · BESTE RUNDE!':''}${clean?' · SAUBER ✓':''}${isLast?' · LETZTE RUNDE!':''}`,2,best&&oldLap>1||clean?'good':'');say(isLast?'lastlap':'lap2');if(isLast){/* R88: das Glockenspiel laeutet die letzte Runde ein (Rueckfall: altes Sample, dann Synth) */if(!playClip('s_c_glock',sfxGain,1))if(!playClip('s_finallap',sfxGain,.9))SFX.lap();setBgmRate((course.bgmRate||1)*1.07);}else SFX.lap();}
   if(finish(r,length,elapsed)&&me){const lt=elapsed-stats.lapStart;stats.bestLap=Math.min(stats.bestLap,lt);if(r.cleanFin===undefined)r.cleanFin=lapClean(r);planFireworks();}
   syncKart(r,dt);
   // Drift-Funken je Ladestufe (blau/orange/lila) an den Hinterraedern, Reifenspuren beim Rutschen
@@ -5157,7 +5167,7 @@ $('menu').addEventListener('pointerdown',e=>{const b=e.target.closest?.('button'
 const SONG_TITLES={menu8:'Wiesn-Ouvertüre',alm:'Almwiesen-Galopp',canyon:'Wüstenritt',neon:'Leuchtpilz-Beat',lobby:'Festzelt-Boogie',polka:'Maßkrug-Polka',gothic8:'Kerzen im Nordturm',space:'Sturzflug',beach:'Lagunen-Calypso',ice:'Walzer auf dem Eis',dome:'Choral der Wächter',choco:'Schokoladen-Swing',lava:'Magma-Galopp',kirmes:'Rummelwalzer'};
 let titleTaps=[];
 function soundTest(){let box=$('soundTest');if(!box){box=document.createElement('section');box.id='soundTest';box.className='modal';box.hidden=true;document.body.append(box);}
- const bgms=Object.keys(SONG_TITLES).filter(k=>k==='menu8'||BGM_SRC[k]),sfx=['coin','item','lap','mt1','mt2','mt3','boost','trick','ring','levelup','unlock','star','crown','bonus','throw','fake','fakepop','spiky','crush','spin','flat','unflat','win','lose','moo','whistle','bell'];
+ const bgms=Object.keys(SONG_TITLES).filter(k=>k==='menu8'||BGM_SRC[k]),sfx=['coin','item','lap','mt1','mt2','mt3','boost','trick','ring','levelup','unlock','star','crown','bonus','throw','fake','fakepop','spiky','crush','spin','flat','unflat','win','lose','moo','whistle','bell','glock'];
  box.innerHTML=`<div class="st-card"><h2>SOUND TEST</h2><p class="st-sub">Alle Stücke und Klänge – eigene Chiptune-Kompositionen</p><h3>♪ MUSIK</h3><ol class="st-list">${bgms.map((k,i)=>`<li><button type="button" data-bgm="${k}">${String(i+1).padStart(2,'0')}</button><span>${SONG_TITLES[k]}</span></li>`).join('')}</ol>
   <h3>✦ KLÄNGE</h3><div class="st-sfx">${sfx.map((k,i)=>`<button type="button" data-sfx="${k}">${String(i+1).padStart(2,'0')} ${k.toUpperCase()}</button>`).join('')}</div><button type="button" class="st-close">ENDE</button></div>`;
  box.querySelectorAll('[data-bgm]').forEach(b=>b.onclick=()=>{audioInit();if(!soundOn)setSound();const k=b.dataset.bgm==='menu8'?'menu':b.dataset.bgm;bgm.current=null;playBgm(k);box.querySelectorAll('[data-bgm]').forEach(x=>x.classList.toggle('on',x===b));});
@@ -5471,7 +5481,7 @@ function padFeel(p){const s=pad.feel||(pad.feel={stun:0,boost:0,air:false,airT:0
  s.stun=p.stun;s.boost=p.boost;s.air=!!p.air;s.airT=p.airT||0;}
 const padModalIds=['achPanel','pausePanel','result','ceremony','online'],PAD_BACK={achPanel:'achClose',result:'home',ceremony:'cerHome',online:'onClose'};
 // R61 Controller-Menue (Xbox/Edge, Fernseher): raeumliche Fokus-Navigation ueber alle sichtbaren Knoepfe, gelber Fokusrahmen
-const TV=isConsole(navigator.userAgent,location.search);if(TV){document.body.classList.add('tv');const h=document.createElement('div');h.id='tvHint';h.innerHTML='🎮 Controller in Edge auf der Xbox: <b>Menü-Taste ☰ gedrückt halten</b> → „Spielsteuerung verwenden“ – dann läuft alles übers Pad';document.body.append(h);}
+if(TV_SYS){document.body.classList.add('tv');const h=document.createElement('div');h.id='tvHint';h.innerHTML='🎮 Controller in Edge auf der Xbox: <b>Menü-Taste ☰ gedrückt halten</b> → „Spielsteuerung verwenden“ – dann läuft alles übers Pad';document.body.append(h);}
 function padRoot(){const m=padModal();return m||(state==='menu'?$('menu'):null);}
 function padFocusables(root){return [...root.querySelectorAll('button,input,select')].filter(b=>!b.disabled&&!b.closest('[hidden]')&&b.getClientRects().length&&getComputedStyle(b).visibility!=='hidden');}
 function padMark(el){if(pad.focusEl&&pad.focusEl!==el)pad.focusEl.classList.remove('padf');pad.focusEl=el||null;if(!el)return;el.classList.add('padf');try{el.focus({preventScroll:true});}catch(e){}el.scrollIntoView?.({block:'nearest',inline:'nearest'});}
@@ -5480,6 +5490,11 @@ function padNavStep(root,dir){const els=padFocusables(root);if(!els.length)retur
  if(!cur){const st=root.id==='menu'?(document.body.classList.contains('menu-simple')?$('qOnline'):$('start')):els.find(e=>e.tagName==='BUTTON');padMark(els.includes(st)?st:els[0]);SFX.tick();return;}
  const rects=els.map(e=>{const r=e.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height};}),i=navPick(rects[els.indexOf(cur)],rects,dir);if(i>=0){padMark(els[i]);SFX.tick();}}
 function padModal(){for(const id of padModalIds){const m=$(id);if(m&&!m.hidden)return m;}return null;}
+// R88 (Nutzerbericht Xbox): Haupt-Knopf je Fenster - beim Oeffnen direkt fokussieren, A ohne Auswahl klickt ihn.
+// Zuvor lag der erste Knopf im Ergebnis auf "Siegerkarte teilen" und "Nächstes Rennen" war erst nach Umherschalten
+// erreichbar; im Online-Raum ist es je Sicht "Los geht's" (Host), "Schnell online" oder "Raum verlassen".
+const PAD_GO={result:['again'],ceremony:['cerAgain'],pausePanel:['resume'],achPanel:['achClose'],online:['onGo','onQuick','onLeave']};
+function padPrimary(m){for(const id of PAD_GO[m?.id]||[]){const el=$(id);if(el&&!el.disabled&&el.getClientRects().length&&!el.closest('[hidden]'))return el;}return padFocusables(m).find(e=>e.tagName==='BUTTON')||null;}
 function padButtons(m){return [...m.querySelectorAll('button')].filter(b=>!b.hidden&&b.offsetParent!==null&&!b.disabled);}
 function padFocus(m,d){const bs=padButtons(m);if(!bs.length)return;const i=bs.indexOf(document.activeElement),n=i<0?(d>0?0:bs.length-1):cycle(i,d,bs.length);bs[n].focus({preventScroll:true});bs[n].scrollIntoView?.({block:'nearest'});}
 function padMenu(a){const md=[...document.querySelectorAll('#modes .mode')];
@@ -5487,8 +5502,9 @@ function padMenu(a){const md=[...document.querySelectorAll('#modes .mode')];
  else if(a==='a'){const el=pad.focusEl;if(el&&$('menu').contains(el)&&padFocusables($('menu')).includes(el))padPress(el);else $('start').click();}
  else if(a==='start')$('start').click();else if(a==='y')$('achBtn')?.click();else if(a==='x'){crtSet(!crtOn);toast(crtOn?'📺 Röhren-Look an':'Röhren-Look aus',1);}}
 function padAction(a,now){const m=padModal();
- if(m){if(m!==pad.modal){pad.modal=m;pad.modalT=now;}
-  if(a==='a'){if(now-pad.modalT<600)return;const els=padFocusables(m);padPress(pad.focusEl&&els.includes(pad.focusEl)?pad.focusEl:els.find(e=>e.tagName==='BUTTON'));}
+ if(m){if(m!==pad.modal){pad.modal=m;pad.modalT=now;
+   if(padHints){const p=padPrimary(m);if(p)padMark(p);}}   // Fenster offen -> Haupt-Knopf steht im Fokus (R88)
+  if(a==='a'){if(now-pad.modalT<600)return;const els=padFocusables(m),go=padPrimary(m);padPress(pad.focusEl&&els.includes(pad.focusEl)?pad.focusEl:go);}
   else if(a==='b'||a==='start'){if(m.id==='pausePanel')pause();else if(a==='b')$(PAD_BACK[m.id])?.click();}
   return;}
  if(state==='menu'){if(['b','a'].includes(a)&&cheatStep(a))return;padMenu(a);return;}
@@ -5502,6 +5518,8 @@ function padPoll(now){if(pad.modal&&pad.modal.hidden){if(pad.modal.contains(docu
  if(!gp){if(pad.gp){pad.gp=null;pad.prev=null;pad.steer=0;pkeys.clear();}return;}
  const cur=readPad(gp),evs=padPressed(cur,pad.prev),rel=pad.prev&&((pad.prev.hold.x&&!cur.hold.x)||(pad.prev.hold.y&&!cur.hold.y));pad.prev=cur;pad.gp=gp;if(rel)itemUp();
  if(cur.active&&!padHints){padUi(true);if(!padToasted){padToasted=true;toast('🎮 Controller bereit',1.4,'good');}}
+ // R88: oeffnet sich ein Fenster (Ergebnis, Siegerehrung, Pause ...), steht sein Haupt-Knopf sofort im Fokus
+ {const m0=padModal();if(padHints&&m0&&m0!==pad.modal){pad.modal=m0;pad.modalT=now;const p=padPrimary(m0);if(p)padMark(p);}}
  const drive=state==='race'||state==='countdown';pad.steer=drive?cur.steer:0;pkeys.clear();
  if(drive){if(cur.gas)pkeys.add('ArrowUp');if(cur.brake)pkeys.add('ArrowDown');if(cur.drift)pkeys.add('ShiftLeft');}
  const nroot=padRoot();if(nroot){const dir=cur.hold.up?'up':cur.hold.down?'down':cur.hold.left?'left':cur.hold.right?'right':null,st=navRepeat(pad.navSt||(pad.navSt={}),dir,now/1000);if(st)padNavStep(nroot,st);}else pad.navSt=null;
@@ -6145,6 +6163,8 @@ if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=
  // Videoaufnahme (R38): Bilder im festen Takt selbst weiterschalten (rAF-Schleife ruht bei dbg.manual)
  step:(n=2,dt=1/60)=>{for(let i=0;i<n-1;i++){update(dt);animateWorld(dt,performance.now());updateCamera(dt);}frameStep(dt,performance.now());},
  audio:()=>{armAudio();audioInit();return {ctx,masterGain};},
+ clip:k=>({loaded:!!clipBuf[k],failed:!!clipFail[k],dur:clipBuf[k]?+clipBuf[k].duration.toFixed(2):null,norm:clipNorm[k]??null}),
+ zonesNear:(x,z,R=0)=>zones.filter(q=>Number.isFinite(q.x)&&Math.hypot(x-q.x,z-q.z)<q.r+2+R).map(q=>({d:Number.isFinite(q.d)?Math.round(q.d):null,half:q.half,r:q.r,x:Math.round(q.x),z:Math.round(q.z)})),
  coasterH:d=>coasterH(d),ridePhoto:()=>ridePhoto?ridePhoto.length:0,ridePhotoURL:()=>ridePhoto,coasterRun:()=>racers.map(r=>({id:r.id,run:r.czRun?{arch:r.czRun.arch,air:r.czRun.airHills,maxOff:+r.czRun.maxOff.toFixed(2),launched:r.czRun.launched}:null,g:r.czG,float:r.czFloat,vis:r.czVis,speed:r.speed})),
  // Standbild an beliebiger Stelle: Spieler auf Streckenmeter d setzen, Kamera einrasten, rendern
  field:n=>{fieldForce=n|0;kartPool=null;return fieldSize();},

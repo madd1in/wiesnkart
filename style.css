@@ -1547,6 +1547,18 @@ body.crt #hud{text-shadow:0 0 6px #ffffff55}
 .padf{outline:4px solid #ffd23f!important;outline-offset:3px!important;box-shadow:0 0 0 8px #14264a,0 0 22px 8px #ffd23faa!important}
 body.tv #touch{display:none!important}
 body.tv #menu .menu-panel{margin-bottom:max(4vh,24px)}
+/* R88 Xbox/TV (Nutzerbericht): Fenstertext und Knoepfe fuer drei Meter Abstand groesser, teures
+   Hintergrund-Blur auf der Konsole aus - die 3D-Szene dahinter rendert trotzdem weiter */
+body.tv .modal{backdrop-filter:none}
+body.tv .modal>div,body.tv #ceremony>div{width:min(720px,95vw);padding:26px 30px}
+body.tv .modal h2{font-size:38px}
+body.tv .modal button,body.tv #ceremony button{font-size:19px;padding:15px 20px;min-height:52px}
+body.tv .modal li,body.tv #ceremony li{font-size:17px;padding:9px 0}
+body.tv .modal p,body.tv #ceremony p{font-size:17px}
+body.tv #online input,body.tv #online select{font-size:17px;padding:10px 12px}
+body.tv #online .on-chat input{font-size:16px}
+body.tv #resultStats div,body.tv #resultProg div{font-size:16px}
+body.tv #toast{font-size:18px}
 #tvHint{position:fixed;left:50%;top:max(12px,3vh);transform:translateX(-50%);z-index:30;max-width:min(680px,calc(100vw - 32px));padding:10px 16px;border-radius:14px;
  background:#14264aee;color:#fff;font:700 15px/1.3 var(--wk-font);box-shadow:0 0 0 2.5px #ffd23f,0 8px 24px #0008;text-align:center}
 #tvHint b{color:#ffd23f}
