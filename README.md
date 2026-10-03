@@ -6,6 +6,13 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 87 (03.10.2026): Wochen-Cup online
+
+- **Wochen-Cup** (`weekCup` in `cups.mjs`, Tests): jede Kalenderwoche für alle Spieler derselbe Vierer-Cup in derselben Klasse, ohne Server — aus dem ISO-Wochenschlüssel gehasht (W40: 💝 Lebkuchen-Cup · Locker). Die neue goldene **Menükarte „🏆 WOCHEN-CUP"** (zwischen Tagesaufgabe/Wochenzielen und Startknopf, auch im einfachen Menü) zeigt Cup, Klasse und die Resttage der Woche und startet den Grand Prix direkt. Nach dem Nachsehen passt die Karte („×N gefahren", „deine Zeit").
+- **Pokal fürs Profil**: Wer den Wochen-Cup der Woche zu Ende fährt (Cup und Klasse müssen zur Woche passen, gemessen wird die Gesamtzeit über alle vier Rennen — `gp.times` in `game.js`), hat ihn für immer: die Pokalzeile im Menü zählt „🏆 Wochen-Cup ×N", die Wochen-Bestzeit bleibt gespeichert und verbessert sich bei weiteren Versuchen.
+- **Online-Bestenliste je Woche** (`wcBoard` in `lb.mjs`, Tests): In der Siegerehrung erscheint dazu der Wochen-Cup-Block — Gesamtzeit, Hinweis und die Wochen-Bestenliste mit Eintragen-Knopf genau wie im Zeitfahren (signierte Nostr-App-Daten auf öffentlichen Relays, ohne Anmeldung; Fälschungsschutz: Zeiten unter 70 % bzw. über dem Vierfachen der Summe der Gold-Medaillezeiten fliegen raus). Auch als Eintrag „🏆 Wochen-Cup W40 · Grand Prix" in der Bestenlisten-Auswahl des Online-Fensters; mit neuer Woche wechselt die Auswahl automatisch mit.
+- Die bisher separat gelaufenen `cups`- und `lb`-Tests laufen jetzt im normalen `npm test` mit: **224 Tests grün**. Verifiziert im Testlauf: Kartenklick startet Lebkuchen-Cup · Locker über vier Rennen, die Siegerehrung zeigt „WOCHEN-CUP W40 GESCHAFFT – POKAL FÜRS PROFIL!" mit Gesamtzeit und Bestenlisten-Kasten, Menü (Desktop und Handy-Hochkant) und Online-Fenster ohne Konsolenfehler.
+
 ## Runde 86 (03.10.2026): Staerkere Online-Anreize
 
 - **Online-Belohnungen erhoeht** (Engagement): XP-Multiplikator je Online-Rennen ×2 → **×3**, Sieg-Prämie je geschlagenem Menschen 20 → **30 XP**, Bonus fürs erste Online-Rennen des Tages 100 → **150 XP**. Online-Lackierungen und Pixel-Krone rücken damit deutlich naeher — der Fortschrittsbalken im Online-Panel („noch N Rennen") macht den Anreiz sichtbar. 214 Tests gruen.
@@ -273,7 +280,6 @@ Menü-Klick, Wusch, Landung, Platschen, falsche Richtung.
 
 ### Ideen für mehr Spieler (nächste Runden)
 
-- **Wochen-Cup online**: jede Woche ein fester Cup mit Online-Bestenliste und Pokal fürs Profil.
 - **Freunde-Bonus**: wer über den eigenen Einladungslink kommt, bringt beiden beim ersten gemeinsamen Rennen Extra-XP.
 - **Saison-Pass "Wiesn-Saison"**: kostenlose Belohnungsstufen (Hupen, Reifenspuren, Pixel-Hüte) über 4 Wochen.
 - **Geister-Duelle**: Zeitfahr-Geister von Freunden per Link teilen und schlagen.

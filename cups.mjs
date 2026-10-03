@@ -23,3 +23,14 @@ export function cupOf(track) {
 export const trophyKey = (id, cc) => byId(id).tracks ? `trophy-${byId(id).id}-${cc}` : `trophy-${cc}`;
 /** Pokal-Symbol fuer eine Platzierung 1..3, sonst leer. */
 export const trophyIcon = place => ['🏆', '🥈', '🥉'][place - 1] || '';
+
+// R87 Wochen-Cup: jede Kalenderwoche derselbe Vierer-Cup in derselben Klasse - fuer alle Spieler gleich,
+// ohne Server (der ISO-Wochenschluessel kommt aus progress.mjs weekKey()). Totale Zeit ueber alle vier
+// Rennen geht auf die Online-Bestenliste (lb.mjs), das Beenden zaehlt als Pokal fuers Profil.
+const hash = (str => {let h = 2166136261; for (const c of str) {h ^= c.charCodeAt(0); h = Math.imul(h, 16777619);} return h >>> 0;});
+export const WEEK_CC = [50, 100, 150];
+/** Wochen-Cup einer Kalenderwoche ("2026-W40") -> {week, cup, cc}. Nur die drei Vierer-Cups, nie der Marathon. */
+export function weekCup(week) {
+  const h = hash('wcup-' + String(week || '')), four = CUPS.filter(c => c.tracks);
+  return {week: String(week || ''), cup: four[h % four.length].id, cc: WEEK_CC[(h >>> 8) % WEEK_CC.length]};
+}

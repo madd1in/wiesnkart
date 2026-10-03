@@ -16,12 +16,12 @@ import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannon
 import {OW,pswitchMission,pswitchPress,pswitchCollect,pswitchTick,timeLeft,slalomMission,slalomPass,ringsMission,ringsHit,ringsLand,progressAdd} from './ow.mjs';
 import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRings} from './loop.mjs';
 import {orbitOf,NET_VER,MAX_PLAYERS,SEND_HZ,INTERP_MS,HEARTS,BATTLE_SECS,LOBBY_SECS,LOBBY_SOLO_SECS,LOBBY_GO_SECS,voteTally,lobbyReturnAt,battleHit,battleResult,makeCode,normCode,toLocal,toGlobal,assignSlots,packKart,unpackKart,F as NF,snapBuf,pushSnap,sampleSnap} from './net.mjs';
-import {LB_TOP,ttBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
+import {LB_TOP,ttBoard,wcBoard,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {CH,KMH,starsFor,challengeXP,recordBest,fmt,zoneState,zoneStep,zoneResult,driftState,driftStep,driftMul,jumpState,jumpStep} from './challenge.mjs';
 import {EMOJIS,QUICK,packChat,unpackChat,chatLimiter,pushLog} from './chat.mjs';
 import {CAM_VIEWS,camViewIndex,nextCamView,TRAP_AT,trapCrossed,trapGrade,NEAR,nearMiss} from './arcade.mjs';
 import {engineNote,shiftedUp} from './motor.mjs';
-import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById} from './cups.mjs';
+import {CUPS,cupTracks,cupOf,trophyKey,trophyIcon,cupById,weekCup} from './cups.mjs';
 import {MUD,onMud,mudSurf,mudDodge,BOULDER,boulderState,boulderHits} from './choco.mjs';
 import {autoNick} from './nick.mjs';
 import {voxelMesh,breznModel,qBlockModel,crownModel,topperModel,spikyShellModel,BREZN,pixels,EMOTE_PIX,EMOTE_PAL,decoModel,DECO_FOR,talerModel} from './voxel.mjs';
@@ -4590,7 +4590,7 @@ function end(){scapeStop();document.body.classList.remove('mirror');elapsed=race
   if(wr.allDone){store.set('weeklyWins',store.get('weeklyWins',0)+1);setTimeout(()=>{toast('🏆 ALLE WOCHENZIELE GESCHAFFT!',2.4,'good');SFX.crown();},1800+wr.fresh.length*1500);}}
  crownMine=null;topperMine=undefined;{const fresh=TOPPERS.filter(t=>!topOpen0.has(t.id)&&topperUnlocked(t,topperMe()));fresh.forEach((t,i)=>setTimeout(()=>{toast(`🎁 NEUER AUFSATZ: ${t.icon} ${t.n}`,2.4,'good');SFX.bonus();},2600+i*1400));if(fresh.length)menuToppers();}
  if(onl){const u=ONLINE_UNLOCKS.find(q=>q.n>onl0&&q.n<=onlRaces());if(u)setTimeout(()=>toast('🌐 FREIGESCHALTET: '+u.what,2.4,'good'),1400);if(onlFirst)setTimeout(()=>{toast(`🌐 ERSTES ONLINE-RENNEN HEUTE: +${ONLINE_DAILY_XP} XP`,2,'good');SFX.bonus();},500);crownMine=null;if(!crown0&&hasCrown()){racers[0].crown=true;setTimeout(()=>{toast('👑 PIXEL-KRONE! Alle sehen sie ab jetzt über deinem Kart',2.6,'good');SFX.crown();},2200);}}
- if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=gpPoints(i,order.length));addGpPoints(gp.points,order);$('resultEyebrow').textContent=`${gpName().toUpperCase()} ${ccName(cc).toUpperCase()} · RENNEN ${gp.race+1} / ${gpN()}`;
+ if(gp.active){const gained={};order.forEach((r,i)=>gained[r.id]=gpPoints(i,order.length));addGpPoints(gp.points,order);gp.times=[...(gp.times||[]),+elapsed.toFixed(3)];$('resultEyebrow').textContent=`${gpName().toUpperCase()} ${ccName(cc).toUpperCase()} · RENNEN ${gp.race+1} / ${gpN()}`;
   gpStandings(gp.points,racers.map(r=>r.id)).forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${racers[id].name}</span><span class="gain">+${gained[id]}</span><span>${gp.points[id]} P</span>`;board.append(li);});
   $('again').textContent=gp.race<gpN()-1?'Nächstes Rennen →':'Zur Siegerehrung 🏆';if(gp.race<gpN()-1)say('gpnext');}
  else{if(net&&net.setup&&place===1)lbWin();$('resultEyebrow').textContent=net&&net.setup?'ONLINE · ZIEL ERREICHT':'ZIEL ERREICHT';$('again').textContent=net&&net.setup?(net.setup.cyc?'⏳ Gleich zurück in die Lobby-Welt':'Zurück zur Lobby 🌐'):'Nochmal – schneller! ↻';order.forEach((r,i)=>{const li=document.createElement('li');if(r.id===0)li.className='me';li.innerHTML=`<span>${i+1}.</span><span>${r.name}</span><span>${r.finishTime!==null?format(r.finishTime):'noch im Rennen'}</span>`;board.append(li);});}
@@ -4630,6 +4630,14 @@ function ceremony(){scapeStop();state='ceremony';worldDirty=true;clearGroup(acto
  $('cerTitle').textContent=mine===1?`${gpName()}-Sieger ${ccName(cc)}! 🏆`:mine<=3?`Platz ${mine} im ${gpName()} ${ccName(cc)}!`:`${gpName()} beendet – Platz ${mine}`;
  $('cerUnlock').textContent=unlock||(mine===1&&cc<150?`Nächste Herausforderung: Klasse ${ccName(cc===50?100:150)}`:mine>1?'Hol dir Gold – drifte die Kurven sauberer!':'');
  const board=$('cerBoard');board.replaceChildren();board.classList.toggle('many',racers.length>8);standings.forEach((id,i)=>{const li=document.createElement('li');if(id===0)li.className='me';li.innerHTML=`<span>${['🥇','🥈','🥉'][i]||(i+1)+'.'}</span><span>${racers[id].name}</span><span>${gp.points[id]} P</span>`;board.append(li);});
+ // R87 Wochen-Cup: passt der gefahrene Cup zur aktuellen Woche, zaehlt die Gesamtzeit und der Pokal ins Profil; Bestenliste darunter
+ {const wcBox=$('cerWc');if(wcBox){const wc=weekCup(weekKey()),on=gp.cup===wc.cup&&cc===wc.cc;wcBox.hidden=!on;
+  if(on){const list=gp.times||[],total=list.length===gpN()&&list.every(Number.isFinite)?+list.reduce((a,b)=>a+b,0).toFixed(3):null;
+   if(total!==null){const prev=store.get('wc-'+wc.week,Infinity),done=store.get('wcCups',[]),first=!done.includes(wc.week);
+    if(total<prev)store.set('wc-'+wc.week,total);if(first)store.set('wcCups',[...done,wc.week]);
+    $('cerWcTime').textContent=`${first?'🏆 WOCHEN-CUP '+wc.week.slice(-3)+' GESCHAFFT – POKAL FÜRS PROFIL!':'🏆 Wochen-Cup '+wc.week.slice(-3)} · Gesamtzeit ${format(total)}${isFinite(prev)&&total<prev?' · neue Wochen-Bestzeit!':''}`;
+    lbPanel(wcBox.querySelector('.lb-box'),wcBoard(wc.week));if(first)SFX.crown();}
+   else $('cerWcTime').textContent='🏆 Wochen-Cup – Gesamtzeit unvollständig erfasst.';}}}
  $('ceremony').hidden=false;stopVoice();say(mine===1?'gpwin':mine<=3?'gppodium':'gpfinish');SFX.cheer();stopBgm();if(!playClip(mine<=3?'s_c_win':'s_c_lose',sfxGain,.85)&&!playClip(mine<=3?'s_jingle':'s_goodtry',sfxGain,.8))SFX.fanfare();finishMusicAt=performance.now()+(mine<=3?6800:4800);}
 function updateCeremony(dt){if(!cer)return;cer.t+=dt;cer.burstT-=dt;cer.podium.forEach((k,i)=>{const d=k.userData.parts?.driver;if(!d)return;d.position.y=.95+Math.abs(Math.sin(cer.t*(6-i)+i))*(i===0?.5:.3);d.rotation.z=Math.sin(cer.t*4+i)*.18;d.rotation.y=i===0?Math.sin(cer.t*2)*.5:0;});if(cer.trophy){cer.trophy.rotation.y+=dt*1.2;cer.trophy.position.y=1.5*2.2+3.1+Math.sin(cer.t*2)*.25;}
  if(cer.burstT<=0){cer.burstT=.3;const p=new T.Vector3((Math.random()-.5)*14,4+Math.random()*4,(Math.random()-.5)*4).applyMatrix4(cer.group.matrixWorld);burst({mesh:{position:p}},FAN_COLS[Math.floor(Math.random()*FAN_COLS.length)],10);}}
@@ -5023,7 +5031,7 @@ function openAchievements(){const pr=store.get('prog',{xp:0,ach:[]}),lv=levelOf(
  $('achPanel').hidden=false;}
 function refreshMirror(){const b=$('mirrorBtn');if(!b)return;const lock=progLevel()<MIRROR_LVL;b.classList.toggle('locked',lock);b.classList.toggle('selected',mirrorOn&&!lock);b.setAttribute('aria-pressed',String(mirrorOn&&!lock));b.title=lock?`Spiegel-Modus ab Fahrerstufe ${MIRROR_LVL}`:'Spiegel-Modus: Strecken seitenverkehrt';}
 function refreshMenu(){refreshMirror();quickRefresh();const goldOk=store.get('gold',false),lv=progLevel();$('colors').querySelectorAll('button').forEach((b,i)=>{const k=KART_COLORS[i],locked=!!(k.gold&&!goldOk)||!!(k.lvl&&lv<k.lvl)||!!(k.onl&&onlRaces()<k.onl)||!!(k.cheat&&!store.get('cheat',false));b.classList.toggle('locked',locked);b.classList.toggle('onl',!!k.onl);b.title=locked?(k.cheat?'??? – ein gewisser Code …':k.onl?`🌐 Nach ${k.onl} Online-Rennen`:k.lvl?`Ab Fahrerstufe ${k.lvl}`:'Gewinne einen Grand Prix ab Klasse Flott'):k.n;});setText('achBtnLvl','Stufe '+lv);
- const troL=CUPS.map(c=>{const t=store.get(trophyKey(c.id,cc),9);return t<=3?c.icon+trophyIcon(t):'';}).filter(Boolean),tro=troL.length?`Pokale ${ccName(cc)}: ${troL.join(' ')}`:'';const medals=courses.map((_,i)=>store.get(`medal-${i}`,3)),mc=[0,1,2].map(k=>medals.filter(x=>x===k).length);setText('trophies',[tro,mc.some(Boolean)?`🥇${mc[0]} 🥈${mc[1]} 🥉${mc[2]}`:''].filter(Boolean).join('   '));$('classes').classList.toggle('locked',mode==='tt'||mode==='online');
+ const troL=CUPS.map(c=>{const t=store.get(trophyKey(c.id,cc),9);return t<=3?c.icon+trophyIcon(t):'';}).filter(Boolean),tro=troL.length?`Pokale ${ccName(cc)}: ${troL.join(' ')}`:'';const medals=courses.map((_,i)=>store.get(`medal-${i}`,3)),mc=[0,1,2].map(k=>medals.filter(x=>x===k).length);const wcN=store.get('wcCups',[]).length;/* R87 Wochen-Cup-Pokale im Profil */setText('trophies',[tro,wcN?`🏆 Wochen-Cup ×${wcN}`:'',mc.some(Boolean)?`🥇${mc[0]} 🥈${mc[1]} 🥉${mc[2]}`:''].filter(Boolean).join('   '));$('classes').classList.toggle('locked',mode==='tt'||mode==='online');
  document.querySelectorAll('#classes .cls').forEach(b=>{const on=Number(b.dataset.cc)===cc;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(on));});$('tracks').classList.toggle('locked',isOW(mode)||mode==='online');syncCups();
  // Medaille je Strecke auf die Karte
  $('tracks').querySelectorAll('.track').forEach((b,i)=>{const m=medals[i];b.dataset.medal=String(m);const em=b.querySelector('.medal');if(em)em.textContent=m<3?['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'][m]:'';const tl=b.querySelector('.taler'),tn=[0,1,2].filter(k=>talerMask(i)&(1<<k)).length;if(tl)tl.textContent=tn?`🪙${tn}/3`:'';});
@@ -5129,9 +5137,17 @@ function weeklyRefresh(){const weeklyEl=$('weekly');if(!weeklyEl)return;const wk
  weeklyEl.innerHTML=`<span class="wk-head"><b>📆 WOCHENZIELE</b><i>${goals.map(g=>s.done.includes(g.id)?'●':'○').join('')}</i><em>${nd===3?'🏆 geschafft!':`noch ${left} ${left===1?'Tag':'Tage'} · +${WEEKLY_XP} XP je Ziel`}</em><u>${open?'▴':'▾'}</u></span>`+
   (open?goals.map(g=>{const v=Math.min(g.n,s.prog[g.id]||0),ok=s.done.includes(g.id);return `<span class="wk-row${ok?' ok':''}"><small>${ok?'✓ ':''}${g.t}</small><s style="--p:${Math.round(v/g.n*100)}%"></s><small>${v}/${g.n}</small></span>`;}).join('')+`<span class="wk-foot">Alle drei: Aufsatz 🏆 Wochen-Pokal</span>`:'');}
 $('weekly').onclick=()=>{store.set('weeklyOpen',!store.get('weeklyOpen',false));SFX.select();weeklyRefresh();};weeklyRefresh();
+// R87 Wochen-Cup-Karte (unter den Wochenzielen): diese Woche derselbe Cup und dieselbe Klasse fuer alle, Gesamtzeit
+// kommt auf die Online-Bestenliste, einmal gefahren zaehlt der Pokal fuer immer. Antippen startet direkt.
+{const c=document.createElement('button');c.id='wcup';c.type='button';$('weekly').after(c);}
+function wcRefresh(){const el=$('wcup');if(!el)return;const wc=weekCup(weekKey()),cup=cupById(wc.cup),best=store.get('wc-'+wc.week,Infinity),done=isFinite(best),n=store.get('wcCups',[]).length,now=new Date(),left=7-((now.getDay()+6)%7);
+ el.classList.toggle('done',done);
+ el.innerHTML=`<i>🏆</i><span><small>WOCHEN-CUP ${wc.week.slice(-3)}${n?` · ×${n} gefahren`:''}</small><b>${cup.icon} ${cup.name}</b><em>${ccName(wc.cc)} · 4 Rennen${done?` · deine Zeit ${format(best)}`:` · noch ${left} ${left===1?'Tag':'Tage'}`}</em></span><u>${done?'↻':'▶'}</u>`;}
+$('wcup').onclick=()=>{const wc=weekCup(weekKey());SFX.select();pickMode('gp');document.querySelector(`#classes [data-cc="${wc.cc}"]`)?.click();setCup(wc.cup);gp=newGp(true);toast(`🏆 Wochen-Cup: ${cupById(wc.cup).name} · ${ccName(wc.cc)}`,1.8,'good');start();};
+wcRefresh();
 function menuSimple(on){document.body.classList.toggle('menu-simple',on);store.set('menuFull',!on);quickRefresh();}
 function pickMode(m){const b=document.querySelector(`#modes .mode[data-mode="${m}"]`);if(b&&mode!==m)b.click();}
-function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
+function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();wcRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
  const onl=onlRaces(),nx=onlineNext(onl),first=store.get('onlDay','')!==dayKey();
  setText('qOnlineBadge',first?`+${ONLINE_DAILY_XP} XP heute`:`×${ONLINE_MUL} XP`);
  {const st=store.get('streak',{}),y=dayKey(new Date(Date.now()-864e5)),d=streakIfToday(st,dayKey(),y);setText('qStreak',st.last===dayKey()?`🔥 Wiesn-Serie: ${st.days} ${st.days===1?'Tag':'Tage'} – morgen wieder fahren!`:`🔥 Erstes Rennen heute: +${streakXP(d)} XP${d>1?` (Serie Tag ${d})`:''}`);}
@@ -6054,8 +6070,11 @@ async function lbKeys(){const S=(await (lbModP??=import(NET_MODS.nostr))).schnor
 function lbTalk(url,msg,onMsg,ms=6000){return new Promise(res=>{let ws=null,done=false,t=0;const end=()=>{if(done)return;done=true;clearTimeout(t);try{ws&&ws.close();}catch(e){}res();};t=setTimeout(end,ms);
  try{ws=new WebSocket(url);}catch(e){end();return;}ws.onopen=()=>{try{ws.send(JSON.stringify(msg));}catch(e){end();}};ws.onerror=end;ws.onclose=end;
  ws.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}if(Array.isArray(m)&&onMsg(m))end();};});}
-// Zeiten unter 70 % der Gold-Medaille gelten als unmoeglich (Schutz gegen offensichtlich gefaelschte Eintraege)
-const lbOpts=board=>{const m=/^tt:(\d+)$/.exec(board),c=m&&courses[+m[1]];return {minTime:c?c.medals[0]*.7:0,maxTime:900,drivers:DRIVERS.length};};
+// Zeiten unter 70 % der Gold-Medaille gelten als unmoeglich (Schutz gegen offensichtlich gefaelschte Eintraege);
+// R87 Wochen-Cup: Grenzen aus der Summe der Gold-Medaillezzeiten des Wochen-Cups (70 % bis 4-fach)
+const lbOpts=board=>{const m=/^tt:(\d+)$/.exec(board),c=m&&courses[+m[1]];
+ if(board.startsWith('wc:')){const wc=weekCup(board.slice(3)),gold=cupTracks(wc.cup,courses.length).reduce((a,i)=>a+(courses[i]?.medals[0]||0),0);return {minTime:gold*.7,maxTime:Math.max(900,gold*4),drivers:DRIVERS.length};}
+ return {minTime:c?c.medals[0]*.7:0,maxTime:900,drivers:DRIVERS.length};};
 async function lbFetch(board){const sub='wk'+Math.random().toString(36).slice(2,9),evs=[];let answered=0;
  await Promise.all(LB_RELAYS.map(u=>lbTalk(u,['REQ',sub,lbFilter(board)],m=>{if(m[0]==='EVENT'&&m[1]===sub&&evs.length<3000)evs.push(m[2]);if(m[0]==='EOSE'&&m[1]===sub){answered++;return true;}return m[0]==='CLOSED';})));
  return answered?lbParse(evs,board,lbOpts(board)):null;}
@@ -6064,7 +6083,7 @@ async function lbPublish(board,data){const {S,sec,pub}=await lbKeys(),ev=lbDraft
  await Promise.all(LB_RELAYS.map(u=>lbTalk(u,['EVENT',ev],m=>{if(m[0]==='OK'&&m[1]===ev.id){if(m[2]===true)ok++;return true;}return false;})));return ok;}
 // Online-Siege zaehlen nur mit mindestens einem anderen Menschen im Raum (gegen reine Bots zaehlt es nicht)
 function lbWin(){if(!net?.setup||net.humans.size<2)return;store.set('onWins',store.get('onWins',0)+1);}
-const lbMine=board=>{if(board==='wins'){const w=store.get('onWins',0);return w>0?w:null;}const t=store.get('tt-'+board.slice(3),Infinity);return isFinite(t)?+t.toFixed(3):null;};
+const lbMine=board=>{if(board==='wins'){const w=store.get('onWins',0);return w>0?w:null;}if(board.startsWith('wc:')){const t=store.get('wc-'+board.slice(3),Infinity);return isFinite(t)?+t.toFixed(3):null;}const t=store.get('tt-'+board.slice(3),Infinity);return isFinite(t)?+t.toFixed(3):null;};
 const lbFmt=(board,e)=>board==='wins'?`${e.w} ${e.w===1?'Sieg':'Siege'}`:format(e.t);
 // Namen anderer Spieler nur als Text einsetzen, nie als HTML
 function lbRender(ol,board,list){ol.replaceChildren();const me=store.get('lbPub',''),note=t=>{const li=document.createElement('li');li.className='lb-note';li.textContent=t;ol.append(li);};
@@ -6075,15 +6094,18 @@ function lbRender(ol,board,list){ol.replaceChildren();const me=store.get('lbPub'
 // Liste, Eintragen-Knopf und Hinweis in einem Kasten (.lb-list, .lb-post, .lb-hint, optional .lb-name)
 async function lbPanel(root,board){const ol=root.querySelector('.lb-list'),btn=root.querySelector('.lb-post'),hint=root.querySelector('.lb-hint'),nm=root.querySelector('.lb-name');root.dataset.board=board;
  const v=lbMine(board),sent=store.get('lbSent-'+board,null),bad=board!=='wins'&&v!==null&&v<lbOpts(board).minTime,fresh=lbBetter(board,v,sent);
- const say=()=>{hint.textContent=v===null?(board==='wins'?'Gewinne online gegen Freunde (Rennen oder Kotzhügel Fight), dann kannst du dich eintragen.':'Fahr hier ein Zeitfahren, dann kannst du dich eintragen.'):`Eintragen speichert „${myNetName()}“ und ${board==='wins'?'deine Siege':'deine Zeit'} öffentlich (Nostr-Relays, ohne Anmeldung).`;};
+ const say=()=>{hint.textContent=v===null?(board==='wins'?'Gewinne online gegen Freunde (Rennen oder Kotzhügel Fight), dann kannst du dich eintragen.':board.startsWith('wc:')?'Fahr diese Woche den Wochen-Cup zu Ende (Grand Prix über vier Strecken), dann kannst du deine Gesamtzeit eintragen.':'Fahr hier ein Zeitfahren, dann kannst du dich eintragen.'):`Eintragen speichert „${myNetName()}“ und ${board==='wins'?'deine Siege':'deine Zeit'} öffentlich (Nostr-Relays, ohne Anmeldung).`;};
  if(nm){nm.value=store.get('netName','');nm.oninput=()=>{store.set('netName',cleanName(nm.value));say();};}
- btn.hidden=v===null||bad;btn.disabled=!fresh;btn.textContent=!fresh?'✓ Dein Eintrag ist aktuell':board==='wins'?`🌍 Meine ${v} ${v===1?'Sieg':'Siege'} eintragen`:`🌍 Meine Bestzeit ${format(v)} eintragen`;say();
+ btn.hidden=v===null||bad;btn.disabled=!fresh;btn.textContent=!fresh?'✓ Dein Eintrag ist aktuell':board==='wins'?`🌍 Meine ${v} ${v===1?'Sieg':'Siege'} eintragen`:board.startsWith('wc:')?`🌍 Meine Cup-Gesamtzeit ${format(v)} eintragen`:`🌍 Meine Bestzeit ${format(v)} eintragen`;say();
  btn.onclick=async()=>{btn.disabled=true;btn.textContent='trägt ein …';let ok=0;try{ok=await lbPublish(board,board==='wins'?{n:myNetName(),w:v,d:driverIndex}:{n:myNetName(),t:v,d:driverIndex});}catch(e){ok=0;}
   if(ok){store.set('lbSent-'+board,v);toast('🌍 Eingetragen!',1.4,'good');lbPanel(root,board);}else{btn.disabled=false;btn.textContent='Hat nicht geklappt – nochmal?';}};
  ol.replaceChildren();{const li=document.createElement('li');li.className='lb-note';li.textContent=TEST?'(Testmodus: keine Abfrage)':'lädt …';ol.append(li);}if(TEST)return;
  const list=await lbFetch(board);if(root.dataset.board===board)lbRender(ol,board,list);}
-function lbOnline(){const sel=$('lbSel'),root=$('onLb');if(!sel||!root)return;
- if(!sel.options.length){sel.append(new Option('🏆 Online-Siege','wins'));courses.forEach((c,i)=>sel.append(new Option(`⏱ ${c.name}`,ttBoard(i))));sel.value=store.get('lbSel','wins');if(!sel.value)sel.value='wins';sel.onchange=()=>{store.set('lbSel',sel.value);lbPanel(root,sel.value);};}
+function lbOnline(){const sel=$('lbSel'),root=$('onLb');if(!sel||!root)return;const wk=weekKey();
+ if(sel.dataset.wk!==wk){sel.dataset.wk=wk;sel.replaceChildren();                       // R87: Wochen-Cup-Board gleich nach den Siegen; neue Woche -> neue Auswahl
+  sel.append(new Option('🏆 Online-Siege','wins'),new Option(`🏆 Wochen-Cup ${wk.slice(-3)} · Grand Prix`,wcBoard(wk)));courses.forEach((c,i)=>sel.append(new Option(`⏱ ${c.name}`,ttBoard(i))));
+  sel.value=store.get('lbSel','wins');if(!sel.value||![...sel.options].some(o=>o.value===sel.value))sel.value='wins';
+  sel.onchange=()=>{store.set('lbSel',sel.value);lbPanel(root,sel.value);};}
  lbPanel(root,sel.value);}
 // Testschnittstelle nur mit ?test=1
 if(TEST){window.rallyTest={dbg,start,home,use,pause,say,ceremony,hud,classes:()=>CLASSES,net:()=>net?{code:net.code,host:net.host,slot:net.mySlot,peers:[...net.peers.values()].map(q=>q.n),go:net.go,setup:!!net.setup,bufs:[...net.bufs.keys()],netRacers:racers.filter(r=>r.net).map(r=>r.id),lobby:net.lobby}:null,netOpen:(c,h,q)=>netOpen(c,h,q),chatSend:m=>chatSend(m),chatLog:()=>chatLog.map(e=>(e.sys?'* ':e.name+': ')+e.text),vote:t=>netVote(t),

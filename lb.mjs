@@ -8,6 +8,8 @@ export const LB_KIND = 30078, LB_APP = 'wiesnkart-lb1', LB_TOP = 10;
  *  (Online-Siege gegen mindestens einen anderen Menschen). */
 export const lbTag = board => `${LB_APP}:${board}`;
 export const ttBoard = track => `tt:${track | 0}`;
+/** R87 Wochen-Cup: Board der Kalenderwoche ("2026-W40" -> "wc:2026-W40"), Gesamtzeit ueber alle vier Rennen. */
+export const wcBoard = week => `wc:${week}`;
 export const cleanLbName = s => String(s || '').replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} _.\-!']/gu, '').replace(/ +/g, ' ').trim().slice(0, 14);
 
 /** Unsigniertes Event (id und sig setzt der Aufrufer). */

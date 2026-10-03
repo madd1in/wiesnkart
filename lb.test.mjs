@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {LB_KIND,lbTag,ttBoard,cleanLbName,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
+import {LB_KIND,lbTag,ttBoard,wcBoard,cleanLbName,lbDraft,lbSerial,lbFilter,lbParse,lbRank,lbBetter} from './lb.mjs';
 import {schnorr} from './vendor/trystero.mjs';
 
 const K = c => c.repeat(64), ev = (pub, board, data, at) => ({...lbDraft(board, data, pub, at * 1000), id: 'x', sig: 'y'});
@@ -27,4 +27,13 @@ test('R57 leaderboard: events signed with the bundled schnorr verify like a rela
  const e=lbDraft('wins',{n:'Test',w:1},pub);const id=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(lbSerial(e))));
  const sig=await schnorr.signAsync(id,secretKey);assert.equal(sig.length,64);assert.equal(pub.length,64);
  assert.ok(await schnorr.verifyAsync(sig,id,Buffer.from(pub,'hex')));
+});
+test('R87 Wochen-Cup-Board: wc:< Woche, Gesamtzeiten steigen wie im Zeitfahren',()=>{
+ const B=wcBoard('2026-W40');assert.equal(B,'wc:2026-W40');assert.equal(lbTag(B),'wiesnkart-lb1:wc:2026-W40');
+ const list=lbParse([
+  ev(K('a'),B,{n:'Sepp',d:1,t:495.5},10),ev(K('a'),B,{n:'Sepp',d:1,t:490},20),   // ersetztbar: neuere Zeit zaehlt
+  ev(K('b'),B,{n:'Mitzi',d:0,t:502.25},15),ev(K('c'),B,{n:'Schummler',t:200},15), // unter minTime -> raus
+  ev(K('d'),B,{n:'Bummelbox',t:5e4},15)],B,{minTime:400,maxTime:2000});
+ assert.deepEqual(list.map(e=>[e.n,e.t]),[['Sepp',490],['Mitzi',502.25]]);
+ assert.equal(lbRank(list,K('a')),1);assert.ok(lbBetter(B,488,490));assert.ok(lbBetter(B,488,null));
 });
