@@ -135,7 +135,29 @@ const STAR = [
   '.YY...YY.',
   '.Y.....Y.',
 ];
-/** Aufsatz-Modelle: Lebkuchenherz, Masskrug, Pixel-Stern, Riesenbrezn (braun), Pixel-Krone */
+/** Aufsatz-Modelle: Lebkuchenherz, Masskrug, Pixel-Stern, Riesenbrezn (braun), Pixel-Krone,
+ *  R95 Wiesn-Saison: Saison-Kranz (Lorbeerring mit Schleife), Festzelt-Hut (Zylinder), Gold-Kranz */
+const LAUREL = [
+  '.GGGGGGG.',
+  'GLLGGGLLG',
+  'GL.GGG.LG',
+  'LG.GYG.GL',
+  'LG.GYG.GL',
+  'GL.GGG.LG',
+  'GLLGGGLLG',
+  '.GGLLLGG.',
+  '...RYR...',
+];
+const CYLINDER = [
+  '..KKKKK..',
+  '..KKKKK..',
+  '..KKKKK..',
+  'KKKKKKKKK',
+  'KRRRRRRRK',
+  'KGGGGGGGK',
+  '..KKKKK..',
+  '..KKKKK..',
+];
 export function topperModel(id) {
   if (id === 'heart') return {vox: voxels(extrude(HEART, 2, 'b')), pal: {W: 0xfff0f4, b: 0x9a5a2a, p: 0xff5fa8}};
   if (id === 'mug') return {vox: voxels(extrude(MUG, 3)), pal: {F: 0xfffdf2, G: 0xcfe6f0, Y: 0xf5b31a, H: 0xb8d4e0}};
@@ -144,6 +166,9 @@ export function topperModel(id) {
   if (id === 'crown') return crownModel();
   if (id === 'cart') return cartModel();
   if (id === 'trophy') return {vox: voxels(extrude(['.GGGGGGG.', 'GGHGGGG.G', 'G.HGGGG.G', 'GGHGGGGGG', '..GGGGG..', '...GGG...', '....G....', '...GGG...', '..DDDDD..', '..DDDDD..'], 3)), pal: {G: 0xffc83a, H: 0xfff4b0, D: 0x6a3a14}};
+  if (id === 'laurel') return {vox: voxels(extrude(LAUREL, 2)), pal: {G: 0x2e8a3a, L: 0x5fc46a, Y: 0xffd23a, R: 0xd8262e}};
+  if (id === 'laurel2') return {vox: voxels(extrude(LAUREL, 2)), pal: {G: 0xc09a2a, L: 0xffd23a, Y: 0xfff4b0, R: 0xd8262e}};
+  if (id === 'cylinder') return {vox: voxels(extrude(CYLINDER, 3)), pal: {K: 0x1c1c24, R: 0xd8262e, G: 0xffd23a}};
   return null;
 }
 

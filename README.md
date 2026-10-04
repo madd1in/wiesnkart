@@ -6,6 +6,19 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 95 (04.10.2026): Wiesn-Saison – vier Wochen, zehn Stufen, alles frei
+
+**Saison-Pass „Wiesn-Saison"** (Nutzeridee; `seasonKey`/`seasonLevel`/`SEASON_REWARDS` in `progress.mjs`, Tests): Vier Kalenderwochen bilden eine Saison (aus der ISO-Woche gerechnet, gerade läuft **2026-S10**) — alles, was XP gibt, zählt automatisch mit: Rennen, Tagesaufgabe, Wochenziele, Glücksbrezn, Einstiegs-Tour. Zehn Stufen (Aufstieg braucht 210 bis 690 Saison-XP, insgesamt rund 4 300 für Stufe 10 — etwa ein paar Rennen pro Tag), auf jeder geraden Stufe gibt es eine Belohnung, alles kosmetisch und kostenlos:
+- **Stufe 2** 🌿 Aufsatz „Saison-Kranz" (Lorbeerring mit Schleife, Voxel)
+- **Stufe 4** 🚂 Hupe „Zugpfeife" (zwei Pfeifstöße mit Anlauf, `art/r95/make_horn2.mjs`)
+- **Stufe 6** 🎩 Aufsatz „Festzelt-Hut" (Zylinder mit rotem Band)
+- **Stufe 8** 🐓 Hupe „Gockel" (krähender Rückenberg)
+- **Stufe 10** 🥇 Aufsatz „Gold-Kranz"
+
+Im Menü liegt unter den Wochenzielen die **grüne Saison-Karte** mit Stufe, Fortschrittsbalken und der nächsten Belohnung; Stufenaufstiege werden im Spiel mit Fanfare verkündet. Die Hupen laufen im Hupe-Rundlauf mit (online verstehen sie neuere Clients sofort, ältere ignorieren sie laut Chat-Protokoll einfach). Mit der nächsten Saison beginnt das Zählen von vorn — Belohnungen aus alten Saisons bleiben freigeschaltet.
+
+Verifiziert im Testlauf mit gesetztem Saison-Zähler: Karte rechnet Stufe 6/10 bei 2 000 XP (Balken 69 %), „Saison-Kranz" ist wählbar, „Festzelt-Hut" erst ab Stufe 6, Zugpfeife-Clip lädt (0,8 s), Karte liegt sauber unter den Wochenzielen ohne Überlappung. 233 Tests grün.
+
 ## Runde 94 (03.10.2026): Einstiegs-Tour für neue Fahrer
 
 **Willkommen-Karte mit geführtem ersten Rennen** (Nutzeridee „30-Sekunden-Übungsrunde", `tourProgress`/`tourDone` in `progress.mjs`, Tests): Wer zum ersten Mal spielt (noch keine Strecke gefahren), bekommt über der Wochen-Cup-Karte die türkise Karte **„🎓 Erstmals hier? Kurze Fahrschule-Tour"**. Ein Tipp startet ein Rennen auf der Pilz-Promenade in der Klasse Locker — und oben im Bild läuft die **Checkliste „🎓 TOUR ○ Gas geben · ○ Drift-Turbo · ○ Item einsetzen"** mit: Die drei Tipps der Fahrschule (R66) erscheinen genau dann, wenn sie gebraucht werden (kein Gas, Kurve ohne Drift, Item liegt ungenutzt), und häkchen sich ab, sobald man sie echt kann — Gas geben, einen Drift-Turbo zünden, ein Item einsetzen. Alles geschafft: Fanfare, „🎓 TOUR GESCHAFFT! +100 XP", die Liste verschwindet, die Karte kommt nie wieder. Abbrechen ist folgenlos: Die Checkliste begleitet die nächsten Rennen, bis alles sitzt.

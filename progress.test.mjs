@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {raceXP, levelOf, levelStart, recordRace, ACH, TRACKS, RIVAL_XP, DAILY_XP, DAILY_GOALS, dailyChallenge, dailyDone, dayKey, pickRival, rivalBeaten, achById, ASSIST_BONUS, CLEAN_XP, TOUR_STEPS, TOUR_XP, tourProgress, tourDone} from './progress.mjs';
+import {raceXP, levelOf, levelStart, recordRace, ACH, TRACKS, RIVAL_XP, DAILY_XP, DAILY_GOALS, dailyChallenge, dailyDone, dayKey, pickRival, rivalBeaten, achById, ASSIST_BONUS, CLEAN_XP, TOUR_STEPS, TOUR_XP, tourProgress, tourDone, seasonKey, seasonLevel, seasonNext, SEASON_NEED, SEASON_LEVELS, SEASON_REWARDS, topperUnlocked, topperById, topperHint} from './progress.mjs';
 
 test('race XP: placement base, bonuses and class multiplier', () => {
   const plain = raceXP({place: 1, cc: 50, stats: {hitsTaken: 1}});
@@ -175,4 +175,27 @@ test('R94 Einstiegs-Tour: drei Schritte, gelernt zaehlt als ok, fertig erst mit 
   assert.ok(tourDone({gas: 'ok', drift: 'ok', item: 'ok'}));
   assert.deepEqual(tourProgress({gas: 'ok'}).map(s => s.ok), [true, false, false]);
   assert.ok(tourDone(undefined) === false, 'ohne Zustand nie fertig');
+});
+
+test('R95 Wiesn-Saison: Schluessel aus ISO-Wochen, Bloecke zu vier Wochen', () => {
+  assert.equal(seasonKey('2026-W40'), '2026-S10');
+  assert.equal(seasonKey('2026-W37'), '2026-S10');
+  assert.equal(seasonKey('2026-W36'), '2026-S9');
+  assert.equal(seasonKey('2026-W01'), '2026-S1');
+  assert.equal(seasonKey('2026-W53'), '2026-S14');
+  assert.equal(seasonKey('kaputt'), null);
+  assert.equal(seasonKey('2026-W00'), null);
+});
+test('R95 Wiesn-Saison: Stufen steigen, Maximum 10, Belohnungen auf geraden Stufen', () => {
+  assert.deepEqual(seasonLevel(0), {level: 1, into: 0, need: SEASON_NEED(2)});
+  const s2 = seasonLevel(SEASON_NEED(2));assert.equal(s2.level, 2);
+  const s10 = seasonLevel(1e9);assert.equal(s10.level, SEASON_LEVELS);assert.equal(s10.need, 0);
+  for (let xp = 0; xp <= 5000; xp += 250) {const {level} = seasonLevel(xp);assert.ok(level >= 1 && level <= SEASON_LEVELS);}
+  assert.ok(SEASON_REWARDS.every(r => r.lvl % 2 === 0 && r.lvl >= 2 && r.lvl <= 10));
+  assert.deepEqual(SEASON_REWARDS.map(r => [r.lvl, r.kind]), [[2, 'topper'], [4, 'horn'], [6, 'topper'], [8, 'horn'], [10, 'topper']]);
+  assert.equal(seasonNext(1).lvl, 2);assert.equal(seasonNext(9).lvl, 10);assert.equal(seasonNext(10), null);
+  assert.ok(topperUnlocked(topperById('laurel'), {season: 2}));
+  assert.ok(!topperUnlocked(topperById('laurel'), {season: 1}));
+  assert.ok(topperUnlocked(topperById('laurel2'), {season: 10}));
+  assert.ok(topperHint(topperById('cylinder')).includes('Stufe 6'));
 });

@@ -11,7 +11,7 @@ import {navPick,navRepeat,isConsole} from './padnav.mjs';
 import {createDraftState,updateDraft} from './draft.mjs';
 import {WIZARD,inSection,castInterval,pickTarget,spellPos,stepSpell,spellHits} from './wizard.mjs';
 import {weatherPlan,calmPlan,weatherMix,weatherLook,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
-import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady,weekKey,weeklyGoals,weeklyStep,WEEKLY_XP,tourProgress,tourDone,TOUR_XP} from './progress.mjs';
+import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady,weekKey,weeklyGoals,weeklyStep,WEEKLY_XP,tourProgress,tourDone,TOUR_XP,seasonKey,seasonLevel,seasonNext,SEASON_REWARDS,SEASON_LEVELS} from './progress.mjs';
 import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannonLane,missileAt} from './hazards.mjs';
 import {OW,pswitchMission,pswitchPress,pswitchCollect,pswitchTick,timeLeft,slalomMission,slalomPass,ringsMission,ringsHit,ringsLand,progressAdd} from './ow.mjs';
 import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRings} from './loop.mjs';
@@ -261,7 +261,7 @@ const KART_COLORS=[{c:0xff3b30,n:'Ruby / Rot'},{c:0xffc400,n:'Sunny / Gelb'},{c:
 const onlRaces=()=>store.get('prog',{}).onl||0;let crownMine=null;const hasCrown=()=>crownMine??(crownMine=!!store.get('prog',{}).crown);
 // R66: Aufsatz (Voxel-Kosmetik) - gewaehlt im Menue, freigeschaltet durch Stufe, Serie, Online-Rennen, Online-Sieg
 const TOPPER_IDS=new Set(TOPPERS.map(t=>t.id).filter(id=>id!=='none'));
-const topperMe=()=>({level:progLevel(),streakBest:store.get('streak',{}).best||0,onl:onlRaces(),crown:hasCrown(),weekly:store.get('weeklyWins',0),mods:store.get('mods',[]).length});
+const topperMe=()=>({level:progLevel(),streakBest:store.get('streak',{}).best||0,onl:onlRaces(),crown:hasCrown(),weekly:store.get('weeklyWins',0),mods:store.get('mods',[]).length,season:seasonLvl()});
 let topperMine;const myTopper=()=>topperMine!==undefined?topperMine:(topperMine=topperFor(store.get('topper',null),topperMe()));
 const topperOk=t=>typeof t==='string'&&TOPPER_IDS.has(t)?t:null;
 const progLevel=()=>levelOf(store.get('prog',{xp:0}).xp||0).level;
@@ -407,7 +407,7 @@ const persistentMats=new Set([cream,dark,white,gold,shieldMat,shieldRivalMat,fla
 // ---------------------------------------------------------------- GLB-Prototypen (Blender-MCP)
 const sharedGeo=new Set([flameGeo,shieldGeo]),sharedMat=new Set(),P={};
 // R65: Retro-Voxel-Modelle aus voxel.mjs (Brezn-Trio, Fake-Block, Pixel-Krone) - Geometrie einmal gebaut, danach geteilt
-const VOX_DEF={brezn_green:()=>breznModel('green'),brezn_red:()=>breznModel('red'),qfake:()=>qBlockModel(true),qreal:()=>qBlockModel(false),crown:()=>crownModel(),top_heart:()=>topperModel('heart'),top_mug:()=>topperModel('mug'),top_star:()=>topperModel('star'),top_brezn:()=>topperModel('brezn'),top_crown:()=>crownModel(),top_trophy:()=>topperModel('trophy'),top_cart:()=>topperModel('cart'),taler:()=>talerModel(5),spiky:()=>spikyShellModel(6)},VOX_SIZE={brezn_green:.1,brezn_red:.1,qfake:.19,qreal:.19,crown:.13,top_heart:.12,top_mug:.12,top_star:.12,top_brezn:.09,top_crown:.13,top_trophy:.12,top_cart:.11,taler:.15,spiky:.22},voxCache={};
+const VOX_DEF={brezn_green:()=>breznModel('green'),brezn_red:()=>breznModel('red'),qfake:()=>qBlockModel(true),qreal:()=>qBlockModel(false),crown:()=>crownModel(),top_laurel:()=>topperModel('laurel'),top_cylinder:()=>topperModel('cylinder'),top_laurel2:()=>topperModel('laurel2'),top_heart:()=>topperModel('heart'),top_mug:()=>topperModel('mug'),top_star:()=>topperModel('star'),top_brezn:()=>topperModel('brezn'),top_crown:()=>crownModel(),top_trophy:()=>topperModel('trophy'),top_cart:()=>topperModel('cart'),taler:()=>talerModel(5),spiky:()=>spikyShellModel(6)},VOX_SIZE={brezn_green:.1,brezn_red:.1,qfake:.19,qreal:.19,crown:.13,top_heart:.12,top_mug:.12,top_laurel:.11,top_cylinder:.12,top_laurel2:.11,top_star:.12,top_brezn:.09,top_crown:.13,top_trophy:.12,top_cart:.11,taler:.15,spiky:.22},voxCache={};
 const voxMat=new T.MeshLambertMaterial({vertexColors:true});persistentMats.add(voxMat);
 function voxGeo(k){if(voxCache[k])return voxCache[k];const m=VOX_DEF[k](),d=voxelMesh(m.vox,m.pal,VOX_SIZE[k]),g=new T.BufferGeometry();
  g.setAttribute('position',new T.BufferAttribute(d.positions,3));g.setAttribute('normal',new T.BufferAttribute(d.normals,3));g.setAttribute('color',new T.BufferAttribute(d.colors,3));g.setIndex(new T.BufferAttribute(d.indices,1));
@@ -3753,14 +3753,14 @@ addEventListener('keydown',e=>{if(introT>.3&&!e.repeat){introT=.3;stopFanfare(.1
 // R54: 'shield' (sagte noch "Sternenschild") und 'welcome' (alter Spielname) sind stumm, bis neue Aufnahmen da sind
 const VOICE={start:'Auf die Plätze — fertig — los!',lap2:'Runde zwei',lastlap:'Letzte Runde!',turbo:'Turbo!',hit:'Volltreffer!',ouch:'Autsch!',banana:'Banane gelegt!',lead:'Du führst!',win:'Erster Platz!',podium:'Aufs Treppchen!',finish:'Im Ziel!',best:'Neue Bestzeit!',rocket:'Raketenstart!',early:'Zu früh!',trick:'Super Trick!',spores:'Volle Sporen-Power!',gpnext:'Weiter zum nächsten Rennen!',gpwin:'Grand-Prix-Sieger!',gppodium:'Aufs Grand-Prix-Treppchen!',gpfinish:'Grand Prix beendet!',coaster:'Super-Achterbahn!',launch:'Magnet-Katapult!'};
 const VIP=new Set(['start','lap2','lastlap','win','podium','finish','best','gpnext','gpwin','gppodium','gpfinish']);
-const SFX_MAX={c_win:5.2,c_lose:3.4,pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,c_glock:4.6,c_horn0:1,c_horn1:1.2,c_horn2:1.1,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
+const SFX_MAX={c_win:5.2,c_lose:3.4,pickup:1.2,banana:1.6,hit:1,cheer:4,jingle:8,goodtry:6,finallap:4,c_glock:4.6,c_horn0:1,c_horn1:1.2,c_horn2:1.1,c_horn3:1.2,c_horn4:1.2,spore:.6,ramp:1.3,trick:1.1,rocket:1.8,boost:1.4,lap:1.6,bump:.8,drift:1.2,launch:2.4};
 // Musik bleibt das Fundament. Kurze Hinweise liegen darueber, Kollisionen und Jubel dahinter.
 const AUDIO_MIX={effects:.78,voice:.95,music:.49,world:.82};
-const SFX_RMS={c_star:.085,hit:.095,bump:.075,drift:.075,cheer:.075,boost:.105,rocket:.105,ramp:.095,spore:.09,jingle:.14,goodtry:.12,finallap:.115,c_glock:.115,c_horn0:.1,c_horn1:.1,c_horn2:.095,launch:.11};
+const SFX_RMS={c_star:.085,hit:.095,bump:.075,drift:.075,cheer:.075,boost:.105,rocket:.105,ramp:.095,spore:.09,jingle:.14,goodtry:.12,finallap:.115,c_glock:.115,c_horn0:.1,c_horn1:.1,c_horn2:.095,c_horn3:.1,c_horn4:.1,launch:.11};
 const CLIPS={};for(const k of Object.keys(VOICE))CLIPS['v_'+k]='assets/audio/voice/'+k+'.mp3';for(const k of Object.keys(SFX_MAX))CLIPS['s_'+k]='assets/audio/sfx/'+k+'.mp3';
 // R44: selbst synthetisierte Chiptune-Effekte (art/r44/make_chiptune.mjs) haben Vorrang vor den Samples
 const CHIP=['coin','item','lap','mt1','mt2','mt3','boost','hit','bump','slip','trick','ring','rocket','beep','go','cheer','whirl','sand','whistle','bell','moo','grab','meteor','boom','thunder','levelup','unlock','star','mega','shrink','squash','ink','megaloop','sun',
- 'throw','fake','fakepop','spin','flat','unflat','warn','crown','select','whoosh','land','splash','wrong','bonus','spiky','crush','win','lose','glock','horn0','horn1','horn2'];for(const k of CHIP)CLIPS['s_c_'+k]='assets/audio/sfx/chip/'+k+'.wav';
+ 'throw','fake','fakepop','spin','flat','unflat','warn','crown','select','whoosh','land','splash','wrong','bonus','spiky','crush','win','lose','glock','horn0','horn1','horn2','horn3','horn4'];for(const k of CHIP)CLIPS['s_c_'+k]='assets/audio/sfx/chip/'+k+'.wav';
 const clipData={},clipBuf={},clipFail={},clipNorm={},clipPlayed={},effectSources=new Set();let echoSend=null,ambSrc=null,ambGain=null,ambLfo=null,voiceGain=null,sfxGain=null,effectsOut=null,voiceSrc=null,voiceKey=null,voiceQueue=null,pendingVoice=null,duckUntil=0,ducked=false,engine=null,raceFilter=null,masterGain=null,worldGain=null,mixMuted=false,duckLevel=1,duckTick=0;
 for(const [k,url] of Object.entries(CLIPS))clipData[k]=fetch(url).then(r=>{if(!r.ok)throw new Error(url);return r.arrayBuffer();}).catch(()=>{clipFail[k]=true;return null;});
 const LOOP_CLIPS=new Set(['s_c_star','s_c_megaloop']);
@@ -3772,7 +3772,7 @@ function prepClip(k,b){if(LOOP_CLIPS.has(k)){let sum=0,n=0,peak=0;for(let c=0;c<
  clipNorm[k]=Math.min(2.5,target/Math.max(Math.sqrt(sum/Math.max(1,n)),1e-4),.82/Math.max(peak,1e-4));return out;}
 // Nacheinander dekodieren (kleine Pausen), damit der Start nicht an vielen gleichzeitigen Audio-Jobs haengt;
 // R90: die Hupe zuerst - sie ist Spieler-Eingabe und muss sofort da sein, nicht erst nach dem ganzen Rest
-const CLIP_PRIO=new Set(['s_c_horn0','s_c_horn1','s_c_horn2']);
+const CLIP_PRIO=new Set(['s_c_horn0','s_c_horn1','s_c_horn2','s_c_horn3','s_c_horn4']);
 async function decodeClips(){const keys=Object.keys(CLIPS).sort((a,b)=>(CLIP_PRIO.has(b)?1:0)-(CLIP_PRIO.has(a)?1:0));for(const k of keys){try{const ab=await clipData[k];if(ab){const b=await ctx.decodeAudioData(ab);clipBuf[k]=prepClip(k,b);if(pendingVoice&&'v_'+pendingVoice.key===k&&performance.now()-pendingVoice.t<900){const key=pendingVoice.key;pendingVoice=null;say(key);}}}catch(e){clipFail[k]=true;}await new Promise(r=>setTimeout(r,12));}}
 function trackEffect(src){effectSources.add(src);src.onended=()=>{effectSources.delete(src);src.disconnect();};return src;}
 function playClip(k,bus,vol=1,rate=1){const b=clipBuf[k],fx=k.startsWith('s_');if(!soundOn||!b||!ctx||(fx&&state==='paused'))return null;
@@ -4061,8 +4061,21 @@ let hornNext=0;
 function hornPlay(id,h){const r=racers[id];if(!r?.mesh)return;const pl=racers[0],d=pl&&pl!==r?Math.hypot(pl.x-r.x,pl.z-r.z):0;
  const v=id===0?.8:clamp(1-d/48,.12,.62);
  if(!playClip('s_c_horn'+h,sfxGain,v)){sfxTone(698,698,.1,'square',.045*v);setTimeout(()=>sfxTone(932,932,.13,'square',.045*v),115);}}
+// R95 Wiesn-Saison: vier Wochen lang XP sammeln (alles, was XP gibt, zaehlt mit), zehn Stufen, freie Belohnungen.
+// Der Saison-Zaehler liegt im Speicher unter dem Saison-Schluessel - neue Saison, neues Zaehlen.
+function seasonState(){const key=seasonKey(weekKey())||'';const st=store.get('season',null);
+ return st&&st.key===key?st:{key,xp:0};}
+const seasonLvl=()=>seasonLevel(seasonState().xp).level;
+function addSeasonXp(n){if(!(n>0))return;const st=seasonState(),before=seasonLevel(st.xp).level;
+ st.xp=Math.round(st.xp+n);store.set('season',st);const after=seasonLevel(st.xp).level;
+ if(after>before){const rw=SEASON_REWARDS.filter(r=>r.lvl>before&&r.lvl<=after);
+  rw.forEach((r,i)=>setTimeout(()=>{toast(`🌿 SAISON-STUFE ${r.lvl}: ${r.icon} ${r.what} FREI!`,3,'good');SFX.crown();},500+i*1700));
+  topperMine=undefined;seasonRefresh();}}
+// Saison-Hupen (Stufe 4 Zugpfeife, Stufe 8 Gockel) zaehlen im Hupe-Rundlauf mit
+const hornsUnlocked=()=>{const l=seasonLvl(),u=[0,1,2];if(l>=4)u.push(3);if(l>=8)u.push(4);return u;};
 function hornMine(){const r=racers[0];if(!r||state!=='race'&&state!=='countdown')return;if((r.hornCd||0)>elapsed)return;r.hornCd=elapsed+1.1;
- if(net&&net.setup)chatSend({h:hornNext});else hornPlay(0,hornNext);hornNext=(hornNext+1)%HORNS.length;}
+ const u=hornsUnlocked(),h=u[hornNext%u.length];
+ if(net&&net.setup)chatSend({h});else hornPlay(0,h);hornNext=(hornNext+1)%u.length;}
 function trailTick(){const p=racers[0];if(p?.trail&&(state!=='race'||!TRAIL_ITEMS.has(p.item)||elapsed-p.trailT>10)){if(state==='race'&&TRAIL_ITEMS.has(p.item)&&elapsed-p.trailT>10){p.trail=null;use();}else p.trail=null;}
  // Anzeige fuer alle Karts in der Naehe (die KI haelt ihre Banane auch hinter sich, bis sie sie ablegt)
  for(const r of racers){const want=r.trail&&TRAIL_ITEMS.has(r.item)&&state!=='menu'&&nearPlayer(r,60)?r.trail:null;let fx=trailFx.get(r);
@@ -4595,7 +4608,7 @@ function takeRidePhoto(){photoPending=false;const p=racers[0];if(!p)return;
  SFX.shutter();}
 function showRidePhoto(){const rp=$('ridePhoto');if(!rp)return;rp.hidden=!ridePhoto;if(ridePhoto){rp.querySelector('img').src=ridePhoto;rp.querySelector('figcaption').textContent='ON-RIDE-FOTO · '+course.name.toUpperCase();}}
 // R44: Fortschritt nach dem Rennen - XP-Balken fuellt sich (auch ueber Stufen hinweg), neue Erfolge und Lackierungen
-function showProgress(res){store.set('prog',res.prog);const el=$('resultProg');if(!el)return;const lv0=levelOf(res.prog.xp-res.xp.total),lv1=levelOf(res.prog.xp);
+function showProgress(res){store.set('prog',res.prog);addSeasonXp(res.xp.total);const el=$('resultProg');if(!el)return;const lv0=levelOf(res.prog.xp-res.xp.total),lv1=levelOf(res.prog.xp);
  const unl=res.levelUp?KART_COLORS.filter(k=>k.lvl&&k.lvl>res.before&&k.lvl<=res.after):[];
  el.innerHTML=`<div class="xp-head"><b>STUFE <span id="xpLvl">${lv0.level}</span></b><span>+${res.xp.total} XP${res.xp.mul>1?` (×${res.xp.mul})`:''}</span></div><div class="xp-bar"><i id="xpFill" style="width:${Math.round(lv0.into/lv0.need*100)}%"></i></div>`+
   `<div class="xp-parts">${res.xp.parts.map(([k,v])=>`<span>${k} <b>+${v}</b></span>`).join('')}</div>`+
@@ -4623,7 +4636,7 @@ function end(){scapeStop();document.body.classList.remove('mirror');elapsed=race
  showProgress(recordRace(store.get('prog',{xp:0,ach:[],done:[],won:[]}),{track:selected,cc,place,finished:true,stats:{...stats},mirror:raceMirror,assist:raceAssist,online:onl,humansBeaten,onlineFirst:onlFirst,streakDays:stk.fresh?stk.days:0}));
  if(stk.fresh&&stk.days>1)setTimeout(()=>toast(`🔥 WIESN-SERIE: ${stk.days} TAGE! +${streakXP(stk.days)} XP`,2,'good'),300);
  {const wr=weeklyStep(store.get('weekly',null),weekKey(),{place,finished:true,online:onl,track:selected,stats:{...stats}});store.set('weekly',wr.st);
-  if(wr.fresh.length){const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});pr.xp=(pr.xp||0)+WEEKLY_XP*wr.fresh.length;store.set('prog',pr);
+  if(wr.fresh.length){const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});pr.xp=(pr.xp||0)+WEEKLY_XP*wr.fresh.length;store.set('prog',pr);addSeasonXp(WEEKLY_XP*wr.fresh.length);
    wr.fresh.forEach((g,i)=>setTimeout(()=>{toast(`📆 WOCHENZIEL: ${g.t} ✓ +${WEEKLY_XP} XP`,2.2,'good');SFX.bonus();},1800+i*1500));}
   if(wr.allDone){store.set('weeklyWins',store.get('weeklyWins',0)+1);setTimeout(()=>{toast('🏆 ALLE WOCHENZIELE GESCHAFFT!',2.4,'good');SFX.crown();},1800+wr.fresh.length*1500);}}
  crownMine=null;topperMine=undefined;{const fresh=TOPPERS.filter(t=>!topOpen0.has(t.id)&&topperUnlocked(t,topperMe()));fresh.forEach((t,i)=>setTimeout(()=>{toast(`🎁 NEUER AUFSATZ: ${t.icon} ${t.n}`,2.4,'good');SFX.bonus();},2600+i*1400));if(fresh.length)menuToppers();}
@@ -5171,7 +5184,7 @@ function pixelCanvas(rows,pal,px=4){const w=Math.max(...rows.map(r=>r.length)),c
 function luckyRefresh(){const b=$('lucky');if(!b)return;const ready=luckyReady(store.get('luckyDay',''),dayKey());b.hidden=!ready;
  if(ready&&!b.querySelector('.lucky-ico')){const i=document.createElement('i');i.className='lucky-ico';i.textContent='🥨';i.setAttribute('aria-hidden','true');b.prepend(i);}}
 function luckyOpen(){const b=$('lucky');if(!luckyReady(store.get('luckyDay',''),dayKey()))return;store.set('luckyDay',dayKey());
- const xp=luckyReward(),pr=store.get('prog',{xp:0,ach:[],done:[],won:[]}),l0=levelOf(pr.xp||0).level;pr.xp=(pr.xp||0)+xp;store.set('prog',pr);const l1=levelOf(pr.xp).level;
+ const xp=luckyReward(),pr=store.get('prog',{xp:0,ach:[],done:[],won:[]}),l0=levelOf(pr.xp||0).level;pr.xp=(pr.xp||0)+xp;store.set('prog',pr);addSeasonXp(xp);const l1=levelOf(pr.xp).level;
  b.classList.add('open');SFX.bonus();const r=b.getBoundingClientRect();
  for(let i=0;i<18;i++){const d=document.createElement('i');d.className='lucky-px';const a=i/18*TAU;d.style.left=(r.left+r.width*.18)+'px';d.style.top=(r.top+r.height/2)+'px';
   d.style.setProperty('--dx',Math.cos(a)*(60+Math.random()*50)+'px');d.style.setProperty('--dy',Math.sin(a)*(40+Math.random()*40)-30+'px');d.style.background=['#ffd23a','#c07a34','#ffffff','#3cc85a','#e8352e'][i%5];document.body.append(d);setTimeout(()=>d.remove(),950);}
@@ -5186,6 +5199,13 @@ function weeklyRefresh(){const weeklyEl=$('weekly');if(!weeklyEl)return;const wk
  weeklyEl.innerHTML=`<span class="wk-head"><b>📆 WOCHENZIELE</b><i>${goals.map(g=>s.done.includes(g.id)?'●':'○').join('')}</i><em>${nd===3?'🏆 geschafft!':`noch ${left} ${left===1?'Tag':'Tage'} · +${WEEKLY_XP} XP je Ziel`}</em><u>${open?'▴':'▾'}</u></span>`+
   (open?goals.map(g=>{const v=Math.min(g.n,s.prog[g.id]||0),ok=s.done.includes(g.id);return `<span class="wk-row${ok?' ok':''}"><small>${ok?'✓ ':''}${g.t}</small><s style="--p:${Math.round(v/g.n*100)}%"></s><small>${v}/${g.n}</small></span>`;}).join('')+`<span class="wk-foot">Alle drei: Aufsatz 🏆 Wochen-Pokal</span>`:'');}
 $('weekly').onclick=()=>{store.set('weeklyOpen',!store.get('weeklyOpen',false));SFX.select();weeklyRefresh();};weeklyRefresh();
+// R95 Wiesn-Saison-Karte (unter den Wochenzielen): Stufe, Balken und die naechste Belohnung. Alles kosmetisch,
+// alles frei - XP dafuer kommt aus Rennen, Wochenzielen, Tagesaufgabe, Gluecksbrezn und Tour.
+{const c=document.createElement('div');c.id='season';$('weekly').after(c);}
+function seasonRefresh(){const el=$('season');if(!el)return;const st=seasonState(),lv=seasonLevel(st.xp),nx=seasonNext(lv.level),key=seasonKey(weekKey())||'';
+ el.innerHTML=`<span class="sn-head"><b>🌿 WIESN-SAISON ${key.slice(-3)}</b><i>Stufe ${lv.level} / ${SEASON_LEVELS}</i>${lv.level>=SEASON_LEVELS?'<em>abgeschlossen – schön war’s! 🥇</em>':`<em>${nx?`${nx.icon} Stufe ${nx.lvl}: ${nx.what} · `:''}noch ${lv.need-lv.into} XP</em>`}</span>`+
+  `<span class="sn-bar"><s style="--p:${lv.level>=SEASON_LEVELS?100:Math.round(lv.into/lv.need*100)}%"></s></span>`;}
+seasonRefresh();
 // R87 Wochen-Cup-Karte (unter den Wochenzielen): diese Woche derselbe Cup und dieselbe Klasse fuer alle, Gesamtzeit
 // kommt auf die Online-Bestenliste, einmal gefahren zaehlt der Pokal fuer immer. Antippen startet direkt.
 {const c=document.createElement('button');c.id='wcup';c.type='button';$('daily').before(c);}
@@ -5204,7 +5224,7 @@ tourRefresh();
 function tourHudTick(){if(!tourOn)return;const c=coachState();
  setText('tourHudTxt','🎓 TOUR  '+tourProgress(c).map(s=>(s.ok?'✓ ':'○ ')+s.n).join(' · '));
  if(tourDone(c)){tourOn=false;$('tourHud').hidden=true;
-  const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});pr.xp=(pr.xp||0)+TOUR_XP;store.set('prog',pr);
+  const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});pr.xp=(pr.xp||0)+TOUR_XP;store.set('prog',pr);addSeasonXp(TOUR_XP);
   toast(`🎓 TOUR GESCHAFFT! +${TOUR_XP} XP`,2.6,'good');SFX.crown();}}
 function wcRefresh(){const el=$('wcup');if(!el)return;const wc=weekCup(weekKey()),cup=cupById(wc.cup),best=store.get('wc-'+wc.week,Infinity),done=isFinite(best),n=store.get('wcCups',[]).length,now=new Date(),left=7-((now.getDay()+6)%7);
  el.classList.toggle('done',done);
@@ -5213,7 +5233,7 @@ $('wcup').onclick=()=>{const wc=weekCup(weekKey());SFX.select();pickMode('gp');d
 wcRefresh();
 function menuSimple(on){document.body.classList.toggle('menu-simple',on);store.set('menuFull',!on);quickRefresh();}
 function pickMode(m){const b=document.querySelector(`#modes .mode[data-mode="${m}"]`);if(b&&mode!==m)b.click();}
-function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();wcRefresh();tourRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
+function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();seasonRefresh();wcRefresh();tourRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
  const onl=onlRaces(),nx=onlineNext(onl),first=store.get('onlDay','')!==dayKey();
  setText('qOnlineBadge',first?`+${ONLINE_DAILY_XP} XP heute`:`×${ONLINE_MUL} XP`);
  {const st=store.get('streak',{}),y=dayKey(new Date(Date.now()-864e5)),d=streakIfToday(st,dayKey(),y);setText('qStreak',st.last===dayKey()?`🔥 Wiesn-Serie: ${st.days} ${st.days===1?'Tag':'Tage'} – morgen wieder fahren!`:`🔥 Erstes Rennen heute: +${streakXP(d)} XP${d>1?` (Serie Tag ${d})`:''}`);}
@@ -5223,7 +5243,7 @@ $('menu').addEventListener('pointerdown',e=>{const b=e.target.closest?.('button'
 const SONG_TITLES={menu8:'Wiesn-Ouvertüre',alm:'Almwiesen-Galopp',canyon:'Wüstenritt',neon:'Leuchtpilz-Beat',lobby:'Festzelt-Boogie',polka:'Maßkrug-Polka',gothic8:'Kerzen im Nordturm',space:'Sturzflug',beach:'Lagunen-Calypso',ice:'Walzer auf dem Eis',dome:'Choral der Wächter',choco:'Schokoladen-Swing',lava:'Magma-Galopp',kirmes:'Rummelwalzer'};
 let titleTaps=[];
 function soundTest(){let box=$('soundTest');if(!box){box=document.createElement('section');box.id='soundTest';box.className='modal';box.hidden=true;document.body.append(box);}
- const bgms=Object.keys(SONG_TITLES).filter(k=>k==='menu8'||BGM_SRC[k]),sfx=['coin','item','lap','mt1','mt2','mt3','boost','trick','ring','levelup','unlock','star','crown','bonus','throw','fake','fakepop','spiky','crush','spin','flat','unflat','win','lose','moo','whistle','bell','glock'];
+ const bgms=Object.keys(SONG_TITLES).filter(k=>k==='menu8'||BGM_SRC[k]),sfx=['coin','item','lap','mt1','mt2','mt3','boost','trick','ring','levelup','unlock','star','crown','bonus','throw','fake','fakepop','spiky','crush','spin','flat','unflat','win','lose','moo','whistle','bell','glock','horn0','horn1','horn2','horn3','horn4'];
  box.innerHTML=`<div class="st-card"><h2>SOUND TEST</h2><p class="st-sub">Alle Stücke und Klänge – eigene Chiptune-Kompositionen</p><h3>♪ MUSIK</h3><ol class="st-list">${bgms.map((k,i)=>`<li><button type="button" data-bgm="${k}">${String(i+1).padStart(2,'0')}</button><span>${SONG_TITLES[k]}</span></li>`).join('')}</ol>
   <h3>✦ KLÄNGE</h3><div class="st-sfx">${sfx.map((k,i)=>`<button type="button" data-sfx="${k}">${String(i+1).padStart(2,'0')} ${k.toUpperCase()}</button>`).join('')}</div><button type="button" class="st-close">ENDE</button></div>`;
  box.querySelectorAll('[data-bgm]').forEach(b=>b.onclick=()=>{audioInit();if(!soundOn)setSound();const k=b.dataset.bgm==='menu8'?'menu':b.dataset.bgm;bgm.current=null;playBgm(k);box.querySelectorAll('[data-bgm]').forEach(x=>x.classList.toggle('on',x===b));});

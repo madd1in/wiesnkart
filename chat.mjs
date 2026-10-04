@@ -6,8 +6,10 @@ export const CHAT_MAX = 80, CHAT_KEEP = 40;
 export const EMOJIS = ['👍', '😂', '😮', '😡', '🎉', '🍺', '👋', '❤️', '🔥', '😎', '🥨', '🏁'];
 export const QUICK = ['Servus!', 'Pfiat di!', 'Gut gefahren!', 'Revanche!', 'Ups 😅', 'Nochmal?', 'Kurz warten!', "Los geht's!"];
 // R90 Hupen: klangliche Gruesse statt Smileys (Nutzerwunsch: Bild frei halten) - laufen wie Chat ueber die
-// Peer-Verbindung, nur als Index (0 Partyhupe, 1 Rummel-Trompete, 2 Fahrrad-Klingel)
-export const HORNS = ['Partyhupe', 'Rummel-Hupe', 'Fahrradklingel'];
+// Peer-Verbindung, nur als Index (0 Partyhupe, 1 Rummel-Trompete, 2 Fahrrad-Klingel).
+// R95: 3 Zugpfeife und 4 Gockel sind Saison-Belohnungen (Wiesn-Saison Stufe 4/8); aeltere Clients
+// ignorieren die neuen Nummern einfach (packChat weisst sie dort ab).
+export const HORNS = ['Partyhupe', 'Rummel-Hupe', 'Fahrradklingel', 'Zugpfeife', 'Gockel'];
 // Grobe Woerter werden durch Sternchen ersetzt (ganzes Wort, gross/klein egal) - bewusst kurze Liste
 const ROUGH = ['arschloch', 'hurensohn', 'wichser', 'fotze', 'missgeburt', 'fuck', 'fucking', 'shit', 'bitch', 'nazi', 'nigger', 'spast', 'schlampe'];
 const ROUGH_RE = new RegExp('(^|[^\\p{L}])(' + ROUGH.join('|') + ')(?=$|[^\\p{L}])', 'giu');

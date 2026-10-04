@@ -166,6 +166,7 @@ export function pickRival(aiIds, rnd = Math.random) {return aiIds.length ? aiIds
 export const rivalBeaten = (order, rivalId) => rivalId !== null && rivalId !== undefined && order.indexOf(0) >= 0 && order.indexOf(0) < order.indexOf(rivalId);
 
 // R66: Aufsaetze (Voxel-Kosmetik ueber dem Kart) - freigeschaltet durch Stufe, Wiesn-Serie, Online-Rennen oder den Online-Sieg
+// R95: drei weitere Aufsaetze kommen aus der Wiesn-Saison (season = noetige Saison-Stufe)
 export const TOPPERS = [
   {id: 'none', n: 'Ohne', icon: '✖'},
   {id: 'heart', n: 'Lebkuchenherz', icon: '💝', lvl: 3},
@@ -175,9 +176,12 @@ export const TOPPERS = [
   {id: 'crown', n: 'Pixel-Krone', icon: '👑', crown: true},
   {id: 'trophy', n: 'Wochen-Pokal', icon: '🏆', weekly: 1},
   {id: 'cart', n: 'Spielmodul', icon: '🎮', mods: 12},
+  {id: 'laurel', n: 'Saison-Kranz', icon: '🌿', season: 2},
+  {id: 'cylinder', n: 'Festzelt-Hut', icon: '🎩', season: 6},
+  {id: 'laurel2', n: 'Gold-Kranz', icon: '🥇', season: 10},
 ];
 export const topperById = id => TOPPERS.find(t => t.id === id) || null;
-/** me = {level, streakBest, onl, crown} */
+/** me = {level, streakBest, onl, crown, season} */
 export function topperUnlocked(t, me = {}) {
   if (!t) return false;
   if (t.lvl && (me.level || 1) < t.lvl) return false;
@@ -185,11 +189,12 @@ export function topperUnlocked(t, me = {}) {
   if (t.onl && (me.onl || 0) < t.onl) return false;
   if (t.crown && !me.crown) return false;
   if (t.weekly && (me.weekly || 0) < t.weekly) return false;
+  if (t.season && (me.season || 0) < t.season) return false;
   if (t.mods && (me.mods || 0) < t.mods) return false;
   return true;
 }
 export function topperHint(t) {
-  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : t.weekly ? 'Schaffe alle drei Wochenziele' : t.mods ? 'Finde alle 12 versteckten Spielmodule' : '';
+  return t.lvl ? `Ab Fahrerstufe ${t.lvl}` : t.streak ? `Wiesn-Serie: ${t.streak} Tage am Stück` : t.onl ? `Nach ${t.onl} Online-Rennen` : t.crown ? 'Erster Online-Sieg vor einem Menschen' : t.weekly ? 'Schaffe alle drei Wochenziele' : t.season ? `Wiesn-Saison: Stufe ${t.season}` : t.mods ? 'Finde alle 12 versteckten Spielmodule' : '';
 }
 /** Gewaehlter Aufsatz, falls freigeschaltet; ohne Wahl traegt man die Krone, sobald man sie hat */
 export function topperFor(choice, me = {}) {
@@ -248,3 +253,34 @@ export const TOUR_STEPS = Object.freeze([['gas', 'Gas geben'], ['drift', 'Drift-
 export const TOUR_XP = 100;
 export function tourProgress(c = {}) {return TOUR_STEPS.map(([id, n]) => ({id, n, ok: c[id] === 'ok'}));}
 export const tourDone = c => tourProgress(c).every(s => s.ok);
+
+// R95 Wiesn-Saison: vier Kalenderwochen lang XP sammeln, zehn Stufen, jede zweite Stufe schaltet etwas frei
+// (Aufsaetze und Hupen - alles kosmetisch, nichts kaufbar). Die Saison zaehlt eigenes XP, damit sie wie der
+// Wochen-Cup fuer alle gleich im Kalender laeuft und mit der naechsten Saison von vorn beginnt.
+export const SEASON_WEEKS = 4, SEASON_LEVELS = 10;
+/** ISO-Woche -> Saison-Schluessel: '2026-W40' -> '2026-S10' (Block 10 = Wochen 37-40). Ungueltig -> null. */
+export function seasonKey(week) {
+  const m = /^(\d{4})-W(\d{2})$/.exec(String(week || ''));
+  if (!m) return null;
+  const w = +m[2];
+  if (w < 1 || w > 53) return null;
+  return `${m[1]}-S${Math.floor((w - 1) / SEASON_WEEKS) + 1}`;
+}
+/** Saison-XP fuer den Aufstieg AUF Stufe n (2..10). Stufe 1 steht sofort zu. */
+export const SEASON_NEED = lvl => 150 + (lvl - 1) * 60;
+/** Stufe aus Saison-XP: {level, into, need} wie levelOf. */
+export function seasonLevel(xp) {
+  let n = 1, rest = xp || 0;
+  while (n < SEASON_LEVELS && rest >= SEASON_NEED(n + 1)) {rest -= SEASON_NEED(n + 1); n++;}
+  return {level: n, into: n >= SEASON_LEVELS ? 0 : rest, need: n >= SEASON_LEVELS ? 0 : SEASON_NEED(n + 1)};
+}
+/** Belohnungen der Saison (Stufe -> Aufsatz oder Hupe; die Hupe 3/4 liegt in game.js/chat.mjs). */
+export const SEASON_REWARDS = Object.freeze([
+  {lvl: 2, kind: 'topper', id: 'laurel', icon: '🌿', what: 'Aufsatz „Saison-Kranz“'},
+  {lvl: 4, kind: 'horn', id: 3, icon: '🚂', what: 'Hupe „Zugpfeife“'},
+  {lvl: 6, kind: 'topper', id: 'cylinder', icon: '🎩', what: 'Aufsatz „Festzelt-Hut“'},
+  {lvl: 8, kind: 'horn', id: 4, icon: '🐓', what: 'Hupe „Gockel“'},
+  {lvl: 10, kind: 'topper', id: 'laurel2', icon: '🥇', what: 'Aufsatz „Gold-Kranz“'},
+]);
+/** Naechste Belohnung ab Stufe level (oder null). */
+export const seasonNext = level => SEASON_REWARDS.find(r => r.lvl > level) || null;
