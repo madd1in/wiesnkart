@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {raceXP, levelOf, levelStart, recordRace, ACH, TRACKS, RIVAL_XP, DAILY_XP, DAILY_GOALS, dailyChallenge, dailyDone, dayKey, pickRival, rivalBeaten, achById, ASSIST_BONUS, CLEAN_XP} from './progress.mjs';
+import {raceXP, levelOf, levelStart, recordRace, ACH, TRACKS, RIVAL_XP, DAILY_XP, DAILY_GOALS, dailyChallenge, dailyDone, dayKey, pickRival, rivalBeaten, achById, ASSIST_BONUS, CLEAN_XP, TOUR_STEPS, TOUR_XP, tourProgress, tourDone} from './progress.mjs';
 
 test('race XP: placement base, bonuses and class multiplier', () => {
   const plain = raceXP({place: 1, cc: 50, stats: {hitsTaken: 1}});
@@ -162,4 +162,17 @@ test('R69: Wochenziele - drei feste Ziele je Woche, Fortschritt ueber Rennen, Po
   const next = weeklyStep(st, '2026-W41', {place: 9, finished: true, stats: {}}); assert.equal(next.st.done.length, 0, 'neue Woche, neues Glueck');
   assert.ok(!topperUnlocked(topperById('trophy'), {})); assert.ok(topperUnlocked(topperById('trophy'), {weekly: 1}));
   assert.ok(WEEKLY_POOL.every(q => q.n > 0 && q.t.length > 5));
+});
+
+test('R94 Einstiegs-Tour: drei Schritte, gelernt zaehlt als ok, fertig erst mit allen', () => {
+  assert.equal(TOUR_STEPS.length, 3);
+  assert.equal(TOUR_XP, 100);
+  const leer = tourProgress({});
+  assert.deepEqual(leer.map(s => [s.id, s.ok]), [['gas', false], ['drift', false], ['item', false]]);
+  assert.ok(!tourDone({}));
+  assert.ok(!tourDone({gas: 'ok', drift: 'ok'}), 'Item fehlt noch');
+  assert.ok(!tourDone({gas: 'ok', drift: 2, item: 'ok'}), 'Drift nur angeschaut, nicht gelernt');
+  assert.ok(tourDone({gas: 'ok', drift: 'ok', item: 'ok'}));
+  assert.deepEqual(tourProgress({gas: 'ok'}).map(s => s.ok), [true, false, false]);
+  assert.ok(tourDone(undefined) === false, 'ohne Zustand nie fertig');
 });

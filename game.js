@@ -11,7 +11,7 @@ import {navPick,navRepeat,isConsole} from './padnav.mjs';
 import {createDraftState,updateDraft} from './draft.mjs';
 import {WIZARD,inSection,castInterval,pickTarget,spellPos,stepSpell,spellHits} from './wizard.mjs';
 import {weatherPlan,calmPlan,weatherMix,weatherLook,wxGrip,wxWind,forecast,lapNews} from './weather.mjs';
-import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady,weekKey,weeklyGoals,weeklyStep,WEEKLY_XP} from './progress.mjs';
+import {ACH,achById,recordRace,levelOf,pickRival,rivalBeaten,dailyChallenge,dailyDone,dayKey,DAILY_XP,ONLINE_MUL,ONLINE_DAILY_XP,ONLINE_UNLOCKS,onlineNext,streakUpdate,streakIfToday,streakXP,TOPPERS,topperById,topperUnlocked,topperHint,topperFor,luckyReward,luckyReady,weekKey,weeklyGoals,weeklyStep,WEEKLY_XP,tourProgress,tourDone,TOUR_XP} from './progress.mjs';
 import {STAMP,stamperState,stamperCrushes,stamperBlocks,fireballAt,CANNON,cannonLane,missileAt} from './hazards.mjs';
 import {OW,pswitchMission,pswitchPress,pswitchCollect,pswitchTick,timeLeft,slalomMission,slalomPass,ringsMission,ringsHit,ringsLand,progressAdd} from './ow.mjs';
 import {LOOP,loopSpec,loopFrame as loopFrameAt,agravSegments,agravRoll,agravRings} from './loop.mjs';
@@ -4040,7 +4040,7 @@ function splitSharedMaterials(root){
    let alt=MAT_SPLIT.get(m);if(!alt){alt=m.clone();alt.name=m.name;alt.onBeforeCompile=m.onBeforeCompile;alt.customProgramCacheKey=m.customProgramCacheKey;MAT_SPLIT.set(m,alt);sharedMat.add(alt);persistentMats.add(alt);}ch=true;return alt;});
   if(ch)o.material=Array.isArray(o.material)?mats:mats[0];});}
 function start(){$('shareBtn').hidden=true;wxRestore();blues=[];introT=(introForce||(!TEST&&!(net&&net.setup)))&&!worldMode?INTRO_S:0;introPrev=null;if(loisl){loisl.mode='';loisl.snap=true;}if(tsu){tsu.t0=null;tsu.msg='';tsu.at=course.tsunami?.at??44;}if(!(net&&net.setup&&net.setup.b))battleStop();setTimeout(()=>{if(worldMode&&!net&&mode==='world'&&state==='countdown'&&!battle)battleStart();},0);if(gp.active)selected=gp.list?gp.list[gp.race]:gp.race;worldMode=isOW(mode)&&!gp.active;if(worldMode){if(selected!==WORLD_IDX)lastRaceSel=selected;selected=WORLD_IDX;}else if(selected===WORLD_IDX)selected=lastRaceSel;document.body.classList.toggle('ow',worldMode);if(!worldMode)owPortalHide();syncTrackButtons();keys.clear();buildCourse();if(worldMode)owReset();setAmbience(!!theme.ember);state='countdown';elapsed=0;countdown=3;startPress=-1;noticeTimer=0;stats=newStats();wxStart();
- for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
+ for(const id of ['menu','result','ceremony','pausePanel'])$(id).hidden=true;$('hud').hidden=false;$('pause').hidden=false;$('touch').hidden=false;$('gpBadge').hidden=!gp.active;$('tourHud').hidden=!tourOn;if(tourOn)tourHudTick();$('hud').classList.toggle('tt',isTT());$('ttGhost').hidden=$('ttMedal').hidden=!isTT();if(isTT())for(const b of boxes)b.cooldown=1e9;
  raceMirror=!(net&&net.setup)&&mirrorOn&&!worldMode&&!isTT()&&progLevel()>=MIRROR_LVL;document.body.classList.toggle('mirror',raceMirror);
  document.body.classList.add('racing');document.body.classList.remove('cer');if(soundOn)audioInit();scapeStart(course.openWorld?'forest':course.theme);stageCard();talerReset();syncHeadlights();finishMusicAt=0;if(introT>0){stopBgm();playFanfare();}else playBgm(raceTrack());setBgmRate(course.bgmRate||1);stopVoice();say('start');updateCamera(1,true);
  splitSharedMaterials(scene);if(SOFT_GL&&!softNoted){softNoted=true;toast('⚙ Ohne Grafikkarte am Laufen – Auflösung gedrosselt, damit die Fahrt flutscht',3,'');}if(worldMode||course.openWorld)toast(`${course.name} · ${isTT()?'Zeitfahren':ccName(cc)}${raceMirror?' · 🪞 Spiegel':''}`,2.2);const introCls=()=>introT>0?'intro':'';document.body.classList.toggle('introcam',introT>0);if(isTT()&&ghost)setTimeout(()=>toast(ghost.duel?`👻 GEIST-DUELL gegen ${ghost.duel.name} – schlag ${format(ghost.duel.time)}!`:'👻 Dein Geist fährt mit – schlag ihn!',ghost.duel?2.8:2,introCls()),2300);if(rivalId!==null){const rn=racers[rivalId].name;setTimeout(()=>{if(state==='countdown'||state==='race')toast(`⚔ RIVALE: ${rn.toUpperCase()}`,1.8,introCls());},2400);}if(coarseInput){wantFs=true;enterFs();}}
@@ -4151,6 +4151,7 @@ let coachLast=-99;function coachShow(id){const c=coachState();if(c[id]==='ok'||(
  const dev=padHints?'pad':coarseInput?'touch':'kb',el=$('coach');el.dataset.id=id;el.innerHTML=`<b>💡 TIPP</b><span>${COACH[id][dev]}</span>`;el.hidden=false;el.classList.add('on');coachT=4.2;SFX.select();}
 function coachTick(dt){const el=$('coach');if(coachT>0){coachT-=dt;if(coachT<=0&&el){el.classList.remove('on');setTimeout(()=>{if(coachT<=0)el.hidden=true;},300);}}
  if(state!=='race'||isTT()||!racers[0])return;const pl=racers[0],c=coachState();
+ tourHudTick();   // R94: Tour-Checkliste im HUD nachfuehren (und Abschluss feiern)
  const mt=stats.mt?stats.mt.mini+stats.mt.super+stats.mt.ultra:0;if(mt>0&&c.drift!=='ok')coachLearn('drift');
  if(c.gas!=='ok'){if(pl.speed>14)coachLearn('gas');else if(elapsed>2.5&&pl.speed<4)coachShow('gas');}
  if(c.drift!=='ok'&&!worldMode&&pl.speed>13&&elapsed>6&&Math.abs(trackAt(pl.distance+22).kap)>1/40)coachShow('drift');
@@ -4690,6 +4691,9 @@ function updateCeremony(dt){if(!cer)return;cer.t+=dt;cer.burstT-=dt;cer.podium.f
 // ---------------------------------------------------------------- HUD, Karte, Kamera
 const draftHud=document.createElement('div');draftHud.id='draftHud';draftHud.hidden=true;
 draftHud.innerHTML='<span class="draft-wind" aria-hidden="true">»</span><div><b id="draftTitle">WINDSCHATTEN</b><span id="draftHint">DRANBLEIBEN</span><div id="draftMeter" role="progressbar" aria-label="Windschatten aufladen" aria-valuemin="0" aria-valuemax="100"><i></i></div></div>';$('hud').appendChild(draftHud);
+// R94 Einstiegs-Tour: Checkliste im HUD (Gas, Drift, Item), verschwindet mit dem Abschluss
+const tourHudEl=document.createElement('div');tourHudEl.id='tourHud';tourHudEl.hidden=true;
+tourHudEl.innerHTML='<b id="tourHudTxt"></b>';$('hud').appendChild(tourHudEl);
 function updateDraftHud(p){const ds=p.draftState,on=state==='race'&&!isTT()&&!worldMode&&!!ds&&(ds.charge>.03||ds.ready);
  draftHud.hidden=!on;if(!on)return;
  const pct=Math.round(ds.charge*100);draftHud.classList.toggle('ready',ds.ready);setText('draftTitle',ds.ready?'TURBO BEREIT':'WINDSCHATTEN');setText('draftHint',ds.ready?'← AUSSCHEREN →':'DRANBLEIBEN · '+pct+' %');
@@ -5185,6 +5189,23 @@ $('weekly').onclick=()=>{store.set('weeklyOpen',!store.get('weeklyOpen',false));
 // R87 Wochen-Cup-Karte (unter den Wochenzielen): diese Woche derselbe Cup und dieselbe Klasse fuer alle, Gesamtzeit
 // kommt auf die Online-Bestenliste, einmal gefahren zaehlt der Pokal fuer immer. Antippen startet direkt.
 {const c=document.createElement('button');c.id='wcup';c.type='button';$('daily').before(c);}
+// R94 Einstiegs-Tour (Nutzeridee "30-Sekunden-Uebungsrunde"): Neue Fahrer bekommen ueber der Wochen-Cup-Karte
+// eine Einladung - ein Rennen auf der Pilz-Promenade mit den drei Fahrschul-Tipps als Checkliste im HUD
+// (Gas, Drift-Turbo, Item; die Tipps lernen von selbst ab, s. coach). Alles geschafft: +100 XP.
+{const c=document.createElement('button');c.id='tourBtn';c.type='button';$('wcup').before(c);}
+let tourOn=false;
+function tourRefresh(){const el=$('tourBtn');if(!el)return;
+ const neu=!store.get('tourSeen',false)&&(store.get('prog',{}).done||[]).length===0;
+ el.hidden=!neu;if(neu)el.innerHTML=`<i>🎓</i><span><small>ERSTMALS HIER?</small><b>Kurze Fahrschule-Tour</b><em>Gas · Drift-Turbo · Item · +${TOUR_XP} XP</em></span><u>▶</u>`;}
+$('tourBtn').onclick=()=>{store.set('tourSeen',true);store.set('coach',{});coachSeen={};tourOn=true;tourRefresh();
+ SFX.select();pickMode('single');document.querySelector('#classes [data-cc="50"]')?.click();selected=0;syncTrackButtons();buildCourse();gp=newGp(false);
+ toast('🎓 TOUR: Folge den Tipps – Gas, Drift, Item!',2.6,'good');start();};
+tourRefresh();
+function tourHudTick(){if(!tourOn)return;const c=coachState();
+ setText('tourHudTxt','🎓 TOUR  '+tourProgress(c).map(s=>(s.ok?'✓ ':'○ ')+s.n).join(' · '));
+ if(tourDone(c)){tourOn=false;$('tourHud').hidden=true;
+  const pr=store.get('prog',{xp:0,ach:[],done:[],won:[]});pr.xp=(pr.xp||0)+TOUR_XP;store.set('prog',pr);
+  toast(`🎓 TOUR GESCHAFFT! +${TOUR_XP} XP`,2.6,'good');SFX.crown();}}
 function wcRefresh(){const el=$('wcup');if(!el)return;const wc=weekCup(weekKey()),cup=cupById(wc.cup),best=store.get('wc-'+wc.week,Infinity),done=isFinite(best),n=store.get('wcCups',[]).length,now=new Date(),left=7-((now.getDay()+6)%7);
  el.classList.toggle('done',done);
  el.innerHTML=`<i>🏆</i><span><small>WOCHEN-CUP ${wc.week.slice(-3)}${n?` · ×${n} gefahren`:''}</small><b>${cup.icon} ${cup.name}</b><em>${ccName(wc.cc)} · 4 Rennen${done?` · deine Zeit ${format(best)}`:` · noch ${left} ${left===1?'Tag':'Tage'}`}</em></span><u>${done?'↻':'▶'}</u>`;}
@@ -5192,7 +5213,7 @@ $('wcup').onclick=()=>{const wc=weekCup(weekKey());SFX.select();pickMode('gp');d
 wcRefresh();
 function menuSimple(on){document.body.classList.toggle('menu-simple',on);store.set('menuFull',!on);quickRefresh();}
 function pickMode(m){const b=document.querySelector(`#modes .mode[data-mode="${m}"]`);if(b&&mode!==m)b.click();}
-function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();wcRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
+function quickRefresh(){menuToppers();luckyRefresh();weeklyRefresh();wcRefresh();tourRefresh();const c=courseAt(selected);if(c&&!c.openWorld)setText('qRaceSub',`${c.icon} ${c.name} · ${ccName(cc)}`);
  const onl=onlRaces(),nx=onlineNext(onl),first=store.get('onlDay','')!==dayKey();
  setText('qOnlineBadge',first?`+${ONLINE_DAILY_XP} XP heute`:`×${ONLINE_MUL} XP`);
  {const st=store.get('streak',{}),y=dayKey(new Date(Date.now()-864e5)),d=streakIfToday(st,dayKey(),y);setText('qStreak',st.last===dayKey()?`🔥 Wiesn-Serie: ${st.days} ${st.days===1?'Tag':'Tage'} – morgen wieder fahren!`:`🔥 Erstes Rennen heute: +${streakXP(d)} XP${d>1?` (Serie Tag ${d})`:''}`);}

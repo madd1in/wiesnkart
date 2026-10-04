@@ -241,3 +241,10 @@ export function weeklyStep(st, week, r) {
   }
   return {st: s, fresh, allDone: fresh.length > 0 && s.done.length === 3};
 }
+
+// R94 Einstiegs-Tour: die drei Grundlagen aus der Fahrschule (R66) als Checkliste fuer die Willkommens-Tour.
+// coach = gespeicherter Fahrschul-Zustand {gas:'ok'|1..3, drift:..., item:...}; gelernt heisst 'ok'.
+export const TOUR_STEPS = Object.freeze([['gas', 'Gas geben'], ['drift', 'Drift-Turbo'], ['item', 'Item einsetzen']]);
+export const TOUR_XP = 100;
+export function tourProgress(c = {}) {return TOUR_STEPS.map(([id, n]) => ({id, n, ok: c[id] === 'ok'}));}
+export const tourDone = c => tourProgress(c).every(s => s.ok);

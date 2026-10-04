@@ -6,6 +6,12 @@ Alle Figuren, Modelle, Musik und Namen sind eigene Entwuerfe.
 
 Live: https://madd1in.github.io/wiesnkart/ (die alte Adresse leitet weiter)
 
+## Runde 94 (03.10.2026): Einstiegs-Tour für neue Fahrer
+
+**Willkommen-Karte mit geführtem ersten Rennen** (Nutzeridee „30-Sekunden-Übungsrunde", `tourProgress`/`tourDone` in `progress.mjs`, Tests): Wer zum ersten Mal spielt (noch keine Strecke gefahren), bekommt über der Wochen-Cup-Karte die türkise Karte **„🎓 Erstmals hier? Kurze Fahrschule-Tour"**. Ein Tipp startet ein Rennen auf der Pilz-Promenade in der Klasse Locker — und oben im Bild läuft die **Checkliste „🎓 TOUR ○ Gas geben · ○ Drift-Turbo · ○ Item einsetzen"** mit: Die drei Tipps der Fahrschule (R66) erscheinen genau dann, wenn sie gebraucht werden (kein Gas, Kurve ohne Drift, Item liegt ungenutzt), und häkchen sich ab, sobald man sie echt kann — Gas geben, einen Drift-Turbo zünden, ein Item einsetzen. Alles geschafft: Fanfare, „🎓 TOUR GESCHAFFT! +100 XP", die Liste verschwindet, die Karte kommt nie wieder. Abbrechen ist folgenlos: Die Checkliste begleitet die nächsten Rennen, bis alles sitzt.
+
+Verifiziert im Testlauf mit frischem Profil: Karte nur für Neue über dem Wochen-Cup, Klick startet Promenade/Locker mit Checkliste, Gas- und Drift-Schritt häkchen sich beim Fahren, Item-Schritt beim Einsetzen, danach verschwindet die Liste; abgeregelte Bilder ohne Überlappung. 231 Tests grün.
+
 ## Runde 93 (03.10.2026): Gegen den Weltbesten fahren
 
 **Geister reisen in der Weltrangliste mit** (`lb.mjs` mit Tests, `ghostshare.mjs` von R92): Trägt jemand im Zeitfahren seine Zeit in die Weltrangliste ein, hängt das Spiel automatisch den eigenen Geist als kompaktes Fragment an das Liste-Ereignis (höchstens 8 kB; die Relays prüfen weiter die Signatur, das Spiel prüft Zeichen und Länge). In der Liste bekommt jede Zeile mit Geist einen kleinen **👻-Knopf** — ein Tipp und das Zeitfahren gegen genau diesen Geist startet sofort: Name und Zielzeit im Start-Hinweis, schlagen gibt Fanfare und räumt den Geist ab. Damit wird aus der Bestenliste ein spielbarer Wettkampf: Zeit eintragen, Weltbesten antippen, hinterherjagen. Vorhandene Einträge ohne Geist bleiben unverändert lesbar. 230 Tests grün; im Testlauf rendert die Liste zwei Zeilen (Knopf nur am Geist-Eintrag) und der Knopf startet das Zeitfahren auf der richtigen Strecke.

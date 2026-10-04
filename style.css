@@ -987,7 +987,21 @@ body #menu #wcup u{text-decoration:none;flex:none;display:grid;place-items:cente
 body #menu #wcup.done{background:linear-gradient(100deg,#dcffe6,#fff 60%)}
 body #menu #wcup.done small{color:#1f9a4b}
 body #menu #wcup.done u{background:linear-gradient(180deg,#34c46a,#1f9a4b)}
-@media (min-width:761px){body #menu .menu-panel{grid-template-areas:"brand brand" "modes classes" "tracks tracks" "picks picks" "wcup wcup" "daily daily" "start start" "meta meta"}}
+/* R94 Einstiegs-Tour: Karte fuer neue Fahrer (gleiche Form, frisches Gruen) und Checkliste im HUD */
+body #menu #tourBtn{grid-area:tour;display:flex;align-items:center;gap:10px;margin:0;padding:8px 12px 8px 10px;border-radius:16px;text-align:left;
+ background:linear-gradient(100deg,#dcf8ff,#ffffff 60%);border:2.5px solid var(--wk-ink);box-shadow:0 4px 0 var(--wk-ink);color:var(--wk-ink);transition:transform .12s}
+body #menu #tourBtn[hidden]{display:none}
+body #menu #tourBtn:hover{transform:translateY(-2px)}
+body #menu #tourBtn i{font-style:normal;font-size:24px;line-height:1}
+body #menu #tourBtn span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+body #menu #tourBtn small{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:10.5px;letter-spacing:1.1px;color:#0a7d8a}
+body #menu #tourBtn b{font-family:var(--wk-font);font-style:italic;font-weight:900;font-size:15px;line-height:1.1}
+body #menu #tourBtn em{font-style:normal;font-weight:700;font-size:11.5px;color:#15133aa8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body #menu #tourBtn u{text-decoration:none;flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(180deg,#41c9e8,#0a9ab3);color:#fff;font-size:14px;border:2.5px solid var(--wk-ink)}
+#tourHud{position:absolute;left:50%;top:14px;transform:translateX(-50%);pointer-events:none;z-index:6}
+#tourHud b{display:inline-block;padding:5px 14px;border-radius:999px;background:#10202acc;color:#fff;font-size:13.5px;font-weight:800;letter-spacing:.4px;white-space:nowrap}
+#hud[hidden] #tourHud{display:none}
+@media (min-width:761px){body #menu .menu-panel{grid-template-areas:"brand brand" "modes classes" "tracks tracks" "picks picks" "tour tour" "wcup wcup" "daily daily" "start start" "meta meta"}}
 @media (max-width:620px){body #menu #daily,body #menu #wcup{padding:6px 10px 6px 8px}body #menu #daily b,body #menu #wcup b{font-size:14px}body #menu #daily i,body #menu #wcup i{font-size:20px}body #menu #tracks{grid-auto-rows:clamp(64px,8.2vh,80px)}}
 @media (pointer:coarse) and (orientation:landscape){
  body #menu .menu-panel{grid-template-rows:auto auto auto minmax(0,1fr) auto auto;grid-template-areas:"brand tracks" "modes tracks" "classes tracks" "picks tracks" "picks daily" "meta start"}
